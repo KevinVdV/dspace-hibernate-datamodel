@@ -34,7 +34,7 @@ public class HibernateQueryUtil {
         context.getDBConnection().delete(object);
     }
 
-    public static List<Object> searchQuery(Context context, Class resultClass, Map<String, String> parameters, Map<String, String> order, int offset, int limit) throws SQLException {
+    public static<T> List<T> searchQuery(Context context, Class<T> resultClass, Map<String, String> parameters, Map<String, String> order, int offset, int limit) throws SQLException {
         Criteria criteria = getSearchCriteria(context, resultClass, parameters, order);
         criteria.setFirstResult(offset);
         criteria.setMaxResults(limit);
@@ -46,7 +46,7 @@ public class HibernateQueryUtil {
         return ((Long) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
     }
 
-    public static List<Object> getAll(Context context, Class object, Map<String, String> sort) throws SQLException {
+    public static<T> List<T> getAll(Context context, Class<T> object, Map<String, String> sort) throws SQLException {
         Criteria criteria = context.getDBConnection().createCriteria(object);
         addOrder(sort, criteria);
         return criteria.list();
@@ -54,7 +54,7 @@ public class HibernateQueryUtil {
 
     private static Criteria getSearchCriteria(Context context, Class resultClass, Map<String, String> parameters, Map<String, String> order) throws SQLException {
         Session session = context.getDBConnection();
-        Criteria criteria = session.createCriteria(resultClass.getClass());
+        Criteria criteria = session.createCriteria(resultClass);
         Disjunction disjunction = Restrictions.disjunction();
         for(String column : parameters.keySet()){
             String value = parameters.get(column);

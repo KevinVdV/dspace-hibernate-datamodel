@@ -169,8 +169,7 @@ public class EPerson extends DSpaceObject
         order.put("lastname", "asc");
         order.put("firstname", "asc");
 
-        //TODO: fix with reflection
-        List<Object> objects = HibernateQueryUtil.searchQuery(context, EPersonEntity.class, parameters, order, offset, limit);
+        List<EPersonEntity> objects = HibernateQueryUtil.searchQuery(context, EPersonEntity.class, parameters, order, offset, limit);
         return objects.toArray(new EPersonEntity[objects.size()]);
     }
 
@@ -243,8 +242,7 @@ public class EPerson extends DSpaceObject
         Map<String, String> sortOrder = new HashMap<String, String>();
         sortOrder.put(sortColumn, "asc");
 
-        //TODO: HIBERNATE: Fix with reflection
-        List<Object> epersonEntities = HibernateQueryUtil.getAll(context, EPersonEntity.class, sortOrder);
+        List<EPersonEntity> epersonEntities = HibernateQueryUtil.getAll(context, EPersonEntity.class, sortOrder);
         return epersonEntities.toArray(new EPersonEntity[epersonEntities.size()]);
     }
 
