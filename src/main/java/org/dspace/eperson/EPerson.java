@@ -100,7 +100,7 @@ public class EPerson extends DSpaceObject
         }
 
         // All email addresses are stored as lowercase, so ensure that the email address is lowercased for the lookup
-        return (EPersonEntity) HibernateQueryUtil.findByUnique(context, "eperson", "email", email.toLowerCase());
+        return (EPersonEntity) HibernateQueryUtil.findByUnique(context, EPersonEntity.class, "email", email.toLowerCase());
     }
 
     /**
@@ -121,7 +121,7 @@ public class EPerson extends DSpaceObject
             return null;
         }
 
-        return (EPersonEntity) HibernateQueryUtil.findByUnique(context, "eperson", "netid", netid);
+        return (EPersonEntity) HibernateQueryUtil.findByUnique(context, EPersonEntity.class, "netid", netid);
     }
 
     /**

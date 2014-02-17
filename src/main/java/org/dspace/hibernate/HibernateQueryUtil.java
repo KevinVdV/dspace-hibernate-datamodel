@@ -19,11 +19,11 @@ import java.util.Map;
  */
 public class HibernateQueryUtil {
 
-    public static Object findByUnique(Context context, String tableName, String column, Object value) throws SQLException {
-        Query query = context.getDBConnection().createQuery("from " + tableName + " where " + column + " = :" + column);
+    public static <T> T findByUnique(Context context, Class<? extends T> clazz, String column, Object value) throws SQLException {
+        Query query = context.getDBConnection().createQuery("from " + clazz.getSimpleName() + " where " + column + " = :" + column);
         query.setParameter(column, value);
         query.setCacheable(true);
-        return query.uniqueResult();
+        return (T) query.uniqueResult();
     }
 
     public static void update(Context context, Object object) throws SQLException {
