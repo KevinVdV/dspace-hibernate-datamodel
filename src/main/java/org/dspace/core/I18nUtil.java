@@ -9,7 +9,6 @@ package org.dspace.core;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.dspace.eperson.EPerson;
 import org.dspace.eperson.EPersonEntity;
 
 import java.io.File;

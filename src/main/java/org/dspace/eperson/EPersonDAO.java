@@ -21,7 +21,7 @@ import org.apache.commons.codec.DecoderException;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DSpaceObject;
+import org.dspace.content.DSpaceObjectDAO;
 import org.dspace.content.DSpaceObjectEntity;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -36,7 +36,7 @@ import org.dspace.hibernate.HibernateQueryUtil;
  * @author David Stuve
  * @version $Revision$
  */
-public class EPerson extends DSpaceObject
+public class EPersonDAO extends DSpaceObjectDAO
 {
     /** The e-mail field (for sorting) */
     public static final int EMAIL = 1;
@@ -54,11 +54,11 @@ public class EPerson extends DSpaceObject
     public static final int LANGUAGE = 5;
 
     /** log4j logger */
-    private static Logger log = Logger.getLogger(EPerson.class);
+    private static Logger log = Logger.getLogger(EPersonDAO.class);
 
     private Context myContext;
 
-    public EPerson(Context context)
+    public EPersonDAO(Context context)
     {
         myContext = context;
     }
@@ -100,7 +100,7 @@ public class EPerson extends DSpaceObject
         }
 
         // All email addresses are stored as lowercase, so ensure that the email address is lowercased for the lookup
-        return (EPersonEntity) HibernateQueryUtil.findByUnique(context, EPersonEntity.class, "email", email.toLowerCase());
+        return HibernateQueryUtil.findByUnique(context, EPersonEntity.class, "email", email.toLowerCase());
     }
 
     /**
@@ -121,7 +121,7 @@ public class EPerson extends DSpaceObject
             return null;
         }
 
-        return (EPersonEntity) HibernateQueryUtil.findByUnique(context, EPersonEntity.class, "netid", netid);
+        return HibernateQueryUtil.findByUnique(context, EPersonEntity.class, "netid", netid);
     }
 
     /**
@@ -779,7 +779,7 @@ public class EPerson extends DSpaceObject
 
         // Create!
         EPersonEntity eperson = null;
-        EPerson epersonManager = new EPerson(context);
+        EPersonDAO epersonManager = new EPersonDAO(context);
         try {
             eperson = epersonManager.create(context);
         } catch (SQLException ex) {
@@ -852,7 +852,7 @@ public class EPerson extends DSpaceObject
         }
 
         // Delete!
-        EPerson epersonManager = new EPerson(context);
+        EPersonDAO epersonManager = new EPersonDAO(context);
         EPersonEntity eperson = null;
         try {
             if (command.hasOption(OPT_NETID.getOpt()))
@@ -958,7 +958,7 @@ public class EPerson extends DSpaceObject
             return 1;
         } catch (AuthorizeException e) { /* XXX SNH */ }
 
-        EPerson epersonManager = new EPerson(context);
+        EPersonDAO epersonManager = new EPersonDAO(context);
         boolean modified = false;
         if (null == eperson)
         {

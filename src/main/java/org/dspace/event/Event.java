@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
-import org.dspace.content.DSpaceObject;
+import org.dspace.content.DSpaceObjectDAO;
 import org.dspace.content.DSpaceObjectEntity;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -319,7 +319,7 @@ public class Event implements Serializable
         }
         else
         {
-            return DSpaceObject.find(context, type, id);
+            return DSpaceObjectDAO.find(context, type, id);
         }
     }
 
@@ -331,7 +331,7 @@ public class Event implements Serializable
      */
     public DSpaceObjectEntity getSubject(Context context) throws SQLException
     {
-        return DSpaceObject.find(context, getSubjectType(), getSubjectID());
+        return DSpaceObjectDAO.find(context, getSubjectType(), getSubjectID());
     }
 
     /**

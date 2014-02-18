@@ -2,19 +2,13 @@ package org.dspace.eperson;
 
 import org.dbunit.DBTestCase;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
-import org.dbunit.database.DatabaseConnection;
-import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.database.QueryDataSet;
 import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.dbunit.util.fileloader.DataFileLoader;
 import org.dbunit.util.fileloader.FlatXmlDataFileLoader;
 import org.dspace.core.Context;
 import org.dspace.hibernate.HibernateUtil;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
@@ -60,12 +54,12 @@ public class EPersonTest extends DBTestCase {
     }
 
     public void testFind() throws Exception {
-        EPersonEntity ePersonEntity = EPerson.find(context, 1);
+        EPersonEntity ePersonEntity = EPersonDAO.find(context, 1);
         assertEquals("Didn't find the expected email","Keyshawn@queenie.org",ePersonEntity.getEmail());
     }
 
     public void testFindByEmail() throws Exception {
-        EPersonEntity ePersonEntity = EPerson.findByEmail(context, "Keyshawn@queenie.org");
+        EPersonEntity ePersonEntity = EPersonDAO.findByEmail(context, "Keyshawn@queenie.org");
         assertNotNull("No eperson retrieved",ePersonEntity);
         assertEquals("Didn't find the expected entity", 1, ePersonEntity.getID());
     }

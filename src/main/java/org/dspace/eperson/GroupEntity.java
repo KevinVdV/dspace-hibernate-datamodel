@@ -145,10 +145,10 @@ public class GroupEntity extends DSpaceObjectEntity {
     /**
      * Return Group members of a Group.
      */
-    public Group[] getMemberGroups()
+    public GroupDAO[] getMemberGroups()
     {
-        Group[] myArray = new Group[groups.size()];
-        myArray = (Group[]) groups.toArray(myArray);
+        GroupDAO[] myArray = new GroupDAO[groups.size()];
+        myArray = groups.toArray(myArray);
 
         return myArray;
     }
@@ -156,10 +156,10 @@ public class GroupEntity extends DSpaceObjectEntity {
     /**
      * Return EPerson members of a Group
      */
-    public EPerson[] getMembers()
+    public EPersonDAO[] getMembers()
     {
-        EPerson[] myArray = new EPerson[epeople.size()];
-        myArray = (EPerson[]) epeople.toArray(myArray);
+        EPersonDAO[] myArray = new EPersonDAO[epeople.size()];
+        myArray = (EPersonDAO[]) epeople.toArray(myArray);
 
         return myArray;
     }

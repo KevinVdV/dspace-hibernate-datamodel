@@ -12,12 +12,12 @@ import java.sql.SQLException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.eperson.EPerson;
+import org.dspace.eperson.EPersonDAO;
 
 /**
  * Abstract base class for DSpace objects
  */
-public abstract class DSpaceObject
+public abstract class DSpaceObjectDAO
 {
     // accumulate information to add to "detail" element of content Event,
     // e.g. to document metadata fields touched, etc.
@@ -97,7 +97,7 @@ public abstract class DSpaceObject
             //case Constants.COLLECTION: return Collection.find(context, id);
             //case Constants.COMMUNITY : return Community.find(context, id);
             //case Constants.GROUP     : return Group.find(context, id);
-            case Constants.EPERSON   : return EPerson.find(context, id);
+            case Constants.EPERSON   : return EPersonDAO.find(context, id);
             //case Constants.SITE      : return Site.find(context, id);
         }
         return null;
@@ -123,7 +123,7 @@ public abstract class DSpaceObject
      *             if the ADMIN action is supplied as parameter of the method
      *             call
      */
-    public DSpaceObject getAdminObject(int action) throws SQLException
+    public DSpaceObjectDAO getAdminObject(int action) throws SQLException
     {
         if (action == Constants.ADMIN)
         {
@@ -144,7 +144,7 @@ public abstract class DSpaceObject
      *         the hierarchy
      * @throws SQLException
      */
-    public DSpaceObject getParentObject() throws SQLException
+    public DSpaceObjectDAO getParentObject() throws SQLException
     {
         return null;
     }

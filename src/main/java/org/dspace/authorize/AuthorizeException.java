@@ -7,7 +7,7 @@
  */
 package org.dspace.authorize;
 
-import org.dspace.content.DSpaceObject;
+import org.dspace.content.DSpaceObjectDAO;
 
 /**
  * Exception indicating the current user of the context does not have permission
@@ -20,7 +20,7 @@ public class AuthorizeException extends Exception
 {
     private int myaction; // action attempted, or -1
 
-    private DSpaceObject myobject; // object action attempted on or null
+    private DSpaceObjectDAO myobject; // object action attempted on or null
 
     /**
      * Create an empty authorize exception
@@ -52,7 +52,7 @@ public class AuthorizeException extends Exception
      * @param message
      *            the message
      */
-    public AuthorizeException(String message, DSpaceObject o, int a)
+    public AuthorizeException(String message, DSpaceObjectDAO o, int a)
     {
         super(message);
 
@@ -65,7 +65,7 @@ public class AuthorizeException extends Exception
         return myaction;
     }
 
-    public DSpaceObject getObject()
+    public DSpaceObjectDAO getObject()
     {
         return myobject;
     }

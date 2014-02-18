@@ -13,9 +13,8 @@ import java.util.*;
 import org.apache.commons.collections.MapUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DSpaceObject;
+import org.dspace.content.DSpaceObjectDAO;
 import org.dspace.content.DSpaceObjectEntity;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -28,7 +27,7 @@ import org.dspace.hibernate.HibernateQueryUtil;
  * @author David Stuve
  * @version $Revision$
  */
-public class Group extends DSpaceObject
+public class GroupDAO extends DSpaceObjectDAO
 {
     // findAll sortby types
     public static final int ID = 0; // sort by ID
@@ -36,7 +35,7 @@ public class Group extends DSpaceObject
     public static final int NAME = 1; // sort by NAME (default)
 
     /** log4j logger */
-    private static Logger log = Logger.getLogger(Group.class);
+    private static Logger log = Logger.getLogger(GroupDAO.class);
 
     /** Our context */
     private Context myContext;
@@ -49,7 +48,7 @@ public class Group extends DSpaceObject
      * @param context
      *
      */
-    public Group(Context context) throws SQLException
+    public GroupDAO(Context context) throws SQLException
     {
         myContext = context;
     }
@@ -215,7 +214,7 @@ public class Group extends DSpaceObject
         // now convert those Integers to Groups
 
         for (Integer myGroup : myGroups) {
-            groupList.add(Group.find(c, myGroup));
+            groupList.add(GroupDAO.find(c, myGroup));
         }
 
         return groupList.toArray(new GroupEntity[groupList.size()]);
@@ -334,7 +333,7 @@ public class Group extends DSpaceObject
      * @return   Array of EPerson objects
      * @throws SQLException
      */
-    public static EPersonEntity[] allMembers(Context c, Group g)
+    public static EPersonEntity[] allMembers(Context c, GroupDAO g)
             throws SQLException
     {
         List<EPersonEntity> epersonList = new ArrayList<EPersonEntity>();

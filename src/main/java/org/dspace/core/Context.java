@@ -13,7 +13,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 //import org.dspace.eperson.Group;
 import org.dspace.eperson.EPersonEntity;
-import org.dspace.eperson.Group;
+import org.dspace.eperson.GroupDAO;
 import org.dspace.eperson.GroupEntity;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
@@ -632,7 +632,7 @@ public class Context
         List<GroupEntity> myGroups = new ArrayList<GroupEntity>();
         for (Integer groupId : specialGroups)
         {
-            myGroups.add(Group.find(this, groupId));
+            myGroups.add(GroupDAO.find(this, groupId));
         }
 
         return myGroups.toArray(new GroupEntity[myGroups.size()]);
