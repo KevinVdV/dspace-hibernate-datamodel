@@ -58,7 +58,7 @@ public class EPerson extends DSpaceObject
 
     private Context myContext;
 
-    EPerson(Context context)
+    public EPerson(Context context)
     {
         myContext = context;
     }
@@ -194,11 +194,7 @@ public class EPerson extends DSpaceObject
         parameters.put("lastname", queryParam);
         parameters.put("email", queryParam);
 
-        Map<String, String> order = new LinkedHashMap<String, String>();
-        order.put("lastname", "asc");
-        order.put("firstname", "asc");
-
-        return HibernateQueryUtil.searchQueryCount(context, EPersonEntity.class, parameters, order);
+        return HibernateQueryUtil.searchQueryCount(context, EPersonEntity.class, parameters);
     }
 
 
@@ -252,7 +248,7 @@ public class EPerson extends DSpaceObject
      * @param context
      *            DSpace context object
      */
-    public static EPersonEntity create(Context context) throws SQLException,
+    public EPersonEntity create(Context context) throws SQLException,
             AuthorizeException
     {
         // authorized?
@@ -467,6 +463,11 @@ public class EPerson extends DSpaceObject
         }
     }
 
+    @Override
+    public void updateLastModified() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     /**
      * return type found in Constants
      */
@@ -636,12 +637,6 @@ public class EPerson extends DSpaceObject
     }
 */
 
-    @Override
-    public void updateLastModified()
-    {
-
-    }
-
     /*
      * Commandline tool for manipulating EPersons.
      */
@@ -784,8 +779,9 @@ public class EPerson extends DSpaceObject
 
         // Create!
         EPersonEntity eperson = null;
+        EPerson epersonManager = new EPerson(context);
         try {
-            eperson = create(context);
+            eperson = epersonManager.create(context);
         } catch (SQLException ex) {
             context.abort();
             System.err.println(ex.getMessage());
@@ -813,7 +809,6 @@ public class EPerson extends DSpaceObject
         }
 
         try {
-            EPerson epersonManager = new EPerson(context);
             epersonManager.update(eperson);
             context.commit();
             System.out.printf("Created EPerson %d\n", eperson.getID());

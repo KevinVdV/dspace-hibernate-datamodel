@@ -36,7 +36,7 @@ public class EPersonEntity extends DSpaceObjectEntity {
     @Column(name="firstname")
     private String firstname;
 
-    @Column(name="email")
+    @Column(name="email", unique=true)
     private String email;
 
     @Column(name="require_certificate", nullable = true)
@@ -74,7 +74,7 @@ public class EPersonEntity extends DSpaceObjectEntity {
         modified = false;
         modifiedMetadata = false;
         // Cache ourselves
-        //HIBERNATE: Implement the details !
+        //TODO HIBERNATE: Implement the details !
         //clearDetails();
     }
 

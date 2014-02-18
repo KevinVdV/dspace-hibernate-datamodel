@@ -13,6 +13,8 @@ import java.util.*;
 import org.apache.log4j.Logger;
 //import org.dspace.eperson.Group;
 import org.dspace.eperson.EPersonEntity;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.GroupEntity;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;
@@ -625,17 +627,16 @@ public class Context
      * of.
      * @throws SQLException
      */
-    //TODO: HIBERNATE TEST
-    /**public Group[] getSpecialGroups() throws SQLException
+    public GroupEntity[] getSpecialGroups() throws SQLException
     {
-        List<Group> myGroups = new ArrayList<Group>();
+        List<GroupEntity> myGroups = new ArrayList<GroupEntity>();
         for (Integer groupId : specialGroups)
         {
-            myGroups.add(Group.find(this, groupId.intValue()));
+            myGroups.add(Group.find(this, groupId));
         }
 
-        return myGroups.toArray(new Group[myGroups.size()]);
-    }**/
+        return myGroups.toArray(new GroupEntity[myGroups.size()]);
+    }
 
     protected void finalize() throws Throwable
     {

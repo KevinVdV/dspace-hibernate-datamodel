@@ -1,5 +1,6 @@
 package org.dspace.hibernate;
 
+import org.apache.commons.collections.MapUtils;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPersonEntity;
 import org.hibernate.Criteria;
@@ -36,13 +37,24 @@ public class HibernateQueryUtil {
 
     public static<T> List<T> searchQuery(Context context, Class<T> resultClass, Map<String, String> parameters, Map<String, String> order, int offset, int limit) throws SQLException {
         Criteria criteria = getSearchCriteria(context, resultClass, parameters, order);
-        criteria.setFirstResult(offset);
-        criteria.setMaxResults(limit);
+        if(0 <= offset)
+        {
+            criteria.setFirstResult(offset);
+        }
+        if(0 <= limit)
+        {
+            criteria.setMaxResults(limit);
+        }
         return criteria.list();
     }
 
-    public static Integer searchQueryCount(Context context, Class resultClass, Map<String, String> parameters, Map<String, String> order) throws SQLException {
+    public static<T> List<T> searchQuery(Context context, Class<T> resultClass, Map<String, String> parameters, Map<String, String> order) throws SQLException {
         Criteria criteria = getSearchCriteria(context, resultClass, parameters, order);
+        return criteria.list();
+    }
+
+    public static Integer searchQueryCount(Context context, Class resultClass, Map<String, String> parameters) throws SQLException {
+        Criteria criteria = getSearchCriteria(context, resultClass, parameters, null);
         return ((Long) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
     }
 
@@ -56,9 +68,12 @@ public class HibernateQueryUtil {
         Session session = context.getDBConnection();
         Criteria criteria = session.createCriteria(resultClass);
         Disjunction disjunction = Restrictions.disjunction();
-        for(String column : parameters.keySet()){
-            String value = parameters.get(column);
-            disjunction.add(Restrictions.ilike(column, value));
+        if(parameters != null)
+        {
+            for(String column : parameters.keySet()){
+                String value = parameters.get(column);
+                disjunction.add(Restrictions.ilike(column, value));
+            }
         }
         criteria.add(disjunction);
         addOrder(order, criteria);
