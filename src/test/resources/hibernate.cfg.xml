@@ -11,7 +11,7 @@
 
 
 
-        <mapping class="org.dspace.eperson.EPersonEntity"/>
+        <mapping class="org.dspace.eperson.EPerson"/>
         <mapping package="org.dspace.content"/>
     </session-factory>
 </hibernate-configuration>

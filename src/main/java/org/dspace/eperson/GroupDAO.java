@@ -59,7 +59,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param context
      *            DSpace context object
      */
-    public GroupEntity create() throws SQLException,
+    public Group create() throws SQLException,
             AuthorizeException
     {
         // FIXME - authorization?
@@ -73,7 +73,7 @@ public class GroupDAO extends DSpaceObjectDAO
         */
 
         // Create a table row
-        GroupEntity g = new GroupEntity();
+        Group g = new Group();
         HibernateQueryUtil.update(myContext, g);
 
         log.info(LogManager.getHeader(myContext, "create_group", "group_id="
@@ -91,7 +91,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param e
      *            eperson
      */
-    public void addMember(GroupEntity groupEntity, EPersonEntity e)
+    public void addMember(Group groupEntity, EPerson e)
     {
         if (isMember(groupEntity, e))
         {
@@ -106,7 +106,7 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @param groupParent the group to which we add the group
      */
-    public void addMember(GroupEntity groupParent, GroupEntity groupChild)
+    public void addMember(Group groupParent, Group groupChild)
     {
         // don't add if it's already a member
         // and don't add itself
@@ -127,7 +127,7 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @param owningGroup
      */
-    public void removeMember(GroupEntity owningGroup, EPersonEntity childPerson)
+    public void removeMember(Group owningGroup, EPerson childPerson)
     {
         if (owningGroup.remove(childPerson))
         {
@@ -140,7 +140,7 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @param owningGroup
      */
-    public void removeMember(GroupEntity owningGroup, GroupEntity childGroup)
+    public void removeMember(Group owningGroup, Group childGroup)
     {
         if (owningGroup.remove(childGroup))
         {
@@ -157,7 +157,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param e
      *            eperson to check membership
      */
-    public boolean isMember(GroupEntity group, EPersonEntity e)
+    public boolean isMember(Group group, EPerson e)
     {
         // special, group 0 is anonymous
         return group.getID() == 0 || group.contains(e);
@@ -170,7 +170,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param owningGroup
      *            group to check
      */
-    public boolean isMember(GroupEntity owningGroup, GroupEntity childGroup)
+    public boolean isMember(Group owningGroup, Group childGroup)
     {
         return owningGroup.contains(childGroup);
     }
@@ -193,7 +193,7 @@ public class GroupDAO extends DSpaceObjectDAO
             return true;
         }
 
-        EPersonEntity currentuser = c.getCurrentUser();
+        EPerson currentuser = c.getCurrentUser();
 
         return epersonInGroup(c, groupid, currentuser);
     }
@@ -205,10 +205,10 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param e
      * @throws SQLException
      */
-    public static GroupEntity[] allMemberGroups(Context c, EPersonEntity e)
+    public static Group[] allMemberGroups(Context c, EPerson e)
             throws SQLException
     {
-        List<GroupEntity> groupList = new ArrayList<GroupEntity>();
+        List<Group> groupList = new ArrayList<Group>();
 
         Set<Integer> myGroups = allMemberGroupIDs(c, e);
         // now convert those Integers to Groups
@@ -217,7 +217,7 @@ public class GroupDAO extends DSpaceObjectDAO
             groupList.add(GroupDAO.find(c, myGroup));
         }
 
-        return groupList.toArray(new GroupEntity[groupList.size()]);
+        return groupList.toArray(new Group[groupList.size()]);
     }
 
     /**
@@ -228,7 +228,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @return Set of Integer groupIDs
      * @throws SQLException
      */
-    public static Set<Integer> allMemberGroupIDs(Context c, EPersonEntity e)
+    public static Set<Integer> allMemberGroupIDs(Context c, EPerson e)
             throws SQLException
     {
         Set<Integer> groupIDs = new HashSet<Integer>();
@@ -239,9 +239,9 @@ public class GroupDAO extends DSpaceObjectDAO
             // second query gets parent groups for groups eperson is a member of
             Map<String, String> params = new HashMap<String, String>();
             params.put("eperson_id", String.valueOf(e.getID()));
-            List<GroupEntity> groupEntities = HibernateQueryUtil.searchQuery(c, GroupEntity.class, params, null);
+            List<Group> groupEntities = HibernateQueryUtil.searchQuery(c, Group.class, params, null);
             Set<Integer> result = new LinkedHashSet<Integer>();
-            for (GroupEntity groupEntity : groupEntities) {
+            for (Group groupEntity : groupEntities) {
                 result.add(groupEntity.getID());
             }
             return result;
@@ -253,8 +253,8 @@ public class GroupDAO extends DSpaceObjectDAO
         // of a user who is not logged in.
         if ((c.getCurrentUser() == null) || (((c.getCurrentUser() != null) && (c.getCurrentUser().getID() == e.getID()))))
         {
-            GroupEntity[] specialGroups = c.getSpecialGroups();
-            for(GroupEntity special : specialGroups)
+            Group[] specialGroups = c.getSpecialGroups();
+            for(Group special : specialGroups)
             {
                 groupIDs.add(special.getID());
             }
@@ -333,10 +333,10 @@ public class GroupDAO extends DSpaceObjectDAO
      * @return   Array of EPerson objects
      * @throws SQLException
      */
-    public static EPersonEntity[] allMembers(Context c, GroupDAO g)
+    public static EPerson[] allMembers(Context c, GroupDAO g)
             throws SQLException
     {
-        List<EPersonEntity> epersonList = new ArrayList<EPersonEntity>();
+        List<EPerson> epersonList = new ArrayList<EPerson>();
 
         //TODO: HIBERNATE IMPLEMENT
         /*
@@ -347,7 +347,7 @@ public class GroupDAO extends DSpaceObjectDAO
             epersonList.add(EPerson.find(c, aMyEpeople));
         }
         */
-        return epersonList.toArray(new EPersonEntity[epersonList.size()]);
+        return epersonList.toArray(new EPerson[epersonList.size()]);
     }
 
     /**
@@ -459,7 +459,7 @@ public class GroupDAO extends DSpaceObjectDAO
         return epeopleIDs;
     }
     */
-    private static boolean epersonInGroup(Context c, int groupID, EPersonEntity e)
+    private static boolean epersonInGroup(Context c, int groupID, EPerson e)
             throws SQLException
     {
         Set<Integer> groupIDs = allMemberGroupIDs(c, e);
@@ -473,17 +473,17 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param context
      * @param id
      */
-    public static GroupEntity find(Context context, int id) throws SQLException
+    public static Group find(Context context, int id) throws SQLException
     {
         // First check the cache
-        GroupEntity fromCache = (GroupEntity) context.fromCache(GroupEntity.class, id);
+        Group fromCache = (Group) context.fromCache(Group.class, id);
 
         if (fromCache != null)
         {
             return fromCache;
         }
 
-        return (GroupEntity) context.getDBConnection().get(GroupEntity.class, id);
+        return (Group) context.getDBConnection().get(Group.class, id);
     }
 
     /**
@@ -494,14 +494,14 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @return the named Group, or null if not found
      */
-    public static GroupEntity findByName(Context context, String name)
+    public static Group findByName(Context context, String name)
             throws SQLException
     {
         if(name == null)
         {
             return null;
         }
-        return (GroupEntity) HibernateQueryUtil.findByUnique(context, GroupEntity.class, "name", name);
+        return (Group) HibernateQueryUtil.findByUnique(context, Group.class, "name", name);
     }
 
     /**
@@ -514,7 +514,7 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @return array of all groups in the site
      */
-    public static GroupEntity[] findAll(Context context, int sortField)
+    public static Group[] findAll(Context context, int sortField)
             throws SQLException
     {
         String s;
@@ -538,8 +538,8 @@ public class GroupDAO extends DSpaceObjectDAO
         Map<String, String> order = new LinkedHashMap<String, String>();
         order.put(s, "asc");
 
-        List<GroupEntity> objects = HibernateQueryUtil.searchQuery(context, GroupEntity.class, MapUtils.EMPTY_MAP, order);
-        return objects.toArray(new GroupEntity[objects.size()]);
+        List<Group> objects = HibernateQueryUtil.searchQuery(context, Group.class, MapUtils.EMPTY_MAP, order);
+        return objects.toArray(new Group[objects.size()]);
     }
 
     /**
@@ -556,15 +556,15 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @return array of Group objects
      */
-    public static GroupEntity[] search(Context context, String query, int offset, int limit)
+    public static Group[] search(Context context, String query, int offset, int limit)
             throws SQLException
     {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("eperson_group_id", query);
         parameters.put("name", "%"+query.toLowerCase()+"%");
 
-        List<GroupEntity> objects = HibernateQueryUtil.searchQuery(context, GroupEntity.class, parameters, MapUtils.EMPTY_MAP, offset, limit);
-        return objects.toArray(new GroupEntity[objects.size()]);
+        List<Group> objects = HibernateQueryUtil.searchQuery(context, Group.class, parameters, MapUtils.EMPTY_MAP, offset, limit);
+        return objects.toArray(new Group[objects.size()]);
     }
 
     /**
@@ -585,7 +585,7 @@ public class GroupDAO extends DSpaceObjectDAO
         parameters.put("eperson_group_id", query);
         parameters.put("name", "%"+query.toLowerCase()+"%");
 
-        return HibernateQueryUtil.searchQueryCount(context, GroupEntity.class, parameters);
+        return HibernateQueryUtil.searchQueryCount(context, Group.class, parameters);
     }
 
 
@@ -593,7 +593,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * Delete a group
      *
      */
-    public void delete(GroupEntity groupEntity) throws SQLException
+    public void delete(Group groupEntity) throws SQLException
     {
         // FIXME: authorizations
 
@@ -632,7 +632,7 @@ public class GroupDAO extends DSpaceObjectDAO
     /**
      * Return true if group has no direct or indirect members
      */
-    public boolean isEmpty(GroupEntity groupEntity)
+    public boolean isEmpty(Group groupEntity)
     {
         // the only fast check available is on epeople...
         boolean hasMembers = (groupEntity.getEpeople().size() != 0);
@@ -644,7 +644,7 @@ public class GroupDAO extends DSpaceObjectDAO
         else
         {
             // well, groups is never null...
-            for (GroupEntity subGroup : groupEntity.getGroups()){
+            for (Group subGroup : groupEntity.getGroups()){
                 hasMembers = !isEmpty(subGroup);
                 if (hasMembers){
                     return false;
@@ -662,7 +662,7 @@ public class GroupDAO extends DSpaceObjectDAO
         // FIXME: Check authorisation
         HibernateQueryUtil.update(myContext, dSpaceObject);
 
-        if (((GroupEntity) dSpaceObject).isModifiedMetadata())
+        if (((Group) dSpaceObject).isModifiedMetadata())
         {
             myContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.GROUP, dSpaceObject.getID(), getDetails()));
             //TODO: HIBERNATE, move details to top

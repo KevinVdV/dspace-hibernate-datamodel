@@ -12,9 +12,9 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 //import org.dspace.eperson.Group;
-import org.dspace.eperson.EPersonEntity;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 import org.dspace.eperson.GroupDAO;
-import org.dspace.eperson.GroupEntity;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;
@@ -47,7 +47,7 @@ public class Context
     public static final short READ_ONLY = 0x01;
 
     /** Current user - null means anonymous access */
-    private EPersonEntity currentUser;
+    private EPerson currentUser;
 
     /** Current Locale */
     private Locale currentLocale;
@@ -146,7 +146,7 @@ public class Context
      *            the new current user, or <code>null</code> if no user is
      *            authenticated
      */
-    public void setCurrentUser(EPersonEntity user)
+    public void setCurrentUser(EPerson user)
     {
         currentUser = user;
     }
@@ -157,7 +157,7 @@ public class Context
      * @return the current user, or <code>null</code> if no user is
      *         authenticated
      */
-    public EPersonEntity getCurrentUser()
+    public EPerson getCurrentUser()
     {
         return currentUser;
     }
@@ -627,15 +627,15 @@ public class Context
      * of.
      * @throws SQLException
      */
-    public GroupEntity[] getSpecialGroups() throws SQLException
+    public Group[] getSpecialGroups() throws SQLException
     {
-        List<GroupEntity> myGroups = new ArrayList<GroupEntity>();
+        List<Group> myGroups = new ArrayList<Group>();
         for (Integer groupId : specialGroups)
         {
             myGroups.add(GroupDAO.find(this, groupId));
         }
 
-        return myGroups.toArray(new GroupEntity[myGroups.size()]);
+        return myGroups.toArray(new Group[myGroups.size()]);
     }
 
     protected void finalize() throws Throwable

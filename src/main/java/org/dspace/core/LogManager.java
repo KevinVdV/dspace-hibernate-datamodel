@@ -7,7 +7,7 @@
  */
 package org.dspace.core;
 
-import org.dspace.eperson.EPersonEntity;
+import org.dspace.eperson.EPerson;
 
 /**
  * Class for generating standard log header
@@ -38,7 +38,7 @@ public class LogManager
 
         if (context != null)
         {
-            EPersonEntity e = context.getCurrentUser();
+            EPerson e = context.getCurrentUser();
 
             if (e != null)
             {

@@ -1,20 +1,24 @@
 package org.dspace.eperson;
 
 import org.dspace.content.DSpaceObjectEntity;
+import org.hibernate.annotations.CollectionId;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by kevin on 08/02/14.
  */
 @Entity
 @Table(name="eperson")
-public class EPersonEntity extends DSpaceObjectEntity {
+public class EPerson extends DSpaceObjectEntity {
 
     @Id
     @Column(name="eperson_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE ,generator="my_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO ,generator="my_seq")
     @SequenceGenerator(name="my_seq", sequenceName="eperson_seq")
     private Integer id;
 
@@ -59,6 +63,22 @@ public class EPersonEntity extends DSpaceObjectEntity {
     private String phone;
 
 
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "epersongroup2eperson",
+            joinColumns = {@JoinColumn(name = "eperson_id") },
+            inverseJoinColumns = {@JoinColumn(name = "eperson_group_id") }
+    )
+    @CollectionId(
+            columns = @Column(name="id"),
+            type=@Type(type="long"),
+            generator = "my_seq"
+    )
+    @SequenceGenerator(name="my_seq", sequenceName="epersongroup2eperson_seq")
+    private List<Group> groups = new ArrayList<Group>();
+
+
     //TODO: HIBERNATE: modified get it out of here ?
     /** Flag set when data is modified, for events */
     @Transient
@@ -68,7 +88,7 @@ public class EPersonEntity extends DSpaceObjectEntity {
     @Transient
     private boolean modifiedMetadata;
 
-    public EPersonEntity() {
+    public EPerson() {
         //TODO: HIBERNATE CACHE CONTEXT
         //context.cache(this, row.getIntColumn("eperson_id"));
         modified = false;
@@ -95,7 +115,7 @@ public class EPersonEntity extends DSpaceObjectEntity {
         {
             return false;
         }
-        final EPersonEntity other = (EPersonEntity) obj;
+        final EPerson other = (EPerson) obj;
         if (this.getID() != other.getID())
         {
             return false;
@@ -432,5 +452,9 @@ public class EPersonEntity extends DSpaceObjectEntity {
     public void setPhone(String phone) {
         this.phone = phone;
         modifiedMetadata = true;
+    }
+
+    List<Group> getGroups() {
+        return groups;
     }
 }

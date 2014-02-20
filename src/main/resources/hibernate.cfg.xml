@@ -4,14 +4,14 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
-        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/dspace-kevin</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/dspace-hibernate</property>
         <property name="hibernate.connection.username">dspace</property>
         <property name="hibernate.connection.password">dspace</property>
         <property name="dialect">org.hibernate.dialect.PostgreSQL9Dialect</property>
 
 
-        <mapping class="org.dspace.eperson.EPersonEntity"/>
-        <mapping class="org.dspace.eperson.GroupEntity"/>
+        <mapping class="org.dspace.eperson.EPerson"/>
+        <mapping class="org.dspace.eperson.Group"/>
         <mapping package="org.dspace.content"/>
         <mapping package="org.dspace.eperson"/>
     </session-factory>

@@ -54,12 +54,12 @@ public class EPersonTest extends DBTestCase {
     }
 
     public void testFind() throws Exception {
-        EPersonEntity ePersonEntity = EPersonDAO.find(context, 1);
+        EPerson ePersonEntity = EPersonDAO.find(context, 1);
         assertEquals("Didn't find the expected email","Keyshawn@queenie.org",ePersonEntity.getEmail());
     }
 
     public void testFindByEmail() throws Exception {
-        EPersonEntity ePersonEntity = EPersonDAO.findByEmail(context, "Keyshawn@queenie.org");
+        EPerson ePersonEntity = EPersonDAO.findByEmail(context, "Keyshawn@queenie.org");
         assertNotNull("No eperson retrieved",ePersonEntity);
         assertEquals("Didn't find the expected entity", 1, ePersonEntity.getID());
     }

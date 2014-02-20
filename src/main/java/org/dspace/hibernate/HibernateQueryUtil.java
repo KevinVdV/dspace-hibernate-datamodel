@@ -1,8 +1,6 @@
 package org.dspace.hibernate;
 
-import org.apache.commons.collections.MapUtils;
 import org.dspace.core.Context;
-import org.dspace.eperson.EPersonEntity;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -31,7 +29,13 @@ public class HibernateQueryUtil {
         context.getDBConnection().save(object);
     }
 
+    public static void refresh(Context context, Object object) throws SQLException {
+        context.getDBConnection().refresh(object);
+    }
+
     public static void delete(Context context, Object object) throws SQLException {
+        //Refresh before deleting to avoid issues where our object is out of date
+        context.getDBConnection().refresh(object);
         context.getDBConnection().delete(object);
     }
 

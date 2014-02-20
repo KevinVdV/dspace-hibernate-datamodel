@@ -15,10 +15,10 @@ import java.sql.SQLException;
  */
 public class HibernateUtil {
     private static final SessionFactory sessionFactory;
-    private static final ThreadLocal threadSession =
-            new ThreadLocal();
-    private static final ThreadLocal threadTransaction =
-            new ThreadLocal();
+    private static final ThreadLocal<Session> threadSession =
+            new ThreadLocal<Session>();
+    private static final ThreadLocal<Transaction> threadTransaction =
+            new ThreadLocal<Transaction>();
 
     static {
         // Initialize SessionFactory...
@@ -29,7 +29,7 @@ public class HibernateUtil {
     }
 
     public static Session getSession() throws SQLException {
-        Session s = (Session) threadSession.get();
+        Session s = threadSession.get();
         // Open a new Session, if this thread has none yet
         try {
             if (s == null) {
@@ -48,17 +48,18 @@ public class HibernateUtil {
 
     public static void closeSession() throws SQLException {
         try {
-            Session s = (Session) threadSession.get();
+            Session s = threadSession.get();
             threadSession.set(null);
-            if (s != null && s.isOpen())
+            if (s != null && s.isOpen()){
                 s.close();
+            }
         } catch (HibernateException ex) {
             throw new SQLException(ex);
         }
     }
 
     public static void beginTransaction() throws SQLException {
-        Transaction tx = (Transaction) threadTransaction.get();
+        Transaction tx = threadTransaction.get();
         try {
             if (tx == null) {
                 tx = getSession().beginTransaction();
@@ -70,7 +71,7 @@ public class HibernateUtil {
     }
 
     public static void commitTransaction() throws SQLException {
-        Transaction tx = (Transaction) threadTransaction.get();
+        Transaction tx = threadTransaction.get();
         try {
             if (tx != null && !tx.wasCommitted()
                     && !tx.wasRolledBack())
@@ -84,7 +85,7 @@ public class HibernateUtil {
 
     public static void rollbackTransaction() throws SQLException {
 
-        Transaction tx = (Transaction) threadTransaction.get();
+        Transaction tx = threadTransaction.get();
         try {
             threadTransaction.set(null);
             if (tx != null && !tx.wasCommitted()
@@ -99,7 +100,7 @@ public class HibernateUtil {
     }
 
     public static boolean isTransActionAlive(){
-        Transaction tx = (Transaction) threadTransaction.get();
+        Transaction tx = threadTransaction.get();
         return tx != null && tx.isActive();
     }
 

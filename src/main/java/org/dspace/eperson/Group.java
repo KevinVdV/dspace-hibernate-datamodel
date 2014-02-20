@@ -17,11 +17,11 @@ import java.util.List;
  */
 @Entity
 @Table(name = "epersongroup")
-public class GroupEntity extends DSpaceObjectEntity {
+public class Group extends DSpaceObjectEntity {
 
     @Id
     @Column(name="eperson_group_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE ,generator="my_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO ,generator="my_seq")
     @SequenceGenerator(name="my_seq", sequenceName="epersongroup_seq")
     private Integer id;
 
@@ -45,7 +45,7 @@ public class GroupEntity extends DSpaceObjectEntity {
             generator = "my_seq"
     )
     @SequenceGenerator(name="my_seq", sequenceName="epersongroup2eperson_seq")
-    private List<EPersonEntity> epeople = new ArrayList<EPersonEntity>();
+    private List<EPerson> epeople = new ArrayList<EPerson>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -53,10 +53,10 @@ public class GroupEntity extends DSpaceObjectEntity {
             joinColumns = {@JoinColumn(name = "parent_id") },
             inverseJoinColumns = {@JoinColumn(name = "child_id") }
     )
-    private List<GroupEntity> groups = new ArrayList<GroupEntity>();
+    private List<Group> groups = new ArrayList<Group>();
 
 
-    public GroupEntity() {
+    public Group() {
         // Cache ourselves
         //TODO: HIBERNATE CACHE CONTEXT
         //context.cache(this, row.getIntColumn("eperson_group_id"));
@@ -104,50 +104,50 @@ public class GroupEntity extends DSpaceObjectEntity {
         //addDetails("name");
     }
 
-    void addMember(EPersonEntity e)
+    void addMember(EPerson e)
     {
         getEpeople().add(e);
     }
 
-    void addMember(GroupEntity g)
+    void addMember(Group g)
     {
         getGroups().add(g);
     }
 
-    boolean remove(EPersonEntity e)
+    boolean remove(EPerson e)
     {
         return getEpeople().remove(e);
     }
 
-    boolean remove(GroupEntity g)
+    boolean remove(Group g)
     {
         return getGroups().remove(g);
     }
 
-    boolean contains(GroupEntity g)
+    boolean contains(Group g)
     {
         return getGroups().contains(g);
     }
 
-    boolean contains(EPersonEntity e)
+    boolean contains(EPerson e)
     {
         return getEpeople().contains(e);
     }
 
-    public List<GroupEntity> getGroups() {
+    public List<Group> getGroups() {
         return groups;
     }
 
-    public List<EPersonEntity> getEpeople() {
+    public List<EPerson> getEpeople() {
         return epeople;
     }
 
     /**
      * Return Group members of a Group.
      */
-    public GroupDAO[] getMemberGroups()
+    public Group[] getMemberGroups()
     {
-        GroupDAO[] myArray = new GroupDAO[groups.size()];
+        Group[] myArray = new Group[groups.size()];
         myArray = groups.toArray(myArray);
 
         return myArray;
@@ -156,10 +156,10 @@ public class GroupEntity extends DSpaceObjectEntity {
     /**
      * Return EPerson members of a Group
      */
-    public EPersonDAO[] getMembers()
+    public EPerson[] getMembers()
     {
-        EPersonDAO[] myArray = new EPersonDAO[epeople.size()];
-        myArray = (EPersonDAO[]) epeople.toArray(myArray);
+        EPerson[] myArray = new EPerson[epeople.size()];
+        myArray = epeople.toArray(myArray);
 
         return myArray;
     }
@@ -186,7 +186,7 @@ public class GroupEntity extends DSpaceObjectEntity {
         {
             return false;
         }
-        final GroupEntity other = (GroupEntity) obj;
+        final Group other = (Group) obj;
         if(this.getID() != other.getID())
         {
             return false;
