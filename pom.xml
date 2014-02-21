@@ -17,24 +17,24 @@
        Runtime and Compile Time dependencies for DSpace.
     -->
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>maven.properties</include>
-                    <include>scm.properties</include>
-                </includes>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>maven.properties</exclude>
-                    <exclude>scm.properties</exclude>
-                </excludes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
+        <!--<resources>-->
+            <!--<resource>-->
+                <!--<directory>src/main/resources</directory>-->
+                <!--<includes>-->
+                    <!--<include>maven.properties</include>-->
+                    <!--<include>scm.properties</include>-->
+                <!--</includes>-->
+                <!--<filtering>true</filtering>-->
+            <!--</resource>-->
+            <!--<resource>-->
+                <!--<directory>src/main/resources</directory>-->
+                <!--<excludes>-->
+                    <!--<exclude>maven.properties</exclude>-->
+                    <!--<exclude>scm.properties</exclude>-->
+                <!--</excludes>-->
+                <!--<filtering>false</filtering>-->
+            <!--</resource>-->
+        <!--</resources>-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -131,8 +131,7 @@
                 </executions>
             </plugin>
             <!-- FileWeaver plugin is in charge of initializing & "weaving" together
-                 the dspace.cfg file to be used by the Unit Testing framework
-                 TODO: HIBERNATE FIX FILE WEAVER
+                 the dspace.cfg file to be used by the Unit Testing framework -->
             <plugin>
                 <groupId>edu.iu.ul.maven.plugins</groupId>
                 <artifactId>fileweaver</artifactId>
@@ -167,8 +166,10 @@
                 </executions>
             </plugin>
 
+            <!--
                 The ant plugin below ensures that the dspace "woven" configuration file ends up in the dspace directory
                 The dspace service manager needs this "woven" configuration file when it starts
+            -->
             <plugin>
               <artifactId>maven-antrun-plugin</artifactId>
               <executions>
@@ -185,8 +186,47 @@
                 </execution>
               </executions>
             </plugin>
-                        -->
 
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <dspace.dir>${agnostic.build.dir}/testing/dspace</dspace.dir>
+                        <dspace.dir.static>${basedir}/src/test/data/dspaceFolder</dspace.dir.static>
+                        <dspace.configuration>${agnostic.build.dir}/testing/dspace/config/dspace.cfg</dspace.configuration>
+                        <db.schema.path>${agnostic.build.dir}/testing/dspace/etc/h2/database_schema.sql</db.schema.path>
+                        <dspace.log.init.disable>true</dspace.log.init.disable>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>maven-version</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>buildnumber-maven-plugin</artifactId>-->
+                <!--<version>1.2</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>validate</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>create</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
 
     </build>
