@@ -117,7 +117,8 @@ public class Context
     private void init() throws SQLException
     {
         currentUser = null;
-        currentLocale = I18nUtil.DEFAULTLOCALE;
+        //TODO: HIBERNATE, FIX IT FOR UNIT TESTS
+//        currentLocale = I18nUtil.DEFAULTLOCALE;
         extraLogInfo = "";
         ignoreAuth = false;
 

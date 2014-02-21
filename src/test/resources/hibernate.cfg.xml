@@ -4,14 +4,17 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
-        <property name="hibernate.connection.url">jdbc:hsqldb:sample</property>
-        <property name="hibernate.connection.username">sa</property>
-        <property name="hibernate.connection.password"></property>
+        <property name="hibernate.connection.url">jdbc:hsqldb:mem:testdb;shutdown=false</property>
+        <property name="hibernate.connection.username">dspace</property>
+        <property name="hibernate.connection.password"/>
+        <property name="hibernate.connection.pool_size">10</property>
         <property name="hibernate.hbm2ddl.auto">create-drop</property>
-
+        <property name="dialect">org.hibernate.dialect.HSQLDialect</property>
 
 
         <mapping class="org.dspace.eperson.EPerson"/>
+        <mapping class="org.dspace.eperson.Group"/>
         <mapping package="org.dspace.content"/>
+        <mapping package="org.dspace.eperson"/>
     </session-factory>
 </hibernate-configuration>

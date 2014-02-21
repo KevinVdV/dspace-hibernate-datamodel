@@ -314,18 +314,38 @@
             <version>3.2</version>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.dbunit</groupId>-->
+            <!--<artifactId>dbunit</artifactId>-->
+            <!--<version>2.4.9</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.hsqldb</groupId>-->
+            <!--<artifactId>hsqldb</artifactId>-->
+            <!--<version>2.3.2</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.dbunit</groupId>
-            <artifactId>dbunit</artifactId>
-            <version>2.4.9</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.3.2</version>
-            <scope>test</scope>
+           <groupId>mockit</groupId>
+           <artifactId>jmockit</artifactId>
+           <version>0.999.4</version>
+           <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>org.hsqldb</groupId>
+        	<artifactId>hsqldb</artifactId>
+        	<version>2.3.2</version>
+        </dependency>
+
+
+
 
     </dependencies>
 
