@@ -1,11 +1,14 @@
 package org.dspace.eperson;
 
 import org.dspace.AbstractUnitTest;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+
+import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 
@@ -22,8 +25,15 @@ public class EPersonTest extends AbstractUnitTest {
 
 
     @Before
-    public void setUp()
-    {
+    public void setUp() throws SQLException, AuthorizeException {
+        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPerson eperson = ePersonDAO.create(context);
+        eperson.setEmail("kevin@dspace.org");
+        eperson.setFirstName("Kevin");
+        eperson.setLastName("Van de Velde");
+        eperson.setNetid("1985");
+        ePersonDAO.update(eperson);
+
     }
 
     @After
@@ -31,17 +41,18 @@ public class EPersonTest extends AbstractUnitTest {
        context.complete();
     }
 
-    @Test
-    public void testFind() throws Exception {
-        EPerson ePersonEntity = EPersonDAO.find(context, 1);
-        assertEquals("Didn't find the expected email", "Keyshawn@queenie.org", ePersonEntity.getEmail());
-    }
+    //TODO: HIBERNATE determine how best to check ann identifier match ?
+//    @Test
+//    public void testFind() throws Exception {
+//        EPerson ePersonEntity = EPersonDAO.find(context, 1);
+//        assertEquals("Didn't find the expected email", "Keyshawn@queenie.org", ePersonEntity.getEmail());
+//    }
 
     @Test
     public void testFindByEmail() throws Exception {
-        EPerson ePersonEntity = EPersonDAO.findByEmail(context, "Keyshawn@queenie.org");
+        EPerson ePersonEntity = EPersonDAO.findByEmail(context, "kevin@dspace.org");
         assertNotNull("No eperson retrieved",ePersonEntity);
-        assertEquals("Didn't find the expected entity", 1, ePersonEntity.getID());
+        assertEquals("Didn't find the expected entity", "kevin@dspace.org", ePersonEntity.getEmail());
     }
 
     public void testFindByNetid() throws Exception {
@@ -50,13 +61,13 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testSearch() throws Exception {
-        EPerson[] expectedResult = new EPerson[]{EPersonDAO.findByEmail(context, "Sydnie@delaney.org")};
+        EPerson[] expectedResult = new EPerson[]{EPersonDAO.findByEmail(context, "kevin@dspace.org")};
 //        Search first name
-        assertArrayEquals(EPersonDAO.search(context, "Fabiola"), expectedResult);
+        assertArrayEquals("Find by last name", EPersonDAO.search(context, "Velde"), expectedResult);
 //        Search last name
-        assertArrayEquals(EPersonDAO.search(context, "Fisher"), expectedResult);
-//        Search identifier
-        assertArrayEquals(EPersonDAO.search(context, "3"), expectedResult);
+        assertArrayEquals("Find by first name", EPersonDAO.search(context, "kevin"), expectedResult);
+//        Search email
+        assertArrayEquals("Find by email", EPersonDAO.search(context, "kevin@dspace.org"), expectedResult);
     }
 
     public void testSearchResultCount() throws Exception {

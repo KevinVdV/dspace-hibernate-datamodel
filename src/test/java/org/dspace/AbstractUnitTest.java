@@ -99,7 +99,7 @@ public class AbstractUnitTest
 
             //load the test configuration file
 //            TODO: HIBERNATE CONFIG LOAD init
-//            ConfigurationManager.loadConfig(null);
+            ConfigurationManager.loadConfig(null);
 
             // Initialise the service manager kernel
 //            TODO: HIBERNATE dspace kernel init
