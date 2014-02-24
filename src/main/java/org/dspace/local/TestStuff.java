@@ -19,26 +19,32 @@ public class TestStuff {
 
     public static void main(String[] args) throws SQLException, AuthorizeException, EPersonDeletionException {
         Context context = new Context();
-        GroupDAO groupManager = new GroupDAO(context);
-        Group groupEntity = groupManager.create();
+        GroupDAO groupManager = new GroupDAO();
+        Group groupEntity = groupManager.create(context);
         groupEntity.setName("TEST-GROUP");
+        Group childGroup = groupManager.create(context);
+        childGroup.setName("CHILD-GROUP");
+        groupManager.update(context, childGroup);
+
 
         Set<EPerson> people = createPeople(context);
 
         for(EPerson person : people)
         {
-            groupManager.addMember(groupEntity, person);
+            groupManager.addMember(context, groupEntity, person);
         }
-        groupManager.update(groupEntity);
+        groupManager.addMember(context, groupEntity, childGroup);
+        groupManager.update(context, groupEntity);
         context.commit();
         for(EPerson person : people)
         {
-            new EPersonDAO(context).delete(person);
+            new EPersonDAO().delete(context, person);
         }
 
 
         context.commit();
-        groupManager.delete(groupEntity);
+        groupManager.delete(context, childGroup);
+        groupManager.delete(context, groupEntity);
         context.commit();
         context.complete();
     }
@@ -52,13 +58,13 @@ public class TestStuff {
     }
 
     private static EPerson createPerson(Context context, String mail) throws SQLException, AuthorizeException {
-        EPersonDAO ePerson = new EPersonDAO(context);
-        EPerson ePersonEntity = EPersonDAO.findByEmail(context, mail);
+        EPersonDAO ePersonDAO = new EPersonDAO();
+        EPerson ePersonEntity = ePersonDAO.findByEmail(context, mail);
         if(ePersonEntity == null)
         {
-            ePersonEntity = ePerson.create(context);
+            ePersonEntity = ePersonDAO.create(context);
             ePersonEntity.setEmail(mail);
-            ePerson.update(ePersonEntity);
+            ePersonDAO.update(context, ePersonEntity);
         }
         return ePersonEntity;
     }

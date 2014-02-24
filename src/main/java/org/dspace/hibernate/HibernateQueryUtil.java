@@ -8,7 +8,9 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.metadata.ClassMetadata;
 
+import javax.persistence.Table;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -96,5 +98,22 @@ public class HibernateQueryUtil {
                 }
             }
         }
+    }
+
+    public static void deleteQuery(Context context, Class deleteClass, Map<String, Object> criteria) throws SQLException {
+        // Hibernate delete query follows the following format:
+        // String hql = "delete from League where league_name = :name";
+        // session.createQuery(hql).setString("name", name).executeUpdate();
+        Table table = (Table) deleteClass.getAnnotation(Table.class);
+        StringBuilder hql = new StringBuilder("delete from ").append(table.name()).append(" where ");
+        for(String key : criteria.keySet()){
+            hql.append(key).append(":").append(key);
+        }
+        Query query = context.getDBConnection().createQuery(hql.toString());
+        for(String key : criteria.keySet()){
+            query.setParameter(key, criteria.get(key));
+        }
+        query.executeUpdate();
+
     }
 }

@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.sql.SQLException;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Created by Roel on 15/02/14.
@@ -32,6 +33,7 @@ public class EPersonTest extends AbstractUnitTest {
         eperson.setFirstName("Kevin");
         eperson.setLastName("Van de Velde");
         eperson.setNetid("1985");
+        eperson.setPassword("test");
         ePersonDAO.update(eperson);
 
     }
@@ -50,7 +52,8 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testFindByEmail() throws Exception {
-        EPerson ePersonEntity = EPersonDAO.findByEmail(context, "kevin@dspace.org");
+        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPerson ePersonEntity = ePersonDAO.findByEmail(context, "kevin@dspace.org");
         assertNotNull("No eperson retrieved",ePersonEntity);
         assertEquals("Didn't find the expected entity", "kevin@dspace.org", ePersonEntity.getEmail());
     }
@@ -61,25 +64,38 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testSearch() throws Exception {
-        EPerson[] expectedResult = new EPerson[]{EPersonDAO.findByEmail(context, "kevin@dspace.org")};
+        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPerson[] expectedResult = new EPerson[]{ePersonDAO.findByEmail(context, "kevin@dspace.org")};
 //        Search first name
-        assertArrayEquals("Find by last name", EPersonDAO.search(context, "Velde"), expectedResult);
+        assertArrayEquals("Find by last name", ePersonDAO.search(context, "Velde"), expectedResult);
 //        Search last name
-        assertArrayEquals("Find by first name", EPersonDAO.search(context, "kevin"), expectedResult);
+        assertArrayEquals("Find by first name", ePersonDAO.search(context, "kevin"), expectedResult);
 //        Search email
-        assertArrayEquals("Find by email", EPersonDAO.search(context, "kevin@dspace.org"), expectedResult);
+        assertArrayEquals("Find by email", ePersonDAO.search(context, "kevin@dspace.org"), expectedResult);
     }
 
+    @Test
     public void testSearchResultCount() throws Exception {
-        fail("Not yet implemented");
+        EPersonDAO ePersonDAO = new EPersonDAO(context);
+//        Search first name
+        assertEquals("Count by last name", ePersonDAO.searchResultCount(context, "Velde"), 1);
+//        Search last name
+        assertEquals("Count by first name", ePersonDAO.searchResultCount(context, "kevin"), 1);
+//        Search email
+        assertEquals("Count by email", ePersonDAO.searchResultCount(context, "kevin@dspace.org"), 1);
     }
 
     public void testFindAll() throws Exception {
         fail("Not yet implemented");
     }
 
+    @Test
     public void testCreate() throws Exception {
-        fail("Not yet implemented");
+        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPerson eperson = ePersonDAO.create(context);
+        EPerson ePersonEntity = ePersonDAO.findByEmail(context, "kevin@dspace.org");
+        //Ensure that the identifier sequence increments by one
+        assertEquals("verify identifier sequence", eperson.getID(), ePersonEntity.getID() - 1);
     }
 
     public void testDelete() throws Exception {
@@ -98,8 +114,10 @@ public class EPersonTest extends AbstractUnitTest {
         fail("Not yet implemented");
     }
 
+    @Test
     public void testCheckPassword() throws Exception {
-        fail("Not yet implemented");
+        EPerson eperson = new EPersonDAO(context).findByEmail(context, "kevin@mire.be");
+        new EPersonDAO(context).checkPassword(eperson, "test");
     }
 
     public void testUpdate() throws Exception {

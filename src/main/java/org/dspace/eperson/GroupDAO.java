@@ -13,8 +13,9 @@ import java.util.*;
 import org.apache.commons.collections.MapUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.DSpaceObjectDAO;
-import org.dspace.content.DSpaceObjectEntity;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -37,20 +38,11 @@ public class GroupDAO extends DSpaceObjectDAO
     /** log4j logger */
     private static Logger log = Logger.getLogger(GroupDAO.class);
 
-    /** Our context */
-    private Context myContext;
-
-
-
     /**
      * Construct a Group from a given context and tablerow
-     *
-     * @param context
-     *
      */
-    public GroupDAO(Context context) throws SQLException
+    public GroupDAO() throws SQLException
     {
-        myContext = context;
     }
 
     /**
@@ -59,27 +51,25 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param context
      *            DSpace context object
      */
-    public Group create() throws SQLException,
+    public Group create(Context context) throws SQLException,
             AuthorizeException
     {
         // FIXME - authorization?
         //TODO: HIBERNATE WHEN AUTHORIZE MANAGER IS READY
-        /*
         if (!AuthorizeManager.isAdmin(context))
         {
             throw new AuthorizeException(
                     "You must be an admin to create an EPerson Group");
         }
-        */
 
         // Create a table row
         Group g = new Group();
-        HibernateQueryUtil.update(myContext, g);
+        HibernateQueryUtil.update(context, g);
 
-        log.info(LogManager.getHeader(myContext, "create_group", "group_id="
+        log.info(LogManager.getHeader(context, "create_group", "group_id="
                 + g.getID()));
 
-        myContext.addEvent(new Event(Event.CREATE, Constants.GROUP, g.getID(), null));
+        context.addEvent(new Event(Event.CREATE, Constants.GROUP, g.getID(), null));
 
         return g;
     }
@@ -91,14 +81,14 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param e
      *            eperson
      */
-    public void addMember(Group groupEntity, EPerson e)
+    public void addMember(Context context, Group groupEntity, EPerson e)
     {
         if (isMember(groupEntity, e))
         {
             return;
         }
         groupEntity.addMember(e);
-        myContext.addEvent(new Event(Event.ADD, Constants.GROUP, groupEntity.getID(), Constants.EPERSON, e.getID(), e.getEmail()));
+        context.addEvent(new Event(Event.ADD, Constants.GROUP, groupEntity.getID(), Constants.EPERSON, e.getID(), e.getEmail()));
     }
 
     /**
@@ -106,7 +96,7 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @param groupParent the group to which we add the group
      */
-    public void addMember(Group groupParent, Group groupChild)
+    public void addMember(Context context, Group groupParent, Group groupChild)
     {
         // don't add if it's already a member
         // and don't add itself
@@ -119,7 +109,7 @@ public class GroupDAO extends DSpaceObjectDAO
         //TODO: HIBERNATE IMPLEMENT ?
         // groupsChanged = true;
 
-        myContext.addEvent(new Event(Event.ADD, Constants.GROUP, groupParent.getID(), Constants.GROUP, groupChild.getID(), groupChild.getName()));
+        context.addEvent(new Event(Event.ADD, Constants.GROUP, groupParent.getID(), Constants.GROUP, groupChild.getID(), groupChild.getName()));
     }
 
     /**
@@ -127,11 +117,11 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @param owningGroup
      */
-    public void removeMember(Group owningGroup, EPerson childPerson)
+    public void removeMember(Context context, Group owningGroup, EPerson childPerson)
     {
         if (owningGroup.remove(childPerson))
         {
-            myContext.addEvent(new Event(Event.REMOVE, Constants.GROUP, owningGroup.getID(), Constants.EPERSON, childPerson.getID(), childPerson.getEmail()));
+            context.addEvent(new Event(Event.REMOVE, Constants.GROUP, owningGroup.getID(), Constants.EPERSON, childPerson.getID(), childPerson.getEmail()));
         }
     }
 
@@ -140,13 +130,13 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @param owningGroup
      */
-    public void removeMember(Group owningGroup, Group childGroup)
+    public void removeMember(Context context, Group owningGroup, Group childGroup)
     {
         if (owningGroup.remove(childGroup))
         {
             //TODO: HIBERNATE IMPLEMENT ?
             // groupsChanged = true;
-            myContext.addEvent(new Event(Event.REMOVE, Constants.GROUP, owningGroup.getID(), Constants.GROUP, childGroup.getID(), childGroup.getName()));
+            context.addEvent(new Event(Event.REMOVE, Constants.GROUP, owningGroup.getID(), Constants.GROUP, childGroup.getID(), childGroup.getName()));
         }
     }
 
@@ -185,7 +175,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param groupid
      *            group ID to check
      */
-    public static boolean isMember(Context c, int groupid) throws SQLException
+    public boolean isMember(Context c, int groupid) throws SQLException
     {
         // special, everyone is member of group 0 (anonymous)
         if (groupid == 0)
@@ -205,7 +195,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param e
      * @throws SQLException
      */
-    public static Group[] allMemberGroups(Context c, EPerson e)
+    public Group[] allMemberGroups(Context c, EPerson e)
             throws SQLException
     {
         List<Group> groupList = new ArrayList<Group>();
@@ -214,7 +204,7 @@ public class GroupDAO extends DSpaceObjectDAO
         // now convert those Integers to Groups
 
         for (Integer myGroup : myGroups) {
-            groupList.add(GroupDAO.find(c, myGroup));
+            groupList.add(find(c, myGroup));
         }
 
         return groupList.toArray(new Group[groupList.size()]);
@@ -228,7 +218,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @return Set of Integer groupIDs
      * @throws SQLException
      */
-    public static Set<Integer> allMemberGroupIDs(Context c, EPerson e)
+    public Set<Integer> allMemberGroupIDs(Context c, EPerson e)
             throws SQLException
     {
         Set<Integer> groupIDs = new HashSet<Integer>();
@@ -333,7 +323,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @return   Array of EPerson objects
      * @throws SQLException
      */
-    public static EPerson[] allMembers(Context c, GroupDAO g)
+    public EPerson[] allMembers(Context c, GroupDAO g)
             throws SQLException
     {
         List<EPerson> epersonList = new ArrayList<EPerson>();
@@ -363,7 +353,7 @@ public class GroupDAO extends DSpaceObjectDAO
      */
     //TODO: HIBERNATE IMPLEMENT
     /*
-    public static Set<Integer> allMemberIDs(Context c, Group g)
+    public Set<Integer> allMemberIDs(Context c, Group g)
             throws SQLException
     {
         // two queries - first to get all groups which are a member of this group
@@ -459,7 +449,7 @@ public class GroupDAO extends DSpaceObjectDAO
         return epeopleIDs;
     }
     */
-    private static boolean epersonInGroup(Context c, int groupID, EPerson e)
+    private boolean epersonInGroup(Context c, int groupID, EPerson e)
             throws SQLException
     {
         Set<Integer> groupIDs = allMemberGroupIDs(c, e);
@@ -473,7 +463,7 @@ public class GroupDAO extends DSpaceObjectDAO
      * @param context
      * @param id
      */
-    public static Group find(Context context, int id) throws SQLException
+    public Group find(Context context, int id) throws SQLException
     {
         // First check the cache
         Group fromCache = (Group) context.fromCache(Group.class, id);
@@ -494,7 +484,7 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @return the named Group, or null if not found
      */
-    public static Group findByName(Context context, String name)
+    public Group findByName(Context context, String name)
             throws SQLException
     {
         if(name == null)
@@ -514,7 +504,7 @@ public class GroupDAO extends DSpaceObjectDAO
      *
      * @return array of all groups in the site
      */
-    public static Group[] findAll(Context context, int sortField)
+    public Group[] findAll(Context context, int sortField)
             throws SQLException
     {
         String s;
@@ -593,27 +583,26 @@ public class GroupDAO extends DSpaceObjectDAO
      * Delete a group
      *
      */
-    public void delete(Group groupEntity) throws SQLException
+    public void delete(Context context, Group groupEntity) throws SQLException
     {
         // FIXME: authorizations
 
-        myContext.addEvent(new Event(Event.DELETE, Constants.GROUP, groupEntity.getID(), groupEntity.getName()));
+        context.addEvent(new Event(Event.DELETE, Constants.GROUP, groupEntity.getID(), groupEntity.getName()));
 
         // Remove from cache
-        myContext.removeCached(this, groupEntity.getID());
+        context.removeCached(this, groupEntity.getID());
 
         // Remove any ResourcePolicies that reference this group
-        //TODO: HIBERNATE WHEN AUTHORIZE MANAGER IS READY
-        //AuthorizeManager.removeGroupPolicies(myContext, getID());
+        AuthorizeManager.removeGroupPolicies(context, groupEntity.getID());
 
         // don't forget the new table
         //TODO: HIBERNATE IMPLEMENT
 //        deleteEpersonGroup2WorkspaceItem();
 
         // Remove ourself
-        HibernateQueryUtil.delete(myContext, groupEntity);
+        HibernateQueryUtil.delete(context, groupEntity);
 
-        log.info(LogManager.getHeader(myContext, "delete_group", "group_id="
+        log.info(LogManager.getHeader(context, "delete_group", "group_id="
                 + groupEntity.getID()));
     }
 
@@ -657,19 +646,19 @@ public class GroupDAO extends DSpaceObjectDAO
     /**
      * Update the group - writing out group object and EPerson list if necessary
      */
-    public void update(DSpaceObjectEntity dSpaceObject) throws SQLException, AuthorizeException
+    public void update(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException
     {
         // FIXME: Check authorisation
-        HibernateQueryUtil.update(myContext, dSpaceObject);
+        HibernateQueryUtil.update(context, dSpaceObject);
 
         if (((Group) dSpaceObject).isModifiedMetadata())
         {
-            myContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.GROUP, dSpaceObject.getID(), getDetails()));
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.GROUP, dSpaceObject.getID(), getDetails()));
             //TODO: HIBERNATE, move details to top
             clearDetails();
         }
 
-        log.info(LogManager.getHeader(myContext, "update_group", "group_id="
+        log.info(LogManager.getHeader(context, "update_group", "group_id="
                 + dSpaceObject.getID()));
     }
 
@@ -807,10 +796,4 @@ public class GroupDAO extends DSpaceObjectDAO
         return null;
     }
     */
-
-    @Override
-    public void updateLastModified()
-    {
-
-    }
 }

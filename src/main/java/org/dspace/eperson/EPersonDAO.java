@@ -21,8 +21,9 @@ import org.apache.commons.codec.DecoderException;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.DSpaceObjectDAO;
-import org.dspace.content.DSpaceObjectEntity;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -56,11 +57,8 @@ public class EPersonDAO extends DSpaceObjectDAO
     /** log4j logger */
     private static Logger log = Logger.getLogger(EPersonDAO.class);
 
-    private Context myContext;
-
-    public EPersonDAO(Context context)
+    public EPersonDAO()
     {
-        myContext = context;
     }
 
     /**
@@ -73,7 +71,7 @@ public class EPersonDAO extends DSpaceObjectDAO
      *
      * @return the EPerson format, or null if the ID is invalid.
      */
-    public static EPerson find(Context context, int id) throws SQLException
+    public EPerson find(Context context, int id) throws SQLException
     {
         // First check the cache
         EPerson fromCache = (EPerson) context.fromCache(EPerson.class, id);
@@ -91,7 +89,7 @@ public class EPersonDAO extends DSpaceObjectDAO
      *
      * @return EPerson, or {@code null} if none such exists.
      */
-    public static EPerson findByEmail(Context context, String email)
+    public EPerson findByEmail(Context context, String email)
             throws SQLException, AuthorizeException
     {
         if (email == null)
@@ -113,7 +111,7 @@ public class EPersonDAO extends DSpaceObjectDAO
      *
      * @return corresponding EPerson, or <code>null</code>
      */
-    public static EPerson findByNetid(Context context, String netid)
+    public EPerson findByNetid(Context context, String netid)
             throws SQLException
     {
         if (netid == null)
@@ -134,7 +132,7 @@ public class EPersonDAO extends DSpaceObjectDAO
      *
      * @return array of EPerson objects
      */
-    public static EPerson[] search(Context context, String query)
+    public EPerson[] search(Context context, String query)
             throws SQLException
     {
         return search(context, query, -1, -1);
@@ -155,7 +153,7 @@ public class EPersonDAO extends DSpaceObjectDAO
      *
      * @return array of EPerson objects
      */
-    public static EPerson[] search(Context context, String query, int offset, int limit)
+    public EPerson[] search(Context context, String query, int offset, int limit)
             throws SQLException
     {
         String queryParam = "%"+query.toLowerCase()+"%";
@@ -184,7 +182,7 @@ public class EPersonDAO extends DSpaceObjectDAO
      *
      * @return the number of epeople matching the query
      */
-    public static int searchResultCount(Context context, String query)
+    public int searchResultCount(Context context, String query)
             throws SQLException
     {
         String queryParam = "%"+query.toLowerCase()+"%";
@@ -210,7 +208,7 @@ public class EPersonDAO extends DSpaceObjectDAO
      *
      * @return array of EPerson objects
      */
-    public static EPerson[] findAll(Context context, int sortField)
+    public EPerson[] findAll(Context context, int sortField)
             throws SQLException
     {
         String sortColumn;
@@ -252,14 +250,11 @@ public class EPersonDAO extends DSpaceObjectDAO
             AuthorizeException
     {
         // authorized?
-        //TODO: HIBERNATE WHEN AUTHORIZE MANAGER IS READY
-        /*
         if (!AuthorizeManager.isAdmin(context))
         {
             throw new AuthorizeException(
                     "You must be an admin to create an EPerson");
         }
-        */
 
 
         EPerson e = new EPerson();
@@ -277,17 +272,15 @@ public class EPersonDAO extends DSpaceObjectDAO
      * Delete an eperson
      *
      */
-    public void delete(EPerson ePersonEntity) throws SQLException, AuthorizeException,
+    public void delete(Context context, EPerson ePersonEntity) throws SQLException, AuthorizeException,
             EPersonDeletionException
     {
-        //TODO: HIBERNATE WHEN AUTHORIZE MANAGER IS READY
-        /*
         // authorized?
-        if (!AuthorizeManager.isAdmin(myContext))
+        if (!AuthorizeManager.isAdmin(context))
         {
             throw new AuthorizeException(
                     "You must be an admin to delete an EPerson");
-        }*/
+        }
 
         // check for presence of eperson in tables that
         // have constraints on eperson_id
@@ -301,10 +294,10 @@ public class EPersonDAO extends DSpaceObjectDAO
             throw new EPersonDeletionException(constraintList);
         }
         */
-        myContext.addEvent(new Event(Event.DELETE, Constants.EPERSON, ePersonEntity.getID(), ePersonEntity.getEmail()));
+        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, ePersonEntity.getID(), ePersonEntity.getEmail()));
 
         // Remove from cache
-        myContext.removeCached(this, ePersonEntity.getID());
+        context.removeCached(this, ePersonEntity.getID());
 
         // XXX FIXME: This sidesteps the object model code so it won't
         // generate  REMOVE events on the affected Groups.
@@ -326,9 +319,9 @@ public class EPersonDAO extends DSpaceObjectDAO
         //Clear the link to any groups we belong to
 //        HibernateQueryUtil.refresh(myContext, ePersonEntity);
 //        ePersonEntity.getGroups().clear();
-        HibernateQueryUtil.delete(myContext, ePersonEntity);
+        HibernateQueryUtil.delete(context, ePersonEntity);
 
-        log.info(LogManager.getHeader(myContext, "delete_eperson",
+        log.info(LogManager.getHeader(context, "delete_eperson",
                 "eperson_id=" + ePersonEntity.getID()));
     }
 
@@ -395,7 +388,7 @@ public class EPersonDAO extends DSpaceObjectDAO
      *            the password attempt
      * @return boolean successful/unsuccessful
      */
-    public boolean checkPassword(EPerson ePersonEntity, String attempt)
+    public boolean checkPassword(Context context, EPerson ePersonEntity, String attempt)
     {
         PasswordHash myHash;
         try
@@ -417,14 +410,14 @@ public class EPersonDAO extends DSpaceObjectDAO
             log.info("Upgrading password hash for EPerson " + ePersonEntity.getID());
             setPassword(ePersonEntity, attempt);
             try {
-                myContext.turnOffAuthorisationSystem();
-                update(ePersonEntity);
+                context.turnOffAuthorisationSystem();
+                update(context, ePersonEntity);
             } catch (SQLException ex) {
                 log.error("Could not update password hash", ex);
             } catch (AuthorizeException ex) {
                 log.error("Could not update password hash", ex);
             } finally {
-                myContext.restoreAuthSystemState();
+                context.restoreAuthSystemState();
             }
         }
 
@@ -435,40 +428,34 @@ public class EPersonDAO extends DSpaceObjectDAO
      * Update the EPerson
      */
     //TODO: Hibernate Use reflection for this method so no casting is required !
-    public void update(DSpaceObjectEntity dSpaceObject) throws SQLException, AuthorizeException
+    public void update(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException
     {
         EPerson epersonEntity = (EPerson) dSpaceObject;
         // Check authorisation - if you're not the eperson
         // see if the authorization system says you can
-        if (!myContext.ignoreAuthorization()
-                && ((myContext.getCurrentUser() == null) || (epersonEntity.getID() != myContext
+        if (!context.ignoreAuthorization()
+                && ((context.getCurrentUser() == null) || (epersonEntity.getID() != context
                 .getCurrentUser().getID())))
         {
-            //TODO: HIBERNATE WHEN AUTHORIZE MANAGER IS READY
-            //AuthorizeManager.authorizeAction(myContext, this, Constants.WRITE);
+            AuthorizeManager.authorizeAction(context, dSpaceObject, Constants.WRITE);
         }
 
-        HibernateQueryUtil.update(myContext, epersonEntity);
+        HibernateQueryUtil.update(context, epersonEntity);
 
-        log.info(LogManager.getHeader(myContext, "update_eperson",
+        log.info(LogManager.getHeader(context, "update_eperson",
                 "eperson_id=" + epersonEntity.getID()));
 
         if (epersonEntity.isModified())
         {
-            myContext.addEvent(new Event(Event.MODIFY, Constants.EPERSON, epersonEntity.getID(), null));
+            context.addEvent(new Event(Event.MODIFY, Constants.EPERSON, epersonEntity.getID(), null));
             epersonEntity.setModified(false);
         }
         if (epersonEntity.isModifiedMetadata())
         {
-            myContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, epersonEntity.getID(), getDetails()));
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, epersonEntity.getID(), getDetails()));
             epersonEntity.setModifiedMetadata(false);
             clearDetails();
         }
-    }
-
-    @Override
-    public void updateLastModified() {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
@@ -782,7 +769,7 @@ public class EPersonDAO extends DSpaceObjectDAO
 
         // Create!
         EPerson eperson = null;
-        EPersonDAO epersonManager = new EPersonDAO(context);
+        EPersonDAO epersonManager = new EPersonDAO();
         try {
             eperson = epersonManager.create(context);
         } catch (SQLException ex) {
@@ -812,7 +799,7 @@ public class EPersonDAO extends DSpaceObjectDAO
         }
 
         try {
-            epersonManager.update(eperson);
+            epersonManager.update(context, eperson);
             context.commit();
             System.out.printf("Created EPerson %d\n", eperson.getID());
         } catch (SQLException ex) {
@@ -855,16 +842,16 @@ public class EPersonDAO extends DSpaceObjectDAO
         }
 
         // Delete!
-        EPersonDAO epersonManager = new EPersonDAO(context);
+        EPersonDAO epersonManager = new EPersonDAO();
         EPerson eperson = null;
         try {
             if (command.hasOption(OPT_NETID.getOpt()))
             {
-                eperson = findByNetid(context, command.getOptionValue(OPT_NETID.getOpt()));
+                eperson = epersonManager.findByNetid(context, command.getOptionValue(OPT_NETID.getOpt()));
             }
             else if (command.hasOption(OPT_EMAIL.getOpt()))
             {
-                eperson = findByEmail(context, command.getOptionValue(OPT_EMAIL.getOpt()));
+                eperson = epersonManager.findByEmail(context, command.getOptionValue(OPT_EMAIL.getOpt()));
             }
             else
             {
@@ -883,7 +870,7 @@ public class EPersonDAO extends DSpaceObjectDAO
         }
 
         try {
-            epersonManager.delete(eperson);
+            epersonManager.delete(context, eperson);
             context.commit();
             System.out.printf("Deleted EPerson %d\n", eperson.getID());
         } catch (SQLException ex) {
@@ -940,16 +927,17 @@ public class EPersonDAO extends DSpaceObjectDAO
             return 0;
         }
 
+        EPersonDAO epersonManager = new EPersonDAO();
         // Modify!
         EPerson eperson = null;
         try {
             if (command.hasOption(OPT_NETID.getOpt()))
             {
-                eperson = findByNetid(context, command.getOptionValue(OPT_NETID.getOpt()));
+                eperson = epersonManager.findByNetid(context, command.getOptionValue(OPT_NETID.getOpt()));
             }
             else if (command.hasOption(OPT_EMAIL.getOpt()))
             {
-                eperson = findByEmail(context, command.getOptionValue(OPT_EMAIL.getOpt()));
+                eperson = epersonManager.findByEmail(context, command.getOptionValue(OPT_EMAIL.getOpt()));
             }
             else
             {
@@ -961,7 +949,6 @@ public class EPersonDAO extends DSpaceObjectDAO
             return 1;
         } catch (AuthorizeException e) { /* XXX SNH */ }
 
-        EPersonDAO epersonManager = new EPersonDAO(context);
         boolean modified = false;
         if (null == eperson)
         {
@@ -1014,7 +1001,7 @@ public class EPersonDAO extends DSpaceObjectDAO
             if (modified)
             {
                 try {
-                    epersonManager.update(eperson);
+                    epersonManager.update(context, eperson);
                     context.commit();
                     System.out.printf("Modified EPerson %d\n", eperson.getID());
                 } catch (SQLException ex) {
@@ -1040,7 +1027,8 @@ public class EPersonDAO extends DSpaceObjectDAO
         // wild or regex match user/netid
         // select details (pseudo-format string)
         try {
-            for (EPerson person : findAll(context, EMAIL))
+            EPersonDAO epersonManager = new EPersonDAO();
+            for (EPerson person : epersonManager.findAll(context, EMAIL))
             {
                 System.out.printf("%d\t%s/%s\t%s, %s\n",
                         person.getID(),

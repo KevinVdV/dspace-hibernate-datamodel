@@ -1,9 +1,13 @@
 package org.dspace.content;
 
+import org.dspace.core.Constants;
+
+import java.sql.SQLException;
+
 /**
  * Created by kevin on 08/02/14.
  */
-public abstract class DSpaceObjectEntity {
+public abstract class DSpaceObject {
 
     /**
      * Get the internal ID (database primary key) of this object
@@ -28,5 +32,14 @@ public abstract class DSpaceObjectEntity {
      *         one
      */
     public abstract String getName();
+
+    public abstract void updateLastModified();
+
+    /**
+     * Get the type of this object, found in Constants
+     *
+     * @return type of the object
+     */
+    public abstract int getType();
 
 }

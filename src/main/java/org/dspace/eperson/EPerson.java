@@ -1,25 +1,22 @@
 package org.dspace.eperson;
 
-import org.dspace.content.DSpaceObjectEntity;
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
+import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by kevin on 08/02/14.
  */
 @Entity
 @Table(name="eperson")
-public class EPerson extends DSpaceObjectEntity {
+public class EPerson extends DSpaceObject {
 
     @Id
     @Column(name="eperson_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="my_seq")
-    @SequenceGenerator(name="my_seq", sequenceName="eperson_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO ,generator="eperson_seq")
+    @SequenceGenerator(name="eperson_seq", sequenceName="eperson_seq")
     private Integer id;
 
     @Column(name="language")
@@ -63,7 +60,7 @@ public class EPerson extends DSpaceObjectEntity {
     private String phone;
 
 
-
+    /*
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "epersongroup2eperson",
@@ -73,11 +70,12 @@ public class EPerson extends DSpaceObjectEntity {
     @CollectionId(
             columns = @Column(name="id"),
             type=@Type(type="long"),
-            generator = "my_seq"
+            generator = "epersongroup2eperson_seq"
     )
-    @SequenceGenerator(name="my_seq", sequenceName="epersongroup2eperson_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO ,generator="epersongroup2eperson_seq")
+    @SequenceGenerator(name="epersongroup2eperson_seq", sequenceName="epersongroup2eperson_seq")
     private List<Group> groups = new ArrayList<Group>();
-
+    */
 
     //TODO: HIBERNATE: modified get it out of here ?
     /** Flag set when data is modified, for events */
@@ -234,6 +232,16 @@ public class EPerson extends DSpaceObjectEntity {
     @Override
     public String getName() {
         return getEmail();
+    }
+
+    @Override
+    public void updateLastModified() {
+        // Not required for eperson
+    }
+
+    @Override
+    public int getType() {
+        return Constants.EPERSON;
     }
 
     /**
@@ -452,9 +460,5 @@ public class EPerson extends DSpaceObjectEntity {
     public void setPhone(String phone) {
         this.phone = phone;
         modifiedMetadata = true;
-    }
-
-    List<Group> getGroups() {
-        return groups;
     }
 }

@@ -7,6 +7,7 @@
  */
 package org.dspace.authorize;
 
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.DSpaceObjectDAO;
 
 /**
@@ -20,7 +21,7 @@ public class AuthorizeException extends Exception
 {
     private int myaction; // action attempted, or -1
 
-    private DSpaceObjectDAO myobject; // object action attempted on or null
+    private DSpaceObject myobject; // object action attempted on or null
 
     /**
      * Create an empty authorize exception
@@ -52,7 +53,7 @@ public class AuthorizeException extends Exception
      * @param message
      *            the message
      */
-    public AuthorizeException(String message, DSpaceObjectDAO o, int a)
+    public AuthorizeException(String message, DSpaceObject o, int a)
     {
         super(message);
 
@@ -65,7 +66,7 @@ public class AuthorizeException extends Exception
         return myaction;
     }
 
-    public DSpaceObjectDAO getObject()
+    public DSpaceObject getObject()
     {
         return myobject;
     }

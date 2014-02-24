@@ -1,6 +1,7 @@
 package org.dspace.eperson;
 
-import org.dspace.content.DSpaceObjectEntity;
+import org.dspace.content.DSpaceObject;
+import org.dspace.core.Constants;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
 
@@ -17,12 +18,12 @@ import java.util.List;
  */
 @Entity
 @Table(name = "epersongroup")
-public class Group extends DSpaceObjectEntity {
+public class Group extends DSpaceObject {
 
     @Id
     @Column(name="eperson_group_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="my_seq")
-    @SequenceGenerator(name="my_seq", sequenceName="epersongroup_seq")
+    @GeneratedValue(strategy = GenerationType.AUTO ,generator="epersongroup_seq")
+    @SequenceGenerator(name="epersongroup_seq", sequenceName="epersongroup_seq")
     private Integer id;
 
     @Column(name="name")
@@ -33,7 +34,7 @@ public class Group extends DSpaceObjectEntity {
     private boolean modifiedMetadata;
 
     /** lists of epeople and groups in the group */
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "epersongroup2eperson",
             joinColumns = {@JoinColumn(name = "eperson_group_id") },
@@ -42,9 +43,9 @@ public class Group extends DSpaceObjectEntity {
     @CollectionId(
             columns = @Column(name="id"),
             type=@Type(type="long"),
-            generator = "my_seq"
+            generator = "epersongroup2eperson_seq"
     )
-    @SequenceGenerator(name="my_seq", sequenceName="epersongroup2eperson_seq")
+    @SequenceGenerator(name="epersongroup2eperson_seq", sequenceName="epersongroup2eperson_seq", allocationSize = 1)
     private List<EPerson> epeople = new ArrayList<EPerson>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -53,6 +54,12 @@ public class Group extends DSpaceObjectEntity {
             joinColumns = {@JoinColumn(name = "parent_id") },
             inverseJoinColumns = {@JoinColumn(name = "child_id") }
     )
+    @CollectionId(
+            columns = @Column(name="id"),
+            type=@Type(type="long"),
+            generator = "group2group_seq"
+    )
+    @SequenceGenerator(name="group2group_seq", sequenceName="group2group_seq", allocationSize = 1)
     private List<Group> groups = new ArrayList<Group>();
 
 
@@ -88,6 +95,16 @@ public class Group extends DSpaceObjectEntity {
     public String getName()
     {
         return name;
+    }
+
+    @Override
+    public void updateLastModified() {
+        //Not required for groups
+    }
+
+    @Override
+    public int getType() {
+        return Constants.GROUP;
     }
 
     /**

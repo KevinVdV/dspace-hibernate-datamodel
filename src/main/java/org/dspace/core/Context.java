@@ -117,8 +117,7 @@ public class Context
     private void init() throws SQLException
     {
         currentUser = null;
-        //TODO: HIBERNATE, FIX IT FOR UNIT TESTS
-//        currentLocale = I18nUtil.DEFAULTLOCALE;
+        currentLocale = I18nUtil.DEFAULTLOCALE;
         extraLogInfo = "";
         ignoreAuth = false;
 
@@ -630,10 +629,11 @@ public class Context
      */
     public Group[] getSpecialGroups() throws SQLException
     {
+        GroupDAO groupDAO = new GroupDAO(this);
         List<Group> myGroups = new ArrayList<Group>();
         for (Integer groupId : specialGroups)
         {
-            myGroups.add(GroupDAO.find(this, groupId));
+            myGroups.add(groupDAO.find(this, groupId));
         }
 
         return myGroups.toArray(new Group[myGroups.size()]);

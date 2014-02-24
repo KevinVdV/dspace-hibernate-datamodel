@@ -13,6 +13,8 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPersonDAO;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.GroupDAO;
 
 /**
  * Abstract base class for DSpace objects
@@ -59,23 +61,6 @@ public abstract class DSpaceObjectDAO
     }
 
     /**
-     * Get the type of this object, found in Constants
-     *
-     * @return type of the object
-     */
-    public abstract int getType();
-
-    /**
-     * Provide the text name of the type of this DSpaceObject. It is most likely all uppercase.
-     * @return Object type as text
-     */
-    public String getTypeText()
-    {
-        return Constants.typeText[this.getType()];
-    }
-
-
-    /**
      * Generic find for when the precise type of a DSO is not known, just the
      * a pair of type number and database ID.
      *
@@ -85,7 +70,7 @@ public abstract class DSpaceObjectDAO
      * @return the object found, or null if it does not exist.
      * @throws SQLException only upon failure accessing the database.
      */
-    public static DSpaceObjectEntity find(Context context, int type, int id)
+    public static DSpaceObject find(Context context, int type, int id)
             throws SQLException
     {
         switch (type)
@@ -96,12 +81,14 @@ public abstract class DSpaceObjectDAO
             //case Constants.ITEM      : return Item.find(context, id);
             //case Constants.COLLECTION: return Collection.find(context, id);
             //case Constants.COMMUNITY : return Community.find(context, id);
-            //case Constants.GROUP     : return Group.find(context, id);
-            case Constants.EPERSON   : return EPersonDAO.find(context, id);
+            case Constants.GROUP     : return new GroupDAO().find(context, id);
+            case Constants.EPERSON   : return new EPersonDAO().find(context, id);
             //case Constants.SITE      : return Site.find(context, id);
         }
         return null;
     }
+
+
 
     /**
      * Return the dspace object where an ADMIN action right is sufficient to
@@ -118,18 +105,18 @@ public abstract class DSpaceObjectDAO
      *            IllegalArgumentException should be thrown
      * @return the dspace object, if any, where an ADMIN action is sufficient to
      *         grant the original action
-     * @throws SQLException
+     * @throws java.sql.SQLException
      * @throws IllegalArgumentException
      *             if the ADMIN action is supplied as parameter of the method
      *             call
      */
-    public DSpaceObjectDAO getAdminObject(int action) throws SQLException
+    public DSpaceObject getAdminObject(DSpaceObject dso, int action) throws SQLException
     {
         if (action == Constants.ADMIN)
         {
             throw new IllegalArgumentException("Illegal call to the DSpaceObject.getAdminObject method");
         }
-        return this;
+        return dso;
     }
 
     /**
@@ -144,12 +131,20 @@ public abstract class DSpaceObjectDAO
      *         the hierarchy
      * @throws SQLException
      */
-    public DSpaceObjectDAO getParentObject() throws SQLException
+    public DSpaceObject getParentObject(DSpaceObject dso) throws SQLException
     {
         return null;
     }
 
-    public abstract void update(DSpaceObjectEntity dSpaceObject) throws SQLException, AuthorizeException;
+    public abstract void update(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException;
 
-    public abstract void updateLastModified();
+
+    /**
+     * Provide the text name of the type of this DSpaceObject. It is most likely all uppercase.
+     * @return Object type as text
+     */
+    public String getTypeText(DSpaceObject dso)
+    {
+        return Constants.typeText[dso.getType()];
+    }
 }
