@@ -327,7 +327,6 @@ public class Context
         {
             // Free the connection
             HibernateUtil.closeSession();
-            clearCache();
         }
     }
 
@@ -488,7 +487,6 @@ public class Context
                 log.error("Exception aborting context", ex);
             }
             events = null;
-            clearCache();
         }
     }
 
@@ -515,80 +513,6 @@ public class Context
     public boolean isReadOnly()
     {
         return (options & READ_ONLY) > 0;
-    }
-
-    /**
-     * Store an object in the object cache.
-     *
-     * @param objectClass
-     *            Java Class of object to check for in cache
-     * @param id
-     *            ID of object in cache
-     *
-     * @return the object from the cache, or <code>null</code> if it's not
-     *         cached.
-     */
-    public Object fromCache(Class<?> objectClass, int id)
-    {
-        String key = objectClass.getName() + id;
-
-        return objectCache.get(key);
-    }
-
-    /**
-     * Store an object in the object cache.
-     *
-     * @param o
-     *            the object to store
-     * @param id
-     *            the object's ID
-     */
-    public void cache(Object o, int id)
-    {
-        // bypass cache if in read-only mode
-        if (! isReadOnly())
-        {
-            String key = o.getClass().getName() + id;
-            objectCache.put(key, o);
-        }
-    }
-
-    /**
-     * Remove an object from the object cache.
-     *
-     * @param o
-     *            the object to remove
-     * @param id
-     *            the object's ID
-     */
-    public void removeCached(Object o, int id)
-    {
-        String key = o.getClass().getName() + id;
-        objectCache.remove(key);
-    }
-
-    /**
-     * Remove all the objects from the object cache
-     */
-    public void clearCache()
-    {
-        objectCache.clear();
-    }
-
-    /**
-     * Get the count of cached objects, which you can use to instrument an
-     * application to track whether it is "leaking" heap space by letting cached
-     * objects build up. We recommend logging a cache count periodically or
-     * episodically at the INFO or DEBUG level, but ONLY when you are diagnosing
-     * cache leaks.
-     *
-     * @return count of entries in the cache.
-     *
-     * @return the number of items in the cache
-     */
-    public int getCacheSize()
-    {
-        return objectCache.size();
     }
 
     /**
@@ -629,7 +553,7 @@ public class Context
      */
     public Group[] getSpecialGroups() throws SQLException
     {
-        GroupDAO groupDAO = new GroupDAO(this);
+        GroupDAO groupDAO = new GroupDAO();
         List<Group> myGroups = new ArrayList<Group>();
         for (Integer groupId : specialGroups)
         {

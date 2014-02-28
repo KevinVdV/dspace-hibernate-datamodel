@@ -35,7 +35,7 @@ public class ResourcePolicyDAO
     /**
      * Construct an ResourcePolicy
      */
-    ResourcePolicyDAO()
+    public ResourcePolicyDAO()
     {
     }
 

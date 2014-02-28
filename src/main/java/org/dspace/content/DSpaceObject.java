@@ -1,6 +1,7 @@
 package org.dspace.content;
 
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 
 import java.sql.SQLException;
 
@@ -22,7 +23,7 @@ public abstract class DSpaceObject {
      * @return Handle of the object, or <code>null</code> if it doesn't have
      *         one
      */
-    public abstract String getHandle();
+    public abstract String getHandle(Context context);
 
     /**
      * Get a proper name for the object. This may return <code>null</code>.

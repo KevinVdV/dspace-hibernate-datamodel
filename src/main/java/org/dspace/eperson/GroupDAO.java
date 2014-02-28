@@ -14,6 +14,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.DSpaceObjectDAO;
 import org.dspace.core.Constants;
@@ -21,6 +22,9 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.event.Event;
 import org.dspace.hibernate.HibernateQueryUtil;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 
 /**
  * Class representing a group of e-people.
@@ -28,7 +32,7 @@ import org.dspace.hibernate.HibernateQueryUtil;
  * @author David Stuve
  * @version $Revision$
  */
-public class GroupDAO extends DSpaceObjectDAO
+public class GroupDAO extends DSpaceObjectDAO<Group>
 {
     // findAll sortby types
     public static final int ID = 0; // sort by ID
@@ -55,7 +59,6 @@ public class GroupDAO extends DSpaceObjectDAO
             AuthorizeException
     {
         // FIXME - authorization?
-        //TODO: HIBERNATE WHEN AUTHORIZE MANAGER IS READY
         if (!AuthorizeManager.isAdmin(context))
         {
             throw new AuthorizeException(
@@ -227,9 +230,9 @@ public class GroupDAO extends DSpaceObjectDAO
         {
             // two queries - first to get groups eperson is a member of
             // second query gets parent groups for groups eperson is a member of
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("eperson_id", String.valueOf(e.getID()));
-            List<Group> groupEntities = HibernateQueryUtil.searchQuery(c, Group.class, params, null);
+            Criteria criteria = c.getDBConnection().createCriteria(Group.class);
+            criteria.add(Restrictions.eq("eperson_id", e.getID()));
+            List<Group> groupEntities = criteria.list();
             Set<Integer> result = new LinkedHashSet<Integer>();
             for (Group groupEntity : groupEntities) {
                 result.add(groupEntity.getID());
@@ -466,13 +469,6 @@ public class GroupDAO extends DSpaceObjectDAO
     public Group find(Context context, int id) throws SQLException
     {
         // First check the cache
-        Group fromCache = (Group) context.fromCache(Group.class, id);
-
-        if (fromCache != null)
-        {
-            return fromCache;
-        }
-
         return (Group) context.getDBConnection().get(Group.class, id);
     }
 
@@ -491,7 +487,7 @@ public class GroupDAO extends DSpaceObjectDAO
         {
             return null;
         }
-        return (Group) HibernateQueryUtil.findByUnique(context, Group.class, "name", name);
+        return HibernateQueryUtil.findByUnique(context, Group.class, "name", name);
     }
 
     /**
@@ -509,6 +505,7 @@ public class GroupDAO extends DSpaceObjectDAO
     {
         String s;
 
+        Criteria criteria = context.getDBConnection().createCriteria(Group.class);
         switch (sortField)
         {
             case ID:
@@ -525,10 +522,9 @@ public class GroupDAO extends DSpaceObjectDAO
                 s = "name";
         }
 
-        Map<String, String> order = new LinkedHashMap<String, String>();
-        order.put(s, "asc");
+        criteria.addOrder(Order.asc(s));
 
-        List<Group> objects = HibernateQueryUtil.searchQuery(context, Group.class, MapUtils.EMPTY_MAP, order);
+        List<Group> objects = criteria.list();
         return objects.toArray(new Group[objects.size()]);
     }
 
@@ -589,9 +585,6 @@ public class GroupDAO extends DSpaceObjectDAO
 
         context.addEvent(new Event(Event.DELETE, Constants.GROUP, groupEntity.getID(), groupEntity.getName()));
 
-        // Remove from cache
-        context.removeCached(this, groupEntity.getID());
-
         // Remove any ResourcePolicies that reference this group
         AuthorizeManager.removeGroupPolicies(context, groupEntity.getID());
 
@@ -646,20 +639,20 @@ public class GroupDAO extends DSpaceObjectDAO
     /**
      * Update the group - writing out group object and EPerson list if necessary
      */
-    public void update(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException
+    public void update(Context context, Group group) throws SQLException, AuthorizeException
     {
         // FIXME: Check authorisation
-        HibernateQueryUtil.update(context, dSpaceObject);
+        HibernateQueryUtil.update(context, group);
 
-        if (((Group) dSpaceObject).isModifiedMetadata())
+        if (group.isModifiedMetadata())
         {
-            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.GROUP, dSpaceObject.getID(), getDetails()));
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.GROUP, group.getID(), getDetails()));
             //TODO: HIBERNATE, move details to top
             clearDetails();
         }
 
         log.info(LogManager.getHeader(context, "update_group", "group_id="
-                + dSpaceObject.getID()));
+                + group.getID()));
     }
 
     public int getType()

@@ -19,7 +19,7 @@ import org.dspace.eperson.GroupDAO;
 /**
  * Abstract base class for DSpace objects
  */
-public abstract class DSpaceObjectDAO
+public abstract class DSpaceObjectDAO<T extends DSpaceObject>
 {
     // accumulate information to add to "detail" element of content Event,
     // e.g. to document metadata fields touched, etc.
@@ -79,11 +79,11 @@ public abstract class DSpaceObjectDAO
             //case Constants.BITSTREAM : return Bitstream.find(context, id);
             //case Constants.BUNDLE    : return Bundle.find(context, id);
             //case Constants.ITEM      : return Item.find(context, id);
-            //case Constants.COLLECTION: return Collection.find(context, id);
-            //case Constants.COMMUNITY : return Community.find(context, id);
+            case Constants.COLLECTION: return new CollectionDAO().find(context, id);
+            case Constants.COMMUNITY : return new CommunityDAO().find(context, id);
             case Constants.GROUP     : return new GroupDAO().find(context, id);
             case Constants.EPERSON   : return new EPersonDAO().find(context, id);
-            //case Constants.SITE      : return Site.find(context, id);
+            case Constants.SITE      : return Site.find(context, id);
         }
         return null;
     }
@@ -110,7 +110,7 @@ public abstract class DSpaceObjectDAO
      *             if the ADMIN action is supplied as parameter of the method
      *             call
      */
-    public DSpaceObject getAdminObject(DSpaceObject dso, int action) throws SQLException
+    public DSpaceObject getAdminObject(Context context, T dso, int action) throws SQLException
     {
         if (action == Constants.ADMIN)
         {
@@ -131,12 +131,12 @@ public abstract class DSpaceObjectDAO
      *         the hierarchy
      * @throws SQLException
      */
-    public DSpaceObject getParentObject(DSpaceObject dso) throws SQLException
+    public DSpaceObject getParentObject(Context context, T dso) throws SQLException
     {
         return null;
     }
 
-    public abstract void update(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException;
+    public abstract void update(Context context, T dso) throws SQLException, AuthorizeException;
 
 
     /**

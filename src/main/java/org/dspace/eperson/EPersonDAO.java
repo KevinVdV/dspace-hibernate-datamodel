@@ -37,7 +37,7 @@ import org.dspace.hibernate.HibernateQueryUtil;
  * @author David Stuve
  * @version $Revision$
  */
-public class EPersonDAO extends DSpaceObjectDAO
+public class EPersonDAO extends DSpaceObjectDAO<EPerson>
 {
     /** The e-mail field (for sorting) */
     public static final int EMAIL = 1;
@@ -74,13 +74,6 @@ public class EPersonDAO extends DSpaceObjectDAO
     public EPerson find(Context context, int id) throws SQLException
     {
         // First check the cache
-        EPerson fromCache = (EPerson) context.fromCache(EPerson.class, id);
-
-        if (fromCache != null)
-        {
-            return fromCache;
-        }
-
         return (EPerson) context.getDBConnection().get(EPerson.class, id);
     }
 
@@ -296,9 +289,6 @@ public class EPersonDAO extends DSpaceObjectDAO
         */
         context.addEvent(new Event(Event.DELETE, Constants.EPERSON, ePersonEntity.getID(), ePersonEntity.getEmail()));
 
-        // Remove from cache
-        context.removeCached(this, ePersonEntity.getID());
-
         // XXX FIXME: This sidesteps the object model code so it won't
         // generate  REMOVE events on the affected Groups.
 
@@ -428,32 +418,31 @@ public class EPersonDAO extends DSpaceObjectDAO
      * Update the EPerson
      */
     //TODO: Hibernate Use reflection for this method so no casting is required !
-    public void update(Context context, DSpaceObject dSpaceObject) throws SQLException, AuthorizeException
+    public void update(Context context, EPerson eperson) throws SQLException, AuthorizeException
     {
-        EPerson epersonEntity = (EPerson) dSpaceObject;
         // Check authorisation - if you're not the eperson
         // see if the authorization system says you can
         if (!context.ignoreAuthorization()
-                && ((context.getCurrentUser() == null) || (epersonEntity.getID() != context
+                && ((context.getCurrentUser() == null) || (eperson.getID() != context
                 .getCurrentUser().getID())))
         {
-            AuthorizeManager.authorizeAction(context, dSpaceObject, Constants.WRITE);
+            AuthorizeManager.authorizeAction(context, eperson, Constants.WRITE);
         }
 
-        HibernateQueryUtil.update(context, epersonEntity);
+        HibernateQueryUtil.update(context, eperson);
 
         log.info(LogManager.getHeader(context, "update_eperson",
-                "eperson_id=" + epersonEntity.getID()));
+                "eperson_id=" + eperson.getID()));
 
-        if (epersonEntity.isModified())
+        if (eperson.isModified())
         {
-            context.addEvent(new Event(Event.MODIFY, Constants.EPERSON, epersonEntity.getID(), null));
-            epersonEntity.setModified(false);
+            context.addEvent(new Event(Event.MODIFY, Constants.EPERSON, eperson.getID(), null));
+            eperson.setModified(false);
         }
-        if (epersonEntity.isModifiedMetadata())
+        if (eperson.isModifiedMetadata())
         {
-            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, epersonEntity.getID(), getDetails()));
-            epersonEntity.setModifiedMetadata(false);
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, eperson.getID(), getDetails()));
+            eperson.setModifiedMetadata(false);
             clearDetails();
         }
     }
