@@ -7,10 +7,10 @@
     <version>4.0</version>
 
 
-    <properties>
+    <!--<properties>-->
         <!-- This is the path to the root [dspace-src] directory. -->
-        <root.basedir>${basedir}/..</root.basedir>
-    </properties>
+        <!--<root.basedir>${basedir}/..</root.basedir>-->
+    <!--</properties>-->
 
 
     <!--
@@ -372,17 +372,23 @@
             <!--<scope>test</scope>-->
         <!--</dependency>-->
         <dependency>
+           <groupId>mockit</groupId>
+           <artifactId>jmockit</artifactId>
+           <version>0.999.4</version>
+           <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-           <groupId>mockit</groupId>
-           <artifactId>jmockit</artifactId>
-           <version>0.999.4</version>
+           <groupId>org.databene</groupId>
+           <artifactId>contiperf</artifactId>
+           <version>1.06</version>
            <scope>test</scope>
-        </dependency>
+       </dependency>
         <dependency>
         	<groupId>org.hsqldb</groupId>
         	<artifactId>hsqldb</artifactId>

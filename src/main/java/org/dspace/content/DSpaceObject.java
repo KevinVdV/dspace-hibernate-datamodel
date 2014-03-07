@@ -23,7 +23,7 @@ public abstract class DSpaceObject {
      * @return Handle of the object, or <code>null</code> if it doesn't have
      *         one
      */
-    public abstract String getHandle(Context context);
+    public abstract String getHandle(Context context) throws SQLException;
 
     /**
      * Get a proper name for the object. This may return <code>null</code>.
@@ -34,7 +34,7 @@ public abstract class DSpaceObject {
      */
     public abstract String getName();
 
-    public abstract void updateLastModified();
+    public abstract void updateLastModified(Context context);
 
     /**
      * Get the type of this object, found in Constants

@@ -2,10 +2,12 @@ package org.dspace.content;
 
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class Bundle extends DSpaceObject{
     @Column(name= "name")
     private String name = null;
 
+    //TODO: Link to bitstream ?
     @Column(name="primary_bitstream_id")
     private Integer primaryBitstreamId;
 
@@ -82,6 +85,11 @@ public class Bundle extends DSpaceObject{
         return id;
     }
 
+    @Override
+    public String getHandle(Context context) throws SQLException {
+        return null;
+    }
+
     /**
      * return type found in Constants
      */
@@ -97,6 +105,11 @@ public class Bundle extends DSpaceObject{
      */
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void updateLastModified(Context context) {
+
     }
 
     /**
@@ -171,5 +184,9 @@ public class Bundle extends DSpaceObject{
      */
     public Item getItem() {
         return item;
+    }
+
+    public void removeBitstream(Bitstream b) {
+        getBitstreams().remove(b);
     }
 }

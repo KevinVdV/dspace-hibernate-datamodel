@@ -27,6 +27,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.EPersonDAO;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -131,17 +132,18 @@ public class AbstractUnitTest
 //                ctx.commit();
 //
 //                //create eperson if required
-//                eperson = EPerson.find(ctx, 1);
-//                if(eperson == null)
-//                {
-//                    eperson = EPerson.create(ctx);
-//                    eperson.setFirstName("first");
-//                    eperson.setLastName("last");
-//                    eperson.setEmail("test@email.com");
-//                    eperson.setCanLogIn(true);
-//                    eperson.setLanguage(I18nUtil.getDefaultLocale().getLanguage());
-//                }
-//
+            EPersonDAO ePersonDAO = new EPersonDAO();
+            eperson = ePersonDAO.find(ctx, 1);
+                if(eperson == null)
+                {
+                    eperson = ePersonDAO.create(ctx);
+                    eperson.setFirstName("first");
+                    eperson.setLastName("last");
+                    eperson.setEmail("test@email.com");
+                    eperson.setCanLogIn(true);
+                    eperson.setLanguage(I18nUtil.getDefaultLocale().getLanguage());
+                }
+
 //                //Create search and browse indexes
 //                DSIndexer.cleanIndex(ctx);
 //                DSIndexer.createIndex(ctx);
@@ -190,11 +192,11 @@ public class AbstractUnitTest
 //            log.error("Error loading default data", ex);
 //            fail("Error loading default data");
 //        }
-//        catch (AuthorizeException ex)
-//        {
-//            log.error("Error loading default data", ex);
-//            fail("Error loading default data");
-//        }
+        catch (AuthorizeException ex)
+        {
+            log.error("Error loading default data", ex);
+            fail("Error loading default data");
+        }
         catch (SQLException ex)
         {
             log.error("Error initializing the database", ex);

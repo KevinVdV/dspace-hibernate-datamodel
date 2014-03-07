@@ -56,8 +56,8 @@ public class Site extends DSpaceObject
      * @return Handle of the object, or <code>null</code> if it doesn't have
      *         one
      */
-    public String getHandle()
-    {
+    @Override
+    public String getHandle(Context context) throws SQLException {
         return getSiteHandle();
     }
 
@@ -106,7 +106,7 @@ public class Site extends DSpaceObject
     }
 
     @Override
-    public void updateLastModified()
+    public void updateLastModified(Context context)
     {
 
     }

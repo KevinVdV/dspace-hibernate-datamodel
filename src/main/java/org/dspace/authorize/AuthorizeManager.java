@@ -283,12 +283,13 @@ public class AuthorizeManager
 
             // perform isAdmin check to see
             // if user is an Admin on this object
-            DSpaceObject testObject = useInheritance ? o.getAdminObject(action) : null;
-
-            if (isAdmin(c, testObject))
-            {
-                return true;
-            }
+            //TODO: HIBERNATE: IMPLEMENT PARENT OBJECT
+//            DSpaceObject testObject = useInheritance ? o.getAdminObject(action) : null;
+//
+//            if (isAdmin(c, testObject))
+//            {
+//                return true;
+//            }
         }
 
         GroupDAO groupDAO = new GroupDAO();
@@ -298,13 +299,13 @@ public class AuthorizeManager
             // check policies for date validity
             if (resourcePolicyDAO.isDateValid(rp))
             {
-                if ((rp.getEPersonID() != -1) && (rp.getEPersonID() == userid))
+                if (rp.getEPerson() != null && rp.getEPerson().getID() == userid)
                 {
                     return true; // match
                 }
 
-                if ((rp.getGroupID() != -1)
-                        && (groupDAO.isMember(c, rp.getGroupID())))
+                if ((rp.getGroup() != null)
+                        && (groupDAO.isMember(c, rp.getGroup())))
                 {
                     // group was set, and eperson is a member
                     // of that group
@@ -369,13 +370,13 @@ public class AuthorizeManager
             // check policies for date validity
             if (policyDAO.isDateValid(rp))
             {
-                if ((rp.getEPersonID() != -1) && (rp.getEPersonID() == userid))
+                if (rp.getEPerson() != null && rp.getEPerson().getID() == userid)
                 {
                     return true; // match
                 }
 
-                if ((rp.getGroupID() != -1)
-                        && (groupDAO.isMember(c, rp.getGroupID())))
+                if ((rp.getGroup() != null)
+                        && (groupDAO.isMember(c, rp.getGroup())))
                 {
                     // group was set, and eperson is a member
                     // of that group
@@ -388,11 +389,12 @@ public class AuthorizeManager
         // check the *parent* objects of this object.  This allows Admin
         // permissions to be inherited automatically (e.g. Admin on Community
         // is also an Admin of all Collections/Items in that Community)
-        DSpaceObject parent = o.getParentObject();
-        if (parent != null)
-        {
-            return isAdmin(c, parent);
-        }
+        //TODO: HIBERNATE: IMPLEMENT PARENT OBJECT
+//        DSpaceObject parent = o.getParentObject();
+//        if (parent != null)
+//        {
+//            return isAdmin(c, parent);
+//        }
 
         return false;
     }
@@ -476,12 +478,12 @@ public class AuthorizeManager
 
         policyDAO.setResource(rp, o);
         rp.setAction(actionID);
-        policyDAO.setEPerson(rp, e);
+        rp.setEPerson(e);
         rp.setRpType(type);
 
         policyDAO.update(context, rp);
 
-        o.updateLastModified();
+        o.updateLastModified(context);
     }
 
     /**
@@ -537,7 +539,7 @@ public class AuthorizeManager
 
         policyDAO.update(c, rp);
 
-        o.updateLastModified();
+        o.updateLastModified(c);
     }
 
     /**
@@ -681,8 +683,8 @@ public class AuthorizeManager
             // copy over values
             resourcePolicyDAO.setResource(rp, dest);
             rp.setAction(srp.getAction());
-            resourcePolicyDAO.setEPerson(rp, resourcePolicyDAO.getEPerson(c, srp));
-            resourcePolicyDAO.setGroup(rp, resourcePolicyDAO.getGroup(c, srp));
+            rp.setEPerson(srp.getEPerson());
+            rp.setGroup(srp.getGroup());
             rp.setStartDate(srp.getStartDate());
             rp.setEndDate(srp.getEndDate());
             rp.setRpName(srp.getRpName());
@@ -692,7 +694,7 @@ public class AuthorizeManager
             resourcePolicyDAO.update(c, rp);
         }
 
-        dest.updateLastModified();
+        dest.updateLastModified(c);
     }
 
     /**
@@ -708,7 +710,7 @@ public class AuthorizeManager
     public static void removeAllPolicies(Context c, DSpaceObject o)
             throws SQLException
     {
-        o.updateLastModified();
+        o.updateLastModified(c);
 
         // FIXME: authorization check?
         Map<String, Object> criteria = new HashMap<String, Object>();
@@ -730,10 +732,17 @@ public class AuthorizeManager
     public static void removeAllPoliciesByDSOAndTypeNotEqualsTo(Context c, DSpaceObject o, String type)
             throws SQLException
     {
+        Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
+        List<ResourcePolicy> list = criteria.add(Restrictions.and(
+                Restrictions.eq("resource_type_id", o.getType()),
+                Restrictions.eq("resource_id", o.getID()),
+                Restrictions.not(Restrictions.eq("rptype", type))
+        )).list();
+        for (int i = 0; i < list.size(); i++) {
+            ResourcePolicy resourcePolicy = list.get(i);
+            c.getDBConnection().delete(resourcePolicy);
+        }
 
-        DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy WHERE "
-                + "resource_type_id= ? AND resource_id= ? AND rptype <> ? ",
-                o.getType(), o.getID(), type);
     }
 
 
@@ -776,7 +785,7 @@ public class AuthorizeManager
     public static void removePoliciesActionFilter(Context context,
                                                   DSpaceObject dso, int actionID) throws SQLException
     {
-        dso.updateLastModified();
+        dso.updateLastModified(context);
         if (actionID == -1)
         {
             // remove all policies from object
@@ -826,7 +835,7 @@ public class AuthorizeManager
     public static void removeGroupPolicies(Context c, DSpaceObject o, Group g)
             throws SQLException
     {
-        o.updateLastModified();
+        o.updateLastModified(c);
         Map<String, Object> criteria = new HashMap<String, Object>();
         criteria.put("resource_type_id", o.getType());
         criteria.put("resource_id", o.getID());
@@ -851,7 +860,7 @@ public class AuthorizeManager
     public static void removeEPersonPolicies(Context c, DSpaceObject o, EPerson e)
             throws SQLException
     {
-        o.updateLastModified();
+        o.updateLastModified(c);
         Map<String, Object> criteria = new HashMap<String, Object>();
         criteria.put("resource_type_id", o.getType());
         criteria.put("resource_id", o.getID());
@@ -882,9 +891,9 @@ public class AuthorizeManager
         GroupDAO groupDAO = new GroupDAO();
         List<Group> groups = new ArrayList<Group>();
         for (ResourcePolicy resourcePolicy : policies) {
-            if(resourcePolicy.getGroupID() != -1)
+            if(resourcePolicy.getGroup() != null)
             {
-                groups.add(groupDAO.find(c, resourcePolicy.getGroupID()));
+                groups.add(resourcePolicy.getGroup());
             }
         }
         return groups.toArray(new Group[groups.size()]);
@@ -893,22 +902,22 @@ public class AuthorizeManager
 
     public static boolean isAnIdenticalPolicyAlreadyInPlace(Context c, DSpaceObject o, ResourcePolicy rp) throws SQLException
     {
-        return isAnIdenticalPolicyAlreadyInPlace(c, o.getType(), o.getID(), rp.getGroupID(), rp.getAction(), rp.getID());
+        return isAnIdenticalPolicyAlreadyInPlace(c, o.getType(), o.getID(), rp.getGroup(), rp.getAction(), rp.getID());
     }
 
 
-    public static boolean isAnIdenticalPolicyAlreadyInPlace(Context c, DSpaceObject o, int groupID, int action, int policyID) throws SQLException
+    public static boolean isAnIdenticalPolicyAlreadyInPlace(Context c, DSpaceObject o, Group groupID, int action, int policyID) throws SQLException
     {
         return isAnIdenticalPolicyAlreadyInPlace(c, o.getType(), o.getID(), groupID, action, policyID);
     }
 
-    public static boolean isAnIdenticalPolicyAlreadyInPlace(Context c, int dsoType, int dsoID, int groupID, int action, int policyID) throws SQLException
+    public static boolean isAnIdenticalPolicyAlreadyInPlace(Context c, int dsoType, int dsoID, Group group, int action, int policyID) throws SQLException
     {
         Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", dsoType),
                 Restrictions.eq("resource_id", dsoID),
-                Restrictions.eq("epersongroup_id", groupID),
+                Restrictions.eq("epersongroup_id", group),
                 Restrictions.eq("action_id", action)
         ));
         criteria.setMaxResults(1);
@@ -928,14 +937,14 @@ public class AuthorizeManager
 
     }
 
-    public static ResourcePolicy findByTypeIdGroupAction(Context c, int dsoType, int dsoID, int groupID, int action, int policyID) throws SQLException
+    public static ResourcePolicy findByTypeIdGroupAction(Context c, int dsoType, int dsoID, Group group, int action, int policyID) throws SQLException
     {
 
         Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", dsoType),
                 Restrictions.eq("resource_id", dsoID),
-                Restrictions.eq("epersongroup_id", groupID),
+                Restrictions.eq("epersongroup_id", group),
                 Restrictions.eq("action_id", action)
         ));
         criteria.setMaxResults(1);
@@ -998,7 +1007,7 @@ public class AuthorizeManager
                 // add policies for all the groups
                 for (Group g : authorizedGroups)
                 {
-                    ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, g.getID(), null, embargoDate, Constants.READ, reason, dso);
+                    ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, g, null, embargoDate, Constants.READ, reason, dso);
                     if (rp != null)
                         resourcePolicyDAO.update(context, rp);
                 }
@@ -1006,7 +1015,7 @@ public class AuthorizeManager
             } else
             {
                 // add policy just for anonymous
-                ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, 0, null, embargoDate, Constants.READ, reason, dso);
+                ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, null, null, embargoDate, Constants.READ, reason, dso);
                 if (rp != null)
                     resourcePolicyDAO.update(context, rp);
             }
@@ -1014,14 +1023,14 @@ public class AuthorizeManager
     }
 
 
-    public static ResourcePolicy createOrModifyPolicy(ResourcePolicy policy, Context context, String name, int idGroup, EPerson ePerson,
+    public static ResourcePolicy createOrModifyPolicy(ResourcePolicy policy, Context context, String name, Group group, EPerson ePerson,
                                                       Date embargoDate, int action, String reason, DSpaceObject dso) throws AuthorizeException, SQLException
     {
         int policyID = -1;
         if (policy != null) policyID = policy.getID();
 
         // if an identical policy (same Action and same Group) is already in place modify it...
-        ResourcePolicy policyTemp = AuthorizeManager.findByTypeIdGroupAction(context, dso.getType(), dso.getID(), idGroup, action, policyID);
+        ResourcePolicy policyTemp = AuthorizeManager.findByTypeIdGroupAction(context, dso.getType(), dso.getID(), group, action, policyID);
         if (policyTemp != null)
         {
             policy = policyTemp;
@@ -1037,9 +1046,8 @@ public class AuthorizeManager
             policy.setAction(action);
             policy.setRpType(ResourcePolicy.TYPE_CUSTOM);
         }
-        Group policyGroup = new GroupDAO().find(context, idGroup);
-        resourcePolicyDAO.setGroup(policy, policyGroup);
-        resourcePolicyDAO.setEPerson(policy, ePerson);
+        policy.setGroup(group);
+        policy.setEPerson(ePerson);
 
         if (embargoDate != null)
         {

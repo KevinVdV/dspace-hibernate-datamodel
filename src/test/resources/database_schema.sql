@@ -96,7 +96,6 @@ CREATE SEQUENCE dctyperegistry_seq;
 CREATE SEQUENCE dcvalue_seq;
 CREATE SEQUENCE community_seq;
 CREATE SEQUENCE collection_seq;
-CREATE SEQUENCE community2community_seq;
 CREATE SEQUENCE community2collection_seq;
 CREATE SEQUENCE collection2item_seq;
 CREATE SEQUENCE resourcepolicy_seq;
@@ -394,7 +393,7 @@ CREATE INDEX collection_admin_fk_idx ON Collection(admin);
 -------------------------------------------------------
 CREATE TABLE Community2Community
 (
-  id             INTEGER PRIMARY KEY,
+  PRIMARY KEY(parent_comm_id, child_comm_id),
   parent_comm_id INTEGER REFERENCES Community(community_id),
   child_comm_id  INTEGER,
   CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(community_id) DEFERRABLE

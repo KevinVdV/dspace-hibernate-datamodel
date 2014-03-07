@@ -85,7 +85,7 @@ public class ResourcePolicyDAO
             DSpaceObject dso = DSpaceObjectDAO.find(context, resourcePolicy.getResourceType(), resourcePolicy.getResourceID());
             if(dso != null)
             {
-                dso.updateLastModified();
+                dso.updateLastModified(context);
             }
         }
 
@@ -122,59 +122,6 @@ public class ResourcePolicyDAO
     }
 
     /**
-     * get EPerson this policy relates to
-     *
-     * @return EPerson, or null
-     */
-    public EPerson getEPerson(Context context, ResourcePolicy resourcePolicy) throws SQLException
-    {
-        int eid = resourcePolicy.getEPersonID();
-
-        if (eid == -1)
-        {
-            return null;
-        }
-
-        return new EPersonDAO().find(context, eid);
-    }
-
-    /**
-     * assign an EPerson to this policy
-     *
-     * @param e EPerson
-     */
-    public void setEPerson(ResourcePolicy resourcePolicy, EPerson e)
-    {
-        if (e != null)
-        {
-            resourcePolicy.setEPersonID(e.getID());
-        }
-        else
-        {
-            resourcePolicy.setEPersonID(null);
-        }
-    }
-
-    /**
-     * gets Group for this policy
-     *
-     * @return Group, or -1 if no group set
-     */
-    public Group getGroup(Context context, ResourcePolicy resourcePolicy) throws SQLException
-    {
-        int gid = resourcePolicy.getGroupID();
-
-        if (gid == -1)
-        {
-            return null;
-        }
-        else
-        {
-            return new GroupDAO().find(context, gid);
-        }
-    }
-
-    /**
      * set Group for this policy
      *
      * @param g group
@@ -183,11 +130,11 @@ public class ResourcePolicyDAO
     {
         if (g != null)
         {
-            resourcePolicy.setGroupID(g.getID());
+            resourcePolicy.setGroup(g);
         }
         else
         {
-            resourcePolicy.setGroupID(null);
+            resourcePolicy.setGroup(null);
         }
     }
 
@@ -238,7 +185,7 @@ public class ResourcePolicyDAO
             //A policy for a DSpace Object has been modified, fire a modify event on the DSpace object
             DSpaceObject dso = DSpaceObjectDAO.find(context, resourcePolicy.getResourceType(), resourcePolicy.getResourceID());
             if(dso != null){
-                dso.updateLastModified();
+                dso.updateLastModified(context);
             }
         }
 

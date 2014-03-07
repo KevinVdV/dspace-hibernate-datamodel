@@ -20,8 +20,6 @@ import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
-import org.dspace.browse.BrowseException;
-import org.dspace.browse.IndexBrowse;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -33,10 +31,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.handle.HandleManager;
 import org.dspace.hibernate.HibernateQueryUtil;
-import org.dspace.identifier.IdentifierException;
-import org.dspace.identifier.IdentifierService;
-import org.dspace.utils.DSpace;
-import org.dspace.versioning.VersioningService;
 import org.hibernate.Query;
 
 /**
@@ -59,11 +53,6 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
     /** log4j category */
     private static final Logger log = Logger.getLogger(Item.class);
     /** The bundles in this item - kept in sync with DB */
-    //TODO/ IMPLEMENT WHEN BUNDLE BECOMES AVAILABLE
-//    private List<Bundle> bundles;
-
-    /** The Dublin Core metadata - inner class for lazy loading */
-//    MetadataCache dublinCore = new MetadataCache();
 
     /** Handle, if any */
 //    private String handle;
@@ -74,19 +63,12 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      *
      * @throws SQLException
      */
-    public ItemDAO() throws SQLException
+    public ItemDAO()
     {
         clearDetails();
 
         // Get our Handle if any
 //        handle = HandleManager.findHandle(context, this);
-    }
-
-    private TableRowIterator retrieveMetadata() throws SQLException
-    {
-        return DatabaseManager.queryTable(ourContext, "MetadataValue",
-                "SELECT * FROM MetadataValue WHERE item_id= ? ORDER BY metadata_field_id, place",
-                itemRow.getIntColumn("item_id"));
     }
 
     /**
@@ -141,6 +123,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
     Item create(Context context) throws SQLException, AuthorizeException
     {
         Item item = new Item();
+        HibernateQueryUtil.update(context, item);
 
         // set discoverable to true (default)
         item.setDiscoverable(true);
@@ -170,7 +153,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      */
     public Iterator<Item> findAll(Context context) throws SQLException
     {
-        Query query = context.getDBConnection().createQuery("FROM item WHERE in_archive= :in_archive");
+        Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive");
         query.setParameter("in_archive", true);
         return query.iterate();
     }
@@ -186,7 +169,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      */
 	public Iterator<Item> findAllUnfiltered(Context context) throws SQLException
     {
-        Query query = context.getDBConnection().createQuery("FROM item WHERE in_archive= :in_archive or withdrawn = :withdrawn");
+        Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive or withdrawn = :withdrawn");
         query.setParameter("in_archive", true);
         query.setParameter("withdrawn", true);
         query.iterate();
@@ -208,91 +191,11 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson)
             throws SQLException
     {
-        Query query = context.getDBConnection().createQuery("FROM item WHERE in_archive= :in_archive and submitter_id= :submitter_id");
+        Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive and submitter= :submitter_id");
         query.setParameter("in_archive", true);
-        query.setParameter("submitter_id", true);
+        query.setParameter("submitter_id", eperson.getID());
 
         return query.iterate();
-    }
-
-    /**
-     * @see org.dspace.content.DSpaceObject#getHandle()
-     */
-    public String getHandle()
-    {
-        if(handle == null) {
-                try {
-                                handle = HandleManager.findHandle(this.ourContext, this);
-                        } catch (SQLException e) {
-                                // TODO Auto-generated catch block
-                                //e.printStackTrace();
-                        }
-        }
-        return handle;
-    }
-
-    /**
-     * Method that updates the last modified date of the item
-     */
-    public void updateLastModified()
-    {
-        try {
-            Date lastModified = new Timestamp(new Date().getTime());
-            itemRow.setColumn("last_modified", lastModified);
-            DatabaseManager.updateQuery(ourContext, "UPDATE item SET last_modified = ? WHERE item_id= ? ", lastModified, getID());
-            //Also fire a modified event since the item HAS been modified
-            ourContext.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), null));
-        } catch (SQLException e) {
-            log.error(LogManager.getHeader(ourContext, "Error while updating last modified timestamp", "Item: " + getID()));
-        }
-    }
-
-    /**
-     * Get Dublin Core metadata for the item.
-     * Passing in a <code>null</code> value for <code>qualifier</code>
-     * or <code>lang</code> only matches Dublin Core fields where that
-     * qualifier or languages is actually <code>null</code>.
-     * Passing in <code>Item.ANY</code>
-     * retrieves all metadata fields with any value for the qualifier or
-     * language, including <code>null</code>
-     * <P>
-     * Examples:
-     * <P>
-     * Return values of the unqualified "title" field, in any language.
-     * Qualified title fields (e.g. "title.uniform") are NOT returned:
-     * <P>
-     * <code>item.getDC( "title", null, Item.ANY );</code>
-     * <P>
-     * Return all US English values of the "title" element, with any qualifier
-     * (including unqualified):
-     * <P>
-     * <code>item.getDC( "title", Item.ANY, "en_US" );</code>
-     * <P>
-     * The ordering of values of a particular element/qualifier/language
-     * combination is significant. When retrieving with wildcards, values of a
-     * particular element/qualifier/language combinations will be adjacent, but
-     * the overall ordering of the combinations is indeterminate.
-     *
-     * @param element
-     *            the Dublin Core element. <code>Item.ANY</code> matches any
-     *            element. <code>null</code> doesn't really make sense as all
-     *            DC must have an element.
-     * @param qualifier
-     *            the qualifier. <code>null</code> means unqualified, and
-     *            <code>Item.ANY</code> means any qualifier (including
-     *            unqualified.)
-     * @param lang
-     *            the ISO639 language code, optionally followed by an underscore
-     *            and the ISO3166 country code. <code>null</code> means only
-     *            values with no language are returned, and
-     *            <code>Item.ANY</code> means values with any country code or
-     *            no country code are returned.
-     * @return Dublin Core fields that match the parameters
-     */
-    @Deprecated
-    public DCValue[] getDC(String element, String qualifier, String lang)
-    {
-        return getMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang);
     }
 
     /**
@@ -341,30 +244,21 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      *            no country code are returned.
      * @return metadata fields that match the parameters
      */
-    public DCValue[] getMetadata(Item item, String schema, String element, String qualifier,
+    public MetadataValue[] getMetadata(Item item, String schema, String element, String qualifier,
             String lang)
     {
         // Build up list of matching values
-        List<DCValue> values = new ArrayList<DCValue>();
-        for (DCValue dcv : item.getMetadata())
+        List<MetadataValue> values = new ArrayList<MetadataValue>();
+        for (MetadataValue dcv : item.getMetadata())
         {
             if (match(schema, element, qualifier, lang, dcv))
             {
-                // We will return a copy of the object in case it is altered
-                DCValue copy = new DCValue();
-                copy.element = dcv.element;
-                copy.qualifier = dcv.qualifier;
-                copy.value = dcv.value;
-                copy.language = dcv.language;
-                copy.schema = dcv.schema;
-                copy.authority = dcv.authority;
-                copy.confidence = dcv.confidence;
-                values.add(copy);
+                values.add(dcv);
             }
         }
 
         // Create an array of matching values
-        DCValue[] valueArray = new DCValue[values.size()];
+        MetadataValue[] valueArray = new MetadataValue[values.size()];
         valueArray = values.toArray(valueArray);
         return valueArray;
     }
@@ -377,7 +271,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      *            The metadata string of the form
      *            <schema prefix>.<element>[.<qualifier>|.*]
      */
-    public DCValue[] getMetadata(Item item, String mdString)
+    public MetadataValue[] getMetadata(Item item, String mdString)
     {
         StringTokenizer dcf = new StringTokenizer(mdString, ".");
         
@@ -392,7 +286,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         String element = tokens[1];
         String qualifier = tokens[2];
         
-        DCValue[] values;
+        MetadataValue[] values;
         if ("*".equals(qualifier))
         {
             values = getMetadata(item, schema, element, Item.ANY, Item.ANY);
@@ -409,53 +303,6 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         return values;
     }
 
-    /**
-     * Add Dublin Core metadata fields. These are appended to existing values.
-     * Use <code>clearDC</code> to remove values. The ordering of values
-     * passed in is maintained.
-     *
-     * @param element
-     *            the Dublin Core element
-     * @param qualifier
-     *            the Dublin Core qualifier, or <code>null</code> for
-     *            unqualified
-     * @param lang
-     *            the ISO639 language code, optionally followed by an underscore
-     *            and the ISO3166 country code. <code>null</code> means the
-     *            value has no language (for example, a date).
-     * @param values
-     *            the values to add.
-     */
-    @Deprecated
-    public void addDC(Item item, String element, String qualifier, String lang,
-            String[] values)
-    {
-        addMetadata(item, MetadataSchema.DC_SCHEMA, element, qualifier, lang, values);
-    }
-
-    /**
-     * Add a single Dublin Core metadata field. This is appended to existing
-     * values. Use <code>clearDC</code> to remove values.
-     *
-     * @param element
-     *            the Dublin Core element
-     * @param qualifier
-     *            the Dublin Core qualifier, or <code>null</code> for
-     *            unqualified
-     * @param lang
-     *            the ISO639 language code, optionally followed by an underscore
-     *            and the ISO3166 country code. <code>null</code> means the
-     *            value has no language (for example, a date).
-     * @param value
-     *            the value to add.
-     */
-    @Deprecated
-    public void addDC(Item item, String element, String qualifier, String lang,
-            String value)
-    {
-        addMetadata(item, MetadataSchema.DC_SCHEMA, element, qualifier, lang, value);
-    }
-    
     /**
      * Add metadata fields. These are appended to existing values.
      * Use <code>clearDC</code> to remove values. The ordering of values
@@ -479,9 +326,8 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @param values
      *            the values to add.
      */
-    public void addMetadata(Item item, String schema, String element, String qualifier, String lang,
-            String[] values)
-    {
+    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang,
+            String[] values) throws SQLException {
         MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
         String fieldKey = MetadataAuthorityManager.makeFieldKey(schema, element, qualifier);
         if (mam.isAuthorityControlled(fieldKey))
@@ -490,15 +336,21 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             int confidences[] = new int[values.length];
             for (int i = 0; i < values.length; ++i)
             {
-                Choices c = ChoiceAuthorityManager.getManager().getBestMatch(fieldKey, values[i], item.getOwningCollectionID(), null);
+                Collection owningCollection = item.getOwningCollection();
+                int collectionId = -1;
+                if(owningCollection != null)
+                {
+                    collectionId = owningCollection.getID();
+                }
+                Choices c = ChoiceAuthorityManager.getManager().getBestMatch(fieldKey, values[i], collectionId, null);
                 authorities[i] = c.values.length > 0 ? c.values[0].authority : null;
                 confidences[i] = c.confidence;
             }
-            addMetadata(item, schema, element, qualifier, lang, values, authorities, confidences);
+            addMetadata(context, item, schema, element, qualifier, lang, values, authorities, confidences);
         }
         else
         {
-            addMetadata(item, schema, element, qualifier, lang, values, null, null);
+            addMetadata(context, item, schema, element, qualifier, lang, values, null, null);
         }
     }
 
@@ -525,10 +377,9 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @param confidences
      *            the authority confidence (default 0)
      */
-    public void addMetadata(Item item, String schema, String element, String qualifier, String lang,
-            String[] values, String authorities[], int confidences[])
-    {
-        List<DCValue> dublinCore = item.getMetadata();
+    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang,
+            String[] values, String authorities[], int confidences[]) throws SQLException {
+        List<MetadataValue> dublinCore = item.getMetadata();
         MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();        
         boolean authorityControlled = mam.isAuthorityControlled(schema, element, qualifier);
         boolean authorityRequired = mam.isAuthorityRequired(schema, element, qualifier);
@@ -538,11 +389,14 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         // until update() is called.
         for (int i = 0; i < values.length; i++)
         {
-            DCValue dcv = new DCValue();
-            dcv.schema = schema;
-            dcv.element = element;
-            dcv.qualifier = qualifier;
-            dcv.language = (lang == null ? null : lang.trim());
+            //TODO: HIBERNATE? THROW EXCEPTION IF SCHEMA OR FIELD CANNOT BE FOUND
+            MetadataSchema metadataSchema = new MetadataSchemaDAO().find(context, schema);
+            MetadataField metadataField = new MetadataFieldDAO().findByElement(context, metadataSchema.getSchemaID(), element, qualifier);
+            MetadataValueDAO metadataValueDAO = new MetadataValueDAO();
+            MetadataValue metadataValue = metadataValueDAO.create(context, metadataField);
+
+
+            metadataValue.setLanguage(lang == null ? null : lang.trim());
 
             // Logic to set Authority and Confidence:
             //  - normalize an empty string for authority to NULL.
@@ -554,19 +408,19 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             {
                 if (authorities != null && authorities[i] != null && authorities[i].length() > 0)
                 {
-                    dcv.authority = authorities[i];
-                    dcv.confidence = confidences == null ? Choices.CF_NOVALUE : confidences[i];
+                    metadataValue.setAuthority(authorities[i]);
+                    metadataValue.setConfidence(confidences == null ? Choices.CF_NOVALUE : confidences[i]);;
                 }
                 else
                 {
-                    dcv.authority = null;
-                    dcv.confidence = confidences == null ? Choices.CF_UNSET : confidences[i];
+                    metadataValue.setAuthority(null);
+                    metadataValue.setConfidence(confidences == null ? Choices.CF_UNSET : confidences[i]);
                 }
                 // authority sanity check: if authority is required, was it supplied?
                 // XXX FIXME? can't throw a "real" exception here without changing all the callers to expect it, so use a runtime exception
-                if (authorityRequired && (dcv.authority == null || dcv.authority.length() == 0))
+                if (authorityRequired && (metadataValue.getAuthority() == null || metadataValue.getAuthority().length() == 0))
                 {
-                    throw new IllegalArgumentException("The metadata field \"" + fieldName + "\" requires an authority key but none was provided. Vaue=\"" + dcv.value + "\"");
+                    throw new IllegalArgumentException("The metadata field \"" + fieldName + "\" requires an authority key but none was provided. Vaue=\"" + metadataValue.getValue() + "\"");
                 }
             }
             if (values[i] != null)
@@ -584,16 +438,17 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
                         dcvalue[charPos] = ' ';
                     }
                 }
-                dcv.value = String.valueOf(dcvalue);
+                metadataValue.setValue(String.valueOf(dcvalue));
             }
             else
             {
-                dcv.value = null;
+                metadataValue.setValue(null);
             }
             //Set the place to be the next place in the line
-            dcv.setPlace(getMetadata(item, schema, element, qualifier, Item.ANY).length + 1);
-            dublinCore.add(dcv);
+            metadataValue.setPlace(getMetadata(item, schema, element, qualifier, Item.ANY).length + 1);
+            dublinCore.add(metadataValue);
             addDetails(fieldName);
+            metadataValueDAO.update(context, metadataValue);
         }
         item.setMetadata(dublinCore);
     }
@@ -617,13 +472,12 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @param value
      *            the value to add.
      */
-    public void addMetadata(Item item, String schema, String element, String qualifier,
-            String lang, String value)
-    {
+    public void addMetadata(Context context, Item item, String schema, String element, String qualifier,
+            String lang, String value) throws SQLException {
         String[] valArray = new String[1];
         valArray[0] = value;
 
-        addMetadata(item, schema, element, qualifier, lang, valArray);
+        addMetadata(context, item, schema, element, qualifier, lang, valArray);
     }
 
     /**
@@ -649,9 +503,8 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @param confidence
      *            the authority confidence (default 0)
      */
-    public void addMetadata(Item item, String schema, String element, String qualifier,
-            String lang, String value, String authority, int confidence)
-    {
+    public void addMetadata(Context context, Item item, String schema, String element, String qualifier,
+            String lang, String value, String authority, int confidence) throws SQLException {
         String[] valArray = new String[1];
         String[] authArray = new String[1];
         int[] confArray = new int[1];
@@ -659,34 +512,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         authArray[0] = authority;
         confArray[0] = confidence;
 
-        addMetadata(item, schema, element, qualifier, lang, valArray, authArray, confArray);
-    }
-
-    /**
-     * Clear Dublin Core metadata values. As with <code>getDC</code> above,
-     * passing in <code>null</code> only matches fields where the qualifier or
-     * language is actually <code>null</code>.<code>Item.ANY</code> will
-     * match any element, qualifier or language, including <code>null</code>.
-     * Thus, <code>item.clearDC(Item.ANY, Item.ANY, Item.ANY)</code> will
-     * remove all Dublin Core metadata associated with an item.
-     *
-     * @param element
-     *            the Dublin Core element to remove, or <code>Item.ANY</code>
-     * @param qualifier
-     *            the qualifier. <code>null</code> means unqualified, and
-     *            <code>Item.ANY</code> means any qualifier (including
-     *            unqualified.)
-     * @param lang
-     *            the ISO639 language code, optionally followed by an underscore
-     *            and the ISO3166 country code. <code>null</code> means only
-     *            values with no language are removed, and <code>Item.ANY</code>
-     *            means values with any country code or no country code are
-     *            removed.
-     */
-    @Deprecated
-    public void clearDC(Item item, String element, String qualifier, String lang)
-    {
-        clearMetadata(item, MetadataSchema.DC_SCHEMA, element, qualifier, lang);
+        addMetadata(context, item, schema, element, qualifier, lang, valArray, authArray, confArray);
     }
 
     /**
@@ -717,8 +543,8 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             String lang)
     {
         // We will build a list of values NOT matching the values to clear
-        List<DCValue> values = new ArrayList<DCValue>();
-        for (DCValue dcv : item.getMetadata())
+        List<MetadataValue> values = new ArrayList<MetadataValue>();
+        for (MetadataValue dcv : item.getMetadata())
         {
             if (!match(schema, element, qualifier, lang, dcv))
             {
@@ -747,15 +573,18 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      *            the qualifier to match, or <code>Item.ANY</code>
      * @param language
      *            the language to match, or <code>Item.ANY</code>
-     * @param dcv
+     * @param metadataValue
      *            the Dublin Core value
      * @return <code>true</code> if there is a match
      */
     private boolean match(String schema, String element, String qualifier,
-            String language, DCValue dcv)
+            String language, MetadataValue metadataValue)
     {
+
+        MetadataField metadataField = metadataValue.getMetadataField();
+        MetadataSchema metadataSchema = metadataField.getMetadataSchema();
         // We will attempt to disprove a match - if we can't we have a match
-        if (!element.equals(Item.ANY) && !element.equals(dcv.element))
+        if (!element.equals(Item.ANY) && !element.equals(metadataField.getElement()))
         {
             // Elements do not match, no wildcard
             return false;
@@ -764,7 +593,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         if (qualifier == null)
         {
             // Value must be unqualified
-            if (dcv.qualifier != null)
+            if (metadataField.getQualifier() != null)
             {
                 // Value is qualified, so no match
                 return false;
@@ -773,7 +602,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         else if (!qualifier.equals(Item.ANY))
         {
             // Not a wildcard, so qualifier must match exactly
-            if (!qualifier.equals(dcv.qualifier))
+            if (!qualifier.equals(metadataField.getQualifier()))
             {
                 return false;
             }
@@ -782,7 +611,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         if (language == null)
         {
             // Value must be null language to match
-            if (dcv.language != null)
+            if (metadataValue.getLanguage() != null)
             {
                 // Value is qualified, so no match
                 return false;
@@ -791,7 +620,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         else if (!language.equals(Item.ANY))
         {
             // Not a wildcard, so language must match exactly
-            if (!language.equals(dcv.language))
+            if (!language.equals(metadataValue.getLanguage()))
             {
                 return false;
             }
@@ -799,7 +628,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
 
         if (!schema.equals(Item.ANY))
         {
-            if (dcv.schema != null && !dcv.schema.equals(schema))
+            if (metadataSchema != null && !metadataSchema.getName().equals(schema))
             {
                 // The namespace doesn't match
                 return false;
@@ -819,12 +648,8 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      */
     public boolean isIn(Item item, Collection collection) throws SQLException
     {
-        TableRow tr = DatabaseManager.querySingle(ourContext,
-                "SELECT COUNT(*) AS count" +
-                " FROM collection2item" +
-                " WHERE collection_id = ? AND item_id = ?",
-                collection.getID(), itemRow.getIntColumn("item_id"));
-        return tr.getLongColumn("count") > 0;
+        List<Collection> collections = item.getCollections();
+        return collections != null && collections.contains(collection);
     }
 
     /**
@@ -835,52 +660,18 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @return the communities this item is in.
      * @throws SQLException
      */
-    public Community[] getCommunities() throws SQLException
+    public Community[] getCommunities(Context context, Item item) throws SQLException
     {
-        List<Community> communities = new ArrayList<Community>();
-
-        // Get community table rows
-        TableRowIterator tri = DatabaseManager.queryTable(ourContext,"community",
-                        "SELECT community.* FROM community, community2item " +
-                        "WHERE community2item.community_id=community.community_id " +
-                        "AND community2item.item_id= ? ",
-                        itemRow.getIntColumn("item_id"));
-
-        try
+        List<Community> result = new ArrayList<Community>();
+        List<Collection> collections = item.getCollections();
+        for(Collection collection : collections)
         {
-            while (tri.hasNext())
-            {
-                TableRow row = tri.next();
-
-                // First check the cache
-                Community owner = (Community) ourContext.fromCache(Community.class,
-                        row.getIntColumn("community_id"));
-
-                if (owner == null)
-                {
-                    owner = new Community(ourContext, row);
-                }
-
-                communities.add(owner);
-
-                // now add any parent communities
-                Community[] parents = owner.getAllParents();
-                communities.addAll(Arrays.asList(parents));
-            }
-        }
-        finally
-        {
-            // close the TableRowIterator to free up resources
-            if (tri != null)
-            {
-                tri.close();
-            }
+            Community owningCommunity = collection.getOwningCommunity();
+            result.add(owningCommunity);
+            result.addAll(Arrays.asList(new CommunityDAO().getAllParents(owningCommunity)));
         }
 
-        Community[] communityArray = new Community[communities.size()];
-        communityArray = (Community[]) communities.toArray(communityArray);
-
-        return communityArray;
+        return result.toArray(new Community[result.size()]);
     }
 
     /**
@@ -1157,18 +948,15 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
 
         // Set sequence IDs for bitstreams in item
         int sequence = 0;
-        Bundle[] bunds = getBundles(item);
+        List<Bundle> bunds = item.getBundles();
 
         // find the highest current sequence number
-        for (int i = 0; i < bunds.length; i++)
-        {
-            List<Bitstream> streams = bunds[i].getBitstreams();
+        for (Bundle bund : bunds) {
+            List<Bitstream> streams = bund.getBitstreams();
 
-            for(Bitstream bitstream : streams)
-            {
-                if (streams[k].getSequenceID() > sequence)
-                {
-                    sequence = streams[k].getSequenceID();
+            for (Bitstream bitstream : streams) {
+                if (bitstream.getSequenceID() > sequence) {
+                    sequence = bitstream.getSequenceID();
                 }
             }
         }
@@ -1176,18 +964,16 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         // start sequencing bitstreams without sequence IDs
         sequence++;
 
-        for (int i = 0; i < bunds.length; i++)
-        {
-            Bitstream[] streams = bunds[i].getBitstreams();
+        BitstreamDAO bitstreamDAO = new BitstreamDAO();
+        for (Bundle bund : bunds) {
+            List<Bitstream> streams = bund.getBitstreams();
 
-            for (int k = 0; k < streams.length; k++)
-            {
-                if (streams[k].getSequenceID() < 0)
-                {
-                    streams[k].setSequenceID(sequence);
+            for (Bitstream stream : streams) {
+                if (stream.getSequenceID() < 0) {
+                    stream.setSequenceID(sequence);
                     sequence++;
-                    streams[k].update();
-                    modified = true;
+                    bitstreamDAO.update(context, stream);
+//                    modified = true;
                 }
             }
         }
@@ -1198,76 +984,26 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         // element/qualifier
         Map<String,Integer> elementCount = new HashMap<String,Integer>();
 
-        // Redo Dublin Core if it's changed
-        if (dublinCoreChanged)
-        {
-            dublinCoreChanged = false;
-
-            // Arrays to store the working information required
-            int[]     placeNum = new int[getMetadata().size()];
-            boolean[] storedDC = new boolean[getMetadata().size()];
-            MetadataField[] dcFields = new MetadataField[getMetadata().size()];
-
-
-        if (dublinCoreChanged || modified)
+        if (item.isDublinCoreChanged() || item.isModified())
         {
             // Set the last modified date
             item.setLastModified(new Date());
 
 
-            DatabaseManager.update(ourContext, itemRow);
+            HibernateQueryUtil.update(context, item);
 
-            if (dublinCoreChanged)
+            if (item.isDublinCoreChanged())
             {
                 context.addEvent(new Event(Event.MODIFY_METADATA, Constants.ITEM, item.getID(), getDetails()));
                 clearDetails();
-                dublinCoreChanged = false;
+                item.setDublinCoreChanged(false);
             }
 
             context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(), null));
-            modified = false;
+            item.setModified(false);
         }
     }
 
-    private transient MetadataField[] allMetadataFields = null;
-    private MetadataField getMetadataField(DCValue dcv) throws SQLException, AuthorizeException
-    {
-        if (allMetadataFields == null)
-        {
-            allMetadataFields = new MetadataFieldDAO().findAll(ourContext);
-        }
-
-        if (allMetadataFields != null)
-        {
-            int schemaID = getMetadataSchemaID(dcv);
-            for (MetadataField field : allMetadataFields)
-            {
-                if (field.getSchemaID() == schemaID &&
-                        StringUtils.equals(field.getElement(), dcv.element) &&
-                        StringUtils.equals(field.getQualifier(), dcv.qualifier))
-                {
-                    return field;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private int getMetadataSchemaID(DCValue dcv) throws SQLException
-    {
-        int schemaID;
-        MetadataSchema schema = MetadataSchema.find(ourContext,dcv.schema);
-        if (schema == null)
-        {
-            schemaID = MetadataSchema.DC_SCHEMA_ID;
-        }
-        else
-        {
-            schemaID = schema.getSchemaID();
-        }
-        return schemaID;
-    }
 
     /**
      * Withdraw the item from the archive. It is kept in place, and the content
@@ -1281,7 +1017,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
     {
         // Check permission. User either has to have REMOVE on owning collection
         // or be COLLECTION_EDITOR of owning collection
-        AuthorizeUtil.authorizeWithdrawItem(context, this);
+        AuthorizeUtil.authorizeWithdrawItem(context, item);
 
         String timestamp = DCDate.getCurrent().toString();
 
@@ -1296,7 +1032,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
                 .append(e.getEmail()).append(") on ").append(timestamp).append("\n")
                 .append("Item was in collections:\n");
 
-        Collection[] colls = item.getCollections();
+        List<Collection> colls = item.getCollections();
 
         for (Collection coll : colls) {
             prov.append(coll.getName()).append(" (ID: ").append(coll.getID()).append(")\n");
@@ -1308,9 +1044,9 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         // in_archive flag is now false
         item.setInArchive(false);
 
-        prov.append(InstallItem.getBitstreamProvenanceMessage(this));
+        prov.append(InstallItem.getBitstreamProvenanceMessage(item));
 
-        addDC("description", "provenance", "en", prov.toString());
+        addMetadata(context, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", prov.toString());
 
         // Update item in DB
         update(context, item);
@@ -1318,7 +1054,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(), "WITHDRAW"));
 
         // remove all authorization policies, saving the custom ones
-        AuthorizeManager.removeAllPoliciesByDSOAndTypeNotEqualsTo(context, this, ResourcePolicy.TYPE_CUSTOM);
+        AuthorizeManager.removeAllPoliciesByDSOAndTypeNotEqualsTo(context, item, ResourcePolicy.TYPE_CUSTOM);
 
         // Write log
         log.info(LogManager.getHeader(context, "withdraw_item", "user="
@@ -1336,13 +1072,13 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             IOException
     {
         // check authorization
-        AuthorizeUtil.authorizeReinstateItem(context, this);
+        AuthorizeUtil.authorizeReinstateItem(context, item);
 
         String timestamp = DCDate.getCurrent().toString();
 
         // Check permission. User must have ADD on all collections.
         // Build some provenance data while we're at it.
-        Collection[] colls = item.getCollections();
+        List<Collection> colls = item.getCollections();
 
         // Add suitable provenance - includes user, date, collections +
         // bitstream checksums
@@ -1364,9 +1100,9 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
 
         // Add suitable provenance - includes user, date, collections +
         // bitstream checksums
-        prov.append(InstallItem.getBitstreamProvenanceMessage(this));
+        prov.append(InstallItem.getBitstreamProvenanceMessage(item));
 
-        addDC("description", "provenance", "en", prov.toString());
+        addMetadata(context, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", prov.toString());
 
         // Update item in DB
         update(context, item);
@@ -1374,13 +1110,13 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(), "REINSTATE"));
 
         // authorization policies
-        if (colls.length > 0)
+        if (colls.size() > 0)
         {
             // FIXME: not multiple inclusion friendly - just apply access
             // policies from first collection
             // remove the item's policies and replace them with
             // the defaults from the collection
-            inheritCollectionDefaultPolicies(colls[0]);
+            inheritCollectionDefaultPolicies(context, item, colls.iterator().next());
         }
 
         // Write log
@@ -1404,39 +1140,14 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         // leaving the database in an inconsistent state
         AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
 
-        context.addEvent(new Event(Event.DELETE, Constants.ITEM, item.getID(), getHandle()));
+        context.addEvent(new Event(Event.DELETE, Constants.ITEM, item.getID(), item.getHandle(context)));
 
         log.info(LogManager.getHeader(context, "delete_item", "item_id="
                 + item.getID()));
 
-        // Remove from browse indices, if appropriate
-        /** XXX FIXME
-         ** Although all other Browse index updates are managed through
-         ** Event consumers, removing an Item *must* be done *here* (inline)
-         ** because otherwise, tables are left in an inconsistent state
-         ** and the DB transaction will fail.
-         ** Any fix would involve too much work on Browse code that
-         ** is likely to be replaced soon anyway.   --lcs, Aug 2006
-         **
-         ** NB Do not check to see if the item is archived - withdrawn /
-         ** non-archived items may still be tracked in some browse tables
-         ** for administrative purposes, and these need to be removed.
-         **/
-//               FIXME: there is an exception handling problem here
-        try
-        {
-//               Remove from indices
-            IndexBrowse ib = new IndexBrowse(ourContext);
-            ib.itemRemoved(this);
-        }
-        catch (BrowseException e)
-        {
-            log.error("caught exception: ", e);
-            throw new SQLException(e.getMessage(), e);
-        }
-
         // Delete the Dublin Core
-        removeMetadataFromDatabase();
+        //TODO: HIBERNATE: IS THIS REQUIRED ?
+        item.setMetadata(null);
 
         // Remove bundles
         List<Bundle> bunds = item.getBundles();
@@ -1452,13 +1163,14 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         HandleManager.unbindHandle(context, item);
         
         // remove version attached to the item
+              /*TODO: HIBERNATE IMPLEMENT WHEN VERSIONING BECOMES AVAILABLE
         removeVersion();
-
+*/
 
         // Finally remove item row
         HibernateQueryUtil.delete(context, item);
     }
-    
+      /*TODO: HIBERNATE IMPLEMENT WHEN VERSIONING BECOMES AVAILABLE
     private void removeVersion() throws AuthorizeException, SQLException
     {
         VersioningService versioningService = new DSpace().getSingletonService(VersioningService.class);
@@ -1474,6 +1186,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             }
         }
     }
+    */
 
 
 
@@ -1486,9 +1199,9 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      */
     public boolean isOwningCollection(Item item, Collection c)
     {
-        int owner_id = item.getOwningCollection();
+        Collection collection = item.getOwningCollection();
 
-        if (c.getID() == owner_id)
+        if (collection != null && c.getID() == collection.getID())
         {
             return true;
         }
@@ -1583,7 +1296,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             throws java.sql.SQLException, AuthorizeException
     {
         adjustItemPolicies(context, item, c);
-        adjustBundleBitstreamPolicies(c);
+        adjustBundleBitstreamPolicies(context, item, c);
 
         log.debug(LogManager.getHeader(context, "item_inheritCollectionDefaultPolicies",
                                                    "item_id=" + item.getID()));
@@ -1595,15 +1308,15 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
 
         if (defaultCollectionPolicies.size() < 1){
             throw new SQLException("Collection " + c.getID()
-                    + " (" + c.getHandle() + ")"
+                    + " (" + c.getHandle(context) + ")"
                     + " has no default bitstream READ policies");
         }
 
         // remove all policies from bundles, add new ones
         // Remove bundles
-        Bundle[] bunds = getBundles();
-        for (int i = 0; i < bunds.length; i++){
-            Bundle mybundle = bunds[i];
+        List<Bundle> bunds = item.getBundles();
+        for (int i = 0; i < bunds.size(); i++){
+            Bundle mybundle = bunds.get(i);
 
             // if come from InstallItem: remove all submission/workflow policies
             AuthorizeManager.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
@@ -1631,7 +1344,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         if (defaultCollectionPolicies.size() < 1)
         {
             throw new SQLException("Collection " + c.getID()
-                    + " (" + c.getHandle() + ")"
+                    + " (" + c.getHandle(context) + ")"
                     + " has no default item READ policies");
         }
 
@@ -1688,8 +1401,9 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         }
         
         // Move the Item from one Collection to the other
-        to.addItem(this);
-        from.removeItem(this);
+        CollectionDAO collectionDAO = new CollectionDAO();
+        collectionDAO.addItem(context, to, item);
+        collectionDAO.removeItem(context, from, item);
 
         // If we are moving from the owning collection, update that too
         if (isOwningCollection(item, from))
@@ -1761,13 +1475,13 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @return the collections this item is not in, if any.
      * @throws SQLException
      */
-    public Collection[] getCollectionsNotLinked() throws SQLException
+    public Collection[] getCollectionsNotLinked(Context context, Item item) throws SQLException
     {
-        Collection[] allCollections = Collection.findAll(ourContext);
-        Collection[] linkedCollections = getCollections();
-        Collection[] notLinkedCollections = new Collection[allCollections.length - linkedCollections.length];
+        Collection[] allCollections = new CollectionDAO().findAll(context);
+        List<Collection> linkedCollections = item.getCollections();
+        Collection[] notLinkedCollections = new Collection[allCollections.length - linkedCollections.size()];
 
-        if ((allCollections.length - linkedCollections.length) == 0)
+        if ((allCollections.length - linkedCollections.size()) == 0)
         {
                 return notLinkedCollections;
         }
@@ -1818,20 +1532,14 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         }
 
         // is this person an COLLECTION_EDITOR for the owning collection?
-        if (item.getOwningCollection().canEditBoolean(false))
+        if (new CollectionDAO().canEditBoolean(context, item.getOwningCollection(), false))
         {
             return true;
         }
 
         return false;
     }
-    
-    public String getName()
-    {
-        DCValue t[] = getMetadata("dc", "title", null, Item.ANY);
-        return (t.length >= 1) ? t[0].value : null;
-    }
-        
+
     /**
      * Returns an iterator of Items possessing the passed metadata field, or only
      * those matching the passed value, if value is not Item.ANY
@@ -1845,11 +1553,11 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @throws SQLException, AuthorizeException, IOException
      *
      */
-    public ItemIterator findByMetadataField(Context context,
+    public Iterator<Item> findByMetadataField(Context context,
                String schema, String element, String qualifier, String value)
           throws SQLException, AuthorizeException, IOException
     {
-        MetadataSchema mds = MetadataSchema.find(context, schema);
+        MetadataSchema mds = new MetadataSchemaDAO().find(context, schema);
         if (mds == null)
         {
             throw new IllegalArgumentException("No such metadata schema: " + schema);
@@ -1860,20 +1568,26 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             throw new IllegalArgumentException(
                     "No such metadata field: schema=" + schema + ", element=" + element + ", qualifier=" + qualifier);
         }
-        
-        String query = "SELECT item.* FROM metadatavalue,item WHERE item.in_archive='1' "+
-                       "AND item.item_id = metadatavalue.item_id AND metadata_field_id = ?";
-        TableRowIterator rows = null;
+
+        String hqlQueryString = "select Item from metadatavalue,Item as item WHERE item.in_archive=:in_archive AND item.item_id = metadatavalue.item_id AND metadata_field_id = :metadata_field_id";
         if (Item.ANY.equals(value))
         {
-                rows = DatabaseManager.queryTable(context, "item", query, mdf.getFieldID());
+            Query query = context.getDBConnection().createQuery(hqlQueryString);
+
+            query.setParameter("in_archive", true);
+            query.setParameter("metadata_field_id", mdf.getFieldID());
+            return query.iterate();
         }
         else
         {
-                query += " AND metadatavalue.text_value = ?";
-                rows = DatabaseManager.queryTable(context, "item", query, mdf.getFieldID(), value);
+            hqlQueryString += " AND metadatavalue.text_value = :text_value";
+            Query query = context.getDBConnection().createQuery(hqlQueryString);
+
+            query.setParameter("in_archive", true);
+            query.setParameter("metadata_field_id", mdf.getFieldID());
+            query.setParameter("text_value", value);
+            return query.iterate();
         }
-        return new ItemIterator(context, rows);
      }
     
     public DSpaceObject getAdminObject(Context context, Item item, int action) throws SQLException
@@ -1997,11 +1711,11 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @return an iterator over the items matching that authority value
      * @throws SQLException, AuthorizeException, IOException
      */
-    public ItemIterator findByAuthorityValue(Context context,
+    public Iterator<Item> findByAuthorityValue(Context context,
             String schema, String element, String qualifier, String value)
         throws SQLException, AuthorizeException, IOException
     {
-        MetadataSchema mds = MetadataSchema.find(context, schema);
+        MetadataSchema mds = new MetadataSchemaDAO().find(context, schema);
         if (mds == null)
         {
             throw new IllegalArgumentException("No such metadata schema: " + schema);
@@ -2012,11 +1726,11 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             throw new IllegalArgumentException("No such metadata field: schema=" + schema + ", element=" + element + ", qualifier=" + qualifier);
         }
 
-        TableRowIterator rows = DatabaseManager.queryTable(context, "item",
-            "SELECT item.* FROM metadatavalue,item WHERE item.in_archive='1' "+
-            "AND item.item_id = metadatavalue.item_id AND metadata_field_id = ? AND authority = ?",
-            mdf.getFieldID(), value);
-        return new ItemIterator(context, rows);
+        Query query = context.getDBConnection().createQuery("SELECT item FROM metadatavalue,item WHERE item.in_archive=:in_archive AND item.item_id = metadatavalue.item_id AND metadata_field_id = :metadata_field_id AND authority = :authority");
+        query.setParameter("in_archive", true);
+        query.setParameter("metadata_field_id", mdf.getFieldID());
+        query.setParameter("authority", value);
+        return query.iterate();
     }
 
 }

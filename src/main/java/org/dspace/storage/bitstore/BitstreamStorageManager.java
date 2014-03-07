@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.dspace.checker.BitstreamInfoDAO;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamDAO;
 import org.dspace.core.ConfigurationManager;
@@ -250,8 +250,7 @@ public class BitstreamStorageManager
      * @return The ID of the stored bitstream
      */
     public static int store(Context context, InputStream is)
-            throws SQLException, IOException
-    {
+            throws SQLException, IOException, AuthorizeException {
         // Create internal ID
         String id = Utils.generateKey();
 
@@ -321,19 +320,19 @@ public class BitstreamStorageManager
         fos.close();
         is.close();
 
-        bitstream.setColumn("size_bytes", file.length());
+        bitstream.setSizeBytes(file.length());
 
         if (dis != null)
         {
-            bitstream.setColumn("checksum", Utils.toHex(dis.getMessageDigest()
+            bitstream.setChecksum(Utils.toHex(dis.getMessageDigest()
                     .digest()));
-            bitstream.setColumn("checksum_algorithm", "MD5");
+            bitstream.setChecksumAlgorithm("MD5");
         }
         
-        bitstream.setColumn("deleted", false);
-        DatabaseManager.update(context, bitstream);
+        bitstream.setDeleted(false);
+        new BitstreamDAO().update(context, bitstream);
 
-        int bitstreamId = bitstream.getIntColumn("bitstream_id");
+        int bitstreamId = bitstream.getID();
 
         if (log.isDebugEnabled())
         {
@@ -359,23 +358,23 @@ public class BitstreamStorageManager
 	 * @throws IOException
 	 */
 	public static int register(Context context, int assetstore,
-				String bitstreamPath) throws SQLException, IOException {
+				String bitstreamPath) throws SQLException, IOException, AuthorizeException {
 
 		// mark this bitstream as a registered bitstream
 		String sInternalId = REGISTERED_FLAG + bitstreamPath;
 
 		// Create a deleted bitstream row, using a separate DB connection
-		TableRow bitstream;
+		Bitstream bitstream;
 		Context tempContext = null;
 
 		try {
 			tempContext = new Context();
 
-			bitstream = DatabaseManager.row("Bitstream");
-			bitstream.setColumn("deleted", true);
-			bitstream.setColumn("internal_id", sInternalId);
-			bitstream.setColumn("store_number", assetstore);
-			DatabaseManager.insert(tempContext, bitstream);
+			bitstream = new Bitstream();
+			bitstream.setDeleted(true);
+			bitstream.setInternalId(sInternalId);
+			bitstream.setStoreNumber(assetstore);
+            new BitstreamDAO().update(context, bitstream);
 
 			tempContext.complete();
 		} catch (SQLException sqle) {
@@ -438,8 +437,8 @@ public class BitstreamStorageManager
 					break;
 				}
 			}
-			bitstream.setColumn("checksum", Utils.toHex(dis.getMessageDigest()
-					.digest()));
+			bitstream.setChecksum(Utils.toHex(dis.getMessageDigest()
+                    .digest()));
 			dis.close();
 		} 
 		else if (file instanceof SRBFile)
@@ -464,8 +463,8 @@ public class BitstreamStorageManager
 				log.error("Caught NoSuchAlgorithmException", e);
 				throw new IOException("Invalid checksum algorithm", e);
 			}
-			bitstream.setColumn("checksum", 
-					Utils.toHex(md.digest(sFilename.getBytes())));
+			bitstream.setChecksum(
+                    Utils.toHex(md.digest(sFilename.getBytes())));
 		}
 		else
 		{
@@ -473,12 +472,12 @@ public class BitstreamStorageManager
 					+ "not local, not SRB");
 		}
 
-		bitstream.setColumn("checksum_algorithm", "MD5");
-		bitstream.setColumn("size_bytes", file.length());
-		bitstream.setColumn("deleted", false);
-		DatabaseManager.update(context, bitstream);
+		bitstream.setChecksumAlgorithm("MD5");
+		bitstream.setSizeBytes(file.length());
+		bitstream.setDeleted(false);
+		new BitstreamDAO().update(context, bitstream);
 
-		int bitstreamId = bitstream.getIntColumn("bitstream_id");
+		int bitstreamId = bitstream.getID();
 		if (log.isDebugEnabled()) 
 		{
 			log.debug("Stored bitstream " + bitstreamId + " in file "
@@ -521,41 +520,9 @@ public class BitstreamStorageManager
     public static InputStream retrieve(Context context, int id)
             throws SQLException, IOException
     {
-        TableRow bitstream = DatabaseManager.find(context, "bitstream", id);
-
-		GeneralFile file = getFile(bitstream);
+		GeneralFile file = getFile(new BitstreamDAO().find(context, id));
 
 		return (file != null) ? FileFactory.newFileInputStream(file) : null;
-    }
-
-    /**
-     * <p>
-     * Remove a bitstream from the asset store. This method does not delete any
-     * bits, but simply marks the bitstreams as deleted (the context still needs
-     * to be completed to finalize the transaction).
-     * </p>
-     * 
-     * <p>
-     * If the context is aborted, the bitstreams deletion status remains
-     * unchanged.
-     * </p>
-     * 
-     * @param context
-     *            The current context
-     * @param id
-     *            The ID of the bitstream to delete
-     * @exception SQLException
-     *                If a problem occurs accessing the RDBMS
-     */
-    public static void delete(Context context, int id) throws SQLException
-    {
-        DatabaseManager.updateQuery(context,
-                "update Bundle set primary_bitstream_id=null where primary_bitstream_id = ? ",
-                id);
-
-        DatabaseManager.updateQuery(context,
-                        "update Bitstream set deleted = '1' where bitstream_id = ? ",
-                        id);
     }
 
     /**
@@ -573,7 +540,8 @@ public class BitstreamStorageManager
     public static void cleanup(boolean deleteDbRecords, boolean verbose) throws SQLException, IOException
     {
         Context context = null;
-        BitstreamInfoDAO bitstreamInfoDAO = new BitstreamInfoDAO();
+        //TODO: HIBERNATE IMPLEMENT BitstreamInfoDAO
+//        BitstreamInfoDAO bitstreamInfoDAO = new BitstreamInfoDAO();
         int commitCounter = 0;
 
         try
@@ -601,7 +569,8 @@ public class BitstreamStorageManager
                         {
                             System.out.println(" - Deleting bitstream information (ID: " + bid + ")");
                         }
-                        bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
+                                //TODO: HIBERNATE IMPLEMENT BitstreamInfoDAO
+//                        bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
                         if (verbose)
                         {
                             System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
@@ -626,7 +595,8 @@ public class BitstreamStorageManager
                     {
                         System.out.println(" - Deleting bitstream information (ID: " + bid + ")");
                     }
-                    bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
+                            //TODO: HIBERNATE IMPLEMENT BitstreamInfoDAO
+//                    bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
                     if (verbose)
                     {
                         System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
@@ -723,10 +693,14 @@ public class BitstreamStorageManager
      */
     public static int clone(Context context, int id) throws SQLException
     {
+        //TODO: HIBERNATR IMPLEMENT CLONE !
+        /*
         Bitstream bitstream = new BitstreamDAO().find(context, id);
         row.setColumn("bitstream_id", -1);
         DatabaseManager.insert(context, row);
         return row.getIntColumn("bitstream_id");
+        */
+        throw new RuntimeException();
     }
 
 

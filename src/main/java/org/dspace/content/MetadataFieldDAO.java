@@ -106,8 +106,7 @@ public class MetadataFieldDAO
      * @throws AuthorizeException
      */
     public MetadataField findByElement(Context context, int schemaID,
-            String element, String qualifier) throws SQLException,
-            AuthorizeException
+            String element, String qualifier) throws SQLException
     {
         Criteria criteria = context.getDBConnection().createCriteria(MetadataField.class);
         criteria.add(

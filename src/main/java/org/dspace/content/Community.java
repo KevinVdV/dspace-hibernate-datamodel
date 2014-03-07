@@ -12,6 +12,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,65 +32,45 @@ public class Community extends DSpaceObject{
     @SequenceGenerator(name="community_seq", sequenceName="community_seq")
     private Integer id;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "community2community",
-            joinColumns = {@JoinColumn(name = "child_comm_id") },
-            inverseJoinColumns = {@JoinColumn(name = "parent_comm_id") }
-    )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="long"),
-            generator = "community2community_seq"
-    )
-    @SequenceGenerator(name="community2community_seq", sequenceName="community2community_seq", allocationSize = 1)
-    private Set<Community> parentCommunity;
-
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
             name = "community2community",
             joinColumns = {@JoinColumn(name = "parent_comm_id") },
             inverseJoinColumns = {@JoinColumn(name = "child_comm_id") }
     )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="integer"),
-            generator = "community2community_seq"
-    )
-    @SequenceGenerator(name="community2community_seq", sequenceName="community2community_seq", allocationSize = 1)
-    private Set<Community> subCommunities;
+    private Community parentCommunity;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "community2collection",
-            joinColumns = {@JoinColumn(name = "community_id") },
-            inverseJoinColumns = {@JoinColumn(name = "collection_id") }
-    )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="integer"),
-            generator = "community2collection_seq"
-    )
-    @SequenceGenerator(name="community2collection_seq", sequenceName="community2collection_seq", allocationSize = 1)
-    private Set<Collection> collections = new LinkedHashSet<Collection>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentCommunity")
+    private List<Community> subCommunities = new ArrayList<Community>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owningCommunity")
+    private List<Collection> collections = new ArrayList<Collection>();
 
     @Column(name = "name")
-    private String name;
+    private String name = "";
 
     @Column(name = "short_description")
-    private String shortDescription;
+    private String shortDescription = "";
 
     @Column(name = "copyright_text")
-    private String copyrightText;
+    private String copyrightText ="";
 
     @Column(name = "side_bar_text")
-    private String sideBarText;
+    private String sideBarText = "";
+
+    @Column(name = "introductory_text")
+    private String introductoryText = "";
 
 
     @OneToOne
     @JoinColumn(name = "admin")
     /** The default group of administrators */
     private Group admins;
+
+    /** The logo bitstream */
+    @OneToOne
+    @JoinColumn(name = "logo_bitstream_id")
+    private Bitstream logo = null;
 
 
     //TODO: HIBERNATE: modified get it out of here ?
@@ -100,16 +81,6 @@ public class Community extends DSpaceObject{
     @Transient
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata = false;
-
-
-
-    public String getHandle() {
-        return handle;
-    }
-
-    public void setHandle(String handle) {
-        this.handle = handle;
-    }
 
     /**
      * Get the internal ID of this community
@@ -146,7 +117,7 @@ public class Community extends DSpaceObject{
      *
      * @return array of Community objects
      */
-    public Set<Community> getSubCommunities() {
+    public List<Community> getSubCommunities() {
         return subCommunities;
     }
 
@@ -180,24 +151,16 @@ public class Community extends DSpaceObject{
     /**
      * @see org.dspace.content.DSpaceObject#getHandle(Context context)
      */
-    public String getHandle(Context context)
-    {
-        if(handle == null) {
-        	try {
-				handle = HandleManager.findHandle(context, this);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
-			}
-        }
-    	return handle;
+    public String getHandle(Context context) throws SQLException {
+        //TODO: HIBERNATE: REMOVE THIS
+        return HandleManager.findHandle(context, this);
     }
 
     @Override
-    public void updateLastModified()
+    public void updateLastModified(Context context)
     {
         //Also fire a modified event since the community HAS been modified
-        ourContext.addEvent(new Event(Event.MODIFY, Constants.COMMUNITY, getID(), null));
+        context.addEvent(new Event(Event.MODIFY, Constants.COMMUNITY, getID(), null));
     }
 
     /**
@@ -215,7 +178,7 @@ public class Community extends DSpaceObject{
         return admins;
     }
 
-    public void setAdmins(Group admins) {
+    void setAdmins(Group admins) {
         this.admins = admins;
         modified = true;
     }
@@ -228,23 +191,11 @@ public class Community extends DSpaceObject{
      * @return the immediate parent community, or null if top-level
      */
     public Community getParentCommunity() {
-        if(CollectionUtils.isNotEmpty(parentCommunity))
-        {
-            return parentCommunity.iterator().next();
-        }else{
-            return null;
-        }
-    }
-
-    public Set<Community> getParentCommunies() {
         return parentCommunity;
     }
 
 
-
-
-    public void setParentCommunity(Set<Community> parentCommunity) {
-        parentCommunity.clear();
+    void setParentCommunity(Community parentCommunity) {
         this.parentCommunity = parentCommunity;
     }
 
@@ -271,16 +222,16 @@ public class Community extends DSpaceObject{
      *
      * @return array of Collection objects
      */
-    public Set<Collection> getCollections() {
+    public List<Collection> getCollections() {
         return collections;
     }
 
-    public void addCollection(Collection collection)
+    void addCollection(Collection collection)
     {
         getCollections().add(collection);
     }
 
-    public void removeCollection(Collection collection)
+    void removeCollection(Collection collection)
     {
         getCollections().remove(collection);
     }
@@ -315,5 +266,28 @@ public class Community extends DSpaceObject{
 
     public void setSideBarText(String sideBarText) {
         this.sideBarText = sideBarText;
+    }
+
+    public String getIntroductoryText() {
+        return introductoryText;
+    }
+
+    public void setIntroductoryText(String introductoryText) {
+        this.introductoryText = introductoryText;
+    }
+
+    /**
+     * Get the logo for the community. <code>null</code> is return if the
+     * community does not have a logo.
+     *
+     * @return the logo of the community, or <code>null</code>
+     */
+    public Bitstream getLogo() {
+        return logo;
+    }
+
+    void setLogo(Bitstream logo) {
+        this.logo = logo;
+        modified = true;
     }
 }

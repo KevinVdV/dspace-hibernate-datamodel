@@ -9,6 +9,7 @@ package org.dspace.content;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
@@ -28,11 +29,11 @@ import org.hibernate.Query;
 import org.hibernate.criterion.Order;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
-import java.util.Set;
 
 /**
  * Class representing a community
@@ -49,11 +50,8 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
     /** log4j category */
     private static Logger log = Logger.getLogger(Community.class);
 
-    /** The logo bitstream */
-    //TODO: HIBERNATE WHEN BITSTREAM IS ADDED
-//    private Bitstream logo;
 
-    public CommunityDAO() throws SQLException
+    public CommunityDAO()
     {
         // Get our Handle if any
         //TODO: HIBERNATE WHEN details are ADDED
@@ -73,7 +71,7 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
     public Community find(Context context, int id) throws SQLException
     {
 
-        Community community = (Community) context.getDBConnection().get(Group.class, id);
+        Community community = (Community) context.getDBConnection().get(Community.class, id);
         if (community == null)
         {
             if (log.isDebugEnabled())
@@ -127,12 +125,17 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         }
 
         Community newCommunity = new Community();
+        //Update our community so we have a community identifier
+        HibernateQueryUtil.update(context, newCommunity);
 
         try
         {
-            newCommunity.setHandle((handle == null) ?
-                       HandleManager.createHandle(context, newCommunity) :
-                       HandleManager.createHandle(context, newCommunity, handle));
+            if(handle == null)
+            {
+                HandleManager.createHandle(context, newCommunity);
+            } else {
+                HandleManager.createHandle(context, newCommunity, handle);
+            }
         }
         catch(IllegalStateException ie)
         {
@@ -157,17 +160,17 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         resourcePolicyDAO.update(context, myPolicy);
 
         HibernateQueryUtil.update(context, newCommunity);
-        context.addEvent(new Event(Event.CREATE, Constants.COMMUNITY, newCommunity.getID(), newCommunity.getHandle()));
+        context.addEvent(new Event(Event.CREATE, Constants.COMMUNITY, newCommunity.getID(), newCommunity.getHandle(context)));
 
         // if creating a top-level Community, simulate an ADD event at the Site.
         if (parent == null)
         {
-            context.addEvent(new Event(Event.ADD, Constants.SITE, Site.SITE_ID, Constants.COMMUNITY, newCommunity.getID(), newCommunity.getHandle()));
+            context.addEvent(new Event(Event.ADD, Constants.SITE, Site.SITE_ID, Constants.COMMUNITY, newCommunity.getID(), newCommunity.getHandle(context)));
         }
 
         log.info(LogManager.getHeader(context, "create_community",
                 "community_id=" + newCommunity.getID())
-                + ",handle=" + newCommunity.getHandle());
+                + ",handle=" + newCommunity.getHandle(context));
 
         HibernateQueryUtil.update(context, newCommunity);
         return newCommunity;
@@ -200,52 +203,12 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
      * 
      * @return the top-level communities in the system
      */
-    public Community[] findAllTop(Context context) throws SQLException
+    public List<Community> findAllTop(Context context) throws SQLException
     {
         // get all communities that are not children
-        TableRowIterator tri = DatabaseManager.queryTable(context, "community",
-                "SELECT * FROM community WHERE NOT community_id IN "
-                        + "(SELECT child_comm_id FROM community2community) "
-                        + "ORDER BY name");
-        Query query = context.getDBConnection().createQuery("from " + Community.class.getSimpleName() +
-                " where NOT community_id IN (" + column + " = :" + column);
-
-
-        List<Community> topCommunities = new ArrayList<Community>();
-
-        try
-        {
-            while (tri.hasNext())
-            {
-                TableRow row = tri.next();
-
-                // First check the cache
-                Community fromCache = (Community) context.fromCache(
-                        Community.class, row.getIntColumn("community_id"));
-
-                if (fromCache != null)
-                {
-                    topCommunities.add(fromCache);
-                }
-                else
-                {
-                    topCommunities.add(new Community(context, row));
-                }
-            }
-        }
-        finally
-        {
-            // close the TableRowIterator to free up resources
-            if (tri != null)
-            {
-                tri.close();
-            }
-        }
-
-        Community[] communityArray = new Community[topCommunities.size()];
-        communityArray = (Community[]) topCommunities.toArray(communityArray);
-
-        return communityArray;
+        Query query = context.getDBConnection().createQuery("from Community" +
+                " where parentCommunity IS NULL ORDER BY name");
+        return query.list();
     }
 
     /**
@@ -272,24 +235,9 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
             }
         }
         community.setName(value);
-        addDetails(field);
+        addDetails("name");
     }
 
-    /**
-     * Get the logo for the community. <code>null</code> is return if the
-     * community does not have a logo.
-     * 
-     * @return the logo of the community, or <code>null</code>
-     */
-        //TODO: Hibernate implement when bitstream is available
-    /*
-
-    public Bitstream getLogo()
-    {
-        return logo;
-    }
-
-*/
     /**
      * Give the community a logo. Passing in <code>null</code> removes any
      * existing logo. You will need to set the format of the new logo bitstream
@@ -303,50 +251,45 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
      * @return   the new logo bitstream, or <code>null</code> if there is no
      *           logo (<code>null</code> was passed in)
      */
-            //TODO: Hibernate implement when bitstream is available
-    /*
-    public Bitstream setLogo(InputStream is) throws AuthorizeException,
+    public Bitstream setLogo(Context context, Community community, InputStream is) throws AuthorizeException,
             IOException, SQLException
     {
         // Check authorisation
         // authorized to remove the logo when DELETE rights
         // authorized when canEdit
         if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
-                ourContext, this, Constants.DELETE)))
+                context, community, Constants.DELETE)))
         {
-            canEdit();
+            canEdit(context, community);
         }
 
+        BitstreamDAO bitstreamDAO = new BitstreamDAO();
         // First, delete any existing logo
-        if (logo != null)
+        if (community.getLogo() != null)
         {
-            log.info(LogManager.getHeader(ourContext, "remove_logo",
-                    "community_id=" + getID()));
-            communityRow.setColumnNull("logo_bitstream_id");
-            logo.delete();
-            logo = null;
+            log.info(LogManager.getHeader(context, "remove_logo",
+                    "community_id=" + community.getID()));
+            community.setLogo(null);
+            bitstreamDAO.delete(context, community.getLogo());
         }
 
         if (is != null)
         {
-            Bitstream newLogo = Bitstream.create(ourContext, is);
-            communityRow.setColumn("logo_bitstream_id", newLogo.getID());
-            logo = newLogo;
+            Bitstream newLogo = bitstreamDAO.create(context, is);
+            community.setLogo(newLogo);
 
             // now create policy for logo bitstream
             // to match our READ policy
-            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(ourContext, this, Constants.READ);
-            AuthorizeManager.addPolicies(ourContext, policies, newLogo);
+            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context, community, Constants.READ);
+            AuthorizeManager.addPolicies(context, policies, newLogo);
 
-            log.info(LogManager.getHeader(ourContext, "set_logo",
-                    "community_id=" + getID() + "logo_bitstream_id="
+            log.info(LogManager.getHeader(context, "set_logo",
+                    "community_id=" + community.getID() + "logo_bitstream_id="
                             + newLogo.getID()));
         }
 
-        modified = true;
-        return logo;
+        return community.getLogo();
     }
-    */
 
     /**
      * Update the community metadata (including logo) to the database.
@@ -385,8 +328,7 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
     public Group createAdministrators(Context context, Community community) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin to create more Admins
-        //TODO: Hibernate fix when authorizeUtil becomes available
-//        AuthorizeUtil.authorizeManageAdminGroup(context, this);
+        AuthorizeUtil.authorizeManageAdminGroup(context, community);
 
         Group admins = community.getAdministrators();
         if (admins == null)
@@ -414,11 +356,10 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
      * administrators group from the community so that it may be deleted 
      * without violating database constraints.
      */
-    public void removeAdministrators(Community community) throws SQLException, AuthorizeException
+    public void removeAdministrators(Context context, Community community) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin of the parent community (or system admin) to delete Admin group
-        //TODO: Hibernate fix when authorizeUtil becomes available
-//        AuthorizeUtil.authorizeRemoveAdminGroup(context, this);
+        AuthorizeUtil.authorizeRemoveAdminGroup(context, community);
 
         // just return if there is no administrative group.
         if (community.getAdministrators() == null)
@@ -461,13 +402,13 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
     public Collection[] getAllCollections(Community community) throws SQLException
     {
         List<Collection> collectionList = new ArrayList<Collection>();
-        Set<Community> subCommunities = community.getSubCommunities();
+        List<Community> subCommunities = community.getSubCommunities();
         for (Community subCommunity : subCommunities)
         {
             addCollectionList(subCommunity, collectionList);
         }
 
-        Set<Collection> collections = community.getCollections();
+        List<Collection> collections = community.getCollections();
         for (Collection collection : collections)
         {
             collectionList.add(collection);
@@ -543,8 +484,11 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         log.info(LogManager.getHeader(context, "add_collection",
                 "community_id=" + community.getID() + ",collection_id=" + c.getID()));
 
-        community.addCollection(c);
-        context.addEvent(new Event(Event.ADD, Constants.COMMUNITY, community.getID(), Constants.COLLECTION, c.getID(), c.getHandle()));
+        if(!community.getCollections().contains(c))
+        {
+            community.addCollection(c);
+        }
+        context.addEvent(new Event(Event.ADD, Constants.COMMUNITY, community.getID(), Constants.COLLECTION, c.getID(), c.getHandle(context)));
     }
     /**
      * Create a new sub-community within this community.
@@ -590,8 +534,12 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         log.info(LogManager.getHeader(context, "add_subcommunity",
                 "parent_comm_id=" + parentCommunity.getID() + ",child_comm_id=" + childCommunity.getID()));
 
-        parentCommunity.addSubCommunity(childCommunity);
-        context.addEvent(new Event(Event.ADD, Constants.COMMUNITY, parentCommunity.getID(), Constants.COMMUNITY, childCommunity.getID(), childCommunity.getHandle()));
+        if(!parentCommunity.getSubCommunities().contains(childCommunity))
+        {
+            parentCommunity.addSubCommunity(childCommunity);
+            childCommunity.setParentCommunity(parentCommunity);
+        }
+        context.addEvent(new Event(Event.ADD, Constants.COMMUNITY, parentCommunity.getID(), Constants.COMMUNITY, childCommunity.getID(), childCommunity.getHandle(context)));
     }
 
     /**
@@ -613,7 +561,7 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
                 "community_id=" + community.getID() + ",collection_id=" + c.getID()));
         
         // Remove any mappings
-        context.addEvent(new Event(Event.REMOVE, Constants.COMMUNITY, community.getID(), Constants.COLLECTION, c.getID(), c.getHandle()));
+        context.addEvent(new Event(Event.REMOVE, Constants.COMMUNITY, community.getID(), Constants.COLLECTION, c.getID(), c.getHandle(context)));
     }
 
 
@@ -630,16 +578,11 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         AuthorizeManager.authorizeAction(context, parentCommunity, Constants.REMOVE);
 
         parentCommunity.removeSubCommunity(childCommunity);
-        if(childCommunity.getParentCommunies().size() == 0)
-        {
-            //TODO: Find hibernate way ?
-            //Delete since we are now orphaned
-            delete(context, childCommunity);
-        }
+        childCommunity.setParentCommunity(null);
         log.info(LogManager.getHeader(context, "remove_subcommunity",
                 "parent_comm_id=" + parentCommunity.getID() + ",child_comm_id=" + childCommunity.getID()));
         
-        context.addEvent(new Event(Event.REMOVE, Constants.COMMUNITY, parentCommunity.getID(), Constants.COMMUNITY, childCommunity.getID(), childCommunity.getHandle()));
+        context.addEvent(new Event(Event.REMOVE, Constants.COMMUNITY, parentCommunity.getID(), Constants.COMMUNITY, childCommunity.getID(), childCommunity.getHandle(context)));
     }
 
     /**
@@ -667,7 +610,7 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         if (parent != null)
         {
             // remove the subcommunities first
-            Set<Community> subcommunities = community.getSubCommunities();
+            List<Community> subcommunities = community.getSubCommunities();
             for (Community subCommunity : subcommunities)
             {
                 delete(context, subCommunity);
@@ -689,17 +632,17 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         log.info(LogManager.getHeader(context, "delete_community",
                 "community_id=" + community.getID()));
 
-        context.addEvent(new Event(Event.DELETE, Constants.COMMUNITY, community.getID(), community.getHandle()));
+        context.addEvent(new Event(Event.DELETE, Constants.COMMUNITY, community.getID(), community.getHandle(context)));
 
         // Remove collections
-        Set<Collection> collections = community.getCollections();
+        List<Collection> collections = community.getCollections();
 
         for (Collection coll : collections)
         {
             removeCollection(context, community, coll);
         }
         // delete subcommunities
-        Set<Community> subCommunities = community.getSubCommunities();
+        List<Community> subCommunities = community.getSubCommunities();
 
         for (Community subComm : subCommunities)
         {
@@ -707,8 +650,7 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         }
 
         // Remove the logo
-        //TODO: Implement once bitstreams become available
-//        setLogo(null);
+        setLogo(context, community, null);
 
         // Remove all authorization policies
         AuthorizeManager.removeAllPolicies(context, community);
@@ -841,7 +783,7 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
         return adminObject;
     }
     
-    public DSpaceObject getParentObject(Community community) throws SQLException
+    public DSpaceObject getParentObject(Context context, Community community) throws SQLException
     {
         Community pCommunity = community.getParentCommunity();
         if (pCommunity != null)

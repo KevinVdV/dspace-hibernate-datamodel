@@ -1,7 +1,14 @@
 package org.dspace.content;
 
+import org.dspace.core.Constants;
+import org.dspace.core.Context;
+import org.dspace.event.Event;
+import org.hibernate.annotations.CollectionId;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -53,6 +60,41 @@ public class Bitstream extends DSpaceObject{
     @JoinColumn(name = "bitstream_format_id")
     private BitstreamFormat bitstreamFormat;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    /** The bitstreams in this bundle */
+    @JoinTable(
+            name = "bundle2bitstream",
+            joinColumns = {@JoinColumn(name = "bitstream_id") },
+            inverseJoinColumns = {@JoinColumn(name = "bundle_id") }
+    )
+    @CollectionId(
+            columns = @Column(name="id"),
+            type=@Type(type="integer"),
+            generator = "bundle2bitstream_seq"
+    )
+    @SequenceGenerator(name="bundle2bitstream_seq", sequenceName="bundle2bitstream_seq", allocationSize = 1)
+    @OrderBy("sequence_id asc")
+    private Bundle bundle = null;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy="logo")
+    private Community community;
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy="logo")
+    private Collection collection;
+
+    @Column(name = "user_format_description")
+    private String userFormatDescription;
+
+
+    /** Flag set when data is modified, for events */
+    @Transient
+    private boolean modified;
+
+    /** Flag set when metadata is modified, for events */
+    @Transient
+    private boolean modifiedMetadata;
+
+
 
 
 
@@ -64,6 +106,11 @@ public class Bitstream extends DSpaceObject{
     public int getID()
     {
         return id;
+    }
+
+    @Override
+    public String getHandle(Context context) throws SQLException {
+        return null;
     }
 
     /**
@@ -86,7 +133,8 @@ public class Bitstream extends DSpaceObject{
     {
         this.sequenceId = sid;
         modifiedMetadata = true;
-        addDetails("SequenceID");
+        //TODO: HIBERNATE, IMPLEMENT DETAILS
+//        addDetails("SequenceID");
     }
 
     /**
@@ -100,6 +148,17 @@ public class Bitstream extends DSpaceObject{
         return name;
     }
 
+    @Override
+    public void updateLastModified(Context context) {
+        //Also fire a modified event since the bitstream HAS been modified
+        context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
+    }
+
+    @Override
+    public int getType() {
+        return Constants.BITSTREAM;
+    }
+
     /**
      * Set the name of the bitstream
      *
@@ -110,7 +169,8 @@ public class Bitstream extends DSpaceObject{
     {
         this.name = n;
         modifiedMetadata = true;
-        addDetails("Name");
+        //TODO: HIBERNATE, IMPLEMENT DETAILS
+//        addDetails("Name");
     }
 
     /**
@@ -135,7 +195,8 @@ public class Bitstream extends DSpaceObject{
     {
         this.source = n;
         modifiedMetadata = true;
-        addDetails("Source");
+        //TODO: HIBERNATE, IMPLEMENT DETAILS
+//        addDetails("Source");
     }
 
     /**
@@ -159,7 +220,8 @@ public class Bitstream extends DSpaceObject{
     {
         this.description = n;
         modifiedMetadata = true;
-        addDetails("Description");
+        //TODO: HIBERNATE, IMPLEMENT DETAILS
+//        addDetails("Description");
     }
 
 
@@ -173,6 +235,10 @@ public class Bitstream extends DSpaceObject{
         return checksum;
     }
 
+    public void setChecksum(String checksum) {
+        this.checksum = checksum;
+    }
+
     /**
      * Get the algorithm used to calculate the checksum
      *
@@ -183,6 +249,10 @@ public class Bitstream extends DSpaceObject{
         return checksumAlgorithm;
     }
 
+    public void setChecksumAlgorithm(String checksumAlgorithm) {
+        this.checksumAlgorithm = checksumAlgorithm;
+    }
+
     /**
      * Get the size of the bitstream
      *
@@ -191,6 +261,10 @@ public class Bitstream extends DSpaceObject{
     public long getSize()
     {
         return sizeBytes;
+    }
+
+    public void setSizeBytes(long sizeBytes) {
+        this.sizeBytes = sizeBytes;
     }
 
     public boolean isDeleted() {
@@ -209,6 +283,11 @@ public class Bitstream extends DSpaceObject{
         this.internalId = internalId;
     }
 
+    /**
+     * Get the asset store number where this bitstream is stored
+     *
+     * @return the asset store number of the bitstream
+     */
     public int getStoreNumber() {
         return storeNumber;
     }
@@ -223,5 +302,59 @@ public class Bitstream extends DSpaceObject{
 
     public void setFormat(BitstreamFormat bitstreamFormat) {
         this.bitstreamFormat = bitstreamFormat;
+        modified = true;
+    }
+
+    /**
+     * Get the bundle this bitstream appears in
+     *
+     * @return array of <code>Bundle</code> s this bitstream appears in
+     * @throws SQLException
+     */
+    public Bundle getBundle() {
+        return bundle;
+    }
+
+    public void setBundle(Bundle bundle) {
+        this.bundle = bundle;
+    }
+
+    public Collection getCollection() {
+        return collection;
+    }
+
+    public Community getCommunity() {
+        return community;
+    }
+
+    /**
+     * Get the user's format description. Returns null if the format is known by
+     * the system.
+     *
+     * @return the user's format description.
+     */
+    public String getUserFormatDescription() {
+        return userFormatDescription;
+    }
+
+    public void setUserFormatDescription(String userFormatDescription) {
+        this.userFormatDescription = userFormatDescription;
+        modifiedMetadata = true;
+    }
+
+    public boolean isModifiedMetadata() {
+        return modifiedMetadata;
+    }
+
+    public void setModifiedMetadata(boolean modifiedMetadata) {
+        this.modifiedMetadata = modifiedMetadata;
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
     }
 }

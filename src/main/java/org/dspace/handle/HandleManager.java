@@ -181,11 +181,13 @@ public class HandleManager
             throws SQLException
     {
         Handle handle = new Handle();
+        //Update our changes so that we have an identifier
+        HibernateQueryUtil.update(context, handle);
         String handleId = createId(handle.getId());
 
         handle.setHandle(handleId);
         handle.setResource_type_id(dso.getType());
-        handle.setResource_type_id(dso.getID());
+        handle.setResource_id(dso.getID());
         HibernateQueryUtil.update(context, handle);
 
         if (log.isDebugEnabled())
@@ -362,9 +364,7 @@ public class HandleManager
         }
         else if (handletypeid == Constants.COLLECTION)
         {
-            //TODO: Hibernate, implement when collection is available
-            /*
-            Collection collection = Collection.find(context, resourceID);
+            Collection collection = new CollectionDAO().find(context, resourceID);
 
             if (log.isDebugEnabled())
             {
@@ -373,7 +373,6 @@ public class HandleManager
             }
 
             return collection;
-            */
         }
         else if (handletypeid == Constants.COMMUNITY)
         {

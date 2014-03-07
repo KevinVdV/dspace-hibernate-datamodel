@@ -209,12 +209,10 @@ public class BundleDAO extends DSpaceObjectDAO<Bundle>
 
         List<Bitstream> bitstreams = bundle.getBitstreams();
         // First check that the bitstream isn't already in the list
-        for (int i = 0; i < bitstreams.size(); i++)
-        {
-            Bitstream existing = (Bitstream) bitstreams.get(i);
+        for (Bitstream bitstream : bitstreams) {
+            Bitstream existing = (Bitstream) bitstream;
 
-            if (b.getID() == existing.getID())
-            {
+            if (b.getID() == existing.getID()) {
                 // Bitstream is already there; no change
                 return;
             }
@@ -232,17 +230,18 @@ public class BundleDAO extends DSpaceObjectDAO<Bundle>
         //Determine the current highest bitstream order in our bundle2bitstream table 
         //This will always append a newly added bitstream as the last one 
         int bitstreamOrder = 0;  //bitstream order starts at '0' index
-        TableRow tableRow = DatabaseManager.querySingle(ourContext, "SELECT MAX(bitstream_order) as max_value FROM bundle2bitstream WHERE bundle_id=?", getID());
-        if(tableRow != null){
-            bitstreamOrder = tableRow.getIntColumn("max_value") + 1;
-        }
+        Query query = context.getDBConnection().createQuery("SELECT MAX(bitstream_order) as max_value FROM bundle2bitstream WHERE bundle_id=:bundle_id");
+        query.setParameter("bundle_id", bundle.getID());
+        Integer maxBitstreamOrder = (Integer) query.uniqueResult();
+
+        context.getDBConnection().createQuery("update bundle2bitstream set bitstream_order=:bitstream_order where bundle_id=:bundle_id AND bitstream_id=:bitstream_id");
+        query.setParameter("bitstream_order", maxBitstreamOrder);
+        query.setParameter("bitstream_id", b.getID());
+        query.setParameter("bundle_id", bundle.getID());
+        query.executeUpdate();
 
         // Add the mapping row to the database
-        TableRow mappingRow = DatabaseManager.row("bundle2bitstream");
-        mappingRow.setColumn("bundle_id", getID());
-        mappingRow.setColumn("bitstream_id", b.getID());
-        mappingRow.setColumn("bitstream_order", bitstreamOrder);
-        DatabaseManager.insert(ourContext, mappingRow);
+        bundle.addBitstream(b);
     }
 
     /**
@@ -284,8 +283,8 @@ public class BundleDAO extends DSpaceObjectDAO<Bundle>
         Item owningItem = (Item) getParentObject(context, bundle);
         if(owningItem != null)
         {
-            owningItem.updateLastModified();
-            owningItem.update();
+            owningItem.updateLastModified(context);
+            new ItemDAO().update(context, owningItem);
 
         }
     }
@@ -331,8 +330,8 @@ public class BundleDAO extends DSpaceObjectDAO<Bundle>
         Item owningItem = (Item) getParentObject(context, bundle);
         if(owningItem != null)
         {
-            owningItem.updateLastModified();
-            owningItem.update();
+            owningItem.updateLastModified(context);
+            new ItemDAO().update(context, owningItem);
 
         }
 
@@ -341,36 +340,13 @@ public class BundleDAO extends DSpaceObjectDAO<Bundle>
         // bitstream.
         if (b.getID() == bundle.getPrimaryBitstreamID())
         {
-            unsetPrimaryBitstreamID();
+            bundle.setPrimaryBitstreamID(-1);
         }
-        
-        // Delete the mapping row
-        DatabaseManager.updateQuery(ourContext,
-                "DELETE FROM bundle2bitstream WHERE bundle_id= ? "+
-                "AND bitstream_id= ? ", 
-                getID(), b.getID());
 
-        // If the bitstream is orphaned, it's removed
-        TableRowIterator tri = DatabaseManager.query(ourContext,
-                "SELECT * FROM bundle2bitstream WHERE bitstream_id= ? ",
-                b.getID());
+        bundle.removeBitstream(b);
+        new BitstreamDAO().delete(context, b);
 
-        try
-        {
-            if (!tri.hasNext())
-            {
-                // The bitstream is an orphan, delete it
-                b.delete();
-            }
-        }
-        finally
-        {
-            // close the TableRowIterator to free up resources
-            if (tri != null)
-            {
-                tri.close();
-            }
-        }
+
     }
 
     /**
@@ -565,11 +541,5 @@ public class BundleDAO extends DSpaceObjectDAO<Bundle>
     public DSpaceObject getParentObject(Context context, Bundle bundle) throws SQLException
     {
         return bundle.getItem();
-    }
-
-    @Override
-    public void updateLastModified()
-    {
-
     }
 }

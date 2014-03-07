@@ -23,7 +23,6 @@ import org.dspace.core.LogManager;
 import org.dspace.event.Event;
 import org.dspace.hibernate.HibernateQueryUtil;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
-import org.hibernate.Criteria;
 
 /**
  * Class representing bitstreams stored in the DSpace system.
@@ -43,45 +42,15 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
     /** The bitstream format corresponding to this bitstream */
     private BitstreamFormat bitstreamFormat;
 
-    /** Flag set when data is modified, for events */
-    private boolean modified;
-
-    /** Flag set when metadata is modified, for events */
-    private boolean modifiedMetadata;
 
     /**
      * Private constructor for creating a Bitstream object based on the contents
      * of a DB table row.
      * 
-     * @param context
-     *            the context this object exists in
-     * @param row
-     *            the corresponding row in the table
      * @throws SQLException
      */
     public BitstreamDAO() throws SQLException
     {
-        // Get the bitstream format
-        bitstreamFormat = BitstreamFormat.find(context, row
-                .getIntColumn("bitstream_format_id"));
-
-        if (bitstreamFormat == null)
-        {
-            // No format: use "Unknown"
-            bitstreamFormat = BitstreamFormat.findUnknown(context);
-
-            // Panic if we can't find it
-            if (bitstreamFormat == null)
-            {
-                throw new IllegalStateException("No Unknown bitstream format");
-            }
-        }
-
-        // Cache ourselves
-        context.cache(this, row.getIntColumn("bitstream_id"));
-
-        modified = false;
-        modifiedMetadata = false;
         clearDetails();
     }
 
@@ -97,7 +66,7 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      * @return the bitstream, or null if the ID is invalid.
      * @throws SQLException
      */
-    public static Bitstream find(Context context, int id) throws SQLException
+    public Bitstream find(Context context, int id) throws SQLException
     {
         // First check the cache
         Bitstream bitstream = (Bitstream) context.getDBConnection().get(Bitstream.class, id);
@@ -123,7 +92,7 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
         return bitstream;
     }
 
-    public static Bitstream[] findAll(Context context) throws SQLException
+    public Bitstream[] findAll(Context context) throws SQLException
     {
         List<Bitstream> bitstreams = context.getDBConnection().createCriteria(Bitstream.class).list();
         return bitstreams.toArray(new Bitstream[bitstreams.size()]);
@@ -145,8 +114,7 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      * @throws SQLException
      */
     public Bitstream create(Context context, InputStream is)
-            throws IOException, SQLException
-    {
+            throws IOException, SQLException, AuthorizeException {
         // Store the bits
         int bitstreamID = BitstreamStorageManager.store(context, is);
 
@@ -178,8 +146,7 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      */
     public Bitstream register(Context context,
     		int assetstore, String bitstreamPath)
-        	throws IOException, SQLException
-    {
+            throws IOException, SQLException, AuthorizeException {
         // Store the bits
         int bitstreamID = BitstreamStorageManager.register(
                 context, assetstore, bitstreamPath);
@@ -213,25 +180,13 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      *            the user's description of the format
      * @throws SQLException
      */
-    public void setUserFormatDescription(String desc) throws SQLException
+    public void setUserFormatDescription(Context context, Bitstream bitstream, String desc) throws SQLException
     {
         // FIXME: Would be better if this didn't throw an SQLException,
         // but we need to find the unknown format!
-        setFormat(null);
-        bRow.setColumn("user_format_description", desc);
-        modifiedMetadata = true;
+        setFormat(context,bitstream,  null);
+        bitstream.setUserFormatDescription(desc);
         addDetails("UserFormatDescription");
-    }
-
-    /**
-     * Get the user's format description. Returns null if the format is known by
-     * the system.
-     *
-     * @return the user's format description.
-     */
-    public String getUserFormatDescription()
-    {
-        return bRow.getStringColumn("user_format_description");
     }
 
     /**
@@ -240,12 +195,12 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      * 
      * @return a description of the format.
      */
-    public String getFormatDescription()
+    public String getFormatDescription(Bitstream bitstream)
     {
         if (bitstreamFormat.getShortDescription().equals("Unknown"))
         {
             // Get user description if there is one
-            String desc = bRow.getStringColumn("user_format_description");
+            String desc = bitstream.getUserFormatDescription();
 
             if (desc == null)
             {
@@ -279,14 +234,14 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      *            unknown
      * @throws SQLException
      */
-    public void setFormat(Context context, BitstreamFormat f) throws SQLException
+    public void setFormat(Context context, Bitstream bitstream, BitstreamFormat f) throws SQLException
     {
         // FIXME: Would be better if this didn't throw an SQLException,
         // but we need to find the unknown format!
         if (f == null)
         {
             // Use "Unknown" format
-            bitstreamFormat = new BitstreamFormatDAO().findUnknown(bContext);
+            bitstreamFormat = new BitstreamFormatDAO().findUnknown(context);
         }
         else
         {
@@ -294,11 +249,10 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
         }
 
         // Remove user type description
-        bRow.setColumnNull("user_format_description");
+        bitstream.setUserFormatDescription(null);
 
         // Update the ID in the table row
-        bRow.setColumn("bitstream_format_id", bitstreamFormat.getID());
-        modified = true;
+        bitstream.setFormat(bitstreamFormat);
     }
 
     /**
@@ -308,27 +262,27 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      * @throws SQLException
      * @throws AuthorizeException
      */
-    public void update() throws SQLException, AuthorizeException
+    public void update(Context context, Bitstream bitstream) throws SQLException, AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(bContext, this, Constants.WRITE);
+        AuthorizeManager.authorizeAction(context, bitstream, Constants.WRITE);
 
-        log.info(LogManager.getHeader(bContext, "update_bitstream",
-                "bitstream_id=" + getID()));
+        log.info(LogManager.getHeader(context, "update_bitstream",
+                "bitstream_id=" + bitstream.getID()));
 
-        if (modified)
+        if (bitstream.isModified())
         {
-            bContext.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
-            modified = false;
+            context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, bitstream.getID(), null));
+            bitstream.setModified(false);
         }
-        if (modifiedMetadata)
+        if (bitstream.isModifiedMetadata())
         {
-            bContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, getID(), getDetails()));
-            modifiedMetadata = false;
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, bitstream.getID(), getDetails()));
+            bitstream.setModifiedMetadata(false);
             clearDetails();
         }
 
-        DatabaseManager.update(bContext, bRow);
+        HibernateQueryUtil.update(context, bitstream);
     }
 
     /**
@@ -336,14 +290,7 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      * 
      * @throws SQLException
      */
-    void delete(Context context, Bitstream bitstream) throws SQLException
-    {
-        boolean oracle = false;
-        if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
-        {
-            oracle = true;
-        }
-
+    void delete(Context context, Bitstream bitstream) throws SQLException, AuthorizeException {
         // changed to a check on remove
         // Check authorisation
         //AuthorizeManager.authorizeAction(bContext, this, Constants.DELETE);
@@ -355,14 +302,9 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
         // Remove policies
         AuthorizeManager.removeAllPolicies(context, bitstream);
 
-        // Remove references to primary bitstreams in bundle
-        String query = "update bundle set primary_bitstream_id = ";
-        query += (oracle ? "''" : "Null") + " where primary_bitstream_id = ? ";
-        DatabaseManager.updateQuery(bContext,
-                query, bRow.getIntColumn("bitstream_id"));
-
         // Remove bitstream itself
-        HibernateQueryUtil.delete(context, bitstream);
+        bitstream.setDeleted(true);
+        update(context, bitstream);
     }
 
     /**
@@ -383,58 +325,6 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
     }
 
     /**
-     * Get the bundles this bitstream appears in
-     * 
-     * @return array of <code>Bundle</code> s this bitstream appears in
-     * @throws SQLException
-     */
-    public Bundle[] getBundles() throws SQLException
-    {
-        // Get the bundle table rows
-        TableRowIterator tri = DatabaseManager.queryTable(bContext, "bundle",
-                "SELECT bundle.* FROM bundle, bundle2bitstream WHERE " + 
-                "bundle.bundle_id=bundle2bitstream.bundle_id AND " +
-                "bundle2bitstream.bitstream_id= ? ",
-                 bRow.getIntColumn("bitstream_id"));
-
-        // Build a list of Bundle objects
-        List<Bundle> bundles = new ArrayList<Bundle>();
-        try
-        {
-            while (tri.hasNext())
-            {
-                TableRow r = tri.next();
-
-                // First check the cache
-                Bundle fromCache = (Bundle) bContext.fromCache(Bundle.class, r
-                        .getIntColumn("bundle_id"));
-
-                if (fromCache != null)
-                {
-                    bundles.add(fromCache);
-                }
-                else
-                {
-                    bundles.add(new Bundle(bContext, r));
-                }
-            }
-        }
-        finally
-        {
-            // close the TableRowIterator to free up resources
-            if (tri != null)
-            {
-                tri.close();
-            }
-        }
-
-        Bundle[] bundleArray = new Bundle[bundles.size()];
-        bundleArray = (Bundle[]) bundles.toArray(bundleArray);
-
-        return bundleArray;
-    }
-
-    /**
      * return type found in Constants
      *
      * @return int Constants.BITSTREAM
@@ -449,20 +339,11 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      * 
      * @return true if the bitstream is registered, false otherwise
      */
-    public boolean isRegisteredBitstream() {
+    public boolean isRegisteredBitstream(Bitstream bitstream) {
         return BitstreamStorageManager
-				.isRegisteredBitstream(bRow.getStringColumn("internal_id"));
+				.isRegisteredBitstream(bitstream.getInternalId());
     }
     
-    /**
-     * Get the asset store number where this bitstream is stored
-     * 
-     * @return the asset store number of the bitstream
-     */
-    public int getStoreNumber() {
-        return bRow.getIntColumn("store_number");
-    }
-
     /**
      * Get the parent object of a bitstream. The parent can be an item if this
      * is a normal bitstream, or it could be a collection or a community if the
@@ -473,11 +354,11 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      */    
     public DSpaceObject getParentObject(Context context, Bitstream bitstream) throws SQLException
     {
-        Bundle[] bundles = getBundles();
-        if (bundles != null && (bundles.length > 0 && bundles[0] != null))
+        Bundle bundles = bitstream.getBundle();
+        if (bundles != null)
         {
             // the ADMIN action is not allowed on Bundle object so skip to the item
-            Item item = bundles[0].getItem();
+            Item item = bundles.getItem();
             if (item != null)
             {
                 return item;
@@ -488,38 +369,15 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
             }
         }
         else
+        if(bitstream.getCommunity() != null)
         {
-            // is the bitstream a logo for a community or a collection?
-            TableRow qResult = DatabaseManager.querySingle(bContext,
-                       "SELECT collection_id FROM collection " +
-                       "WHERE logo_bitstream_id = ?",getID());
-            if (qResult != null) 
-            {
-                return Collection.find(bContext,qResult.getIntColumn("collection_id"));
-            }
-            else
-            {   
-                // is the bitstream related to a community?
-                qResult = DatabaseManager.querySingle(bContext,
-                        "SELECT community_id FROM community " +
-                        "WHERE logo_bitstream_id = ?",getID());
-    
-                if (qResult != null)
-                {
-                    return Community.find(bContext,qResult.getIntColumn("community_id"));
-                }
-                else
-                {
-                    return null;
-                }
-            }                                   
+            return bitstream.getCommunity();
+        }else
+        if(bitstream.getCollection() != null)
+        {
+            return bitstream.getCollection();
         }
+        return null;
     }
 
-    @Override
-    public void updateLastModified()
-    {
-        //Also fire a modified event since the bitstream HAS been modified
-        bContext.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
-    }
 }

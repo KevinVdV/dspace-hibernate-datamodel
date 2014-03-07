@@ -1,5 +1,9 @@
 package org.dspace.authorize;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+
 import javax.persistence.*;
 import java.sql.SQLException;
 import java.util.Date;
@@ -11,6 +15,8 @@ import java.util.Date;
  * Time: 13:40
  * To change this template use File | Settings | File Templates.
  */
+@Entity
+@Table(name="resourcepolicy")
 public class ResourcePolicy {
     public static String TYPE_SUBMISSION = "TYPE_SUBMISSION";
     public static String TYPE_WORKFLOW = "TYPE_WORKFLOW";
@@ -32,11 +38,14 @@ public class ResourcePolicy {
     @Column(name="action_id")
     private int action_id;
 
-    @Column(name="eperson_id")
-    private Integer eperson_id;
 
-    @Column(name="epersongroup_id")
-    private Integer epersongroup_id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "eperson_id")
+    private EPerson eperson;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="epersongroup_id")
+    private Group epersonGroup;
 
     @Column(name="start_date")
     private Date start_date;
@@ -76,11 +85,11 @@ public class ResourcePolicy {
         {
             return false;
         }
-        if (getEPersonID() != other.getEPersonID())
+        if (ObjectUtils.equals(getEPerson(), other.getEPerson()))
         {
             return false;
         }
-        if (getGroupID() != other.getGroupID())
+        if (ObjectUtils.equals(getGroup(), other.getGroup()))
         {
             return false;
         }
@@ -105,8 +114,21 @@ public class ResourcePolicy {
     {
         int hash = 7;
         hash = 19 * hash + this.getAction();
-        hash = 19 * hash + (this.getEPersonID());
-        hash = 19 * hash + (this.getGroupID());
+        if(this.getGroup() != null)
+        {
+            hash = 19 * hash + this.getGroup().hashCode();
+        }else{
+            hash = 19 * hash + -1;
+        }
+
+        if(this.epersonGroup != null)
+        {
+            hash = 19 * hash + this.getEPerson().hashCode();
+        }else{
+            hash = 19 * hash + -1;
+
+        }
+
         hash = 19 * hash + (this.getStartDate() != null? this.getStartDate().hashCode():0);
         hash = 19 * hash + (this.getEndDate() != null? this.getEndDate().hashCode():0);
         return hash;
@@ -177,47 +199,39 @@ public class ResourcePolicy {
     }
 
     /**
-     * @return eperson ID, or -1 if EPerson not set
+     * @return eperson, null if EPerson not set
      */
-    public int getEPersonID()
+    public EPerson getEPerson()
     {
-        return eperson_id;
+        return eperson;
     }
 
     /**
      * assign an EPerson to this policy
      */
-    public void setEPersonID(Integer eperson_id)
+    public void setEPerson(EPerson eperson)
     {
-        if(eperson_id == null)
-        {
-            eperson_id = -1;
-        }
-        this.eperson_id = eperson_id;
+        this.eperson = eperson;
     }
 
     /**
      * gets ID for Group referred to by this policy
      *
-     * @return groupID, or -1 if no group set
+     * @return groupID, or null if no group set
      */
-    public int getGroupID()
+    public Group getGroup()
     {
-        return epersongroup_id;
+        return epersonGroup;
     }
 
     /**
      * sets ID for Group referred to by this policy
      *
-     * @return groupID, or -1 if no group set
+     * @return groupID, or null if no group set
      */
-    public void setGroupID(Integer epersongroup_id)
+    public void setGroup(Group epersonGroup)
     {
-        if(epersongroup_id == null)
-        {
-            epersongroup_id = -1;
-        }
-        this.epersongroup_id = epersongroup_id;
+        this.epersonGroup = epersonGroup;
     }
 
     /**

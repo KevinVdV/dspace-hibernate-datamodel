@@ -114,7 +114,7 @@ public class MetadataSchemaDAO
      * @return metadata schema object or null if none found.
      * @throws SQLException
      */
-    public static MetadataSchema findByNamespace(Context context,
+    public MetadataSchema findByNamespace(Context context,
             String namespace) throws SQLException
     {
         // Grab rows from DB
@@ -193,7 +193,7 @@ public class MetadataSchemaDAO
      * @return array of metadata schemas
      * @throws SQLException
      */
-    public static MetadataSchema[] findAll(Context context) throws SQLException
+    public MetadataSchema[] findAll(Context context) throws SQLException
     {
         List<MetadataSchema> schemas = new ArrayList<MetadataSchema>();
 
@@ -256,7 +256,7 @@ public class MetadataSchemaDAO
      * @return the metadata schema object
      * @throws SQLException
      */
-    public static MetadataSchema find(Context context, int id)
+    public MetadataSchema find(Context context, int id)
             throws SQLException
     {
         if (!isCacheInitialized())
@@ -285,7 +285,7 @@ public class MetadataSchemaDAO
      * @return the metadata schema object
      * @throws SQLException
      */
-    public static MetadataSchema find(Context context, String shortName)
+    public MetadataSchema find(Context context, String shortName)
         throws SQLException
     {
         // If we are not passed a valid schema name then return

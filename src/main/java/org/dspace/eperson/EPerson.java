@@ -2,8 +2,10 @@ package org.dspace.eperson;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 
 import javax.persistence.*;
+import java.sql.SQLException;
 import java.util.Date;
 
 /**
@@ -225,9 +227,10 @@ public class EPerson extends DSpaceObject {
     }
 
     @Override
-    public String getHandle() {
+    public String getHandle(Context context) throws SQLException {
         return null;
     }
+
 
     @Override
     public String getName() {
@@ -235,8 +238,9 @@ public class EPerson extends DSpaceObject {
     }
 
     @Override
-    public void updateLastModified() {
+    public void updateLastModified(Context context) {
         // Not required for eperson
+
     }
 
     @Override

@@ -27,14 +27,14 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Before
     public void setUp() throws SQLException, AuthorizeException {
-        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPersonDAO ePersonDAO = new EPersonDAO();
         EPerson eperson = ePersonDAO.create(context);
         eperson.setEmail("kevin@dspace.org");
         eperson.setFirstName("Kevin");
         eperson.setLastName("Van de Velde");
         eperson.setNetid("1985");
         eperson.setPassword("test");
-        ePersonDAO.update(eperson);
+        ePersonDAO.update(context, eperson);
 
     }
 
@@ -52,7 +52,7 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testFindByEmail() throws Exception {
-        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPersonDAO ePersonDAO = new EPersonDAO();
         EPerson ePersonEntity = ePersonDAO.findByEmail(context, "kevin@dspace.org");
         assertNotNull("No eperson retrieved",ePersonEntity);
         assertEquals("Didn't find the expected entity", "kevin@dspace.org", ePersonEntity.getEmail());
@@ -64,7 +64,7 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testSearch() throws Exception {
-        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPersonDAO ePersonDAO = new EPersonDAO();
         EPerson[] expectedResult = new EPerson[]{ePersonDAO.findByEmail(context, "kevin@dspace.org")};
 //        Search first name
         assertArrayEquals("Find by last name", ePersonDAO.search(context, "Velde"), expectedResult);
@@ -76,7 +76,7 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testSearchResultCount() throws Exception {
-        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPersonDAO ePersonDAO = new EPersonDAO();
 //        Search first name
         assertEquals("Count by last name", ePersonDAO.searchResultCount(context, "Velde"), 1);
 //        Search last name
@@ -91,7 +91,7 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testCreate() throws Exception {
-        EPersonDAO ePersonDAO = new EPersonDAO(context);
+        EPersonDAO ePersonDAO = new EPersonDAO();
         EPerson eperson = ePersonDAO.create(context);
         EPerson ePersonEntity = ePersonDAO.findByEmail(context, "kevin@dspace.org");
         //Ensure that the identifier sequence increments by one
@@ -116,8 +116,8 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testCheckPassword() throws Exception {
-        EPerson eperson = new EPersonDAO(context).findByEmail(context, "kevin@mire.be");
-        new EPersonDAO(context).checkPassword(eperson, "test");
+        EPerson eperson = new EPersonDAO().findByEmail(context, "kevin@mire.be");
+        new EPersonDAO().checkPassword(context, eperson, "test");
     }
 
     public void testUpdate() throws Exception {

@@ -2,7 +2,10 @@ package org.dspace.content;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.dspace.eperson.Group;
+import org.dspace.event.Event;
+import org.dspace.handle.HandleManager;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
 
@@ -66,6 +69,20 @@ public class Collection extends DSpaceObject {
     @Column(name = "side_bar_text")
     private String sideBarText;
 
+    @Column(name = "introductory_text")
+    private String introductoryText;
+
+    /** The logo bitstream */
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "logo_bitstream_id")
+    private Bitstream logo;
+
+    /** The item template */
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "template_item_id")
+    private Item template;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinTable(
             name = "community2collection",
@@ -100,6 +117,12 @@ public class Collection extends DSpaceObject {
     @Override
     public int getID() {
         return id;
+    }
+
+    @Override
+    public String getHandle(Context context) throws SQLException {
+        //TODO: HIBERNATE: REMOVE THIS
+        return HandleManager.findHandle(context, this);
     }
 
     /**
@@ -182,7 +205,7 @@ public class Collection extends DSpaceObject {
      * @return group of administrators, or <code>null</code> if there is no
      *         default group.
      */
-    public Group getAdmins() {
+    public Group getAdministrators() {
         return admins;
     }
 
@@ -289,6 +312,12 @@ public class Collection extends DSpaceObject {
         return name;
     }
 
+    @Override
+    public void updateLastModified(Context context) {
+        //Also fire a modified event since the collection HAS been modified
+        context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, getID(), null));
+    }
+
     void setName(String name) {
         this.name = name;
         modifiedMetadata = true;
@@ -296,5 +325,45 @@ public class Collection extends DSpaceObject {
 
     public Community getOwningCommunity() {
         return owningCommunity;
+    }
+
+    /**
+     * Get the logo for the collection. <code>null</code> is returned if the
+     * collection does not have a logo.
+     *
+     * @return the logo of the collection, or <code>null</code>
+     */
+    public Bitstream getLogo() {
+        return logo;
+    }
+
+    void setLogo(Bitstream logo) {
+        this.logo = logo;
+        this.modified = true;
+    }
+
+    /**
+     * Get the template item for this collection. <code>null</code> is
+     * returned if the collection does not have a template. Submission
+     * mechanisms may copy this template to provide a convenient starting point
+     * for a submission.
+     *
+     * @return the item template, or <code>null</code>
+     */
+    public Item getTemplateItem() {
+        return template;
+    }
+
+    void setTemplate(Item template) {
+        this.template = template;
+        modified = true;
+    }
+
+    public String getIntroductoryText() {
+        return introductoryText;
+    }
+
+    public void setIntroductoryText(String introductoryText) {
+        this.introductoryText = introductoryText;
     }
 }

@@ -81,7 +81,7 @@ public class BitstreamFormatDAO
      * @return the bitstream format, or null if the ID is invalid.
      * @throws SQLException
      */
-    public static BitstreamFormat find(Context context, int id)
+    public BitstreamFormat find(Context context, int id)
             throws SQLException
     {
         BitstreamFormat bitstreamFormat = (BitstreamFormat) context.getDBConnection().get(BitstreamFormat.class, id);
@@ -213,7 +213,7 @@ public class BitstreamFormatDAO
      * @return the bitstream formats.
      * @throws SQLException
      */
-    public static BitstreamFormat[] findNonInternal(Context context)
+    public BitstreamFormat[] findNonInternal(Context context)
             throws SQLException
     {
 

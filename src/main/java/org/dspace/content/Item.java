@@ -1,7 +1,11 @@
 package org.dspace.content;
 
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
+import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
+import org.dspace.event.Event;
+import org.dspace.handle.HandleManager;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
@@ -9,6 +13,7 @@ import org.hibernate.annotations.Type;
 import org.dspace.content.Collection;
 import javax.persistence.*;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -64,7 +69,7 @@ public class Item extends DSpaceObject{
             generator = "collection2item_seq"
     )
     @SequenceGenerator(name="collection2item_seq", sequenceName="collection2item_seq", allocationSize = 1)
-    private Set<Collection> collections = new LinkedHashSet<Collection>();
+    private List<Collection> collections = new ArrayList<Collection>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -78,20 +83,12 @@ public class Item extends DSpaceObject{
             generator = "item2bundle_seq"
     )
     @SequenceGenerator(name="item2bundle_seq", sequenceName="item2bundle_seq", allocationSize = 1)
-    private List<Bundle> bundles = null;
+    private List<Bundle> bundles = new ArrayList<Bundle>();
 
 
-    //TODO: Change to onToMany or ManyToOne ?
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name="metadatavalue", joinColumns=@JoinColumn(name="item_id"))
-        @CollectionId(
-                columns = @Column(name="metadata_value_id"),
-                type=@Type(type="integer"),
-                generator = "metadatavalue_seq"
-        )
-    @SequenceGenerator(name="metadatavalue_seq", sequenceName="metadatavalue_seq", allocationSize = 1)
-    //TODO: HIBERNATE, ORDER BY:  metadata_field_id, place
-    private List<MetadataValue> metadata;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
+    @OrderBy("metadataField, place")
+    private List<MetadataValue> metadata = new ArrayList<MetadataValue>();
 
 
 
@@ -164,6 +161,12 @@ public class Item extends DSpaceObject{
     public int getID()
     {
         return id;
+    }
+
+    @Override
+    public String getHandle(Context context) throws SQLException {
+                //TODO: HIBERNATE: REMOVE THIS
+        return HandleManager.findHandle(context, this);
     }
 
     /**
@@ -295,7 +298,7 @@ public class Item extends DSpaceObject{
      * @return the collections this item is in, if any.
      * @throws SQLException
      */
-    public Set<Collection> getCollections(){
+    public List<Collection> getCollections(){
         return collections;
     }
 
@@ -334,5 +337,44 @@ public class Item extends DSpaceObject{
     {
         getCollections().remove(collection);
     }
+
+    public boolean isDublinCoreChanged() {
+        return dublinCoreChanged;
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setDublinCoreChanged(boolean dublinCoreChanged) {
+        this.dublinCoreChanged = dublinCoreChanged;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
+    }
+
+
+    public String getName()
+    {
+        //TODO: IMPLEMENT THIS !
+//        MetadataValue t[] = getMetadata("dc", "title", null, Item.ANY);
+//        return (t.length >= 1) ? t[0].value : null;
+        return "UNTITLED";
+    }
+
+
+
+    /**
+     * Method that updates the last modified date of the item
+     */
+    public void updateLastModified(Context context)
+    {
+        lastModified = new Date();
+        //TODO: HIBERNATE? WE SHOULD ALSO UPDATE OBJECT
+        //Also fire a modified event since the item HAS been modified
+        context.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), null));
+    }
+
 }
 

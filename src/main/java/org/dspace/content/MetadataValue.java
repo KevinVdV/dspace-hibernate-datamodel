@@ -15,16 +15,13 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 import javax.persistence.*;
 
 /**
  * Database access class representing a Dublin Core metadata value.
  * It represents a value of a given <code>MetadataField</code> on an Item.
- * (The Item can have many values of the same field.)  It contains                                           element, qualifier, value and language.
+ * (The Item can have many values of the same field.)  It contains element, qualifier, value and language.
  * the field (which names the schema, element, and qualifier), language,
  * and a value.
  *
@@ -46,7 +43,7 @@ public class MetadataValue
 
     /** The primary key for the metadata value */
     @ManyToOne
-    @Column(name = "metadata_field_id")
+    @JoinColumn(name = "metadata_field_id")
     private MetadataField metadataField = null;
 
     /** The reference to the DSpace item */
@@ -73,9 +70,9 @@ public class MetadataValue
     @Column(name = "confidence")
     public int confidence = 0;
 
-    /** log4j logger */
-    private static Logger log = Logger.getLogger(MetadataValue.class);
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="item_id", insertable = false, updatable = false)
+    public Item item;
 
     /**
      * Constructor to create a value for a given field.
@@ -238,154 +235,6 @@ public class MetadataValue
         this.confidence = value;
     }
 
-    /**
-     * Creates a new metadata value.
-     *
-     * @param context
-     *            DSpace context object
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public void create(Context context) throws SQLException, AuthorizeException
-    {
-        // Create a table row and update it with the values
-        row = DatabaseManager.row("MetadataValue");
-        row.setColumn("item_id", itemId);
-        row.setColumn("metadata_field_id", fieldId);
-        row.setColumn("text_value", value);
-        row.setColumn("text_lang", language);
-        row.setColumn("place", place);
-        row.setColumn("authority", authority);
-        row.setColumn("confidence", confidence);
-        DatabaseManager.insert(context, row);
-
-        // Remember the new row number
-        this.valueId = row.getIntColumn("metadata_value_id");
-
-//        log.info(LogManager.getHeader(context, "create_metadata_value",
-//                "metadata_value_id=" + valueId));
-    }
-
-    /**
-     * Retrieves the metadata value from the database.
-     *
-     * @param context dspace context
-     * @param valueId database key id of value
-     * @return recalled metadata value
-     * @throws IOException
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public static MetadataValue find(Context context, int valueId)
-            throws IOException, SQLException, AuthorizeException
-    {
-        // Grab rows from DB
-        TableRowIterator tri = DatabaseManager.queryTable(context, "MetadataValue",
-                "SELECT * FROM MetadataValue where metadata_value_id= ? ",
-                valueId);
-
-        TableRow row = null;
-        try
-        {
-            if (tri.hasNext())
-            {
-                row = tri.next();
-            }
-        }
-        finally
-        {
-            // close the TableRowIterator to free up resources
-            if (tri != null)
-            {
-                tri.close();
-            }
-        }
-
-        if (row == null)
-        {
-            return null;
-        }
-        else
-        {
-            return new MetadataValue(row);
-        }
-    }
-
-    /**
-     * Retrieves the metadata values for a given field from the database.
-     *
-     * @param context dspace context
-     * @param fieldId field whose values to look for
-     * @return a collection of metadata values
-     * @throws IOException
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public static List<MetadataValue> findByField(Context context, int fieldId)
-            throws IOException, SQLException, AuthorizeException
-    {
-        // Grab rows from DB
-        TableRowIterator tri = DatabaseManager.queryTable(context, "MetadataValue",
-                "SELECT * FROM MetadataValue WHERE metadata_field_id= ? ",
-                fieldId);
-
-        TableRow row = null;
-        List<MetadataValue> ret = new ArrayList<MetadataValue>();
-        try
-        {
-            while (tri.hasNext())
-            {
-                row = tri.next();
-                ret.add(new MetadataValue(row));
-            }
-        }
-        finally
-        {
-            // close the TableRowIterator to free up resources
-            if (tri != null)
-            {
-                tri.close();
-            }
-        }
-
-        return ret;
-    }
-
-    /**
-     * Update the metadata value in the database.
-     *
-     * @param context dspace context
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public void update(Context context) throws SQLException, AuthorizeException
-    {
-        row.setColumn("item_id", itemId);
-        row.setColumn("metadata_field_id", fieldId);
-        row.setColumn("text_value", value);
-        row.setColumn("text_lang", language);
-        row.setColumn("place", place);
-        row.setColumn("authority", authority);
-        row.setColumn("confidence", confidence);
-        DatabaseManager.update(context, row);
-
-        log.info(LogManager.getHeader(context, "update_metadatavalue",
-                "metadata_value_id=" + getValueId()));
-    }
-
-    /**
-     * Delete the metadata field.
-     *
-     * @param context dspace context
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public void delete(Context context) throws SQLException, AuthorizeException
-    {
-        log.info(LogManager.getHeader(context, "delete_metadata_value",
-                " metadata_value_id=" + getValueId()));
-        DatabaseManager.delete(context, row);
-    }
 
     /**
      * Return <code>true</code> if <code>other</code> is the same MetadataValue
@@ -413,7 +262,7 @@ public class MetadataValue
         {
             return false;
         }
-        if (this.valueId != other.valueId)
+        if (this.getFieldId() != other.getFieldId())
         {
             return false;
         }
@@ -429,7 +278,7 @@ public class MetadataValue
     {
         int hash = 7;
         hash = 47 * hash + this.fieldId;
-        hash = 47 * hash + this.valueId;
+        hash = 47 * hash + this.getFieldId();
         hash = 47 * hash + this.itemId;
         return hash;
     }

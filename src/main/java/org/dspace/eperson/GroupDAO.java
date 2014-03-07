@@ -23,6 +23,7 @@ import org.dspace.core.LogManager;
 import org.dspace.event.Event;
 import org.dspace.hibernate.HibernateQueryUtil;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -45,7 +46,7 @@ public class GroupDAO extends DSpaceObjectDAO<Group>
     /**
      * Construct a Group from a given context and tablerow
      */
-    public GroupDAO() throws SQLException
+    public GroupDAO()
     {
     }
 
@@ -175,6 +176,27 @@ public class GroupDAO extends DSpaceObjectDAO<Group>
      *
      * @param c
      *            context
+     * @param group
+     *            group to check
+     */
+    public boolean isMember(Context c, Group group) throws SQLException
+    {
+        if (group == null)
+        {
+            return false;
+        }
+
+        EPerson currentuser = c.getCurrentUser();
+        return epersonInGroup(c, group.getID(), currentuser);
+    }
+
+    /**
+     * fast check to see if an eperson is a member called with eperson id, does
+     * database lookup without instantiating all of the epeople objects and is
+     * thus a static method
+     *
+     * @param c
+     *            context
      * @param groupid
      *            group ID to check
      */
@@ -230,9 +252,10 @@ public class GroupDAO extends DSpaceObjectDAO<Group>
         {
             // two queries - first to get groups eperson is a member of
             // second query gets parent groups for groups eperson is a member of
-            Criteria criteria = c.getDBConnection().createCriteria(Group.class);
-            criteria.add(Restrictions.eq("eperson_id", e.getID()));
-            List<Group> groupEntities = criteria.list();
+//            Query query = c.getDBConnection().createQuery("from Group where :eperson IN epeople");
+            Query query = c.getDBConnection().createQuery("from Group where (from EPerson e where e.id = :eperson_id) in elements(epeople)");
+            query.setParameter("eperson_id", e.getID());
+            List<Group> groupEntities = query.list();
             Set<Integer> result = new LinkedHashSet<Integer>();
             for (Group groupEntity : groupEntities) {
                 result.add(groupEntity.getID());

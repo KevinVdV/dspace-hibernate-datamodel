@@ -9,10 +9,22 @@
         <property name="hibernate.connection.password">dspace</property>
         <property name="dialect">org.hibernate.dialect.PostgreSQL9Dialect</property>
 
+        <property name="show_sql">true</property>
+
+
 
         <mapping class="org.dspace.eperson.EPerson"/>
         <mapping class="org.dspace.eperson.Group"/>
-        <mapping package="org.dspace.content"/>
-        <mapping package="org.dspace.eperson"/>
+        <mapping class="org.dspace.content.Community"/>
+        <mapping class="org.dspace.content.Collection"/>
+        <mapping class="org.dspace.content.Bitstream"/>
+        <mapping class="org.dspace.content.Item"/>
+        <mapping class="org.dspace.content.BitstreamFormat"/>
+        <mapping class="org.dspace.content.Bundle"/>
+        <mapping class="org.dspace.content.MetadataValue"/>
+        <mapping class="org.dspace.content.MetadataSchema"/>
+        <mapping class="org.dspace.content.MetadataField"/>
+        <mapping class="org.dspace.handle.Handle"/>
+        <mapping class="org.dspace.authorize.ResourcePolicy"/>
     </session-factory>
 </hibernate-configuration>

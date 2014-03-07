@@ -9,6 +9,7 @@ package org.dspace.content;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
 import org.dspace.core.*;
 import org.dspace.eperson.Group;
@@ -17,15 +18,14 @@ import org.dspace.event.Event;
 import org.dspace.handle.HandleManager;
 import org.dspace.hibernate.HibernateQueryUtil;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.MissingResourceException;
+import java.util.*;
 
 /**
  * Class representing a collection.
@@ -46,20 +46,12 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
     /** log4j category */
     private static Logger log = Logger.getLogger(Collection.class);
 
-    /** The logo bitstream */
-    //TODO: HIBERNATE: iMPLMENT WHEN BITSTREAM BECOMES AVAILABLE
-//    private Bitstream logo;
-
-    /** The item template */
-        //TODO: HIBERNATE: iMPLMENT WHEN ITEM BECOMES AVAILABLE
-//    private Item template;
-
     /**
      * Construct a collection with the given table row
      *
      * @throws SQLException
      */
-    public CollectionDAO() throws SQLException
+    public CollectionDAO()
     {
         clearDetails();
     }
@@ -132,17 +124,13 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
             AuthorizeException
     {
         Collection newCollection = new Collection();
-        try
+        //Update our community so we have a collection identifier
+        HibernateQueryUtil.update(context, newCollection);
+        if(handle == null)
         {
-            newCollection.handle = (handle == null) ?
-                       HandleManager.createHandle(context, newCollection) :
-                       HandleManager.createHandle(context, newCollection, handle);
-        }
-        catch(IllegalStateException ie)
-        {
-            //If an IllegalStateException is thrown, then an existing object is already using this handle
-            //pass exception on up the chain
-            throw ie;
+            HandleManager.createHandle(context, newCollection);
+        }else{
+            HandleManager.createHandle(context, newCollection, handle);
         }
 
         // create the default authorization policy for collections
@@ -169,11 +157,11 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
         resourcePolicyDAO.setGroup(myPolicy, anonymousGroup);
         resourcePolicyDAO.update(context, myPolicy);
 
-        context.addEvent(new Event(Event.CREATE, Constants.COLLECTION, newCollection.getID(), newCollection.handle));
+        context.addEvent(new Event(Event.CREATE, Constants.COLLECTION, newCollection.getID(), newCollection.getHandle(context)));
 
         log.info(LogManager.getHeader(context, "create_collection",
                 "collection_id=" + newCollection.getID())
-                + ",handle=" + newCollection.handle);
+                + ",handle=" + newCollection.getHandle(context));
 
         HibernateQueryUtil.update(context, newCollection);
         return newCollection;
@@ -223,21 +211,14 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
      * @return an iterator over the items in the collection.
      * @throws SQLException
      */
-    //TODO: Implement when item becomes available
-    /*
-    public ItemIterator getItems() throws SQLException
+    public Iterator<Item> getItems(Context context, Collection collection) throws SQLException
     {
-        String myQuery = "SELECT item.* FROM item, collection2item WHERE "
-                + "item.item_id=collection2item.item_id AND "
-                + "collection2item.collection_id= ? "
-                + "AND item.in_archive='1'";
-
-        TableRowIterator rows = DatabaseManager.queryTable(ourContext, "item",
-                myQuery,getID());
-
-        return new ItemIterator(ourContext, rows);
+        Query query = context.getDBConnection()
+                .createQuery("select i from Item i join i.collections c WHERE :collection IN c.id AND i.inArchive=:in_archive");
+        query.setParameter("collection", collection.getID());
+        query.setParameter("in_archive", true);
+        return query.iterate();
     }
-     */
 
     /**
      * Get the in_archive items in this collection. The order is indeterminate.
@@ -247,21 +228,17 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
      * @return an iterator over the items in the collection.
      * @throws SQLException
      */
-    //TODO: Implement when item becomes available
-    /*
-    public ItemIterator getItems(Integer limit, Integer offset) throws SQLException
+    public Iterator<Item> getItems(Context context, Collection collection, Integer limit, Integer offset) throws SQLException
     {
-        String myQuery = "SELECT item.* FROM item, collection2item WHERE "
-                + "item.item_id=collection2item.item_id AND "
-                + "collection2item.collection_id= ? "
-                + "AND item.in_archive='1' limit ? offset ?";
+        Query query = context.getDBConnection()
+                .createQuery("select i from Item i join i.collections c WHERE :collection IN c.id AND i.inArchive=:in_archive");
+        query.setParameter("collection", collection.getID());
+        query.setParameter("in_archive", true);
+        query.setFirstResult(offset);
+        query.setMaxResults(limit);
 
-        TableRowIterator rows = DatabaseManager.queryTable(ourContext, "item",
-                myQuery,getID(), limit, offset);
-
-        return new ItemIterator(ourContext, rows);
+        return query.iterate();
     }
-    */
 
     /**
      * Get all the items in this collection. The order is indeterminate.
@@ -269,35 +246,12 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
      * @return an iterator over the items in the collection.
      * @throws SQLException
      */
-        //TODO: Implement when item becomes available
-    /*
-    public ItemIterator getAllItems() throws SQLException
+    public Iterator<Item> getAllItems(Context context, Collection collection) throws SQLException
     {
-        String myQuery = "SELECT item.* FROM item, collection2item WHERE "
-                + "item.item_id=collection2item.item_id AND "
-                + "collection2item.collection_id= ? ";
+        Query query = context.getDBConnection().createQuery("select i from Item i join i.collections c WHERE :collection IN c.id");
+        query.setParameter("collection", collection.getID());
 
-        TableRowIterator rows = DatabaseManager.queryTable(ourContext, "item",
-                myQuery,getID());
-
-        return new ItemIterator(ourContext, rows);
-    }
-    */
-
-    /**
-     * @see org.dspace.content.DSpaceObject#getHandle()
-     */
-    public String getHandle()
-    {
-        if(handle == null) {
-        	try {
-				handle = HandleManager.findHandle(this.ourContext, this);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
-			}
-        }
-    	return handle;
+        return query.iterate();
     }
 
     /**
@@ -324,22 +278,9 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
             }
         }
         collection.setName(value);
-        addDetails(field);
+        addDetails("name");
     }
 
-    /**
-     * Get the logo for the collection. <code>null</code> is returned if the
-     * collection does not have a logo.
-     *
-     * @return the logo of the collection, or <code>null</code>
-     */
-    //TODO: Implement once bitstream becomes available
-    /*
-    public Bitstream getLogo()
-    {
-        return logo;
-    }
-    */
     /**
      * Give the collection a logo. Passing in <code>null</code> removes any
      * existing logo. You will need to set the format of the new logo bitstream
@@ -356,54 +297,48 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
      * @throws IOException
      * @throws SQLException
      */
-        //TODO: Implement once bitstream becomes available
-/*
-    public Bitstream setLogo(InputStream is) throws AuthorizeException,
+    public Bitstream setLogo(Context context, Collection collection, InputStream is) throws AuthorizeException,
             IOException, SQLException
     {
         // Check authorisation
         // authorized to remove the logo when DELETE rights
         // authorized when canEdit
         if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
-                ourContext, this, Constants.DELETE)))
+                context, collection, Constants.DELETE)))
         {
-            canEdit(true);
+            canEdit(context, collection, true);
         }
 
+        BitstreamDAO bitstreamDAO = new BitstreamDAO();
         // First, delete any existing logo
-        if (!collectionRow.isColumnNull("logo_bitstream_id"))
+        if (collection.getLogo() != null)
         {
-            logo.delete();
+            bitstreamDAO.delete(context, collection.getLogo());
         }
 
         if (is == null)
         {
-            collectionRow.setColumnNull("logo_bitstream_id");
-            logo = null;
-
-            log.info(LogManager.getHeader(ourContext, "remove_logo",
-                    "collection_id=" + getID()));
+            collection.setLogo(null);
+            log.info(LogManager.getHeader(context, "remove_logo",
+                    "collection_id=" + collection.getID()));
         }
         else
         {
-            Bitstream newLogo = Bitstream.create(ourContext, is);
-            collectionRow.setColumn("logo_bitstream_id", newLogo.getID());
-            logo = newLogo;
+            Bitstream newLogo = bitstreamDAO.create(context, is);
+            collection.setLogo(newLogo);
 
             // now create policy for logo bitstream
             // to match our READ policy
-            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(ourContext, this, Constants.READ);
-            AuthorizeManager.addPolicies(ourContext, policies, newLogo);
+            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context, collection, Constants.READ);
+            AuthorizeManager.addPolicies(context, policies, newLogo);
 
-            log.info(LogManager.getHeader(ourContext, "set_logo",
-                    "collection_id=" + getID() + "logo_bitstream_id="
+            log.info(LogManager.getHeader(context, "set_logo",
+                    "collection_id=" + collection.getID() + "logo_bitstream_id="
                             + newLogo.getID()));
         }
 
-        modified = true;
-        return logo;
+        return collection.getLogo();
     }
-    */
 
     /**
      * Create a workflow group for the given step if one does not already exist.
@@ -422,8 +357,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
     public Group createWorkflowGroup(Context context, Collection collection, int step) throws SQLException,
             AuthorizeException, IllegalAccessException {
         // Check authorisation - Must be an Admin to create Workflow Group
-//TODO: Hibernate fix when authorizeUtil becomes available
-//        AuthorizeUtil.authorizeManageWorkflowsGroup(context, this);
+        AuthorizeUtil.authorizeManageWorkflowsGroup(context, collection);
 
         if (getWorkflowGroup(collection, step) == null)
         {
@@ -508,8 +442,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
     public Group createSubmitters(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin to create Submitters Group
-        //TODO: Hibernate fix when authorizeUtil becomes available
-//        AuthorizeUtil.authorizeManageSubmittersGroup(context, this);
+        AuthorizeUtil.authorizeManageSubmittersGroup(context, collection);
 
         Group submitters = collection.getSubmitters();
         if (submitters == null)
@@ -541,8 +474,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
     public void removeSubmitters(Context context, Collection collection) throws SQLException, AuthorizeException
     {
     	// Check authorisation - Must be an Admin to delete Submitters Group
-        //TODO: Hibernate fix when authorizeUtil becomes available
-//        AuthorizeUtil.authorizeManageSubmittersGroup(context, collection);
+        AuthorizeUtil.authorizeManageSubmittersGroup(context, collection);
 
         // just return if there is no administrative group.
         if (collection.getSubmitters() == null)
@@ -566,8 +498,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
     public Group createAdministrators(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin to create more Admins
-        //TODO: Hibernate fix when authorizeUtil becomes available
-//        AuthorizeUtil.authorizeManageAdminGroup(context, this);
+        AuthorizeUtil.authorizeManageAdminGroup(context, collection);
 
         Group admins = collection.getSubmitters();
         if (admins == null)
@@ -600,10 +531,9 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
     public void removeAdministrators(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin of the parent community to delete Admin Group
-        //TODO: Hibernate fix when authorizeUtil becomes available
-//        AuthorizeUtil.authorizeRemoveAdminGroup(context, this);
+        AuthorizeUtil.authorizeRemoveAdminGroup(context, collection);
 
-        Group admins = collection.getAdmins();
+        Group admins = collection.getAdministrators();
         // just return if there is no administrative group.
         if (admins == null)
         {
@@ -657,21 +587,6 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
         return StringUtils.isNotBlank(license);
     }
 
-    /**
-     * Get the template item for this collection. <code>null</code> is
-     * returned if the collection does not have a template. Submission
-     * mechanisms may copy this template to provide a convenient starting point
-     * for a submission.
-     *
-     * @return the item template, or <code>null</code>
-     */
-    /*
-    //TODO: HIBERNATE: Implement when item becomes available
-    public Item getTemplateItem() throws SQLException
-    {
-        return template;
-    }
-     */
 
     /**
      * Create an empty template item for this collection. If one already exists,
@@ -682,26 +597,23 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
      * @throws SQLException
      * @throws AuthorizeException
      */
-        //TODO: HIBERNATE: Implement when item becomes available
-/*
-    public void createTemplateItem() throws SQLException, AuthorizeException
+    public Item createTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation
-        AuthorizeUtil.authorizeManageTemplateItem(ourContext, this);
+        AuthorizeUtil.authorizeManageTemplateItem(context, collection);
 
-        if (template == null)
+        if (collection.getTemplateItem() == null)
         {
-            template = Item.create(ourContext);
-            collectionRow.setColumn("template_item_id", template.getID());
+            Item template = new ItemDAO().create(context);
+            collection.setTemplate(template);
 
-            log.info(LogManager.getHeader(ourContext, "create_template_item",
-                    "collection_id=" + getID() + ",template_item_id="
+            log.info(LogManager.getHeader(context, "create_template_item",
+                    "collection_id=" + collection.getID() + ",template_item_id="
                             + template.getID()));
         }
-        modified = true;
+        return collection.getTemplateItem();
     }
 
-*/
     /**
      * Remove the template item for this collection, if there is one. Note that
      * since this has to remove the old template item ID from the collection
@@ -713,34 +625,29 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
      * @throws AuthorizeException
      * @throws IOException
      */
-            //TODO: HIBERNATE: Implement when item becomes available
-/*
-
-    public void removeTemplateItem() throws SQLException, AuthorizeException,
+    public void removeTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException,
             IOException
     {
         // Check authorisation
-        AuthorizeUtil.authorizeManageTemplateItem(ourContext, this);
+        AuthorizeUtil.authorizeManageTemplateItem(context, collection);
 
-        collectionRow.setColumnNull("template_item_id");
-        DatabaseManager.update(ourContext, collectionRow);
+        Item template = collection.getTemplateItem();
 
         if (template != null)
         {
-            log.info(LogManager.getHeader(ourContext, "remove_template_item",
-                    "collection_id=" + getID() + ",template_item_id="
+            log.info(LogManager.getHeader(context, "remove_template_item",
+                    "collection_id=" + collection.getID() + ",template_item_id="
                             + template.getID()));
             // temporarily turn off auth system, we have already checked the permission on the top of the method
             // check it again will fail because we have already broken the relation between the collection and the item
-            ourContext.turnOffAuthorisationSystem();
-            template.delete();
-            ourContext.restoreAuthSystemState();
-            template = null;
+            context.turnOffAuthorisationSystem();
+            new ItemDAO().delete(context, template);
+            context.restoreAuthSystemState();
+            collection.setTemplate(null);
         }
 
-        ourContext.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, getID(), "remove_template_item"));
+        context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, collection.getID(), "remove_template_item"));
     }
-    */
 
     public Collection findByTemplateItem(Context context, Item item) throws SQLException {
         Criteria criteria = context.getDBConnection().createCriteria(Collection.class);
@@ -769,12 +676,15 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
 
         // We do NOT add the item to the collection template since we would have to load in all our items
         // Instead we add the collection to an item which works in the same way.
-        item.addCollection(collection);
+        if(!item.getCollections().contains(collection))
+        {
+            item.addCollection(collection);
+        }
 
         HibernateQueryUtil.refresh(context, collection);
 
 
-        context.addEvent(new Event(Event.ADD, Constants.COLLECTION, collection.getID(), Constants.ITEM, item.getID(), item.getHandle()));
+        context.addEvent(new Event(Event.ADD, Constants.COLLECTION, collection.getID(), Constants.ITEM, item.getID(), item.getHandle(context)));
     }
 
     /**
@@ -806,7 +716,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
         log.info(LogManager.getHeader(context, "remove_item",
                 "collection_id=" + collection.getID() + ",item_id=" + item.getID()));
 
-        context.addEvent(new Event(Event.REMOVE, Constants.COLLECTION, collection.getID(), Constants.ITEM, item.getID(), item.getHandle()));
+        context.addEvent(new Event(Event.REMOVE, Constants.COLLECTION, collection.getID(), Constants.ITEM, item.getID(), item.getHandle(context)));
     }
 
     /**
@@ -865,7 +775,9 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
 
     public void canEdit(Context context, Collection collection, boolean useInheritance) throws AuthorizeException, SQLException
     {
-        Community[] parents = getCommunities();
+        //TODO: HIBERNATE: IMPLEMENT PARENT CHECK
+        /*
+        Community[] parents = collection.getCommunities();
 
         for (Community parent : parents) {
             if (AuthorizeManager.authorizeActionBoolean(context, parent,
@@ -878,7 +790,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
                 return;
             }
         }
-
+        */
         AuthorizeManager.authorizeAction(context, collection, Constants.WRITE, useInheritance);
     }
 
@@ -896,7 +808,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
         log.info(LogManager.getHeader(context, "delete_collection",
                 "collection_id=" + collection.getID()));
 
-        context.addEvent(new Event(Event.DELETE, Constants.COLLECTION, collection.getID(), getHandle()));
+        context.addEvent(new Event(Event.DELETE, Constants.COLLECTION, collection.getID(), collection.getHandle(context)));
 
         // remove subscriptions - hmm, should this be in Subscription.java?
         //TODO: HIBERNATE DESCRIPTION
@@ -906,59 +818,37 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
 
         // Remove Template Item
         //TODO: HIBERNATE, IMPLEMENT WHEN ITEMS BECOME AVAILABLE
-        /*
-        removeTemplateItem();
+        removeTemplateItem(context, collection);
 
         // Remove items
-        ItemIterator items = getAllItems();
+        Iterator<Item> items = getAllItems(context, collection);
 
-        try
+        while (items.hasNext())
         {
-        	while (items.hasNext())
-        	{
-        		Item item = items.next();
-        		IndexBrowse ib = new IndexBrowse(ourContext);
-
-        		if (item.isOwningCollection(this))
-        		{
-        			// the collection to be deleted is the owning collection, thus remove
-        			// the item from all collections it belongs to
-        			Collection[] collections = item.getCollections();
-        			for (int i=0; i< collections.length; i++)
-        			{
-        				//notify Browse of removing item.
-        				ib.itemRemoved(item);
-        				// Browse.itemRemoved(ourContext, itemId);
-        				collections[i].removeItem(item);
-        			}
-
-        		}
-        		// the item was only mapped to this collection, so just remove it
-        		else
-        		{
-        			//notify Browse of removing item mapping.
-        			ib.indexItem(item);
-        			// Browse.itemChanged(ourContext, item);
-        			removeItem(item);
-        		}
-        	}
-        }
-        catch (BrowseException e)
-        {
-        	log.error("caught exception: ", e);
-        	throw new IOException(e.getMessage(), e);
-        }
-        finally
-        {
-            if (items != null)
+            Item item = items.next();
+            ItemDAO itemDAO = new ItemDAO();
+            if (itemDAO.isOwningCollection(item, collection))
             {
-                items.close();
+                // the collection to be deleted is the owning collection, thus remove
+                // the item from all collections it belongs to
+                List<Collection> collections = item.getCollections();
+                for (Collection coll : collections)
+                {
+                    // Browse.itemRemoved(ourContext, itemId);
+                    removeItem(context, coll, item);
+                }
+
+            }
+            // the item was only mapped to this collection, so just remove it
+            else
+            {
+                // Browse.itemChanged(ourContext, item);
+                removeItem(context, collection, item);
             }
         }
-        */
+
         // Delete bitstream logo
-        //TODO: HIBERNATE, IMPLEMENT WHEN BITSTREAMS BECOME AVAILABLE
-//        setLogo(null);
+        setLogo(context, collection, null);
 
         // Remove all authorization policies
         AuthorizeManager.removeAllPolicies(context, collection);
@@ -1057,7 +947,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
         }
 
         // Remove default administrators group
-        g = collection.getAdmins();
+        g = collection.getAdministrators();
 
         if (g != null)
         {
@@ -1175,15 +1065,10 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
      }
      */
 
-    public DSpaceObject getAdminObject(Collection collection, int action) throws SQLException
+    public DSpaceObject getAdminObject(Context context, Collection collection, int action) throws SQLException
     {
         DSpaceObject adminObject = null;
-        Community community = null;
-        Community[] communities = getCommunities();
-        if (communities != null && communities.length > 0)
-        {
-            community = communities[0];
-        }
+        Community community = collection.getOwningCommunity();
 
         switch (action)
         {
@@ -1212,15 +1097,8 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
     }
 
     @Override
-    public DSpaceObject getParentObject(Collection collection) throws SQLException
+    public DSpaceObject getParentObject(Context context, Collection collection) throws SQLException
     {
         return collection.getOwningCommunity();
-    }
-
-    @Override
-    public void updateLastModified()
-    {
-        //Also fire a modified event since the collection HAS been modified
-        ourContext.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, getID(), null));
     }
 }
