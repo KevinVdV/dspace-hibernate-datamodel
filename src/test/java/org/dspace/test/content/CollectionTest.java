@@ -1795,7 +1795,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testGetCommunities() throws Exception
     {
         assertThat("testGetCommunities 0", collection.getOwningCommunity(), notNullValue());
-        assertTrue("testGetCommunities 1", collection.getOwningCommunity() == null);
+        assertTrue("testGetCommunities 1", collection.getOwningCommunity().equals(owningCommunity));
     }
 
     /**
@@ -1885,7 +1885,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         //default community has no admin object
         assertThat("testGetAdminObject 0", (Collection) collectionDAO.getAdminObject(context, collection, Constants.REMOVE), equalTo(collection));
         assertThat("testGetAdminObject 1", (Collection) collectionDAO.getAdminObject(context, collection, Constants.ADD), equalTo(collection));
-        assertThat("testGetAdminObject 2", collectionDAO.getAdminObject(context, collection, Constants.DELETE), nullValue());
+        assertThat("testGetAdminObject 2", (Community) collectionDAO.getAdminObject(context, collection, Constants.DELETE), equalTo(owningCommunity));
         assertThat("testGetAdminObject 3", (Collection) collectionDAO.getAdminObject(context, collection, Constants.ADMIN), equalTo(collection));
     }
 
@@ -1898,9 +1898,6 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         try
         {
-            //default has no parent
-            assertThat("testGetParentObject 0", collectionDAO.getParentObject(context, collection), nullValue());
-
             context.turnOffAuthorisationSystem();
             Community parent = communityDAO.create(null, context);
             communityDAO.addCollection(context, parent, collection);

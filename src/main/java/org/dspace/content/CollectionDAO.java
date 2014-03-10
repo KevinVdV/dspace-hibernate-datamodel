@@ -961,6 +961,7 @@ public class CollectionDAO extends DSpaceObjectDAO<Collection>
         {
             groupDAO.delete(context, g);
         }
+        HibernateQueryUtil.delete(context, collection);
     }
 
     /**

@@ -11,7 +11,7 @@
         <property name="hibernate.hbm2ddl.auto">create-drop</property>
         <property name="dialect">org.hibernate.dialect.HSQLDialect</property>
 
-
+        <mapping class="org.dspace.content.WorkspaceItem"/>
         <mapping class="org.dspace.eperson.EPerson"/>
         <mapping class="org.dspace.eperson.Group"/>
         <mapping class="org.dspace.content.Community"/>

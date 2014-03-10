@@ -16,6 +16,7 @@
         <mapping class="org.dspace.eperson.EPerson"/>
         <mapping class="org.dspace.eperson.Group"/>
         <mapping class="org.dspace.content.Community"/>
+        <mapping class="org.dspace.content.WorkspaceItem"/>
         <mapping class="org.dspace.content.Collection"/>
         <mapping class="org.dspace.content.Bitstream"/>
         <mapping class="org.dspace.content.Item"/>

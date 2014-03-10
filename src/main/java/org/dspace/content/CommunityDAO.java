@@ -472,23 +472,24 @@ public class CommunityDAO extends DSpaceObjectDAO<Community>
     /**
      * Add an exisiting collection to the community
      * 
-     * @param c
+     * @param collection
      *            collection to add
      */
-    public void addCollection(Context context, Community community, Collection c) throws SQLException,
+    public void addCollection(Context context, Community community, Collection collection) throws SQLException,
             AuthorizeException
     {
         // Check authorisation
         AuthorizeManager.authorizeAction(context, community, Constants.ADD);
 
         log.info(LogManager.getHeader(context, "add_collection",
-                "community_id=" + community.getID() + ",collection_id=" + c.getID()));
+                "community_id=" + community.getID() + ",collection_id=" + collection.getID()));
 
-        if(!community.getCollections().contains(c))
+        if(!community.getCollections().contains(collection))
         {
-            community.addCollection(c);
+            community.addCollection(collection);
         }
-        context.addEvent(new Event(Event.ADD, Constants.COMMUNITY, community.getID(), Constants.COLLECTION, c.getID(), c.getHandle(context)));
+        collection.setOwningCommunity(community);
+        context.addEvent(new Event(Event.ADD, Constants.COMMUNITY, community.getID(), Constants.COLLECTION, collection.getID(), collection.getHandle(context)));
     }
     /**
      * Create a new sub-community within this community.

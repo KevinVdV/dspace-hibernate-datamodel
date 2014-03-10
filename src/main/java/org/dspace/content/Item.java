@@ -318,7 +318,7 @@ public class Item extends DSpaceObject{
         return bundles;
     }
 
-    public void addBundle(Bundle bundle)
+    void addBundle(Bundle bundle)
     {
         bundles.add(bundle);
     }

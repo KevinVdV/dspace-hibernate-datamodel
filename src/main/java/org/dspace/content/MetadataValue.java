@@ -39,24 +39,24 @@ public class MetadataValue
     @Column(name="metadata_value_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="metadatavalue_seq")
     @SequenceGenerator(name="metadatavalue_seq", sequenceName="metadatavalue_seq")
-    private int fieldId;
+    protected int fieldId;
 
     /** The primary key for the metadata value */
     @ManyToOne
     @JoinColumn(name = "metadata_field_id")
-    private MetadataField metadataField = null;
+    protected MetadataField metadataField = null;
 
     /** The reference to the DSpace item */
     @Column(name = "item_id")
-    private int itemId;
+    protected int itemId;
 
     /** The value of the field */
     @Column(name = "text_value")
-    public String value;
+    protected String value;
 
     /** The language of the field, may be <code>null</code> */
     @Column(name = "text_lang")
-    public String language;
+    protected String language;
 
     /** The position of the record. */
     @Column(name = "place")
@@ -64,15 +64,15 @@ public class MetadataValue
 
     /** Authority key, if any */
     @Column(name = "authority")
-    public String authority = null;
+    protected String authority = null;
 
     /** Authority confidence value -- see Choices class for values */
     @Column(name = "confidence")
-    public int confidence = 0;
+    protected int confidence = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="item_id", insertable = false, updatable = false)
-    public Item item;
+    protected Item item;
 
     /**
      * Constructor to create a value for a given field.

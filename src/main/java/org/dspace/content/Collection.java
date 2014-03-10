@@ -327,6 +327,10 @@ public class Collection extends DSpaceObject {
         return owningCommunity;
     }
 
+    void setOwningCommunity(Community owningCommunity) {
+        this.owningCommunity = owningCommunity;
+    }
+
     /**
      * Get the logo for the collection. <code>null</code> is returned if the
      * collection does not have a logo.

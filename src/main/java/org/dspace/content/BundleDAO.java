@@ -45,7 +45,7 @@ public class BundleDAO extends DSpaceObjectDAO<Bundle>
      * Construct a bundle object with the given table row
      * 
      */
-    public BundleDAO() throws SQLException
+    public BundleDAO()
     {
     }
 
