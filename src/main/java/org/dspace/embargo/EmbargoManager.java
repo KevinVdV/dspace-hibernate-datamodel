@@ -97,7 +97,7 @@ public class EmbargoManager
         {
             ItemDAO itemDAO = new ItemDAO();
             context.setIgnoreAuthorization(true);
-            itemDAO.clearMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
+            itemDAO.clearMetadata(context, item, lift_schema, lift_element, lift_qualifier, Item.ANY);
             itemDAO.addMetadata(context, item, lift_schema, lift_element, lift_qualifier, null, slift);
             log.info("Set embargo on Item "+item.getHandle(context)+", expires on: "+slift);
 
@@ -140,7 +140,7 @@ public class EmbargoManager
             return null;
 
         result = setter.parseTerms(context, item,
-                terms.length > 0 ? terms[0].value : null);
+                terms.length > 0 ? terms[0].getValue() : null);
 
         if (result == null)
             return null;
@@ -180,10 +180,10 @@ public class EmbargoManager
         ItemDAO itemDAO = new ItemDAO();
         // new version of Embargo policies remain in place.
         //lifter.liftEmbargo(context, item);
-        itemDAO.clearMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
+        itemDAO.clearMetadata(context, item, lift_schema, lift_element, lift_qualifier, Item.ANY);
 
         // set the dc.date.available value to right now
-        itemDAO.clearMetadata(item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY);
+        itemDAO.clearMetadata(context, item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY);
         itemDAO.addMetadata(context, item, MetadataSchema.DC_SCHEMA, "date", "available", null, DCDate.getCurrent().toString());
 
         log.info("Lifting embargo on Item "+item.getHandle(context));
@@ -344,7 +344,7 @@ public class EmbargoManager
 
         if (lift.length > 0)
         {
-            DCDate liftDate = new DCDate(lift[0].value);
+            DCDate liftDate = new DCDate(lift[0].getValue());
             // need to survive any failure on a single item, go on to process the rest.
             try
             {
@@ -357,13 +357,13 @@ public class EmbargoManager
                     {
                         if (line.hasOption('v'))
                         {
-                            System.err.println("Lifting embargo from Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].value);
+                            System.err.println("Lifting embargo from Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].getValue());
                         }
                         if (line.hasOption('n'))
                         {
                             if (!line.hasOption('q'))
                             {
-                                System.err.println("DRY RUN: would have lifted embargo from Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].value);
+                                System.err.println("DRY RUN: would have lifted embargo from Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].getValue());
                             }
                         }
                         else if (!line.hasOption('c'))
@@ -375,7 +375,7 @@ public class EmbargoManager
                     {
                         if (line.hasOption('v'))
                         {
-                            System.err.println("Checking current embargo on Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].value);
+                            System.err.println("Checking current embargo on Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].getValue());
                         }
                         setter.checkEmbargo(context, item);
                     }
@@ -452,7 +452,7 @@ public class EmbargoManager
         MetadataValue lift[] = new ItemDAO().getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
         if (lift.length > 0)
         {
-            liftDate = new DCDate(lift[0].value);
+            liftDate = new DCDate(lift[0].getValue());
             // sanity check: do not allow an embargo lift date in the past.
             if (liftDate.toDate().before(new Date()))
             {

@@ -27,6 +27,7 @@ public class BitstreamFormat {
     private String shortDescription;
 
     @Column(name="description")
+    @Lob //Generates a TEXT or LONGTEXT data type
     private String description;
 
     @Column(name="mimetype")
@@ -36,7 +37,7 @@ public class BitstreamFormat {
     private int supportLevel;
 
     @Column(name="internal")
-    private boolean internal;
+    private Boolean internal = false;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name="fileextension", joinColumns=@JoinColumn(name="bitstream_format_id"))

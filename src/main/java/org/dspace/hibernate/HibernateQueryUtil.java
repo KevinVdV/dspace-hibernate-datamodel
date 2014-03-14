@@ -37,7 +37,8 @@ public class HibernateQueryUtil {
 
     public static void delete(Context context, Object object) throws SQLException {
         //Refresh before deleting to avoid issues where our object is out of date
-        context.getDBConnection().refresh(object);
+        //TODO: IS THIS OK ? CAUSES ISSUES WHEN OBJECTS NOT WRITTEN TO DB
+//        context.getDBConnection().refresh(object);
         context.getDBConnection().delete(object);
     }
 
@@ -98,22 +99,5 @@ public class HibernateQueryUtil {
                 }
             }
         }
-    }
-
-    public static void deleteQuery(Context context, Class deleteClass, Map<String, Object> criteria) throws SQLException {
-        // Hibernate delete query follows the following format:
-        // String hql = "delete from League where league_name = :name";
-        // session.createQuery(hql).setString("name", name).executeUpdate();
-        Table table = (Table) deleteClass.getAnnotation(Table.class);
-        StringBuilder hql = new StringBuilder("delete from ").append(table.name()).append(" where ");
-        for(String key : criteria.keySet()){
-            hql.append(key).append(":").append(key);
-        }
-        Query query = context.getDBConnection().createQuery(hql.toString());
-        for(String key : criteria.keySet()){
-            query.setParameter(key, criteria.get(key));
-        }
-        query.executeUpdate();
-
     }
 }

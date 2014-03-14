@@ -42,13 +42,6 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     private Community community;
 
     /**
-     * Community DAO for the test, the same one can be used for all our actions
-     */
-    private CommunityDAO communityDAO = new CommunityDAO();
-
-    private CollectionDAO collectionDAO = new CollectionDAO();
-
-    /**
      * This method will be run before every test as per @Before. It will
      * initialize resources required for the tests.
      *
@@ -91,8 +84,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
      */
     @After
     @Override
-    public void destroy()
-    {
+    public void destroy() throws Exception {
         community = null;
         super.destroy();
     }
@@ -276,9 +268,9 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     @Test
     public void testFindAll() throws Exception
     {
-        Community[] all = communityDAO.findAll(context);
+        List<Community> all = communityDAO.findAll(context);
         assertThat("testFindAll 0", all, notNullValue());
-        assertTrue("testFindAll 1", all.length >= 1);
+        assertTrue("testFindAll 1", all.size() >= 1);
 
         boolean added = false;
         for(Community cm: all)

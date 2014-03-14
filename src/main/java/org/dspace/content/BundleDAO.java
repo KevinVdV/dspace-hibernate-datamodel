@@ -338,9 +338,9 @@ public class BundleDAO extends DSpaceObjectDAO<Bundle>
         // In the event that the bitstream to remove is actually
         // the primary bitstream, be sure to unset the primary
         // bitstream.
-        if (b.getID() == bundle.getPrimaryBitstreamID())
+        if (b.equals(bundle.getPrimaryBitstream()))
         {
-            bundle.setPrimaryBitstreamID(-1);
+            bundle.setPrimaryBitstream(null);
         }
 
         bundle.removeBitstream(b);

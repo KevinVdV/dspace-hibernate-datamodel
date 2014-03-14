@@ -10,16 +10,11 @@ package org.dspace.content;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.*;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
-import org.dspace.authorize.AuthorizeConfiguration;
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
-import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.*;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -191,9 +186,9 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson)
             throws SQLException
     {
-        Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive and submitter= :submitter_id");
+        Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive and submitter= :submitter");
         query.setParameter("in_archive", true);
-        query.setParameter("submitter_id", eperson.getID());
+        query.setParameter("submitter", eperson);
 
         return query.iterate();
     }
@@ -380,7 +375,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang,
             String[] values, String authorities[], int confidences[]) throws SQLException {
         List<MetadataValue> dublinCore = item.getMetadata();
-        MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();        
+        MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
         boolean authorityControlled = mam.isAuthorityControlled(schema, element, qualifier);
         boolean authorityRequired = mam.isAuthorityRequired(schema, element, qualifier);
         String fieldName = schema+"."+element+((qualifier==null)? "": "."+qualifier);
@@ -391,9 +386,13 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         {
             //TODO: HIBERNATE? THROW EXCEPTION IF SCHEMA OR FIELD CANNOT BE FOUND
             MetadataSchema metadataSchema = new MetadataSchemaDAO().find(context, schema);
-            MetadataField metadataField = new MetadataFieldDAO().findByElement(context, metadataSchema.getSchemaID(), element, qualifier);
+            MetadataField metadataField = new MetadataFieldDAO().findByElement(context, metadataSchema, element, qualifier);
+            if(metadataField == null)
+            {
+                throw new SQLException("bad_dublin_core schema="+schema+", " + element + " " + qualifier);
+            }
             MetadataValueDAO metadataValueDAO = new MetadataValueDAO();
-            MetadataValue metadataValue = metadataValueDAO.create(context, metadataField);
+            MetadataValue metadataValue = metadataValueDAO.create(context, item, metadataField);
 
 
             metadataValue.setLanguage(lang == null ? null : lang.trim());
@@ -446,11 +445,10 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
             }
             //Set the place to be the next place in the line
             metadataValue.setPlace(getMetadata(item, schema, element, qualifier, Item.ANY).length + 1);
-            dublinCore.add(metadataValue);
+            item.addMetadata(metadataValue);
             addDetails(fieldName);
             metadataValueDAO.update(context, metadataValue);
         }
-        item.setMetadata(dublinCore);
     }
 
     /**
@@ -539,21 +537,22 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      *            means values with any country code or no country code are
      *            removed.
      */
-    public void clearMetadata(Item item, String schema, String element, String qualifier,
-            String lang)
-    {
-        // We will build a list of values NOT matching the values to clear
-        List<MetadataValue> values = new ArrayList<MetadataValue>();
+    public void clearMetadata(Context context, Item item, String schema, String element, String qualifier,
+            String lang) throws SQLException {
+        List<MetadataValue> metadataFieldsToRemove = new ArrayList<MetadataValue>();
         for (MetadataValue dcv : item.getMetadata())
         {
-            if (!match(schema, element, qualifier, lang, dcv))
+            if (match(schema, element, qualifier, lang, dcv))
             {
-                values.add(dcv);
+                metadataFieldsToRemove.add(dcv);
             }
         }
-
-        // Now swap the old list of values for the new, unremoved values
-        item.setMetadata(values);
+        //Remove all metadata fields flagged as "remove"
+        for (MetadataValue metadataValue : metadataFieldsToRemove) {
+            item.removeMetadata(metadataValue);
+            //We need to explicitly clear our item reference to ensure the metadata value is deleted
+            new MetadataValueDAO().delete(context, metadataValue);
+        }
     }
 
     /**
@@ -668,7 +667,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         {
             Community owningCommunity = collection.getOwningCommunity();
             result.add(owningCommunity);
-            result.addAll(Arrays.asList(new CommunityDAO().getAllParents(owningCommunity)));
+            result.addAll(Arrays.asList(new CommunityRepoImpl().getAllParents(owningCommunity)));
         }
 
         return result.toArray(new Community[result.size()]);
@@ -760,9 +759,18 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
 
         // Add the bundle to in-memory list
         item.addBundle(b);
+        b.setItem(item);
 
         // Insert the mapping
         context.addEvent(new Event(Event.ADD, Constants.ITEM, item.getID(), Constants.BUNDLE, b.getID(), b.getName()));
+    }
+
+    public void removeAllBundles(Context context, Item item) throws AuthorizeException, SQLException {
+        List<Bundle> bundles = item.getBundles();
+        for (Bundle bundle : bundles) {
+            deleteBundle(context, item, bundle);
+        }
+        item.getBundles().clear();
     }
 
     /**
@@ -775,22 +783,21 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @throws AuthorizeException
      * @throws IOException
      */
-    public void removeBundle(Context context, Item item, Bundle b) throws SQLException, AuthorizeException,
-            IOException
+    public void removeBundle(Context context, Item item, Bundle b) throws SQLException, AuthorizeException
     {
-        // Check authorisation
+        deleteBundle(context,  item, b);
+        // We've found the bundle to remove
+        item.removeBundle(b);
+    }
+     protected void deleteBundle(Context context, Item item, Bundle b) throws AuthorizeException, SQLException {
+                          // Check authorisation
         AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
+
+        HibernateQueryUtil.delete(context, b);
 
         log.info(LogManager.getHeader(context, "remove_bundle", "item_id="
                 + item.getID() + ",bundle_id=" + b.getID()));
-
-        // We've found the bundle to remove
-        item.removeBundle(b);
-        HibernateQueryUtil.delete(context, b);
-
-
         context.addEvent(new Event(Event.REMOVE, Constants.ITEM, item.getID(), Constants.BUNDLE, b.getID(), b.getName()));
-
     }
 
     /**
@@ -1125,6 +1132,24 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
     }
 
     /**
+     * Delete an archived or withdrawn item
+     * @param context
+     * @param item
+     */
+    public void delete(Context context, Item item) throws SQLException, IOException, AuthorizeException {
+        if(item.isArchived() || item.isWithdrawn())
+        {
+            // Check authorisation here. If we don't, it may happen that we remove the
+            // collections leaving the database in an inconsistent state
+            AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
+            item.getCollections().clear();
+            rawDelete(context,  item);
+        }else{
+            throw new IllegalStateException("Only withdrawn or archived items can be deleted by using this method.");
+        }
+    }
+
+    /**
      * Delete (expunge) the item. Bundles and bitstreams are also deleted if
      * they are not also included in another item. The Dublin Core metadata is
      * deleted.
@@ -1133,7 +1158,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      * @throws AuthorizeException
      * @throws IOException
      */
-    void delete(Context context, Item item) throws SQLException, AuthorizeException, IOException
+    void rawDelete(Context context, Item item) throws SQLException, AuthorizeException, IOException
     {
         // Check authorisation here. If we don't, it may happen that we remove the
         // metadata but when getting to the point of removing the bundles we get an exception
@@ -1145,16 +1170,8 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         log.info(LogManager.getHeader(context, "delete_item", "item_id="
                 + item.getID()));
 
-        // Delete the Dublin Core
-        //TODO: HIBERNATE: IS THIS REQUIRED ?
-        item.setMetadata(null);
-
         // Remove bundles
-        List<Bundle> bunds = item.getBundles();
-
-        for (Bundle bundle : bunds) {
-            removeBundle(context, item, bundle);
-        }
+        removeAllBundles(context, item);
 
         // remove all of our authorization policies
         AuthorizeManager.removeAllPolicies(context, item);
@@ -1336,15 +1353,15 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         }
     }
 
-    public void adjustItemPolicies(Context context, Item item, Collection c) throws SQLException, AuthorizeException {
+    public void adjustItemPolicies(Context context, Item item, Collection collection) throws SQLException, AuthorizeException {
         // read collection's default READ policies
-        List<ResourcePolicy> defaultCollectionPolicies = AuthorizeManager.getPoliciesActionFilter(context, c, Constants.DEFAULT_ITEM_READ);
+        List<ResourcePolicy> defaultCollectionPolicies = AuthorizeManager.getPoliciesActionFilter(context, collection, Constants.DEFAULT_ITEM_READ);
 
         // MUST have default policies
         if (defaultCollectionPolicies.size() < 1)
         {
-            throw new SQLException("Collection " + c.getID()
-                    + " (" + c.getHandle(context) + ")"
+            throw new SQLException("Collection " + collection.getID()
+                    + " (" + collection.getHandle(context) + ")"
                     + " has no default item READ policies");
         }
 
@@ -1358,14 +1375,22 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
     }
 
     private List<ResourcePolicy> filterPoliciesToAdd(Context context, List<ResourcePolicy> defaultCollectionPolicies, DSpaceObject dso) throws SQLException {
-        List<ResourcePolicy> policiesToAdd = new ArrayList<ResourcePolicy>();
-        for (ResourcePolicy rp : defaultCollectionPolicies){
-            rp.setAction(Constants.READ);
-            // if an identical policy is already in place don't add it
-            if(!AuthorizeManager.isAnIdenticalPolicyAlreadyInPlace(context, dso, rp)){
-                rp.setRpType(ResourcePolicy.TYPE_INHERITED);
-                policiesToAdd.add(rp);
+        List<ResourcePolicy> policiesToAdd = null;
+        try {
+            policiesToAdd = new ArrayList<ResourcePolicy>();
+            for (ResourcePolicy defaultCollectionPolicy : defaultCollectionPolicies){
+                //We do NOT alter the defaultCollectionPolicy since we would lose it if we do, instead clone it
+                ResourcePolicy rp = (ResourcePolicy) defaultCollectionPolicy.clone();
+
+                rp.setAction(Constants.READ);
+                // if an identical policy is already in place don't add it
+                if(!AuthorizeManager.isAnIdenticalPolicyAlreadyInPlace(context, dso, rp)){
+                    rp.setRpType(ResourcePolicy.TYPE_INHERITED);
+                    policiesToAdd.add(rp);
+                }
             }
+        } catch (CloneNotSupportedException e) {
+            log.error(e.getMessage(), e);
         }
         return policiesToAdd;
     }
@@ -1401,7 +1426,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         }
         
         // Move the Item from one Collection to the other
-        CollectionDAO collectionDAO = new CollectionDAO();
+        CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
         collectionDAO.addItem(context, to, item);
         collectionDAO.removeItem(context, from, item);
 
@@ -1477,7 +1502,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
      */
     public Collection[] getCollectionsNotLinked(Context context, Item item) throws SQLException
     {
-        Collection[] allCollections = new CollectionDAO().findAll(context);
+        Collection[] allCollections = new CollectionRepoImpl().findAll(context);
         List<Collection> linkedCollections = item.getCollections();
         Collection[] notLinkedCollections = new Collection[allCollections.length - linkedCollections.size()];
 
@@ -1532,7 +1557,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         }
 
         // is this person an COLLECTION_EDITOR for the owning collection?
-        if (new CollectionDAO().canEditBoolean(context, item.getOwningCollection(), false))
+        if (new CollectionRepoImpl().canEditBoolean(context, item.getOwningCollection(), false))
         {
             return true;
         }
@@ -1562,14 +1587,14 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         {
             throw new IllegalArgumentException("No such metadata schema: " + schema);
         }
-        MetadataField mdf = new MetadataFieldDAO().findByElement(context, mds.getSchemaID(), element, qualifier);
+        MetadataField mdf = new MetadataFieldDAO().findByElement(context, mds, element, qualifier);
         if (mdf == null)
         {
             throw new IllegalArgumentException(
                     "No such metadata field: schema=" + schema + ", element=" + element + ", qualifier=" + qualifier);
         }
 
-        String hqlQueryString = "select Item from metadatavalue,Item as item WHERE item.in_archive=:in_archive AND item.item_id = metadatavalue.item_id AND metadata_field_id = :metadata_field_id";
+        String hqlQueryString = "select item from Item as item join item.metadata metadataValue WHERE item.inArchive=:in_archive AND metadataValue.metadataField.id = :metadata_field_id";
         if (Item.ANY.equals(value))
         {
             Query query = context.getDBConnection().createQuery(hqlQueryString);
@@ -1580,7 +1605,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         }
         else
         {
-            hqlQueryString += " AND metadatavalue.text_value = :text_value";
+            hqlQueryString += " AND metadataValue.value = :text_value";
             Query query = context.getDBConnection().createQuery(hqlQueryString);
 
             query.setParameter("in_archive", true);
@@ -1695,7 +1720,7 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         else
         {
             // is a template item?
-            return new CollectionDAO().findByTemplateItem(context, item);
+            return new CollectionRepoImpl().findByTemplateItem(context, item);
         }
     }
 
@@ -1720,15 +1745,15 @@ public class ItemDAO extends DSpaceObjectDAO<Item>
         {
             throw new IllegalArgumentException("No such metadata schema: " + schema);
         }
-        MetadataField mdf = new MetadataFieldDAO().findByElement(context, mds.getSchemaID(), element, qualifier);
+        MetadataField mdf = new MetadataFieldDAO().findByElement(context, mds, element, qualifier);
         if (mdf == null)
         {
             throw new IllegalArgumentException("No such metadata field: schema=" + schema + ", element=" + element + ", qualifier=" + qualifier);
         }
 
-        Query query = context.getDBConnection().createQuery("SELECT item FROM metadatavalue,item WHERE item.in_archive=:in_archive AND item.item_id = metadatavalue.item_id AND metadata_field_id = :metadata_field_id AND authority = :authority");
+        Query query = context.getDBConnection().createQuery("SELECT item FROM Item as item join item.metadata metadatavalue WHERE item.inArchive=:in_archive AND metadatavalue.metadataField = :metadata_field AND metadatavalue.authority = :authority");
         query.setParameter("in_archive", true);
-        query.setParameter("metadata_field_id", mdf.getFieldID());
+        query.setParameter("metadata_field", mdf);
         query.setParameter("authority", value);
         return query.iterate();
     }

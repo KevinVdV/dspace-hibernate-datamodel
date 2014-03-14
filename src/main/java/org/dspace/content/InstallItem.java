@@ -130,7 +130,7 @@ public class InstallItem
         // replacing "today" with today's date.
         // NOTE: As of DSpace 4.0, DSpace no longer sets an issue date by default
         MetadataValue[] currentDateIssued = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-        itemDAO.clearMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        itemDAO.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
         for (MetadataValue dcv : currentDateIssued)
         {
             MetadataField metadataField = dcv.getMetadataField();
@@ -175,7 +175,7 @@ public class InstallItem
         // replacing "today" with today's date.
         // NOTE: As of DSpace 4.0, DSpace no longer sets an issue date by default
         MetadataValue[] currentDateIssued = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-        itemDAO.clearMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        itemDAO.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
         for (MetadataValue dcv : currentDateIssued)
         {
             MetadataField metadataField = dcv.getMetadataField();
@@ -215,7 +215,7 @@ public class InstallItem
     private static Item finishItem(Context c, Item item, InProgressSubmission is)
         throws SQLException, IOException, AuthorizeException
     {
-        CollectionDAO collectionDAO = new CollectionDAO();
+        CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
         // create collection2item mapping
         collectionDAO.addItem(c, is.getCollection(), item);
 
@@ -234,11 +234,12 @@ public class InstallItem
                 item.getHandle(c)));
 
         // remove in-progress submission
-        is.deleteWrapper();
+//        TODO: HIBERNATE THIS STUFF WILL NOT WORK WHEN WORKFLOW COMES INTO PLAY
+        new WorkspaceItemDAO().deleteWrapper(c, (WorkspaceItem) is);
 
         // remove the item's policies and replace them with
         // the defaults from the collection
-        itemDAO.inheritCollectionDefaultPolicies(c, item, is.getCollection());
+        itemDAO.inheritCollectionDefaultPolicies(c, item, item.getOwningCollection());
 
         // set embargo lift date and take away read access if indicated.
         EmbargoManager.setEmbargo(c, item);

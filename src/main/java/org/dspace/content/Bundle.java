@@ -31,9 +31,10 @@ public class Bundle extends DSpaceObject{
     @Column(name= "name")
     private String name = null;
 
-    //TODO: Link to bitstream ?
-    @Column(name="primary_bitstream_id")
-    private Integer primaryBitstreamId;
+
+    @OneToOne
+    @JoinColumn(name = "primary_bitstream_id")
+    private Bitstream primaryBitstream;
 
 
     /** Flag set when data is modified, for events */
@@ -128,22 +129,22 @@ public class Bundle extends DSpaceObject{
     /**
      * Get the primary bitstream ID of the bundle
      *
-     * @return primary bitstream ID or -1 if not set
+     * @return primary bitstream ID or null if not set
      */
-    public int getPrimaryBitstreamID()
+    public Bitstream getPrimaryBitstream()
     {
-        return primaryBitstreamId;
+        return primaryBitstream;
     }
 
     /**
      * Set the primary bitstream ID of the bundle
      *
-     * @param bitstreamID
+     * @param bitstream
      *            int ID of primary bitstream (e.g. index html file)
      */
-    public void setPrimaryBitstreamID(int bitstreamID)
+    public void setPrimaryBitstream(Bitstream bitstream)
     {
-        this.primaryBitstreamId = bitstreamID;
+        this.primaryBitstream = bitstream;
         modified = true;
     }
 
@@ -163,7 +164,7 @@ public class Bundle extends DSpaceObject{
         this.modifiedMetadata = false;
     }
 
-    public void addBitstream(Bitstream bitstream){
+    void addBitstream(Bitstream bitstream){
         bitstreams.add(bitstream);
     }
 
@@ -186,7 +187,16 @@ public class Bundle extends DSpaceObject{
         return item;
     }
 
-    public void removeBitstream(Bitstream b) {
+    void removeBitstream(Bitstream b) {
         getBitstreams().remove(b);
+    }
+
+    /**
+     * Set the item this bundle appears in
+     *
+     * @return array of <code>Item</code> s this bundle appears in
+     */
+    void setItem(Item item) {
+        this.item = item;
     }
 }

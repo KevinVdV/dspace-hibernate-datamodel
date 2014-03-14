@@ -112,7 +112,7 @@ public class WorkspaceItem implements InProgressSubmission{
         this.multipleTitles = multipleTitles;
     }
 
-    public boolean getPublishedBefore() {
+    public boolean isPublishedBefore() {
         return publishedBefore;
     }
 

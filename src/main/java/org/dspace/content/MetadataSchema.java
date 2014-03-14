@@ -11,16 +11,13 @@ import javax.persistence.*;
 @Table(name="metadataschemaregistry")
 public class MetadataSchema {
 
-    /** Numeric Identifier of built-in Dublin Core schema. */
-    public static final int DC_SCHEMA_ID = 1;
-
     /** Short Name of built-in Dublin Core schema. */
     public static final String DC_SCHEMA = "dc";
 
     @Id
     @Column(name="metadata_schema_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="metadataschemaregistry_seq")
-    @SequenceGenerator(name="metadataschemaregistry_seq", sequenceName="metadataschemaregistry_seq", allocationSize = 1)
+    @SequenceGenerator(name="metadataschemaregistry_seq", sequenceName="metadataschemaregistry_seq", allocationSize = 1, initialValue = 1)
     private Integer id;
 
     @Column(name = "namespace")

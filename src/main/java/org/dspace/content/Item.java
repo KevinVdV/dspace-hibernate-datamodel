@@ -71,22 +71,11 @@ public class Item extends DSpaceObject{
     @SequenceGenerator(name="collection2item_seq", sequenceName="collection2item_seq", allocationSize = 1)
     private List<Collection> collections = new ArrayList<Collection>();
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "item2bundle",
-            joinColumns = {@JoinColumn(name = "item_id") },
-            inverseJoinColumns = {@JoinColumn(name = "bundle_id") }
-    )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="integer"),
-            generator = "item2bundle_seq"
-    )
-    @SequenceGenerator(name="item2bundle_seq", sequenceName="item2bundle_seq", allocationSize = 1)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
     private List<Bundle> bundles = new ArrayList<Bundle>();
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item", cascade = {CascadeType.ALL}, orphanRemoval=true)
     @OrderBy("metadataField, place")
     private List<MetadataValue> metadata = new ArrayList<MetadataValue>();
 
@@ -306,13 +295,24 @@ public class Item extends DSpaceObject{
         return metadata;
     }
 
-    public void setMetadata(List<MetadataValue> metadata) {
-        if(!this.metadata.equals(metadata))
-        {
-            dublinCoreChanged = true;
-        }
-        this.metadata = metadata;
+    void removeMetadata(MetadataValue metadataValue)
+    {
+        dublinCoreChanged = true;
+        this.metadata.remove(metadataValue);
     }
+
+    void removeMetadata(List<MetadataValue> metadataValues)
+    {
+        dublinCoreChanged = true;
+        this.metadata.removeAll(metadataValues);
+    }
+
+
+    void addMetadata(MetadataValue metadataValue) {
+        dublinCoreChanged = true;
+        this.metadata.add(metadataValue);
+    }
+
 
     public List<Bundle> getBundles() {
         return bundles;
@@ -323,7 +323,7 @@ public class Item extends DSpaceObject{
         bundles.add(bundle);
     }
 
-    public void removeBundle(Bundle bundle)
+    void removeBundle(Bundle bundle)
     {
         bundles.remove(bundle);
     }
@@ -360,7 +360,7 @@ public class Item extends DSpaceObject{
         //TODO: IMPLEMENT THIS !
 //        MetadataValue t[] = getMetadata("dc", "title", null, Item.ANY);
 //        return (t.length >= 1) ? t[0].value : null;
-        return "UNTITLED";
+        return null;
     }
 
 

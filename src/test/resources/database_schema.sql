@@ -83,40 +83,6 @@
 -- tables.  Each table must have a corresponding
 -- sequence called 'tablename_seq'.
 -------------------------------------------------------
-CREATE SEQUENCE bitstreamformatregistry_seq;
-CREATE SEQUENCE fileextension_seq;
-CREATE SEQUENCE bitstream_seq;
-CREATE SEQUENCE eperson_seq;
-CREATE SEQUENCE epersongroup_seq;
-CREATE SEQUENCE item_seq;
-CREATE SEQUENCE bundle_seq;
-CREATE SEQUENCE item2bundle_seq;
-CREATE SEQUENCE bundle2bitstream_seq;
-CREATE SEQUENCE dctyperegistry_seq;
-CREATE SEQUENCE dcvalue_seq;
-CREATE SEQUENCE community_seq;
-CREATE SEQUENCE collection_seq;
-CREATE SEQUENCE community2collection_seq;
-CREATE SEQUENCE collection2item_seq;
-CREATE SEQUENCE resourcepolicy_seq;
-CREATE SEQUENCE epersongroup2eperson_seq;
-CREATE SEQUENCE handle_seq;
-CREATE SEQUENCE workspaceitem_seq;
-CREATE SEQUENCE workflowitem_seq;
-CREATE SEQUENCE tasklistitem_seq;
-CREATE SEQUENCE registrationdata_seq;
-CREATE SEQUENCE subscription_seq;
-CREATE SEQUENCE communities2item_seq;
-CREATE SEQUENCE epersongroup2workspaceitem_seq;
-CREATE SEQUENCE metadataschemaregistry_seq;
-CREATE SEQUENCE metadatafieldregistry_seq;
-CREATE SEQUENCE metadatavalue_seq;
-CREATE SEQUENCE group2group_seq;
-CREATE SEQUENCE group2groupcache_seq;
-CREATE SEQUENCE harvested_collection_seq;
-CREATE SEQUENCE harvested_item_seq;
-CREATE SEQUENCE versionitem_seq;
-CREATE SEQUENCE versionhistory_seq;
 
 -------------------------------------------------------
 -- BitstreamFormatRegistry table
@@ -129,7 +95,7 @@ CREATE TABLE BitstreamFormatRegistry
   description         TEXT,
   support_level       INTEGER,
   -- Identifies internal types
-  internal             BOOL
+  internal             BOOLEAN
 );
 
 -------------------------------------------------------
@@ -159,7 +125,7 @@ CREATE TABLE Bitstream
    user_format_description TEXT,
    source                  VARCHAR(256),
    internal_id             VARCHAR(256),
-   deleted                 BOOL,
+   deleted                 BOOLEAN,
    store_number            INTEGER,
    sequence_id             INTEGER
 );
@@ -173,12 +139,14 @@ CREATE TABLE EPerson
 (
   eperson_id          INTEGER PRIMARY KEY,
   email               VARCHAR(64),
-  password            VARCHAR(64),
+  password            VARCHAR(128),
+  salt                VARCHAR(32),
+  digest_algorithm    VARCHAR(16),
   firstname           VARCHAR(64),
   lastname            VARCHAR(64),
-  can_log_in          BOOL,
-  require_certificate BOOL,
-  self_registered     BOOL,
+  can_log_in          BOOLEAN,
+  require_certificate BOOLEAN,
+  self_registered     BOOLEAN,
   last_active         TIMESTAMP,
   sub_frequency       INTEGER,
   phone               VARCHAR(32),
@@ -240,9 +208,9 @@ CREATE TABLE Item
 (
   item_id         INTEGER PRIMARY KEY,
   submitter_id    INTEGER REFERENCES EPerson(eperson_id),
-  in_archive      BOOL,
-  withdrawn       BOOL,
-  discoverable    BOOL,
+  in_archive      BOOLEAN,
+  withdrawn       BOOLEAN,
+  discoverable    BOOLEAN,
   last_modified   TIMESTAMP,
   owning_collection INTEGER
 );
@@ -266,7 +234,7 @@ CREATE INDEX bundle_primary_fk_idx ON Bundle(primary_bitstream_id);
 -------------------------------------------------------
 CREATE TABLE Item2Bundle
 (
-  id        INTEGER PRIMARY KEY,
+  PRIMARY KEY(item_id, bundle_id),
   item_id   INTEGER REFERENCES Item(item_id),
   bundle_id INTEGER REFERENCES Bundle(bundle_id)
 );
@@ -324,7 +292,7 @@ CREATE TABLE MetadataValue
 );
 
 -- Create a dcvalue view for backwards compatibilty
-CREATE VIEW dcvalue AS 
+CREATE VIEW dcvalue AS
   SELECT MetadataValue.metadata_value_id AS "dc_value_id", MetadataValue.item_id,
     MetadataValue.metadata_field_id AS "dc_type_id", MetadataValue.text_value,
     MetadataValue.text_lang, MetadataValue.place
@@ -339,7 +307,7 @@ CREATE INDEX metadatavalue_item_idx ON MetadataValue(item_id);
 CREATE INDEX metadatavalue_item_idx2 ON MetadataValue(item_id,metadata_field_id);
 CREATE INDEX metadatavalue_field_fk_idx ON MetadataValue(metadata_field_id);
 CREATE INDEX metadatafield_schema_idx ON MetadataFieldRegistry(metadata_schema_id);
-  
+
 -------------------------------------------------------
 -- Community table
 -------------------------------------------------------
@@ -396,7 +364,9 @@ CREATE TABLE Community2Community
   PRIMARY KEY(parent_comm_id, child_comm_id),
   parent_comm_id INTEGER REFERENCES Community(community_id),
   child_comm_id  INTEGER,
-  CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(community_id) DEFERRABLE
+  --  TODO: IMPLEMENT DEFERRABLE
+  CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(community_id)
+--  CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(community_id) DEFERRABLE
 );
 
 CREATE INDEX com2com_parent_fk_idx ON Community2Community(parent_comm_id);
@@ -407,10 +377,12 @@ CREATE INDEX com2com_child_fk_idx ON Community2Community(child_comm_id);
 -------------------------------------------------------
 CREATE TABLE Community2Collection
 (
-  id             INTEGER PRIMARY KEY,
+  PRIMARY KEY(community_id, collection_id),
   community_id   INTEGER REFERENCES Community(community_id),
   collection_id  INTEGER,
-  CONSTRAINT comm2coll_collection_fk FOREIGN KEY (collection_id) REFERENCES Collection(collection_id) DEFERRABLE
+--  TODO: IMPLEMENT DEFERRABLE
+  CONSTRAINT comm2coll_collection_fk FOREIGN KEY (collection_id) REFERENCES Collection(collection_id)
+  --  CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(community_id) DEFERRABLE
 );
 
 -- Index on community ID
@@ -426,7 +398,8 @@ CREATE TABLE Collection2Item
   id            INTEGER PRIMARY KEY,
   collection_id INTEGER REFERENCES Collection(collection_id),
   item_id       INTEGER,
-  CONSTRAINT coll2item_item_fk FOREIGN KEY (item_id) REFERENCES Item(item_id) DEFERRABLE
+  --  TODO: IMPLEMENT DEFERRABLE
+--  CONSTRAINT coll2item_item_fk FOREIGN KEY (item_id) REFERENCES Item(item_id) DEFERRABLE
 );
 
 -- index by collection_id
@@ -491,6 +464,23 @@ CREATE INDEX handle_handle_idx ON Handle(handle);
 CREATE INDEX handle_resource_id_and_type_idx ON handle(resource_id, resource_type_id);
 
 -------------------------------------------------------
+-- Doi table
+-------------------------------------------------------
+CREATE TABLE Doi
+(
+  doi_id           INTEGER PRIMARY KEY,
+  doi              VARCHAR(256),
+  resource_type_id INTEGER,
+  resource_id      INTEGER,
+  status           INTEGER
+);
+
+-- index by handle, commonly looked up
+CREATE INDEX doi_doi_idx ON Doi(doi);
+-- index by resource id and resource type id
+CREATE INDEX doi_resource_id_and_type_idx ON Doi(resource_id, resource_type_id);
+
+-------------------------------------------------------
 --  WorkspaceItem table
 -------------------------------------------------------
 CREATE TABLE WorkspaceItem
@@ -499,9 +489,9 @@ CREATE TABLE WorkspaceItem
   item_id           INTEGER REFERENCES Item(item_id),
   collection_id     INTEGER REFERENCES Collection(collection_id),
   -- Answers to questions on first page of submit UI
-  multiple_titles   BOOL,
-  published_before  BOOL,
-  multiple_files    BOOL,
+  multiple_titles   BOOLEAN,
+  published_before  BOOLEAN,
+  multiple_files    BOOLEAN,
   -- How for the user has got in the submit process
   stage_reached     INTEGER,
   page_reached      INTEGER
@@ -522,9 +512,9 @@ CREATE TABLE WorkflowItem
   owner          INTEGER REFERENCES EPerson(eperson_id),
 
   -- Answers to questions on first page of submit UI
-  multiple_titles       BOOL,
-  published_before      BOOL,
-  multiple_files        BOOL
+  multiple_titles       BOOLEAN,
+  published_before      BOOLEAN,
+  multiple_files        BOOLEAN
   -- Note: stage reached not applicable here - people involved in workflow
   -- can always jump around submission UI
 
@@ -618,12 +608,12 @@ CREATE VIEW Community2Item as
 
 CREATE TABLE collection_item_count (
         collection_id INTEGER PRIMARY KEY REFERENCES collection(collection_id),
-        count INTEGER
+        item_count INTEGER
 );
 
 CREATE TABLE community_item_count (
         community_id INTEGER PRIMARY KEY REFERENCES community(community_id),
-        count INTEGER
+        item_count INTEGER
 );
 
 -------------------------------------------------------
@@ -632,7 +622,7 @@ CREATE TABLE community_item_count (
 -------------------------------------------------------
 -- We don't use getnextid() for 'anonymous' since the sequences start at '1'
 INSERT INTO epersongroup VALUES(0, 'Anonymous');
-INSERT INTO epersongroup VALUES(NEXTVAL('epersongroup_seq'), 'Administrator');
+INSERT INTO epersongroup VALUES(1, 'Administrator');
 
 
 -------------------------------------------------------
@@ -807,6 +797,11 @@ CREATE TABLE versionitem
 CREATE SEQUENCE versionitem_seq;
 CREATE SEQUENCE versionhistory_seq;
 
-
-
-
+CREATE TABLE Webapp
+(
+    webapp_id INTEGER NOT NULL PRIMARY KEY,
+    AppName VARCHAR(32),
+    URL VARCHAR,
+    Started TIMESTAMP,
+    isUI INTEGER
+);

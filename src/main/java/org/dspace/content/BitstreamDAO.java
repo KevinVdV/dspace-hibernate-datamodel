@@ -49,7 +49,7 @@ public class BitstreamDAO extends DSpaceObjectDAO<Bitstream>
      * 
      * @throws SQLException
      */
-    public BitstreamDAO() throws SQLException
+    public BitstreamDAO()
     {
         clearDetails();
     }

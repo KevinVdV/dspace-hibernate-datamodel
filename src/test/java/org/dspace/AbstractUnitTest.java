@@ -19,10 +19,12 @@ import java.util.TimeZone;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import mockit.UsingMocksAndStubs;
-
 import org.apache.log4j.Logger;
+import org.dspace.administer.MetadataImporter;
+import org.dspace.administer.RegistryImportException;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.ResourcePolicyDAO;
+import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
@@ -67,6 +69,17 @@ public class AbstractUnitTest
      */
     protected static EPerson eperson;
 
+    protected CommunityRepoImpl communityDAO = new CommunityRepoImpl();
+    protected CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
+    protected ItemDAO itemDAO = new ItemDAO();
+    protected WorkspaceItemDAO workspaceItemDAO = new WorkspaceItemDAO();
+    protected BitstreamDAO bitstreamDAO = new BitstreamDAO();
+    protected BundleDAO bundleDAO = new BundleDAO();
+    protected MetadataSchemaDAO metadataSchemaDAO = new MetadataSchemaDAO();
+    protected MetadataFieldDAO metadataFieldDAO = new MetadataFieldDAO();
+    protected ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+
+
 //    protected static DSpaceKernelImpl kernelImpl;
 
     /**
@@ -99,7 +112,6 @@ public class AbstractUnitTest
             testProps.load(properties.openStream());
 
             //load the test configuration file
-//            TODO: HIBERNATE CONFIG LOAD init
             ConfigurationManager.loadConfig(null);
 
             // Initialise the service manager kernel
@@ -120,18 +132,19 @@ public class AbstractUnitTest
             // always be in the database, if it has been initialized, to avoid
             // doing the work twice.
             //TODO: HIBERNATE, IS THIS REQUIRED ?
-//            if(MetadataField.find(ctx, 1) == null)
-//            {
-//                String base = ConfigurationManager.getProperty("dspace.dir")
-//                        + File.separator + "config" + File.separator
-//                        + "registries" + File.separator;
-//
+            if(new MetadataFieldDAO().find(ctx, 1) == null)
+            {
+                String base = ConfigurationManager.getProperty("dspace.dir")
+                        + File.separator + "config" + File.separator
+                        + "registries" + File.separator;
+
 //                RegistryLoader.loadBitstreamFormats(ctx, base + "bitstream-formats.xml");
-//                MetadataImporter.loadRegistry(base + "dublin-core-types.xml", true);
-//                MetadataImporter.loadRegistry(base + "sword-metadata.xml", true);
-//                ctx.commit();
-//
-//                //create eperson if required
+                MetadataImporter.loadRegistry(base + "dublin-core-types.xml", true);
+                MetadataImporter.loadRegistry(base + "sword-metadata.xml", true);
+                ctx.commit();
+            }
+
+                //create eperson if required
             EPersonDAO ePersonDAO = new EPersonDAO();
             eperson = ePersonDAO.find(ctx, 1);
                 if(eperson == null)
@@ -167,31 +180,31 @@ public class AbstractUnitTest
 //            log.error("Error creating the browse indexes", ex);
 //            fail("Error creating the browse indexes");
 //        }
-//        catch (RegistryImportException ex)
-//        {
-//            log.error("Error loading default data", ex);
-//            fail("Error loading default data");
-//        }
-//        catch (NonUniqueMetadataException ex)
-//        {
-//            log.error("Error loading default data", ex);
-//            fail("Error loading default data");
-//        }
-//        catch (ParserConfigurationException ex)
-//        {
-//            log.error("Error loading default data", ex);
-//            fail("Error loading default data");
-//        }
-//        catch (SAXException ex)
-//        {
-//            log.error("Error loading default data", ex);
-//            fail("Error loading default data");
-//        }
-//        catch (TransformerException ex)
-//        {
-//            log.error("Error loading default data", ex);
-//            fail("Error loading default data");
-//        }
+        catch (RegistryImportException ex)
+        {
+            log.error("Error loading default data", ex);
+            fail("Error loading default data");
+        }
+        catch (NonUniqueMetadataException ex)
+        {
+            log.error("Error loading default data", ex);
+            fail("Error loading default data");
+        }
+        catch (ParserConfigurationException ex)
+        {
+            log.error("Error loading default data", ex);
+            fail("Error loading default data");
+        }
+        catch (SAXException ex)
+        {
+            log.error("Error loading default data", ex);
+            fail("Error loading default data");
+        }
+        catch (TransformerException ex)
+        {
+            log.error("Error loading default data", ex);
+            fail("Error loading default data");
+        }
         catch (AuthorizeException ex)
         {
             log.error("Error loading default data", ex);
@@ -339,8 +352,7 @@ public class AbstractUnitTest
      * but no execution order is guaranteed
      */
     @After
-    public void destroy()
-    {        
+    public void destroy() throws Exception {
         if(context != null && context.isValid())
         {
             context.abort();

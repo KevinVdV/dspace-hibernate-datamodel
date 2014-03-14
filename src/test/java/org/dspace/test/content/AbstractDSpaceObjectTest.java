@@ -45,8 +45,7 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
      */
     @After
     @Override
-    public void destroy()
-    {
+    public void destroy() throws Exception {
         dspaceObject = null;
         super.destroy();
     }
@@ -128,12 +127,12 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
         }
         else if(this.dspaceObject instanceof Collection)
         {
-            assertThat("COLLECTION type", new CollectionDAO().find(context,
+            assertThat("COLLECTION type", new CollectionRepoImpl().find(context,
                 Constants.COLLECTION, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Community)
         {
-            assertThat("COMMUNITY type", new CommunityDAO().find(context,
+            assertThat("COMMUNITY type", new CommunityRepoImpl().find(context,
                 Constants.COMMUNITY, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Group)

@@ -532,7 +532,7 @@ public class GroupDAO extends DSpaceObjectDAO<Group>
         switch (sortField)
         {
             case ID:
-                s = "eperson_group_id";
+                s = "id";
 
                 break;
 
@@ -609,7 +609,7 @@ public class GroupDAO extends DSpaceObjectDAO<Group>
         context.addEvent(new Event(Event.DELETE, Constants.GROUP, groupEntity.getID(), groupEntity.getName()));
 
         // Remove any ResourcePolicies that reference this group
-        AuthorizeManager.removeGroupPolicies(context, groupEntity.getID());
+        AuthorizeManager.removeGroupPolicies(context, groupEntity);
 
         // don't forget the new table
         //TODO: HIBERNATE IMPLEMENT

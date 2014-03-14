@@ -20,7 +20,6 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.hibernate.HibernateQueryUtil;
-import org.dspace.hibernate.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 
@@ -364,7 +363,7 @@ public class HandleManager
         }
         else if (handletypeid == Constants.COLLECTION)
         {
-            Collection collection = new CollectionDAO().find(context, resourceID);
+            Collection collection = new CollectionRepoImpl().find(context, resourceID);
 
             if (log.isDebugEnabled())
             {
@@ -376,7 +375,7 @@ public class HandleManager
         }
         else if (handletypeid == Constants.COMMUNITY)
         {
-            Community community = new CommunityDAO().find(context, resourceID);
+            Community community = new CommunityRepoImpl().find(context, resourceID);
 
             if (log.isDebugEnabled())
             {

@@ -8,7 +8,7 @@ import javax.persistence.*;
  * Time: 13:28
  */
 @Entity
-@Table(name="handle")
+@Table(name="handle", schema = "public")
 public class Handle {
 
     @Id

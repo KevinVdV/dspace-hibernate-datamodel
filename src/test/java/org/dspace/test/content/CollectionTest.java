@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
 import org.apache.log4j.Logger;
@@ -44,8 +45,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
 
     private Community owningCommunity;
 
-    private CommunityDAO communityDAO = new CommunityDAO();
-    private CollectionDAO collectionDAO = new CollectionDAO();
+    private CommunityRepoImpl communityDAO = new CommunityRepoImpl();
+    private CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
     private GroupDAO groupDAO = new GroupDAO();
     private ItemDAO itemDAO = new ItemDAO();
 
@@ -94,8 +95,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
      */
     @After
     @Override
-    public void destroy()
-    {
+    public void destroy() throws Exception {
         collection = null;
         super.destroy();
     }
@@ -185,9 +185,9 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testFindAll() throws Exception
     {
-        Collection[] all = collectionDAO.findAll(context);
+        List<Collection> all = collectionDAO.findAll(context);
         assertThat("testFindAll 0", all, notNullValue());
-        assertTrue("testFindAll 1", all.length >= 1);
+        assertTrue("testFindAll 1", all.size() >= 1);
 
         boolean added = false;
         for(Collection cl: all)

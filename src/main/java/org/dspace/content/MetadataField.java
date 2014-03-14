@@ -8,7 +8,7 @@ import javax.persistence.*;
  * Time: 13:06
  */
 @Entity
-@Table(name="metadatafieldregistry")
+@Table(name="metadatafieldregistry", schema = "public")
 public class MetadataField {
 
     @Id
@@ -25,7 +25,7 @@ public class MetadataField {
     private String element;
 
     @Column(name = "qualifier")
-    private String qualifier;
+    private String qualifier = null;
 
     @Column(name = "scope_note")
     private String scopeNote;
@@ -113,7 +113,7 @@ public class MetadataField {
     /**
      * Set the schema record key.
      *
-     * @param schemaID new value for key
+     * @param metadataSchema new value for key
      */
     public void setMetadataSchema(MetadataSchema metadataSchema) {
         this.metadataSchema = metadataSchema;

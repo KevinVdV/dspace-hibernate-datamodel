@@ -21,6 +21,8 @@ import org.dspace.hibernate.HibernateQueryUtil;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 
+import javax.persistence.Table;
+
 /**
  * AuthorizeManager handles all authorization checks for DSpace. For better
  * security, DSpace assumes that you do not have the right to do something
@@ -597,7 +599,7 @@ public class AuthorizeManager
             throws SQLException
     {
         Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
-        criteria.add(Restrictions.eq("epersongroup_id", g.getID()));
+        criteria.add(Restrictions.eq("epersonGroup", g.getID()));
         return criteria.list();
     }
 
@@ -713,10 +715,18 @@ public class AuthorizeManager
         o.updateLastModified(c);
 
         // FIXME: authorization check?
-        Map<String, Object> criteria = new HashMap<String, Object>();
-        criteria.put("resource_type_id", o.getType());
-        criteria.put("resource_id", o.getID());
-        HibernateQueryUtil.deleteQuery(c, ResourcePolicy.class, criteria);
+        Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
+        criteria.add(
+                Restrictions.and(
+                        Restrictions.eq("resource_type_id", o.getType()),
+                        Restrictions.eq("resource_id", o.getID())
+                )
+        );
+
+        List<ResourcePolicy> resourcePolicy = criteria.list();
+        for (ResourcePolicy policy : resourcePolicy) {
+            HibernateQueryUtil.delete(c, policy);
+        }
     }
 
     /**
@@ -761,11 +771,19 @@ public class AuthorizeManager
     public static void removeAllPoliciesByDSOAndType(Context c, DSpaceObject o, String type)
             throws SQLException
     {
-        Map<String, Object> criteria = new HashMap<String, Object>();
-        criteria.put("resource_type_id", o.getType());
-        criteria.put("resource_id", o.getID());
-        criteria.put("rptype", type);
-        HibernateQueryUtil.deleteQuery(c, ResourcePolicy.class, criteria);
+        Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
+        criteria.add(
+                Restrictions.and(
+                        Restrictions.eq("resource_type_id", o.getType()),
+                        Restrictions.eq("resource_id", o.getID()),
+                        Restrictions.eq("rptype", type)
+                )
+        );
+
+        List<ResourcePolicy> resourcePolicy = criteria.list();
+        for (ResourcePolicy policy : resourcePolicy) {
+            HibernateQueryUtil.delete(c, policy);
+        }
     }
 
     /**
@@ -792,11 +810,19 @@ public class AuthorizeManager
             removeAllPolicies(context, dso);
         } else
         {
-            Map<String, Object> criteria = new HashMap<String, Object>();
-            criteria.put("resource_type_id", dso.getType());
-            criteria.put("resource_id", dso.getID());
-            criteria.put("action_id", actionID);
-            HibernateQueryUtil.deleteQuery(context, ResourcePolicy.class, criteria);
+            Criteria criteria = context.getDBConnection().createCriteria(ResourcePolicy.class);
+            criteria.add(
+                    Restrictions.and(
+                            Restrictions.eq("resource_type_id", dso.getType()),
+                            Restrictions.eq("resource_id", dso.getID()),
+                            Restrictions.eq("action_id", actionID)
+                    )
+            );
+
+            List<ResourcePolicy> resourcePolicy = criteria.list();
+            for (ResourcePolicy policy : resourcePolicy) {
+                HibernateQueryUtil.delete(context, policy);
+            }
         }
     }
 
@@ -806,17 +832,25 @@ public class AuthorizeManager
      *
      * @param c
      *         current context
-     * @param groupID
+     * @param group
      *         ID of the group
      * @throws SQLException
      *         if there's a database problem
      */
-    public static void removeGroupPolicies(Context c, int groupID)
+    public static void removeGroupPolicies(Context c, Group group)
             throws SQLException
     {
-        Map<String, Object> criteria = new HashMap<String, Object>();
-        criteria.put("epersongroup_id", groupID);
-        HibernateQueryUtil.deleteQuery(c, ResourcePolicy.class, criteria);
+        Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
+        criteria.add(
+                Restrictions.and(
+                        Restrictions.eq("epersonGroup", group)
+                )
+        );
+
+        List<ResourcePolicy> resourcePolicy = criteria.list();
+        for (ResourcePolicy policy : resourcePolicy) {
+            HibernateQueryUtil.delete(c, policy);
+        }
     }
 
     /**
@@ -836,12 +870,19 @@ public class AuthorizeManager
             throws SQLException
     {
         o.updateLastModified(c);
-        Map<String, Object> criteria = new HashMap<String, Object>();
-        criteria.put("resource_type_id", o.getType());
-        criteria.put("resource_id", o.getID());
-        criteria.put("epersongroup_id", g.getID());
-        HibernateQueryUtil.deleteQuery(c, ResourcePolicy.class, criteria);
+        Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
+        criteria.add(
+                Restrictions.and(
+                        Restrictions.eq("resource_type_id", o.getType()),
+                        Restrictions.eq("resource_id", o.getID()),
+                        Restrictions.eq("epersonGroup", g)
+                )
+        );
 
+        List<ResourcePolicy> resourcePolicy = criteria.list();
+        for (ResourcePolicy policy : resourcePolicy) {
+            HibernateQueryUtil.delete(c, policy);
+        }
     }
 
     /**
@@ -861,11 +902,19 @@ public class AuthorizeManager
             throws SQLException
     {
         o.updateLastModified(c);
-        Map<String, Object> criteria = new HashMap<String, Object>();
-        criteria.put("resource_type_id", o.getType());
-        criteria.put("resource_id", o.getID());
-        criteria.put("eperson_id", e.getID());
-        HibernateQueryUtil.deleteQuery(c, ResourcePolicy.class, criteria);
+        Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
+        criteria.add(
+                Restrictions.and(
+                        Restrictions.eq("resource_type_id", o.getType()),
+                        Restrictions.eq("resource_id", o.getID()),
+                        Restrictions.eq("eperson", e)
+                )
+        );
+
+        List<ResourcePolicy> resourcePolicy = criteria.list();
+        for (ResourcePolicy policy : resourcePolicy) {
+            HibernateQueryUtil.delete(c, policy);
+        }
     }
 
     /**
@@ -917,7 +966,7 @@ public class AuthorizeManager
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", dsoType),
                 Restrictions.eq("resource_id", dsoID),
-                Restrictions.eq("epersongroup_id", group),
+                Restrictions.eq("epersonGroup", group),
                 Restrictions.eq("action_id", action)
         ));
         criteria.setMaxResults(1);
@@ -926,7 +975,7 @@ public class AuthorizeManager
         List results;
         if (policyID != -1)
         {
-            criteria.add(Restrictions.and(Restrictions.not(Restrictions.eq("policy_id", action))));
+            criteria.add(Restrictions.and(Restrictions.not(Restrictions.eq("id", action))));
             results = criteria.list();
         } else
         {
@@ -944,7 +993,7 @@ public class AuthorizeManager
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", dsoType),
                 Restrictions.eq("resource_id", dsoID),
-                Restrictions.eq("epersongroup_id", group),
+                Restrictions.eq("epersonGroup", group),
                 Restrictions.eq("action_id", action)
         ));
         criteria.setMaxResults(1);
@@ -952,7 +1001,7 @@ public class AuthorizeManager
         List<ResourcePolicy> results;
         if (policyID != -1)
         {
-            criteria.add(Restrictions.and(Restrictions.not(Restrictions.eq("policy_id", action))));
+            criteria.add(Restrictions.and(Restrictions.not(Restrictions.eq("id", action))));
             results = criteria.list();
         } else
         {

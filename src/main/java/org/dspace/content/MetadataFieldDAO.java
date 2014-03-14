@@ -64,7 +64,8 @@ public class MetadataFieldDAO
      * @throws SQLException
      * @throws NonUniqueMetadataException
      */
-    public void create(Context context, MetadataSchema metadataSchema, String element, String qualifier, String scopeNote) throws IOException, AuthorizeException,
+    //TODO: HIBERNATE: REWRITE THIS METHOD TO NOT CONTAIN ELEMENT, QUALIFIER, .....
+    public MetadataField create(Context context, MetadataSchema metadataSchema, String element, String qualifier, String scopeNote) throws IOException, AuthorizeException,
             SQLException, NonUniqueMetadataException
     {
         // Check authorisation: Only admins may create DC types
@@ -92,28 +93,28 @@ public class MetadataFieldDAO
 
         log.info(LogManager.getHeader(context, "create_metadata_field",
                 "metadata_field_id=" + metadataField.getFieldID()));
+        return metadataField;
     }
 
     /**
      * Retrieves the metadata field from the database.
      *
      * @param context dspace context
-     * @param schemaID schema by ID
+     * @param metadataSchema metadata schema
      * @param element element name
      * @param qualifier qualifier (may be ANY or null)
      * @return recalled metadata field
      * @throws SQLException
-     * @throws AuthorizeException
      */
-    public MetadataField findByElement(Context context, int schemaID,
+    public MetadataField findByElement(Context context, MetadataSchema metadataSchema,
             String element, String qualifier) throws SQLException
     {
         Criteria criteria = context.getDBConnection().createCriteria(MetadataField.class);
         criteria.add(
                 Restrictions.and(
-                        Restrictions.eq("metadata_schema_id", schemaID),
+                        Restrictions.eq("metadataSchema", metadataSchema),
                         Restrictions.eq("element", element),
-                        Restrictions.eq("qualifier", qualifier)
+                        Restrictions.eqOrIsNull("qualifier", qualifier)
                 )
         );
         return (MetadataField) criteria.uniqueResult();
@@ -138,16 +139,16 @@ public class MetadataFieldDAO
      * Return all metadata fields that are found in a given schema.
      *
      * @param context dspace context
-     * @param schemaID schema by db ID
+     * @param schema schema by db
      * @return array of metadata fields
      * @throws SQLException
      */
-    public MetadataField[] findAllInSchema(Context context, int schemaID)
+    public MetadataField[] findAllInSchema(Context context, String name)
             throws SQLException
     {
         // Get all the metadatafieldregistry rows
         Criteria criteria = context.getDBConnection().createCriteria(MetadataField.class);
-        criteria.add(Restrictions.eq("metadata_schema_id", schemaID));
+        criteria.add(Restrictions.eq("metadataSchema.name", name));
         criteria.addOrder(Order.asc("element")).addOrder(Order.asc("qualifier"));
         List<MetadataField> fields = criteria.list();
 
@@ -176,10 +177,10 @@ public class MetadataFieldDAO
 
         // Check to see if the schema ID was altered. If is was then we will
         // query to ensure that there is not already a duplicate name field.
-        if (hasElement(context, metadataField.getMetadataSchema().getSchemaID(), metadataField.getElement(), metadataField.getQualifier()))
+        if (hasElement(context, metadataField))
         {
             throw new NonUniqueMetadataException(
-                    "Duplcate field name found in target schema");
+                    "Duplicate field name found in target schema");
         }
 
         // Ensure the element and qualifier are unique within a given schema.
@@ -202,19 +203,23 @@ public class MetadataFieldDAO
      * and qualifier pair.
      *
      * @param context dspace context
-     * @param schemaID schema by ID
-     * @param element element name
-     * @param qualifier qualifier name
      * @return true if the field exists
      * @throws SQLException
      * @throws AuthorizeException
      */
-    private boolean hasElement(Context context, int schemaID,
-            String element, String qualifier) throws SQLException,
+    private boolean hasElement(Context context, MetadataField metadataField) throws SQLException,
             AuthorizeException
     {
-        return findByElement(context, schemaID, element,
-                qualifier) != null;
+        Criteria criteria = context.getDBConnection().createCriteria(MetadataField.class);
+        criteria.add(
+                Restrictions.and(
+                        Restrictions.eq("metadataSchema", metadataField.getMetadataSchema()),
+                        Restrictions.eq("element", metadataField.getElement()),
+                        Restrictions.eqOrIsNull("qualifier", metadataField.getQualifier()),
+                        Restrictions.not(Restrictions.eq("id", metadataField.getFieldID()))
+                )
+        );
+        return criteria.uniqueResult() != null;
     }
 
     /**
@@ -258,24 +263,13 @@ public class MetadataFieldDAO
             String qualifier) throws IOException, SQLException,
             AuthorizeException
     {
-        int count = 0;
-        String qualifierClause = "";
-
-        if (qualifier == null)
-        {
-            qualifierClause = "and qualifier is null";
-        }
-        else
-        {
-            qualifierClause = "and qualifier = ?";
-        }
         Criteria criteria = context.getDBConnection().createCriteria(MetadataField.class);
         criteria.add(
                 Restrictions.and(
-                        Restrictions.not(Restrictions.eq("metadata_field_id", metadataFieldId)),
-                        Restrictions.eq("metadata_schema_id", schemaID),
+                        Restrictions.not(Restrictions.eq("id", metadataFieldId)),
+                        Restrictions.eq("metadataSchema.id", schemaID),
                         Restrictions.eq("element", element),
-                        Restrictions.eq("qualifier", qualifier)
+                        Restrictions.eqOrIsNull("qualifier", qualifier)
                 )
         );
 
@@ -343,6 +337,7 @@ public class MetadataFieldDAO
     }
     
     // load caches if necessary
+    //TODO: REMOVE CACHE !
     private static synchronized void initCache(Context context) throws SQLException
     {
         if (!isCacheInitialized())

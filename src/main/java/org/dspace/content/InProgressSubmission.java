@@ -30,16 +30,6 @@ public interface InProgressSubmission
     int getID();
 
     /**
-     * Deletes submission wrapper, doesn't delete item contents
-     */
-    void deleteWrapper() throws SQLException, IOException, AuthorizeException;
-
-    /**
-     * Update the submission, including the unarchived item.
-     */
-    void update() throws SQLException, AuthorizeException;
-
-    /**
      * Get the incomplete item object
      * 
      * @return the item
@@ -52,13 +42,6 @@ public interface InProgressSubmission
      * @return the collection
      */
     Collection getCollection();
-
-    /**
-     * Get the submitter
-     * 
-     * @return the submitting e-person
-     */
-    EPerson getSubmitter() throws SQLException;
 
     /**
      * Find out if the submission has (or is intended to have) more than one

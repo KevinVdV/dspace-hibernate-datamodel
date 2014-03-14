@@ -44,13 +44,6 @@ public class MetadataSchemaDAO
     /** log4j logger */
     private static Logger log = Logger.getLogger(MetadataSchema.class);
 
-    // cache of schema by ID (Integer)
-    private static Map<Integer, MetadataSchema> id2schema = null;
-
-    // cache of schema by short name
-    private static Map<String, MetadataSchema> name2schema = null;
-
-
     /**
      * Default constructor.
      */
@@ -68,7 +61,8 @@ public class MetadataSchemaDAO
      * @throws AuthorizeException
      * @throws NonUniqueMetadataException
      */
-    public void create(Context context, String name, String namespace) throws SQLException,
+    //TODO: REWRITE TO NOT WORK WITH NAME & NAMESPACE as variables
+    public MetadataSchema create(Context context, String name, String namespace) throws SQLException,
             AuthorizeException, NonUniqueMetadataException
     {
         // Check authorisation: Only admins may create metadata schemas
@@ -98,12 +92,10 @@ public class MetadataSchemaDAO
         metadataSchema.setNamespace(namespace);
         metadataSchema.setName(name);
         HibernateQueryUtil.update(context, metadataSchema);
-
-        // invalidate our fast-find cache.
-        decache();
         log.info(LogManager.getHeader(context, "create_metadata_schema",
                 "metadata_schema_id="
                         + metadataSchema.getSchemaID()));
+        return metadataSchema;
     }
 
     /**
@@ -131,7 +123,7 @@ public class MetadataSchemaDAO
      * @throws AuthorizeException
      * @throws NonUniqueMetadataException
      */
-    public void update(Context context, MetadataSchema metadataSchema, String namespace, String name) throws SQLException,
+    public void update(Context context, MetadataSchema metadataSchema) throws SQLException,
             AuthorizeException, NonUniqueMetadataException
     {
         // Check authorisation: Only admins may update the metadata registry
@@ -142,22 +134,19 @@ public class MetadataSchemaDAO
         }
 
         // Ensure the schema name is unique
-        if (!uniqueShortName(context, metadataSchema.getSchemaID(), name))
+        if (!uniqueShortName(context, metadataSchema.getSchemaID(), metadataSchema.getName()))
         {
-            throw new NonUniqueMetadataException("Please make the name " + name
+            throw new NonUniqueMetadataException("Please make the name " + metadataSchema.getName()
                     + " unique");
         }
 
         // Ensure the schema namespace is unique
-        if (!uniqueNamespace(context, metadataSchema.getSchemaID(), namespace))
+        if (!uniqueNamespace(context, metadataSchema.getSchemaID(), metadataSchema.getNamespace()))
         {
-            throw new NonUniqueMetadataException("Please make the namespace " + namespace
+            throw new NonUniqueMetadataException("Please make the namespace " + metadataSchema.getNamespace()
                     + " unique");
         }
         HibernateQueryUtil.update(context, metadataSchema);
-
-        decache();
-
         log.info(LogManager.getHeader(context, "update_metadata_schema",
                 "metadata_schema_id=" + metadataSchema.getSchemaID() + "namespace="
                         + metadataSchema.getNamespace() + "name=" + metadataSchema.getName()));
@@ -183,7 +172,6 @@ public class MetadataSchemaDAO
                 "metadata_schema_id=" + metadataSchema.getSchemaID()));
 
         HibernateQueryUtil.delete(context, metadataSchema);
-        decache();
     }
 
     /**
@@ -199,7 +187,7 @@ public class MetadataSchemaDAO
 
         // Get all the metadataschema rows
         Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
-        criteria.addOrder(Order.asc("metadata_schema_id"));
+        criteria.addOrder(Order.asc("id"));
         schemas = criteria.list();
         return schemas.toArray(new MetadataSchema[schemas.size()]);
     }
@@ -218,8 +206,8 @@ public class MetadataSchemaDAO
     {
         Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
         criteria.add(Restrictions.and(
-                Restrictions.not(Restrictions.eq("metadata_schema_id", metadataSchemaId)),
-                Restrictions.not(Restrictions.eq("namespace", namespace))
+                Restrictions.not(Restrictions.eq("id", metadataSchemaId)),
+                Restrictions.eq("namespace", namespace)
         ));
 
         return criteria.uniqueResult() == null;
@@ -238,8 +226,8 @@ public class MetadataSchemaDAO
     {
         Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
         criteria.add(Restrictions.and(
-                Restrictions.not(Restrictions.eq("metadata_schema_id", metadataSchemaId)),
-                Restrictions.not(Restrictions.eq("short_id", name))
+                Restrictions.not(Restrictions.eq("id", metadataSchemaId)),
+                Restrictions.eq("name", name)
         ));
 
         return criteria.uniqueResult() == null;
@@ -259,20 +247,7 @@ public class MetadataSchemaDAO
     public MetadataSchema find(Context context, int id)
             throws SQLException
     {
-        if (!isCacheInitialized())
-        {
-            initCache(context);
-        }
-        
-        Integer iid = Integer.valueOf(id);
-
-        // sanity check
-        if (!id2schema.containsKey(iid))
-        {
-            return null;
-        }
-
-        return id2schema.get(iid);
+        return (MetadataSchema) context.getDBConnection().get(MetadataSchema.class, id);
     }
 
     /**
@@ -293,50 +268,11 @@ public class MetadataSchemaDAO
         {
             return null;
         }
+        Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
+        criteria.add(
+                Restrictions.eq("name", shortName)
+        );
 
-        if (!isCacheInitialized())
-        {
-            initCache(context);
-        }
-
-        if (!name2schema.containsKey(shortName))
-        {
-            return null;
-        }
-
-        return name2schema.get(shortName);
-    }
-
-    // invalidate the cache e.g. after something modifies DB state.
-    private static void decache()
-    {
-        id2schema = null;
-        name2schema = null;
-    }
-
-    private static boolean isCacheInitialized()
-    {
-        return (id2schema != null && name2schema != null);
-    }
-
-    // load caches if necessary
-    private static synchronized void initCache(Context context) throws SQLException
-    {
-        if (!isCacheInitialized())
-        {
-            log.info("Loading schema cache for fast finds");
-            Map<Integer, MetadataSchema> new_id2schema = new HashMap<Integer, MetadataSchema>();
-            Map<String, MetadataSchema> new_name2schema = new HashMap<String, MetadataSchema>();
-
-            List<MetadataSchema> schemas = context.getDBConnection().createCriteria(MetadataSchema.class).list();
-
-            for (int i = 0; i < schemas.size(); i++) {
-                MetadataSchema metadataSchema = schemas.get(i);
-                new_id2schema.put(metadataSchema.getSchemaID(), metadataSchema);
-                new_name2schema.put(metadataSchema.getName(), metadataSchema);
-            }
-            id2schema = new_id2schema;
-            name2schema = new_name2schema;
-        }
+        return (MetadataSchema) criteria.uniqueResult();
     }
 }

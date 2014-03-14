@@ -9,7 +9,6 @@ package org.dspace.app.util;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 
 import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
@@ -254,7 +253,7 @@ public class AuthorizeUtil
     public static void authorizeManageTemplateItem(Context context,
             Collection collection) throws AuthorizeException, SQLException
     {
-        boolean isAuthorized = new CollectionDAO().canEditBoolean(context, collection, false);
+        boolean isAuthorized = new CollectionRepoImpl().canEditBoolean(context, collection, false);
 
         if (!isAuthorized
                 && AuthorizeConfiguration
@@ -509,11 +508,11 @@ public class AuthorizeUtil
             authorizeManageItemPolicy(c, new ItemDAO().find(c, rp.getResourceID()));
             break;
         case Constants.COLLECTION:
-            authorizeManageCollectionPolicy(c, new CollectionDAO().find(c, rp
+            authorizeManageCollectionPolicy(c, new CollectionRepoImpl().find(c, rp
                     .getResourceID()));
             break;
         case Constants.COMMUNITY:
-            authorizeManageCommunityPolicy(c, new CommunityDAO().find(c, rp
+            authorizeManageCommunityPolicy(c, new CommunityRepoImpl().find(c, rp
                     .getResourceID()));
             break;
 

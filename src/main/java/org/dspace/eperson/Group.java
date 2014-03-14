@@ -18,7 +18,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
-@Table(name = "epersongroup")
+@Table(name = "epersongroup", schema = "public" )
 public class Group extends DSpaceObject {
 
     @Id

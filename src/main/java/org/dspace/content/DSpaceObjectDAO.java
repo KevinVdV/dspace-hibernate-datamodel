@@ -13,12 +13,12 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPersonDAO;
-import org.dspace.eperson.Group;
 import org.dspace.eperson.GroupDAO;
 
 /**
  * Abstract base class for DSpace objects
  */
+//TODO: REMOVE THIS CLASS ?
 public abstract class DSpaceObjectDAO<T extends DSpaceObject>
 {
     // accumulate information to add to "detail" element of content Event,
@@ -77,10 +77,10 @@ public abstract class DSpaceObjectDAO<T extends DSpaceObject>
         {
             //TODO: Hibernate
             //case Constants.BITSTREAM : return Bitstream.find(context, id);
-            //case Constants.BUNDLE    : return Bundle.find(context, id);
-            //case Constants.ITEM      : return Item.find(context, id);
-            case Constants.COLLECTION: return new CollectionDAO().find(context, id);
-            case Constants.COMMUNITY : return new CommunityDAO().find(context, id);
+            case Constants.BUNDLE    : return new BundleDAO().find(context, id);
+            case Constants.ITEM      : return new ItemDAO().find(context, id);
+            case Constants.COLLECTION: return new CollectionRepoImpl().find(context, id);
+            case Constants.COMMUNITY : return new CommunityRepoImpl().find(context, id);
             case Constants.GROUP     : return new GroupDAO().find(context, id);
             case Constants.EPERSON   : return new EPersonDAO().find(context, id);
             case Constants.SITE      : return Site.find(context, id);

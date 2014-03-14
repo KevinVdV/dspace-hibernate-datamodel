@@ -17,7 +17,8 @@ import java.util.Date;
  */
 @Entity
 @Table(name="resourcepolicy")
-public class ResourcePolicy {
+//TODO: HIBERNATE, MAKE FUTURE PARENT OBJECT CONABLE
+public class ResourcePolicy implements Cloneable{
     public static String TYPE_SUBMISSION = "TYPE_SUBMISSION";
     public static String TYPE_WORKFLOW = "TYPE_WORKFLOW";
     public static String TYPE_CUSTOM= "TYPE_CUSTOM";
@@ -132,6 +133,18 @@ public class ResourcePolicy {
         hash = 19 * hash + (this.getStartDate() != null? this.getStartDate().hashCode():0);
         hash = 19 * hash + (this.getEndDate() != null? this.getEndDate().hashCode():0);
         return hash;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        ResourcePolicy clone = (ResourcePolicy) super.clone();
+        // Only primitive types can be cloned by default, clone the object types
+        clone.setGroup(this.getGroup());
+        clone.setEPerson(this.getEPerson());
+        clone.setStartDate((Date) ObjectUtils.clone(this.getStartDate()));
+        clone.setEndDate((Date) ObjectUtils.clone(this.getEndDate()));
+
+        return clone;
     }
 
     public Integer getID() {

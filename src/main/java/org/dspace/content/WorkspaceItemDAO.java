@@ -9,7 +9,6 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -34,7 +33,7 @@ import org.hibernate.criterion.Restrictions;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class WorkspaceItemDAO
+public class WorkspaceItemDAO implements InProgressSubmissionDAO<WorkspaceItem>
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkspaceItem.class);
@@ -43,7 +42,7 @@ public class WorkspaceItemDAO
      * Construct a workspace item corresponding to the given database row
      *
      */
-    WorkspaceItemDAO() throws SQLException
+    public WorkspaceItemDAO()
     {
     }
 
@@ -114,7 +113,7 @@ public class WorkspaceItemDAO
         // users to modify item and contents
         // contents = bitstreams, bundles
         // FIXME: icky hardcoded workflow steps
-        CollectionDAO collectionDAO = new CollectionDAO();
+        CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
         Group step1group = collectionDAO.getWorkflowGroup(coll, 1);
         Group step2group = collectionDAO.getWorkflowGroup(coll, 2);
         Group step3group = collectionDAO.getWorkflowGroup(coll, 3);
@@ -328,6 +327,10 @@ public class WorkspaceItemDAO
         HibernateQueryUtil.update(context, workspaceItem);
     }
 
+    public EPerson getSubmitter(WorkspaceItem workspaceItem) throws SQLException {
+        return workspaceItem.getItem().getSubmitter();
+    }
+
 
     /**
      * Delete the workspace item. The entry in workspaceitem, the unarchived
@@ -370,7 +373,7 @@ public class WorkspaceItemDAO
         HibernateQueryUtil.delete(context, workspaceItem);
 
         // Delete item
-        new ItemDAO().delete(context, item);
+        new ItemDAO().rawDelete(context, item);
     }
 
     /*

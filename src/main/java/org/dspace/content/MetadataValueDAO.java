@@ -33,10 +33,10 @@ public class MetadataValueDAO {
      * @throws SQLException
      * @throws org.dspace.authorize.AuthorizeException
      */
-    public MetadataValue create(Context context, MetadataField metadataField) throws SQLException {
+    public MetadataValue create(Context context, Item item, MetadataField metadataField) throws SQLException {
         MetadataValue metadataValue = new MetadataValue();
         metadataValue.setMetadataField(metadataField);
-
+        metadataValue.setItem(item);
         HibernateQueryUtil.update(context, metadataValue);
 
         return metadataValue;
@@ -101,8 +101,7 @@ public class MetadataValueDAO {
      * @throws SQLException
      * @throws AuthorizeException
      */
-    public void delete(Context context, MetadataValue metadataValue) throws SQLException, AuthorizeException
-    {
+    public void delete(Context context, MetadataValue metadataValue) throws SQLException {
         log.info(LogManager.getHeader(context, "delete_metadata_value",
                 " metadata_value_id=" + metadataValue.getFieldId()));
         HibernateQueryUtil.delete(context, metadataValue);

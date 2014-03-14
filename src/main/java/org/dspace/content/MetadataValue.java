@@ -46,10 +46,6 @@ public class MetadataValue
     @JoinColumn(name = "metadata_field_id")
     protected MetadataField metadataField = null;
 
-    /** The reference to the DSpace item */
-    @Column(name = "item_id")
-    protected int itemId;
-
     /** The value of the field */
     @Column(name = "text_value")
     protected String value;
@@ -68,10 +64,10 @@ public class MetadataValue
 
     /** Authority confidence value -- see Choices class for values */
     @Column(name = "confidence")
-    protected int confidence = 0;
+    protected int confidence = -1;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="item_id", insertable = false, updatable = false)
+    @JoinColumn(name="item_id", updatable = false)
     protected Item item;
 
     /**
@@ -108,23 +104,23 @@ public class MetadataValue
     }
 
     /**
-     * Get the item ID.
+     * Get the item
      *
-     * @return item ID
+     * @return item
      */
-    public int getItemId()
+    public Item getItem()
     {
-        return itemId;
+        return item;
     }
 
     /**
      * Set the item ID.
      *
-     * @param itemId new item ID
+     * @param item new item ID
      */
-    public void setItemId(int itemId)
+    public void setItem(Item item)
     {
-        this.itemId = itemId;
+        this.item = item;
     }
 
     /**
@@ -266,7 +262,7 @@ public class MetadataValue
         {
             return false;
         }
-        if (this.itemId != other.itemId)
+        if (this.getItem().getID() != other.getItem().getID())
         {
             return false;
         }
@@ -279,7 +275,7 @@ public class MetadataValue
         int hash = 7;
         hash = 47 * hash + this.fieldId;
         hash = 47 * hash + this.getFieldId();
-        hash = 47 * hash + this.itemId;
+        hash = 47 * hash + this.item.getID();
         return hash;
     }
 }
