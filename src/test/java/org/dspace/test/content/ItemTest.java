@@ -54,7 +54,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     private Community owningCommunity;
 
 
-    private BitstreamFormatDAO bitstreamFormatDAO = new BitstreamFormatDAO();
+    private BitstreamFormatRepoImpl bitstreamFormatDAO = new BitstreamFormatRepoImpl();
     private ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
     private GroupDAO groupDAO = new GroupDAO();
 

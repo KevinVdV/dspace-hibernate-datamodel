@@ -1,6 +1,7 @@
 package org.dspace.content;
 
 import org.dspace.core.Context;
+import org.dspace.dao.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * Date: 14/03/14
  * Time: 14:31
  */
-public class CommunityDAOImpl extends CommunityDAO {
+public class CommunityDAOImpl extends AbstractHibernateDAO<Community> implements CommunityDAO {
 
 
 

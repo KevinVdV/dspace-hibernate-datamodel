@@ -95,7 +95,8 @@ CREATE TABLE BitstreamFormatRegistry
   description         TEXT,
   support_level       INTEGER,
   -- Identifies internal types
-  internal             BOOLEAN
+  internal             BOOLEAN,
+  bitstream_order      INTEGER
 );
 
 -------------------------------------------------------
@@ -251,8 +252,7 @@ CREATE TABLE Bundle2Bitstream
 (
   id              INTEGER PRIMARY KEY,
   bundle_id       INTEGER REFERENCES Bundle(bundle_id),
-  bitstream_id    INTEGER REFERENCES Bitstream(bitstream_id),
-  bitstream_order INTEGER
+  bitstream_id    INTEGER REFERENCES Bitstream(bitstream_id)
 );
 
 -- index by bundle_id
@@ -395,7 +395,7 @@ CREATE INDEX Community2Collection_collection_id_idx ON Community2Collection(coll
 -------------------------------------------------------
 CREATE TABLE Collection2Item
 (
-  id            INTEGER PRIMARY KEY,
+  PRIMARY KEY(collection_id, item_id),
   collection_id INTEGER REFERENCES Collection(collection_id),
   item_id       INTEGER,
   --  TODO: IMPLEMENT DEFERRABLE

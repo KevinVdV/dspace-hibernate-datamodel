@@ -1,6 +1,6 @@
 package org.dspace.content;
 
-import org.dspace.dao.AbstractDSpaceObjectDao;
+import org.dspace.dao.GenericDAO;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,5 +9,5 @@ import org.dspace.dao.AbstractDSpaceObjectDao;
  * Time: 10:16
  * To change this template use File | Settings | File Templates.
  */
-public abstract class BundleDAO extends AbstractDSpaceObjectDao<Bundle>{
+public interface BundleDAO extends GenericDAO<Bundle> {
 }

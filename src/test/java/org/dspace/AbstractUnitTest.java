@@ -73,7 +73,7 @@ public class AbstractUnitTest
     protected CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
     protected ItemRepoImpl itemDAO = new ItemRepoImpl();
     protected WorkspaceItemDAO workspaceItemDAO = new WorkspaceItemDAO();
-    protected BitstreamDAO bitstreamDAO = new BitstreamDAO();
+    protected BitstreamRepoImpl bitstreamDAO = new BitstreamRepoImpl();
     protected BundleRepoImpl bundleDAO = new BundleRepoImpl();
     protected MetadataSchemaDAO metadataSchemaDAO = new MetadataSchemaDAO();
     protected MetadataFieldReoImpl metadataFieldDAO = new MetadataFieldReoImpl();

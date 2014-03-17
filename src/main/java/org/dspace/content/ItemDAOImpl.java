@@ -1,6 +1,7 @@
 package org.dspace.content;
 
 import org.dspace.core.Context;
+import org.dspace.dao.AbstractHibernateDAO;
 import org.dspace.eperson.EPerson;
 import org.hibernate.Query;
 
@@ -14,13 +15,15 @@ import java.util.Iterator;
  * Time: 09:12
  * To change this template use File | Settings | File Templates.
  */
-public class ItemDAOImpl extends ItemDAO {
+public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
 
     public Iterator<Item> findAll(Context context, boolean archived) throws SQLException
     {
         Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive");
         query.setParameter("in_archive", archived);
-        return query.iterate();
+        @SuppressWarnings("unchecked")
+        Iterator result = query.iterate();
+        return result;
     }
 
     public Iterator<Item> findAll(Context context, boolean archived, boolean withdrawn) throws SQLException
@@ -28,15 +31,18 @@ public class ItemDAOImpl extends ItemDAO {
         Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive or withdrawn = :withdrawn");
         query.setParameter("in_archive", archived);
         query.setParameter("withdrawn", withdrawn);
-        return query.iterate();
+        @SuppressWarnings("unchecked")
+        Iterator result = query.iterate();
+        return result;
     }
 
-    @Override
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException {
         Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive and submitter= :submitter");
         query.setParameter("in_archive", true);
         query.setParameter("submitter", eperson);
-        return query.iterate();
+        @SuppressWarnings("unchecked")
+        Iterator result = query.iterate();
+        return result;
     }
 
     public Iterator<Item> findByMetadataField(Context context, MetadataField metadataField, String value, boolean inArchive) throws SQLException {
@@ -53,7 +59,9 @@ public class ItemDAOImpl extends ItemDAO {
         {
             query.setParameter("text_value", value);
         }
-        return query.iterate();
+        @SuppressWarnings("unchecked")
+        Iterator result = query.iterate();
+        return result;
     }
 
     public Iterator<Item> findByAuthorityValue(Context context, MetadataField metadataField, String authority, boolean inArchive) throws SQLException {
@@ -61,7 +69,9 @@ public class ItemDAOImpl extends ItemDAO {
         query.setParameter("in_archive", inArchive);
         query.setParameter("metadata_field", metadataField);
         query.setParameter("authority", authority);
-        return query.iterate();
+        @SuppressWarnings("unchecked")
+        Iterator result = query.iterate();
+        return result;
     }
 
 }

@@ -1,6 +1,7 @@
 package org.dspace.content;
 
 import org.dspace.core.Context;
+import org.dspace.dao.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Order;
@@ -15,7 +16,7 @@ import java.util.List;
  * Date: 14/03/14
  * Time: 15:47
  */
-public class CollectionDAOImpl extends CollectionDAO {
+public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implements CollectionDAO {
 
     /**
      * Get all collections in the system. These are alphabetically sorted by
@@ -33,7 +34,6 @@ public class CollectionDAOImpl extends CollectionDAO {
     }
 
 
-    @Override
     public List<Collection> findAll(Context context, String order, Integer limit, Integer offset) throws SQLException {
         Criteria criteria = getCriteria(context);
         criteria.addOrder(Order.asc(order));
@@ -72,7 +72,6 @@ public class CollectionDAOImpl extends CollectionDAO {
         return iterator;
     }
 
-    @Override
     public Iterator<Item> getAllItems(Context context, Collection collection) throws SQLException {
         Query query = context.getDBConnection().createQuery("select i from Item i join i.collections c WHERE :collection IN c.id");
         query.setParameter("collection", collection.getID());
@@ -82,7 +81,6 @@ public class CollectionDAOImpl extends CollectionDAO {
         return iterator;
     }
 
-    @Override
     public Collection findByTemplateItem(Context context, Item item) throws SQLException {
         Criteria criteria = context.getDBConnection().createCriteria(Collection.class);
         criteria.add(Restrictions.eq("template_item_id", item.getID()));

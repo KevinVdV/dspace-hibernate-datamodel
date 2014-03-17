@@ -112,7 +112,7 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
     {
         if(this.dspaceObject instanceof Bitstream)
         {
-            assertThat("BITSTREAM type", new BitstreamDAO().find(context,
+            assertThat("BITSTREAM type", new BitstreamRepoImpl().find(context,
                 Constants.BITSTREAM, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Bundle)

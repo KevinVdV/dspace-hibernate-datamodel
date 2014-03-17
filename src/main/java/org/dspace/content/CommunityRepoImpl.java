@@ -255,7 +255,7 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
             canEdit(context, community);
         }
 
-        BitstreamDAO bitstreamDAO = new BitstreamDAO();
+        BitstreamRepoImpl bitstreamDAO = new BitstreamRepoImpl();
         // First, delete any existing logo
         if (community.getLogo() != null)
         {

@@ -890,7 +890,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
             IOException
     {
         // Find the License format
-        BitstreamFormat bf = new BitstreamFormatDAO().findByShortDescription(context, "License");
+        BitstreamFormat bf = new BitstreamFormatRepoImpl().findByShortDescription(context, "License");
         int licensetype = bf.getID();
 
         // search through bundles, looking for bitstream type license
@@ -954,7 +954,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
         // start sequencing bitstreams without sequence IDs
         sequence++;
 
-        BitstreamDAO bitstreamDAO = new BitstreamDAO();
+        BitstreamRepoImpl bitstreamDAO = new BitstreamRepoImpl();
         for (Bundle bund : bunds) {
             List<Bitstream> streams = bund.getBitstreams();
 

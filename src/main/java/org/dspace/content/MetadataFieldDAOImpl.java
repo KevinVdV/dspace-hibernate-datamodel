@@ -1,6 +1,7 @@
 package org.dspace.content;
 
 import org.dspace.core.Context;
+import org.dspace.dao.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -15,7 +16,7 @@ import java.util.List;
  * Time: 09:43
  * To change this template use File | Settings | File Templates.
  */
-public class MetadataFieldDAOImpl extends MetadataFieldDAO{
+public class MetadataFieldDAOImpl extends AbstractHibernateDAO<MetadataField> implements MetadataFieldDAO{
 
     public MetadataField find(Context context, int metadataFieldId, MetadataSchema metadataSchema, String element,
                            String qualifier) throws SQLException{
@@ -44,12 +45,12 @@ public class MetadataFieldDAOImpl extends MetadataFieldDAO{
         return (MetadataField) criteria.uniqueResult();
     }
 
-    @Override
     public List<MetadataField> findAllInSchema(Context context, String schema) throws SQLException {
         // Get all the metadatafieldregistry rows
         Criteria criteria = context.getDBConnection().createCriteria(MetadataField.class);
         criteria.add(Restrictions.eq("metadataSchema.name", schema));
         criteria.addOrder(Order.asc("element")).addOrder(Order.asc("qualifier"));
+        @SuppressWarnings("unchecked")
         List<MetadataField> fields = criteria.list();
         return fields;
     }

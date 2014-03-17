@@ -284,7 +284,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
             canEdit(context, collection, true);
         }
 
-        BitstreamDAO bitstreamDAO = new BitstreamDAO();
+        BitstreamRepoImpl bitstreamDAO = new BitstreamRepoImpl();
         // First, delete any existing logo
         if (collection.getLogo() != null)
         {

@@ -113,7 +113,7 @@ public class CreativeCommons
     {
         Bundle bundle = getCcBundle(context, item);
         // set the format
-        BitstreamFormat bs_rdf_format = new BitstreamFormatDAO().findByShortDescription(context, "RDF XML");
+        BitstreamFormat bs_rdf_format = new BitstreamFormatRepoImpl().findByShortDescription(context, "RDF XML");
         // set the RDF bitstream
         setBitstreamFromBytes(context, bundle, BSN_LICENSE_RDF, bs_rdf_format, licenseRdf.getBytes());
     }
@@ -132,7 +132,7 @@ public class CreativeCommons
         String license_text = fetchLicenseText(cc_license_url);
         String license_rdf = fetchLicenseRDF(cc_license_url);
 
-        BitstreamFormatDAO bitstreamFormatDAO = new BitstreamFormatDAO();
+        BitstreamFormatRepoImpl bitstreamFormatDAO = new BitstreamFormatRepoImpl();
         // set the formats
         BitstreamFormat bs_url_format = bitstreamFormatDAO.findByShortDescription(
                 context, "License");
@@ -174,7 +174,7 @@ public class CreativeCommons
     {
         Bundle bundle = getCcBundle(context, item);
 
-        BitstreamFormatDAO bitstreamFormatDAO = new BitstreamFormatDAO();
+        BitstreamFormatRepoImpl bitstreamFormatDAO = new BitstreamFormatRepoImpl();
      // set the format
         BitstreamFormat bs_format;
         if (mimeType.equalsIgnoreCase("text/xml"))
@@ -351,7 +351,7 @@ public class CreativeCommons
         bs.setFormat(format);
 
         // commit everything
-        new BitstreamDAO().update(context, bs);
+        new BitstreamRepoImpl().update(context, bs);
     }
 
     /**
@@ -418,7 +418,7 @@ public class CreativeCommons
 
         // create a ByteArrayOutputStream
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Utils.copy(new BitstreamDAO().retrieve(context, bs), baos);
+        Utils.copy(new BitstreamRepoImpl().retrieve(context, bs), baos);
 
         return baos.toByteArray();
     }

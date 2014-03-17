@@ -2,6 +2,7 @@ package org.dspace.content;
 
 import org.dspace.core.Context;
 import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.dao.GenericDAO;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,13 +14,13 @@ import java.util.List;
  * Time: 09:43
  * To change this template use File | Settings | File Templates.
  */
-public abstract class MetadataFieldDAO extends AbstractHibernateDAO<MetadataField> {
+public interface MetadataFieldDAO extends GenericDAO<MetadataField> {
 
-    public abstract MetadataField find(Context context, int metadataFieldId, MetadataSchema metadataSchema, String element,
+    public MetadataField find(Context context, int metadataFieldId, MetadataSchema metadataSchema, String element,
                                        String qualifier) throws SQLException;
 
-    public abstract MetadataField findByElement(Context context, MetadataSchema metadataSchema, String element, String qualifier) throws SQLException;
+    public MetadataField findByElement(Context context, MetadataSchema metadataSchema, String element, String qualifier) throws SQLException;
 
-    public abstract List<MetadataField> findAllInSchema(Context context, String schema) throws SQLException;
+    public List<MetadataField> findAllInSchema(Context context, String schema) throws SQLException;
 
 }

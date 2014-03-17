@@ -497,7 +497,7 @@ public class AuthorizeUtil
         switch (rp.getResourceType())
         {
         case Constants.BITSTREAM:
-            authorizeManageBitstreamPolicy(c, new BitstreamDAO().find(c, rp
+            authorizeManageBitstreamPolicy(c, new BitstreamRepoImpl().find(c, rp
                     .getResourceID()));
             break;
         case Constants.BUNDLE:

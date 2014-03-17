@@ -56,6 +56,9 @@ public class Bitstream extends DSpaceObject{
     @Column(name = "store_number")
     private int storeNumber;
 
+    @Column(name = "bitstream_order")
+    private int bitstreamOrder;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bitstream_format_id")
     private BitstreamFormat bitstreamFormat;
@@ -296,11 +299,16 @@ public class Bitstream extends DSpaceObject{
         this.storeNumber = storeNumber;
     }
 
+    /**
+     * Get the format of the bitstream
+     *
+     * @return the format of this bitstream
+     */
     public BitstreamFormat getFormat() {
         return bitstreamFormat;
     }
 
-    public void setFormat(BitstreamFormat bitstreamFormat) {
+    void setFormat(BitstreamFormat bitstreamFormat) {
         this.bitstreamFormat = bitstreamFormat;
         modified = true;
     }
@@ -325,6 +333,14 @@ public class Bitstream extends DSpaceObject{
 
     public Community getCommunity() {
         return community;
+    }
+
+    public int getBitstreamOrder() {
+        return bitstreamOrder;
+    }
+
+    public void setBitstreamOrder(int bitstreamOrder) {
+        this.bitstreamOrder = bitstreamOrder;
     }
 
     /**

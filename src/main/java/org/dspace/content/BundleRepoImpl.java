@@ -39,6 +39,7 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
     private static Logger log = Logger.getLogger(Bundle.class);
 
     private BundleDAO bundleDAO = new BundleDAOImpl();
+    private BitstreamRepoImpl bitstreamRepo = new BitstreamRepoImpl();
 
     /**
      * Construct a bundle object with the given table row
@@ -125,16 +126,9 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
     {
         Bitstream target = null;
 
-        Iterator i = bundle.getBitstreams().iterator();
-
-        while (i.hasNext())
-        {
-            Bitstream b = (Bitstream) i.next();
-
-            if (name.equals(b.getName()))
-            {
+        for (Bitstream b : bundle.getBitstreams()) {
+            if (name.equals(b.getName())) {
                 target = b;
-
                 break;
             }
         }
@@ -156,7 +150,7 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
         // Check authorisation
         AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
 
-        Bitstream b = new BitstreamDAO().create(context, is);
+        Bitstream b = bitstreamRepo.create(context, is);
 
         // FIXME: Set permissions for bitstream
         addBitstream(context, bundle, b);
@@ -180,7 +174,7 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
         // check authorisation
         AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
 
-        Bitstream b = new BitstreamDAO().register(context, assetstore, bitstreamPath);
+        Bitstream b = bitstreamRepo.register(context, assetstore, bitstreamPath);
 
         // FIXME: Set permissions for bitstream
 
@@ -204,16 +198,19 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
                 + bundle.getID() + ",bitstream_id=" + b.getID()));
 
         List<Bitstream> bitstreams = bundle.getBitstreams();
+        int topOrder = 0;
         // First check that the bitstream isn't already in the list
-        for (Bitstream bitstream : bitstreams) {
-            Bitstream existing = (Bitstream) bitstream;
-
-            if (b.getID() == existing.getID()) {
+        for (Bitstream existingBitstream : bitstreams) {
+            if (b.getID() == existingBitstream.getID()) {
                 // Bitstream is already there; no change
                 return;
             }
+            //The last file we encounter will have the highest order
+            topOrder = existingBitstream.getBitstreamOrder();
         }
 
+
+        b.setBitstreamOrder(topOrder++);
         // Add the bitstream object
         bundle.addBitstream(b);
 
@@ -222,22 +219,7 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
         // copy authorization policies from bundle to bitstream
         // FIXME: multiple inclusion is affected by this...
         AuthorizeManager.inheritPolicies(context, bundle, b);
-
-        //Determine the current highest bitstream order in our bundle2bitstream table 
-        //This will always append a newly added bitstream as the last one 
-        int bitstreamOrder = 0;  //bitstream order starts at '0' index
-        Query query = context.getDBConnection().createQuery("SELECT MAX(bitstream_order) as max_value FROM bundle2bitstream WHERE bundle_id=:bundle_id");
-        query.setParameter("bundle_id", bundle.getID());
-        Integer maxBitstreamOrder = (Integer) query.uniqueResult();
-
-        context.getDBConnection().createQuery("update bundle2bitstream set bitstream_order=:bitstream_order where bundle_id=:bundle_id AND bitstream_id=:bitstream_id");
-        query.setParameter("bitstream_order", maxBitstreamOrder);
-        query.setParameter("bitstream_id", b.getID());
-        query.setParameter("bundle_id", bundle.getID());
-        query.executeUpdate();
-
-        // Add the mapping row to the database
-        bundle.addBitstream(b);
+        bitstreamRepo.update(context, b);
     }
 
     /**
@@ -249,30 +231,17 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
     public void setOrder(Context context, Bundle bundle, int bitstreamIds[]) throws AuthorizeException, SQLException {
         AuthorizeManager.authorizeAction(context, bundle, Constants.WRITE);
 
-        //Map the bitstreams of the bundle by identifier
-        Map<Integer, Bitstream> bitstreamMap = new HashMap<Integer, Bitstream>();
-        List<Bitstream> bitstreams = bundle.getBitstreams();
-        for (Bitstream bitstream : bitstreams) {
-            bitstreamMap.put(bitstream.getID(), bitstream);
-        }
-
-        //We need to also reoder our cached bitstreams list
-        bitstreams = new ArrayList<Bitstream>();
+        //TODO: REORDER HIBERNATE CACHE !
         for (int i = 0; i < bitstreamIds.length; i++) {
             int bitstreamId = bitstreamIds[i];
-
-            Query query = context.getDBConnection().createQuery("update bundle2bitstream set bitstream_order = :bitstream_order where bitstream_id = :bitstream_id");
-            query.setParameter("bitstream_order", i);
-            query.setParameter("bitstream_id", bitstreamId);
-
-            int rowsAffected = query.executeUpdate();
-            if(rowsAffected == 0){
+            Bitstream bitstream = bitstreamRepo.find(context, bitstreamId);
+            if(bitstream == null){
                 //This should never occur but just in case
                 log.warn(LogManager.getHeader(context, "Invalid bitstream id while changing bitstream order", "Bundle: " + bundle.getID() + ", bitstream id: " + bitstreamId));
+                continue;
             }
-
-            // Place the bitstream in the list of bitstreams in this bundle
-            bitstreams.add(bitstreamMap.get(bitstreamId));
+            bitstream.setBitstreamOrder(i);
+            bitstreamRepo.update(context, bitstream);
         }
 
         //The order of the bitstreams has changed, ensure that we update the last modified of our item
@@ -340,7 +309,7 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
         }
 
         bundle.removeBitstream(b);
-        new BitstreamDAO().delete(context, b);
+        bitstreamRepo.delete(context, b);
 
 
     }
