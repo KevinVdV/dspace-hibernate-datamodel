@@ -106,7 +106,7 @@ public class WorkspaceItemDAO implements InProgressSubmissionDAO<WorkspaceItem>
         AuthorizeManager.authorizeAction(c, coll, Constants.ADD);
 
         // Create an item
-        Item i = new ItemDAO().create(c);
+        Item i = new ItemRepoImpl().create(c);
         i.setSubmitter(c.getCurrentUser());
 
         // Now create the policies for the submitter and workflow
@@ -205,7 +205,7 @@ public class WorkspaceItemDAO implements InProgressSubmissionDAO<WorkspaceItem>
         // Copy template if appropriate
         Item templateItem = coll.getTemplateItem();
 
-        ItemDAO itemDAO = new ItemDAO();
+        ItemRepoImpl itemDAO = new ItemRepoImpl();
         if (template && (templateItem != null))
         {
             MetadataValue[] md = itemDAO.getMetadata(templateItem, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
@@ -321,7 +321,7 @@ public class WorkspaceItemDAO implements InProgressSubmissionDAO<WorkspaceItem>
                 "workspace_item_id=" + workspaceItem.getID()));
 
         // Update the item
-        new ItemDAO().update(context, workspaceItem.getItem());
+        new ItemRepoImpl().update(context, workspaceItem.getItem());
 
         // Update ourselves
         HibernateQueryUtil.update(context, workspaceItem);
@@ -373,7 +373,7 @@ public class WorkspaceItemDAO implements InProgressSubmissionDAO<WorkspaceItem>
         HibernateQueryUtil.delete(context, workspaceItem);
 
         // Delete item
-        new ItemDAO().rawDelete(context, item);
+        new ItemRepoImpl().rawDelete(context, item);
     }
 
     /*

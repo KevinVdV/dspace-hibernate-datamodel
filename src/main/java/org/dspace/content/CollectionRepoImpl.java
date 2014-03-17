@@ -579,7 +579,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
 
         if (collection.getTemplateItem() == null)
         {
-            Item template = new ItemDAO().create(context);
+            Item template = new ItemRepoImpl().create(context);
             collection.setTemplate(template);
 
             log.info(LogManager.getHeader(context, "create_template_item",
@@ -616,7 +616,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
             // temporarily turn off auth system, we have already checked the permission on the top of the method
             // check it again will fail because we have already broken the relation between the collection and the item
             context.turnOffAuthorisationSystem();
-            new ItemDAO().rawDelete(context, template);
+            new ItemRepoImpl().rawDelete(context, template);
             context.restoreAuthSystemState();
             collection.setTemplate(null);
         }
@@ -681,7 +681,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
         if (item.getCollections().size() == 0)
         {
             // Orphan; delete it
-            new ItemDAO().rawDelete(context, item);
+            new ItemRepoImpl().rawDelete(context, item);
         }
         log.info(LogManager.getHeader(context, "remove_item",
                 "collection_id=" + collection.getID() + ",item_id=" + item.getID()));
@@ -796,7 +796,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
         while (items.hasNext())
         {
             Item item = items.next();
-            ItemDAO itemDAO = new ItemDAO();
+            ItemRepoImpl itemDAO = new ItemRepoImpl();
             if (itemDAO.isOwningCollection(item, collection))
             {
                 // the collection to be deleted is the owning collection, thus remove

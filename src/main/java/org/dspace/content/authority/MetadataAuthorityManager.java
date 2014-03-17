@@ -16,7 +16,7 @@ import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 
-import org.dspace.content.MetadataFieldDAO;
+import org.dspace.content.MetadataFieldReoImpl;
 import org.dspace.core.ConfigurationManager;
 
 /**
@@ -183,7 +183,7 @@ public class MetadataAuthorityManager
      */
     public static String makeFieldKey(String schema, String element, String qualifier)
     {
-        return MetadataFieldDAO.formKey(schema, element, qualifier);
+        return MetadataFieldReoImpl.formKey(schema, element, qualifier);
     }
 
     /**

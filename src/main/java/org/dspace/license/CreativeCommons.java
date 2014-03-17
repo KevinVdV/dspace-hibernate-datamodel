@@ -91,7 +91,7 @@ public class CreativeCommons
     private static Bundle getCcBundle(Context context, Item item)
         throws SQLException, AuthorizeException, IOException
     {
-        ItemDAO itemDAO = new ItemDAO();
+        ItemRepoImpl itemDAO = new ItemRepoImpl();
         Bundle[] bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
 
         if ((bundles.length > 0) && (bundles[0] != null))
@@ -186,7 +186,7 @@ public class CreativeCommons
         	bs_format = bitstreamFormatDAO.findByShortDescription(context, "License");
         }
 
-        BundleDAO bundleDAO = new BundleDAO();
+        BundleRepoImpl bundleDAO = new BundleRepoImpl();
         Bitstream bs = bundleDAO.createBitstream(context, bundle, licenseStm);
         bs.setSource(CC_BS_SOURCE);
         bs.setName((mimeType != null &&
@@ -202,7 +202,7 @@ public class CreativeCommons
             throws SQLException, IOException, AuthorizeException
     {
         // remove CC license bundle if one exists
-        ItemDAO itemDAO = new ItemDAO();
+        ItemRepoImpl itemDAO = new ItemRepoImpl();
         Bundle[] bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
 
         if ((bundles.length > 0) && (bundles[0] != null))
@@ -215,7 +215,7 @@ public class CreativeCommons
             throws SQLException, IOException
     {
         // try to find CC license bundle
-        ItemDAO itemDAO = new ItemDAO();
+        ItemRepoImpl itemDAO = new ItemRepoImpl();
         Bundle[] bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
 
         if (bundles.length == 0)
@@ -344,7 +344,7 @@ public class CreativeCommons
             throws SQLException, IOException, AuthorizeException
     {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        Bitstream bs = new BundleDAO().createBitstream(context, bundle, bais);
+        Bitstream bs = new BundleRepoImpl().createBitstream(context, bundle, bais);
 
         bs.setName(bitstream_name);
         bs.setSource(CC_BS_SOURCE);
@@ -384,7 +384,7 @@ public class CreativeCommons
         // look for the CC bundle
         try
         {
-            Bundle[] bundles = new ItemDAO().getBundles(item, CC_BUNDLE_NAME);
+            Bundle[] bundles = new ItemRepoImpl().getBundles(item, CC_BUNDLE_NAME);
 
             if ((bundles != null) && (bundles.length > 0))
             {
@@ -402,7 +402,7 @@ public class CreativeCommons
             return null;
         }
 
-        return new BundleDAO().getBitstreamByName(cc_bundle, bitstream_name);
+        return new BundleRepoImpl().getBitstreamByName(cc_bundle, bitstream_name);
     }
 
     private static byte[] getBytesFromBitstream(Context context, Item item, String bitstream_name)
@@ -492,7 +492,7 @@ public class CreativeCommons
     	 */
     	public String ccItemValue(Item item)
     	{
-            ItemDAO itemDAO = new ItemDAO();
+            ItemRepoImpl itemDAO = new ItemRepoImpl();
             MetadataValue[] dcvalues = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
             for (MetadataValue dcvalue : dcvalues)
             {
@@ -516,7 +516,7 @@ public class CreativeCommons
     	public String keyedItemValue(Item item, String key)
     		throws AuthorizeException, IOException, SQLException
     	{
-            ItemDAO itemDAO = new ItemDAO();
+            ItemRepoImpl itemDAO = new ItemRepoImpl();
     		 CCLookup ccLookup = new CCLookup();
              ccLookup.issue(key);
              String matchValue = ccLookup.getLicenseName();
@@ -542,7 +542,7 @@ public class CreativeCommons
     	{
     		if (value != null)
     		{
-                ItemDAO itemDAO = new ItemDAO();
+                ItemRepoImpl itemDAO = new ItemRepoImpl();
     			 MetadataValue[] dcvalues  = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
                  ArrayList<String> arrayList = new ArrayList<String>();
                  for (MetadataValue dcvalue : dcvalues)
@@ -565,7 +565,7 @@ public class CreativeCommons
     	 * @param value - the value to add in this field
     	 */
     	public void addItemValue(Context context, Item item, String value) throws SQLException {
-    		new ItemDAO().addMetadata(context, item, params[0], params[1], params[2], params[3], value);
+    		new ItemRepoImpl().addMetadata(context, item, params[0], params[1], params[2], params[3], value);
     	}
     }
 }

@@ -117,12 +117,12 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
         }
         else if(this.dspaceObject instanceof Bundle)
         {
-            assertThat("BUNDLE type", new BundleDAO().find(context,
+            assertThat("BUNDLE type", new BundleRepoImpl().find(context,
                 Constants.BUNDLE, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Item)
         {
-            assertThat("ITEM type", new ItemDAO().find(context,
+            assertThat("ITEM type", new ItemRepoImpl().find(context,
                 Constants.ITEM, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Collection)

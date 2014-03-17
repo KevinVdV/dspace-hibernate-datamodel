@@ -10,8 +10,6 @@ package org.dspace.test.content;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -24,7 +22,6 @@ import java.util.List;
 
 import org.dspace.authorize.ResourcePolicyDAO;
 import org.dspace.content.*;
-import org.dspace.content.authority.MetadataAuthorityManager;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.EPersonDAO;
@@ -288,8 +285,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String qualifier = "author";
         String lang = Item.ANY;
         MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
-        assertThat("testGetMetadata_4args 0",dc,notNullValue());
-        assertTrue("testGetMetadata_4args 1",dc.length == 0);
+        assertThat("testGetMetadata_4args 0", dc, notNullValue());
+        assertTrue("testGetMetadata_4args 1", dc.length == 0);
     }
 
     /**
@@ -323,7 +320,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         //Create our "test" metadata field
         context.turnOffAuthorisationSystem();
         MetadataSchema metadataSchema = new MetadataSchemaDAO().create(context, "test", "test");
-        MetadataField metadataField = new MetadataFieldDAO().create(context, metadataSchema, "type", null, null);
+        MetadataField metadataField = new MetadataFieldReoImpl().create(context, metadataSchema, "type", null, null);
         context.restoreAuthSystemState();
 
         // Set the item to have two pieces of metadata for dc.type and dc2.type
@@ -338,7 +335,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         //Delete the field & schema
         context.turnOffAuthorisationSystem();
-        new MetadataFieldDAO().delete(context,  metadataField);
+        new MetadataFieldReoImpl().delete(context,  metadataField);
         new MetadataSchemaDAO().delete(context, metadataSchema);
         context.restoreAuthSystemState();
     }
@@ -499,7 +496,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertThat("testAddMetadata_7args_2 5",dc[0].getLanguage(),equalTo(lang));
         assertThat("testAddMetadata_7args_2 6",dc[0].getValue(),equalTo(values));
         assertThat("testAddMetadata_7args_2 7",dc[0].getAuthority(),equalTo(authorities));
-        assertThat("testAddMetadata_7args_2 8",dc[0].getConfidence(),equalTo(confidences));
+        assertThat("testAddMetadata_7args_2 8", dc[0].getConfidence(), equalTo(confidences));
     }
 
     /**
@@ -548,7 +545,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testClearMetadata 0",dc,notNullValue());
-        assertTrue("testClearMetadata 1",dc.length == 0);
+        assertTrue("testClearMetadata 1", dc.length == 0);
     }
 
     /**
@@ -598,8 +595,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetCommunities() throws Exception
     {
-        assertThat("testGetCommunities 0", new ItemDAO().getCommunities(context, it), notNullValue());
-        assertTrue("testGetCommunities 1", new ItemDAO().getCommunities(context, it).length == 1);
+        assertThat("testGetCommunities 0", new ItemRepoImpl().getCommunities(context, it), notNullValue());
+        assertTrue("testGetCommunities 1", new ItemRepoImpl().getCommunities(context, it).length == 1);
     }
 
     /**
@@ -1045,7 +1042,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeAction((Context) any, (Item) any,
                         Constants.WRITE); result = null;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD,true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
@@ -1233,7 +1230,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
             }
         };
 
-        itemDAO.delete(context,  it);
+        itemDAO.delete(context, it);
         fail("Exception expected");
     }
 
@@ -1267,7 +1264,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         context.restoreAuthSystemState();
 
         boolean result = itemDAO.isOwningCollection(it, c);
-        assertFalse("testIsOwningCollection 0",result);
+        assertFalse("testIsOwningCollection 0", result);
     }
 
     /**
@@ -1292,7 +1289,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         List<ResourcePolicy> retrieved = AuthorizeManager.getPolicies(context, it);
         assertThat("testReplaceAllItemPolicies 0",retrieved, notNullValue());
-        assertThat("testReplaceAllItemPolicies 1",retrieved.size(), equalTo(newpolicies.size()));
+        assertThat("testReplaceAllItemPolicies 1", retrieved.size(), equalTo(newpolicies.size()));
     }
 
     /**
@@ -1360,7 +1357,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         List<ResourcePolicy> retrieved = AuthorizeManager.getPolicies(context, it);
         assertThat("testRemoveGroupPolicies 0",retrieved, notNullValue());
-        assertTrue("testRemoveGroupPolicies 1",retrieved.isEmpty());
+        assertTrue("testRemoveGroupPolicies 1", retrieved.isEmpty());
     }
 
     /**
@@ -1446,7 +1443,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         itemDAO.move(context, it, from, to);
         context.restoreAuthSystemState();
         assertThat("testMove 0",it.getOwningCollection(), notNullValue());
-        assertThat("testMove 1",it.getOwningCollection(), equalTo(to));
+        assertThat("testMove 1", it.getOwningCollection(), equalTo(to));
     }
 
     /**
@@ -1592,7 +1589,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetName()
     {
-        assertThat("testGetName 0",it.getName(),nullValue());
+        assertThat("testGetName 0", it.getName(), nullValue());
     }
 
     /**
@@ -1625,7 +1622,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         result = itemDAO.findByMetadataField(context, schema, element, qualifier, value);
         assertThat("testFindByMetadataField 3",result,notNullValue());
         assertTrue("testFindByMetadataField 4",result.hasNext());
-        assertTrue("testFindByMetadataField 5",result.next().equals(it));
+        assertTrue("testFindByMetadataField 5", result.next().equals(it));
     }
 
     /**

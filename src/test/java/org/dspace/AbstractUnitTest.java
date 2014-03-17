@@ -71,12 +71,12 @@ public class AbstractUnitTest
 
     protected CommunityRepoImpl communityDAO = new CommunityRepoImpl();
     protected CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
-    protected ItemDAO itemDAO = new ItemDAO();
+    protected ItemRepoImpl itemDAO = new ItemRepoImpl();
     protected WorkspaceItemDAO workspaceItemDAO = new WorkspaceItemDAO();
     protected BitstreamDAO bitstreamDAO = new BitstreamDAO();
-    protected BundleDAO bundleDAO = new BundleDAO();
+    protected BundleRepoImpl bundleDAO = new BundleRepoImpl();
     protected MetadataSchemaDAO metadataSchemaDAO = new MetadataSchemaDAO();
-    protected MetadataFieldDAO metadataFieldDAO = new MetadataFieldDAO();
+    protected MetadataFieldReoImpl metadataFieldDAO = new MetadataFieldReoImpl();
     protected ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
 
 
@@ -132,7 +132,7 @@ public class AbstractUnitTest
             // always be in the database, if it has been initialized, to avoid
             // doing the work twice.
             //TODO: HIBERNATE, IS THIS REQUIRED ?
-            if(new MetadataFieldDAO().find(ctx, 1) == null)
+            if(new MetadataFieldReoImpl().find(ctx, 1) == null)
             {
                 String base = ConfigurationManager.getProperty("dspace.dir")
                         + File.separator + "config" + File.separator

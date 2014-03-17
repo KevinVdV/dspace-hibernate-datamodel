@@ -12,6 +12,8 @@ import mockit.NonStrictExpectations;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
+
 import org.dspace.AbstractUnitTest;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
@@ -266,9 +268,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testFindAll() throws Exception
     {
-        MetadataField[] found = metadataFieldDAO.findAll(context);
+        List<MetadataField> found = metadataFieldDAO.findAll(context);
         assertThat("testFindAll 0",found, notNullValue());
-        assertTrue("testFindAll 1",found.length >= 1);
+        assertTrue("testFindAll 1",found.size() >= 1);
 
         boolean added = false;
         for(MetadataField mdf: found)
@@ -287,10 +289,10 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testFindAllInSchema() throws Exception 
     {
-        MetadataField[] found = metadataFieldDAO.findAllInSchema(context, MetadataSchema.DC_SCHEMA);
+        List<MetadataField> found = metadataFieldDAO.findAllInSchema(context, MetadataSchema.DC_SCHEMA);
         assertThat("testFindAllInSchema 0",found, notNullValue());
-        assertTrue("testFindAllInSchema 1",found.length >= 1);
-        assertTrue("testFindAllInSchema 2",found.length <= metadataFieldDAO.findAll(context).length);
+        assertTrue("testFindAllInSchema 1",found.size() >= 1);
+        assertTrue("testFindAllInSchema 2",found.size() <= metadataFieldDAO.findAll(context).size());
 
         boolean added = false;
         for(MetadataField mdf: found)
@@ -432,8 +434,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testFormKey()
     {
-        assertThat("testFormKey 0",MetadataFieldDAO.formKey("dc", "elem", null), equalTo("dc_elem"));
-        assertThat("testFormKey 1",MetadataFieldDAO.formKey("dc", "elem", "qual"), equalTo("dc_elem_qual"));
+        assertThat("testFormKey 0", MetadataFieldReoImpl.formKey("dc", "elem", null), equalTo("dc_elem"));
+        assertThat("testFormKey 1", MetadataFieldReoImpl.formKey("dc", "elem", "qual"), equalTo("dc_elem_qual"));
     }
 
     /**

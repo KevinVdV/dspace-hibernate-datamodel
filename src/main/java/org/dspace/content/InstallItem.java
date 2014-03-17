@@ -98,7 +98,7 @@ public class InstallItem
         throws SQLException, IOException, AuthorizeException
     {
         Item item = is.getItem();
-        ItemDAO itemDAO = new ItemDAO();
+        ItemRepoImpl itemDAO = new ItemRepoImpl();
 
         //TODO HIBERNATE: Implement once identifier services framework comes into play
         /*
@@ -158,7 +158,7 @@ public class InstallItem
     {
         // create accession date
         DCDate now = DCDate.getCurrent();
-        ItemDAO itemDAO = new ItemDAO();
+        ItemRepoImpl itemDAO = new ItemRepoImpl();
         itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
 
         // add date available if not under embargo, otherwise it will
@@ -226,7 +226,7 @@ public class InstallItem
         item.setInArchive(true);
         
         // save changes ;-)
-        ItemDAO itemDAO = new ItemDAO();
+        ItemRepoImpl itemDAO = new ItemRepoImpl();
         itemDAO.update(c, item);
 
         // Notify interested parties of newly archived Item
@@ -259,7 +259,7 @@ public class InstallItem
     						throws SQLException
     {
         // Get non-internal format bitstreams
-        Bitstream[] bitstreams = new ItemDAO().getNonInternalBitstreams(myitem);
+        Bitstream[] bitstreams = new ItemRepoImpl().getNonInternalBitstreams(myitem);
 
         // Create provenance description
         StringBuilder myMessage = new StringBuilder();

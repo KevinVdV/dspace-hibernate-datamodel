@@ -48,7 +48,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     private CommunityRepoImpl communityDAO = new CommunityRepoImpl();
     private CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
     private GroupDAO groupDAO = new GroupDAO();
-    private ItemDAO itemDAO = new ItemDAO();
+    private ItemRepoImpl itemDAO = new ItemRepoImpl();
 
 
     /**

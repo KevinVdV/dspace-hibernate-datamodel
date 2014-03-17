@@ -128,7 +128,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
      * Test of create method, of class Bundle.
      */
     @Test
-    public void testCreate() throws SQLException, AuthorizeException {
+    public void testCreate() throws SQLException, AuthorizeException, IOException {
         new NonStrictExpectations()
         {
             AuthorizeManager authManager;

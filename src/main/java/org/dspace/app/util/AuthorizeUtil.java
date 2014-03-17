@@ -223,11 +223,11 @@ public class AuthorizeUtil
             }
             else if (AuthorizeConfiguration.canCollectionAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, new ItemDAO().getParentObject(context, item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, new ItemRepoImpl().getParentObject(context, item), Constants.ADMIN);
             }
             else if (AuthorizeConfiguration.canCommunityAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, new ItemDAO().getParentObject(context, item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, new ItemRepoImpl().getParentObject(context, item), Constants.ADMIN);
             }
             else
             {
@@ -501,11 +501,11 @@ public class AuthorizeUtil
                     .getResourceID()));
             break;
         case Constants.BUNDLE:
-            authorizeManageBundlePolicy(c, new BundleDAO().find(c, rp.getResourceID()));
+            authorizeManageBundlePolicy(c, new BundleRepoImpl().find(c, rp.getResourceID()));
             break;
 
         case Constants.ITEM:
-            authorizeManageItemPolicy(c, new ItemDAO().find(c, rp.getResourceID()));
+            authorizeManageItemPolicy(c, new ItemRepoImpl().find(c, rp.getResourceID()));
             break;
         case Constants.COLLECTION:
             authorizeManageCollectionPolicy(c, new CollectionRepoImpl().find(c, rp

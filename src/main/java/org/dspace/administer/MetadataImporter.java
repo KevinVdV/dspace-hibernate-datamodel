@@ -234,7 +234,7 @@ public class MetadataImporter
             throw new RegistryImportException("Schema '" + schema + "' is not registered");
         }
 
-        MetadataFieldDAO metadataFieldDAO = new MetadataFieldDAO();
+        MetadataFieldReoImpl metadataFieldDAO = new MetadataFieldReoImpl();
         MetadataField mf = metadataFieldDAO.findByElement(context, schemaObj, element, qualifier);
         if (mf != null)
         {

@@ -12,7 +12,7 @@ import java.io.IOException;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
-import org.dspace.content.ItemDAO;
+import org.dspace.content.ItemRepoImpl;
 import org.dspace.core.Context;
 
 /**
@@ -40,6 +40,6 @@ public class DefaultEmbargoLifter implements EmbargoLifter
     {
         // remove the item's policies and replace them with
         // the defaults from the collection
-        new ItemDAO().inheritCollectionDefaultPolicies(context, item, item.getOwningCollection());
+        new ItemRepoImpl().inheritCollectionDefaultPolicies(context, item, item.getOwningCollection());
     }
 }
