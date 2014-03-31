@@ -23,13 +23,13 @@ import org.apache.log4j.Logger;
 import org.dspace.administer.MetadataImporter;
 import org.dspace.administer.RegistryImportException;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.ResourcePolicyDAO;
+import org.dspace.authorize.ResourcePolicyRepo;
+import org.dspace.authorize.ResourcePolicyRepoImpl;
 import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.EPersonDAO;
+import org.dspace.eperson.*;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -69,15 +69,18 @@ public class AbstractUnitTest
      */
     protected static EPerson eperson;
 
-    protected CommunityRepoImpl communityDAO = new CommunityRepoImpl();
-    protected CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
-    protected ItemRepoImpl itemDAO = new ItemRepoImpl();
-    protected WorkspaceItemDAO workspaceItemDAO = new WorkspaceItemDAO();
-    protected BitstreamRepoImpl bitstreamDAO = new BitstreamRepoImpl();
+    protected CommunityRepo communityRepo = new CommunityRepoImpl();
+    protected CollectionRepo collectionRepo = new CollectionRepoImpl();
+    protected ItemRepo itemDAO = new ItemRepoImpl();
+    protected WorkspaceItemRepo workspaceItemDAO = new WorkspaceItemRepoImpl();
+    protected BitstreamRepoImpl bitstreamRepo = new BitstreamRepoImpl();
     protected BundleRepoImpl bundleDAO = new BundleRepoImpl();
-    protected MetadataSchemaDAO metadataSchemaDAO = new MetadataSchemaDAO();
-    protected MetadataFieldReoImpl metadataFieldDAO = new MetadataFieldReoImpl();
-    protected ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+    protected MetadataSchemaRepo metadataSchemaRepo = new MetadataSchemaRepoImpl();
+    protected MetadataFieldRepo metadataFieldRepo = new MetadataFieldRepoImpl();
+    protected ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
+    protected static EPersonRepo ePersonRepo = new EPersonRepoImpl();
+    protected static GroupRepo groupRepo = new GroupRepoImpl();
+    protected BitstreamFormatRepo bitstreamFormatRepo = new BitstreamFormatRepoImpl();
 
 
 //    protected static DSpaceKernelImpl kernelImpl;
@@ -132,7 +135,7 @@ public class AbstractUnitTest
             // always be in the database, if it has been initialized, to avoid
             // doing the work twice.
             //TODO: HIBERNATE, IS THIS REQUIRED ?
-            if(new MetadataFieldReoImpl().find(ctx, 1) == null)
+            if(new MetadataFieldRepoImpl().find(ctx, 1) == null)
             {
                 String base = ConfigurationManager.getProperty("dspace.dir")
                         + File.separator + "config" + File.separator
@@ -145,11 +148,11 @@ public class AbstractUnitTest
             }
 
                 //create eperson if required
-            EPersonDAO ePersonDAO = new EPersonDAO();
-            eperson = ePersonDAO.find(ctx, 1);
+            ePersonRepo = new EPersonRepoImpl();
+            eperson = ePersonRepo.find(ctx, 1);
                 if(eperson == null)
                 {
-                    eperson = ePersonDAO.create(ctx);
+                    eperson = ePersonRepo.create(ctx);
                     eperson.setFirstName("first");
                     eperson.setLastName("last");
                     eperson.setEmail("test@email.com");

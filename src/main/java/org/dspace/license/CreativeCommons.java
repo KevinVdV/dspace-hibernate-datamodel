@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
@@ -92,11 +93,11 @@ public class CreativeCommons
         throws SQLException, AuthorizeException, IOException
     {
         ItemRepoImpl itemDAO = new ItemRepoImpl();
-        Bundle[] bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
 
-        if ((bundles.length > 0) && (bundles[0] != null))
+        if ((bundles.size() > 0) && (bundles.get(0) != null))
         {
-            itemDAO.removeBundle(context, item, bundles[0]);
+            itemDAO.removeBundle(context, item, bundles.get(0));
         }
         return itemDAO.createBundle(context, item, CC_BUNDLE_NAME);
     }
@@ -132,7 +133,7 @@ public class CreativeCommons
         String license_text = fetchLicenseText(cc_license_url);
         String license_rdf = fetchLicenseRDF(cc_license_url);
 
-        BitstreamFormatRepoImpl bitstreamFormatDAO = new BitstreamFormatRepoImpl();
+        BitstreamFormatRepo bitstreamFormatDAO = new BitstreamFormatRepoImpl();
         // set the formats
         BitstreamFormat bs_url_format = bitstreamFormatDAO.findByShortDescription(
                 context, "License");
@@ -174,7 +175,7 @@ public class CreativeCommons
     {
         Bundle bundle = getCcBundle(context, item);
 
-        BitstreamFormatRepoImpl bitstreamFormatDAO = new BitstreamFormatRepoImpl();
+        BitstreamFormatRepo bitstreamFormatDAO = new BitstreamFormatRepoImpl();
      // set the format
         BitstreamFormat bs_format;
         if (mimeType.equalsIgnoreCase("text/xml"))
@@ -193,7 +194,7 @@ public class CreativeCommons
                     (mimeType.equalsIgnoreCase("text/xml") ||
                      mimeType.equalsIgnoreCase("text/rdf"))) ?
                    BSN_LICENSE_RDF : BSN_LICENSE_TEXT);
-        bs.setFormat(bs_format);
+        new BitstreamRepoImpl().setFormat(context, bs, bs_format);
         bundleDAO.update(context, bundle);
     }
 
@@ -203,11 +204,11 @@ public class CreativeCommons
     {
         // remove CC license bundle if one exists
         ItemRepoImpl itemDAO = new ItemRepoImpl();
-        Bundle[] bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
 
-        if ((bundles.length > 0) && (bundles[0] != null))
+        if ((bundles.size() > 0) && (bundles.get(0) != null))
         {
-            itemDAO.removeBundle(context, item, bundles[0]);
+            itemDAO.removeBundle(context, item, bundles.get(0));
         }
     }
 
@@ -216,9 +217,9 @@ public class CreativeCommons
     {
         // try to find CC license bundle
         ItemRepoImpl itemDAO = new ItemRepoImpl();
-        Bundle[] bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
 
-        if (bundles.length == 0)
+        if (bundles.size() == 0)
         {
             return false;
         }
@@ -348,7 +349,7 @@ public class CreativeCommons
 
         bs.setName(bitstream_name);
         bs.setSource(CC_BS_SOURCE);
-        bs.setFormat(format);
+        new BitstreamRepoImpl().setFormat(context, bs, format);
 
         // commit everything
         new BitstreamRepoImpl().update(context, bs);
@@ -384,11 +385,11 @@ public class CreativeCommons
         // look for the CC bundle
         try
         {
-            Bundle[] bundles = new ItemRepoImpl().getBundles(item, CC_BUNDLE_NAME);
+            List<Bundle> bundles = new ItemRepoImpl().getBundles(item, CC_BUNDLE_NAME);
 
-            if ((bundles != null) && (bundles.length > 0))
+            if ((bundles != null) && (bundles.size() > 0))
             {
-                cc_bundle = bundles[0];
+                cc_bundle = bundles.get(0);
             }
             else
             {
@@ -493,7 +494,7 @@ public class CreativeCommons
     	public String ccItemValue(Item item)
     	{
             ItemRepoImpl itemDAO = new ItemRepoImpl();
-            MetadataValue[] dcvalues = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
+            List<MetadataValue> dcvalues = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
             for (MetadataValue dcvalue : dcvalues)
             {
                 if ((dcvalue.getValue()).contains(ccShib))
@@ -520,7 +521,7 @@ public class CreativeCommons
     		 CCLookup ccLookup = new CCLookup();
              ccLookup.issue(key);
              String matchValue = ccLookup.getLicenseName();
-            MetadataValue[] dcvalues = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
+            List<MetadataValue> dcvalues = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
              for (MetadataValue dcvalue : dcvalues)
              {
             	 if (dcvalue.getValue().equals(matchValue))
@@ -543,7 +544,7 @@ public class CreativeCommons
     		if (value != null)
     		{
                 ItemRepoImpl itemDAO = new ItemRepoImpl();
-    			 MetadataValue[] dcvalues  = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
+    			 List<MetadataValue> dcvalues  = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
                  ArrayList<String> arrayList = new ArrayList<String>();
                  for (MetadataValue dcvalue : dcvalues)
                  {
@@ -552,7 +553,7 @@ public class CreativeCommons
                          arrayList.add(dcvalue.getValue());
                      }
                   }
-                  String[] values = (String[])arrayList.toArray(new String[arrayList.size()]);
+                  String[] values = arrayList.toArray(new String[arrayList.size()]);
                 itemDAO.clearMetadata(context, item, params[0], params[1], params[2], params[3]);
                 itemDAO.addMetadata(context, item, params[0], params[1], params[2], params[3], values);
     		}

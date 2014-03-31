@@ -25,7 +25,7 @@ public class TestStuff {
     public static void main(String[] args) throws SQLException, AuthorizeException, EPersonDeletionException {
         Context context = new Context();
         context.turnOffAuthorisationSystem();
-        GroupDAO groupManager = new GroupDAO();
+        GroupRepoImpl groupManager = new GroupRepoImpl();
         Group groupEntity = groupManager.create(context);
         groupEntity.setName("TEST-GROUP");
         Group childGroup = groupManager.create(context);
@@ -44,7 +44,7 @@ public class TestStuff {
         context.commit();
         for(EPerson person : people)
         {
-            new EPersonDAO().delete(context, person);
+            new EPersonRepoImpl().delete(context, person);
         }
 
 
@@ -74,7 +74,7 @@ public class TestStuff {
     }
 
     private static EPerson createPerson(Context context, String mail) throws SQLException, AuthorizeException {
-        EPersonDAO ePersonDAO = new EPersonDAO();
+        EPersonRepoImpl ePersonDAO = new EPersonRepoImpl();
         EPerson ePersonEntity = ePersonDAO.findByEmail(context, mail);
         if(ePersonEntity == null)
         {

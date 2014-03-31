@@ -9,17 +9,15 @@ package org.dspace.content;
 
 import java.sql.SQLException;
 
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.eperson.EPersonDAO;
-import org.dspace.eperson.GroupDAO;
+import org.dspace.eperson.EPersonRepoImpl;
+import org.dspace.eperson.GroupRepoImpl;
 
 /**
  * Abstract base class for DSpace objects
  */
-//TODO: REMOVE THIS CLASS ?
-public abstract class DSpaceObjectDAO<T extends DSpaceObject>
+public abstract class DSpaceObjectRepoImpl<T extends DSpaceObject> implements DSpaceObjectRepo<T>
 {
     // accumulate information to add to "detail" element of content Event,
     // e.g. to document metadata fields touched, etc.
@@ -81,8 +79,8 @@ public abstract class DSpaceObjectDAO<T extends DSpaceObject>
             case Constants.ITEM      : return new ItemRepoImpl().find(context, id);
             case Constants.COLLECTION: return new CollectionRepoImpl().find(context, id);
             case Constants.COMMUNITY : return new CommunityRepoImpl().find(context, id);
-            case Constants.GROUP     : return new GroupDAO().find(context, id);
-            case Constants.EPERSON   : return new EPersonDAO().find(context, id);
+            case Constants.GROUP     : return new GroupRepoImpl().find(context, id);
+            case Constants.EPERSON   : return new EPersonRepoImpl().find(context, id);
             case Constants.SITE      : return Site.find(context, id);
         }
         return null;
@@ -135,9 +133,6 @@ public abstract class DSpaceObjectDAO<T extends DSpaceObject>
     {
         return null;
     }
-
-    public abstract void update(Context context, T dso) throws SQLException, AuthorizeException;
-
 
     /**
      * Provide the text name of the type of this DSpaceObject. It is most likely all uppercase.

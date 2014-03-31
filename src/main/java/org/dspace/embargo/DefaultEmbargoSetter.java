@@ -11,16 +11,13 @@ import java.sql.SQLException;
 import java.io.IOException;
 import java.util.Date;
 
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
-import org.dspace.authorize.ResourcePolicy;
-import org.dspace.authorize.ResourcePolicyDAO;
+import org.dspace.authorize.*;
 import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Constants;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupDAO;
+import org.dspace.eperson.GroupRepoImpl;
 import org.dspace.license.CreativeCommons;
 
 /**
@@ -113,7 +110,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
                     isAnonymousInPlace=true;
                 }
             }
-            ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+            ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
             if(!isAnonymousInPlace){
                 // add policies for all the groups
                 for(Group g : authorizedGroups){
@@ -125,7 +122,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
             }
             else{
                 // add policy just for anonymous
-                ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, new GroupDAO().find(context, 0), null, embargoDate, Constants.READ, reason, dso);
+                ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, new GroupRepoImpl().find(context, 0), null, embargoDate, Constants.READ, reason, dso);
                 if(rp!=null)
                     resourcePolicyDAO.update(context, rp);
             }

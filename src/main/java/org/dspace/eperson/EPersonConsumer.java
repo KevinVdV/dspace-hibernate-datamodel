@@ -71,7 +71,7 @@ public class EPersonConsumer implements Consumer
                     {
                         try
                         {
-                            EPersonDAO ePersonDAO = new EPersonDAO();
+                            EPersonRepo ePersonDAO = new EPersonRepoImpl();
                             EPerson eperson = ePersonDAO.find(context, id);
                             Email adminEmail = Email.getEmail(I18nUtil.getEmailFilename(context.getCurrentLocale(), "registration_notify"));
                             adminEmail.addRecipient(notifyRecipient);

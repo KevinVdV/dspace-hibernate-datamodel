@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
@@ -40,7 +41,7 @@ import org.dspace.handle.HandleManager;
  * @author Martin Hald
  * @version $Revision$
  */
-public class ItemRepoImpl extends DSpaceObjectDAO<Item>
+public class ItemRepoImpl extends DSpaceObjectRepoImpl<Item> implements ItemRepo
 {
 
     /** log4j category */
@@ -111,10 +112,31 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      * @throws SQLException
      * @throws AuthorizeException
      */
-    Item create(Context context) throws SQLException, AuthorizeException
+    public Item create(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException
     {
-        Item item = itemDAO.create(context, new Item());
+        if(workspaceItem.getItem() != null)
+        {
+            throw new IllegalArgumentException("Attempting to create an item for a workspace item that already contains an item");
+        }
 
+        Item item = createItem(context);
+        workspaceItem.setItem(item);
+        return item;
+    }
+
+    public Item createTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException
+    {
+        if(collection == null || collection.getTemplateItem() != null)
+        {
+            throw new IllegalArgumentException("Collection is null or already contains template item.");
+        }
+        Item template = createItem(context);
+        collection.setTemplate(template);
+        return template;
+    }
+
+    protected Item createItem(Context context) throws SQLException, AuthorizeException {
+        Item item = itemDAO.create(context, new Item());
         // set discoverable to true (default)
         item.setDiscoverable(true);
 
@@ -126,8 +148,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
 
         context.addEvent(new Event(Event.CREATE, Constants.ITEM, item.getID(), null));
 
-        log.info(LogManager.getHeader(context, "create_item", "item_id="
-                + item.getID()));
+        log.info(LogManager.getHeader(context, "create_item", "item_id=" + item.getID()));
 
         return item;
     }
@@ -171,8 +192,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      * @return an iterator over the items submitted by eperson
      * @throws SQLException
      */
-    public Iterator<Item> findBySubmitter(Context context, EPerson eperson)
-            throws SQLException
+    public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException
     {
         return itemDAO.findBySubmitter(context, eperson);
     }
@@ -223,8 +243,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      *            no country code are returned.
      * @return metadata fields that match the parameters
      */
-    public MetadataValue[] getMetadata(Item item, String schema, String element, String qualifier,
-            String lang)
+    public List<MetadataValue> getMetadata(Item item, String schema, String element, String qualifier, String lang)
     {
         // Build up list of matching values
         List<MetadataValue> values = new ArrayList<MetadataValue>();
@@ -237,9 +256,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
         }
 
         // Create an array of matching values
-        MetadataValue[] valueArray = new MetadataValue[values.size()];
-        valueArray = values.toArray(valueArray);
-        return valueArray;
+        return values;
     }
     
     /**
@@ -250,7 +267,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      *            The metadata string of the form
      *            <schema prefix>.<element>[.<qualifier>|.*]
      */
-    public MetadataValue[] getMetadata(Item item, String mdString)
+    public List<MetadataValue> getMetadata(Item item, String mdString)
     {
         StringTokenizer dcf = new StringTokenizer(mdString, ".");
         
@@ -265,7 +282,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
         String element = tokens[1];
         String qualifier = tokens[2];
         
-        MetadataValue[] values;
+        List<MetadataValue> values;
         if ("*".equals(qualifier))
         {
             values = getMetadata(item, schema, element, Item.ANY, Item.ANY);
@@ -368,13 +385,13 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
         for (int i = 0; i < values.length; i++)
         {
             //TODO: HIBERNATE? THROW EXCEPTION IF SCHEMA OR FIELD CANNOT BE FOUND
-            MetadataSchema metadataSchema = new MetadataSchemaDAO().find(context, schema);
-            MetadataField metadataField = new MetadataFieldReoImpl().findByElement(context, metadataSchema, element, qualifier);
+            MetadataSchema metadataSchema = new MetadataSchemaRepoImpl().find(context, schema);
+            MetadataField metadataField = new MetadataFieldRepoImpl().findByElement(context, metadataSchema, element, qualifier);
             if(metadataField == null)
             {
                 throw new SQLException("bad_dublin_core schema="+schema+", " + element + " " + qualifier);
             }
-            MetadataValueDAO metadataValueDAO = new MetadataValueDAO();
+            MetadataValueRepo metadataValueDAO = new MetadataValueRepoImpl();
             MetadataValue metadataValue = metadataValueDAO.create(context, item, metadataField);
 
 
@@ -427,7 +444,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
                 metadataValue.setValue(null);
             }
             //Set the place to be the next place in the line
-            metadataValue.setPlace(getMetadata(item, schema, element, qualifier, Item.ANY).length + 1);
+            metadataValue.setPlace(getMetadata(item, schema, element, qualifier, Item.ANY).size() + 1);
             item.addMetadata(metadataValue);
             addDetails(fieldName);
             metadataValueDAO.update(context, metadataValue);
@@ -534,7 +551,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
         for (MetadataValue metadataValue : metadataFieldsToRemove) {
             item.removeMetadata(metadataValue);
             //We need to explicitly clear our item reference to ensure the metadata value is deleted
-            new MetadataValueDAO().delete(context, metadataValue);
+            new MetadataValueRepoImpl().delete(context, metadataValue);
         }
     }
 
@@ -559,7 +576,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      *            the Dublin Core value
      * @return <code>true</code> if there is a match
      */
-    private boolean match(String schema, String element, String qualifier,
+    protected boolean match(String schema, String element, String qualifier,
             String language, MetadataValue metadataValue)
     {
 
@@ -642,18 +659,20 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      * @return the communities this item is in.
      * @throws SQLException
      */
-    public Community[] getCommunities(Context context, Item item) throws SQLException
+    public List<Community> getCommunities(Item item) throws SQLException
     {
         List<Community> result = new ArrayList<Community>();
         List<Collection> collections = item.getCollections();
         for(Collection collection : collections)
         {
-            Community owningCommunity = collection.getOwningCommunity();
-            result.add(owningCommunity);
-            result.addAll(Arrays.asList(new CommunityRepoImpl().getAllParents(owningCommunity)));
+            List<Community> owningCommunities = collection.getCommunities();
+            for (Community community : owningCommunities) {
+                result.add(community);
+                result.addAll(Arrays.asList(new CommunityRepoImpl().getAllParents(community)));
+            }
         }
 
-        return result.toArray(new Community[result.size()]);
+        return result;
     }
 
     /**
@@ -664,10 +683,9 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      *
      * @return the bundles in an unordered array
      */
-    public Bundle[] getBundles(Item item, String name) throws SQLException
+    public List<Bundle> getBundles(Item item, String name) throws SQLException
     {
         List<Bundle> matchingBundles = new ArrayList<Bundle>();
-
         // now only keep bundles with matching names
         List<Bundle> bunds = item.getBundles();
         for (Bundle bund : bunds) {
@@ -675,11 +693,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
                 matchingBundles.add(bund);
             }
         }
-
-        Bundle[] bundleArray = new Bundle[matchingBundles.size()];
-        bundleArray = matchingBundles.toArray(bundleArray);
-
-        return bundleArray;
+        return matchingBundles;
     }
 
     /**
@@ -832,7 +846,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      *
      * @return non-internal bitstreams.
      */
-    public Bitstream[] getNonInternalBitstreams(Item item) throws SQLException
+    public List<Bitstream> getNonInternalBitstreams(Item item) throws SQLException
     {
         List<Bitstream> bitstreamList = new ArrayList<Bitstream>();
 
@@ -851,7 +865,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
             }
         }
 
-        return bitstreamList.toArray(new Bitstream[bitstreamList.size()]);
+        return bitstreamList;
     }
 
     /**
@@ -870,7 +884,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
     {
         // get all bundles with name "LICENSE" (these are the DSpace license
         // bundles)
-        Bundle[] bunds = getBundles(item, "LICENSE");
+        List<Bundle> bunds = getBundles(item, "LICENSE");
 
         for (Bundle bund : bunds) {
             // FIXME: probably serious troubles with Authorizations
@@ -886,8 +900,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      * @throws AuthorizeException
      * @throws IOException
      */
-    public void removeLicenses(Context context, Item item) throws SQLException, AuthorizeException,
-            IOException
+    public void removeLicenses(Context context, Item item) throws SQLException, AuthorizeException, IOException
     {
         // Find the License format
         BitstreamFormat bf = new BitstreamFormatRepoImpl().findByShortDescription(context, "License");
@@ -1002,7 +1015,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      * @throws AuthorizeException
      * @throws IOException
      */
-    public void withdraw(Context context, Item item) throws SQLException, AuthorizeException, IOException
+    public void withdraw(Context context, Item item) throws SQLException, AuthorizeException
     {
         // Check permission. User either has to have REMOVE on owning collection
         // or be COLLECTION_EDITOR of owning collection
@@ -1057,8 +1070,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      * @throws AuthorizeException
      * @throws IOException
      */
-    public void reinstate(Context context, Item item) throws SQLException, AuthorizeException,
-            IOException
+    public void reinstate(Context context, Item item) throws SQLException, AuthorizeException
     {
         // check authorization
         AuthorizeUtil.authorizeReinstateItem(context, item);
@@ -1356,7 +1368,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
         AuthorizeManager.addPolicies(context, policiesToAdd, item);
     }
 
-    private List<ResourcePolicy> filterPoliciesToAdd(Context context, List<ResourcePolicy> defaultCollectionPolicies, DSpaceObject dso) throws SQLException {
+    protected List<ResourcePolicy> filterPoliciesToAdd(Context context, List<ResourcePolicy> defaultCollectionPolicies, DSpaceObject dso) throws SQLException {
         List<ResourcePolicy> policiesToAdd = null;
         try {
             policiesToAdd = new ArrayList<ResourcePolicy>();
@@ -1457,23 +1469,13 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      */
     public boolean hasUploadedFiles(Item item) throws SQLException
     {
-        Bundle[] bundles = getBundles(item, "ORIGINAL");
-        if (bundles.length == 0)
-        {
-            // if no ORIGINAL bundle,
-            // return false that there is no file!
-            return false;
-        }
-        else
-        {
-            List<Bitstream> bitstreams = bundles[0].getBitstreams();
-            if (bitstreams.size() == 0)
-            {
-                // no files in ORIGINAL bundle!
-                return false;
+        List<Bundle> bundles = getBundles(item, "ORIGINAL");
+        for (Bundle bundle : bundles) {
+            if (CollectionUtils.isNotEmpty(bundle.getBitstreams())) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
     
     /**
@@ -1482,35 +1484,31 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      * @return the collections this item is not in, if any.
      * @throws SQLException
      */
-    public Collection[] getCollectionsNotLinked(Context context, Item item) throws SQLException
+    public List<Collection> getCollectionsNotLinked(Context context, Item item) throws SQLException
     {
         List<Collection> allCollections = new CollectionRepoImpl().findAll(context);
         List<Collection> linkedCollections = item.getCollections();
-        Collection[] notLinkedCollections = new Collection[allCollections.size() - linkedCollections.size()];
+        List<Collection> notLinkedCollections = new ArrayList<Collection>(allCollections.size() - linkedCollections.size());
 
         if ((allCollections.size() - linkedCollections.size()) == 0)
         {
             return notLinkedCollections;
         }
-        
-        int i = 0;
-                 
         for (Collection collection : allCollections)
         {
                  boolean alreadyLinked = false;
-                         
                  for (Collection linkedCommunity : linkedCollections)
                  {
-                         if (collection.getID() == linkedCommunity.getID())
-                         {
-                                 alreadyLinked = true;
-                                 break;
-                         }
+                     if (collection.getID() == linkedCommunity.getID())
+                     {
+                             alreadyLinked = true;
+                             break;
+                     }
                  }
                          
                  if (!alreadyLinked)
                  {
-                         notLinkedCollections[i++] = collection;
+                     notLinkedCollections.add(collection);
                  }
         }
         
@@ -1560,16 +1558,15 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      * @throws SQLException, AuthorizeException, IOException
      *
      */
-    public Iterator<Item> findByMetadataField(Context context,
-               String schema, String element, String qualifier, String value)
-          throws SQLException, AuthorizeException, IOException
+    public Iterator<Item> findByMetadataField(Context context, String schema, String element, String qualifier, String value)
+          throws SQLException, AuthorizeException
     {
-        MetadataSchema mds = new MetadataSchemaDAO().find(context, schema);
+        MetadataSchema mds = new MetadataSchemaRepoImpl().find(context, schema);
         if (mds == null)
         {
             throw new IllegalArgumentException("No such metadata schema: " + schema);
         }
-        MetadataField mdf = new MetadataFieldReoImpl().findByElement(context, mds, element, qualifier);
+        MetadataField mdf = new MetadataFieldRepoImpl().findByElement(context, mds, element, qualifier);
         if (mdf == null)
         {
             throw new IllegalArgumentException(
@@ -1593,7 +1590,7 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
         Community community = null;
         if (collection != null)
         {
-            community = collection.getOwningCommunity();
+            community = collection.getCommunities().iterator().next();
         }
 
         switch (action)
@@ -1708,14 +1705,14 @@ public class ItemRepoImpl extends DSpaceObjectDAO<Item>
      */
     public Iterator<Item> findByAuthorityValue(Context context,
             String schema, String element, String qualifier, String value)
-        throws SQLException, AuthorizeException, IOException
+        throws SQLException, AuthorizeException
     {
-        MetadataSchema mds = new MetadataSchemaDAO().find(context, schema);
+        MetadataSchema mds = new MetadataSchemaRepoImpl().find(context, schema);
         if (mds == null)
         {
             throw new IllegalArgumentException("No such metadata schema: " + schema);
         }
-        MetadataField mdf = new MetadataFieldReoImpl().findByElement(context, mds, element, qualifier);
+        MetadataField mdf = new MetadataFieldRepoImpl().findByElement(context, mds, element, qualifier);
         if (mdf == null)
         {
             throw new IllegalArgumentException("No such metadata field: schema=" + schema + ", element=" + element + ", qualifier=" + qualifier);

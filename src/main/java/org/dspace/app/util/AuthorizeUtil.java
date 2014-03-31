@@ -100,7 +100,7 @@ public class AuthorizeUtil
         {
             AuthorizeManager
                     .authorizeAction(context, item.getOwningCollection()
-                            .getOwningCommunity(), Constants.ADMIN);
+                            .getCommunities().iterator().next(), Constants.ADMIN);
         }
         else if (!AuthorizeManager.isAdmin(context))
         {
@@ -134,7 +134,7 @@ public class AuthorizeUtil
         else if (AuthorizeConfiguration
                 .canCommunityAdminManageCollectionPolicies())
         {
-            AuthorizeManager.authorizeAction(context, collection.getOwningCommunity(), Constants.ADMIN);
+            AuthorizeManager.authorizeAction(context, collection.getCommunities().iterator().next(), Constants.ADMIN);
         }
         else if (!AuthorizeManager.isAdmin(context))
         {
@@ -266,7 +266,7 @@ public class AuthorizeUtil
                 && AuthorizeConfiguration
                         .canCommunityAdminManageCollectionTemplateItem())
         {
-            Community parent = collection.getOwningCommunity();
+            Community parent = collection.getCommunities().iterator().next();
             AuthorizeManager.authorizeAction(context, parent, Constants.ADMIN);
         }
         else if (!isAuthorized && !AuthorizeManager.isAdmin(context)) 
@@ -301,7 +301,7 @@ public class AuthorizeUtil
         else if (AuthorizeConfiguration
                 .canCommunityAdminManageCollectionSubmitters())
         {
-            AuthorizeManager.authorizeAction(context, collection.getOwningCommunity(), Constants.ADMIN);
+            AuthorizeManager.authorizeAction(context, collection.getCommunities().iterator().next(), Constants.ADMIN);
         }
         else if (!AuthorizeManager.isAdmin(context))
         {
@@ -335,7 +335,7 @@ public class AuthorizeUtil
         else if (AuthorizeConfiguration
                 .canCommunityAdminManageCollectionWorkflows())
         {
-            AuthorizeManager.authorizeAction(context, collection.getOwningCommunity(), Constants.ADMIN);
+            AuthorizeManager.authorizeAction(context, collection.getCommunities().iterator().next(), Constants.ADMIN);
         }
         else if (!AuthorizeManager.isAdmin(context))
         {
@@ -371,7 +371,7 @@ public class AuthorizeUtil
         else if (AuthorizeConfiguration
                 .canCommunityAdminManageCollectionAdminGroup())
         {
-            AuthorizeManager.authorizeAction(context, collection.getOwningCommunity(), Constants.ADMIN);
+            AuthorizeManager.authorizeAction(context, collection.getCommunities().iterator().next(), Constants.ADMIN);
         }
         else if (!AuthorizeManager.isAdmin(context))
         {
@@ -399,13 +399,13 @@ public class AuthorizeUtil
     public static void authorizeRemoveAdminGroup(Context context,
             Collection collection) throws AuthorizeException, SQLException
     {
-        Community parentCommunities = collection.getOwningCommunity();
+        List<Community> parentCommunities = collection.getCommunities();
         if (AuthorizeConfiguration
                 .canCommunityAdminManageCollectionAdminGroup()
                 && parentCommunities != null)
         {
             AuthorizeManager.authorizeAction(context, collection
-                    .getOwningCommunity(), Constants.ADMIN);
+                    .getCommunities().iterator().next(), Constants.ADMIN);
         }
         else if (!AuthorizeManager.isAdmin(context))
         {
@@ -547,8 +547,7 @@ public class AuthorizeUtil
         else if (AuthorizeConfiguration.canCommunityAdminPerformItemWithdrawn())
         {
             authorized = AuthorizeManager
-                    .authorizeActionBoolean(context, item.getOwningCollection()
-                            .getOwningCommunity(), Constants.ADMIN);
+                    .authorizeActionBoolean(context, item.getOwningCollection().getCommunities().iterator().next(), Constants.ADMIN);
         }
 
         if (!authorized)
@@ -591,7 +590,7 @@ public class AuthorizeUtil
                 if (AuthorizeConfiguration
                         .canCommunityAdminPerformItemReinstatiate()
                         && AuthorizeManager.authorizeActionBoolean(context,
-                        coll.getOwningCommunity(), Constants.ADMIN))
+                        coll.getCommunities().iterator().next(), Constants.ADMIN))
                 {
                     // authorized
                 }

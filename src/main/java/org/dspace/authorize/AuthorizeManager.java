@@ -16,12 +16,11 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupDAO;
+import org.dspace.eperson.GroupRepo;
+import org.dspace.eperson.GroupRepoImpl;
 import org.dspace.hibernate.HibernateQueryUtil;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
-
-import javax.persistence.Table;
 
 /**
  * AuthorizeManager handles all authorization checks for DSpace. For better
@@ -38,6 +37,7 @@ import javax.persistence.Table;
  * are automatically given permission for all requests another special group is
  * group 0, which is anonymous - all EPeople are members of group 0.
  */
+//TODO: SPLIT UP INTO DAO, MANAGER, .....
 public class AuthorizeManager
 {
     /**
@@ -294,8 +294,8 @@ public class AuthorizeManager
 //            }
         }
 
-        GroupDAO groupDAO = new GroupDAO();
-        ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+        GroupRepo groupDAO = new GroupRepoImpl();
+        ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
         for (ResourcePolicy rp : getPoliciesActionFilter(c, o, action))
         {
             // check policies for date validity
@@ -365,8 +365,8 @@ public class AuthorizeManager
         //
         List<ResourcePolicy> policies = getPoliciesActionFilter(c, o, Constants.ADMIN);
 
-        ResourcePolicyDAO policyDAO = new ResourcePolicyDAO();
-        GroupDAO groupDAO = new GroupDAO();
+        ResourcePolicyRepo policyDAO = new ResourcePolicyRepoImpl();
+        GroupRepo groupDAO = new GroupRepoImpl();
         for (ResourcePolicy rp : policies)
         {
             // check policies for date validity
@@ -427,7 +427,7 @@ public class AuthorizeManager
             return false; // anonymous users can't be admins....
         } else
         {
-            return new GroupDAO().isMember(c, 1);
+            return new GroupRepoImpl().isMember(c, 1);
         }
     }
 
@@ -475,7 +475,7 @@ public class AuthorizeManager
     public static void addPolicy(Context context, DSpaceObject o, int actionID,
                                  EPerson e, String type) throws SQLException, AuthorizeException
     {
-        ResourcePolicyDAO policyDAO = new ResourcePolicyDAO();
+        ResourcePolicyRepo policyDAO = new ResourcePolicyRepoImpl();
         ResourcePolicy rp = policyDAO.create(context);
 
         policyDAO.setResource(rp, o);
@@ -531,7 +531,7 @@ public class AuthorizeManager
     public static void addPolicy(Context c, DSpaceObject o, int actionID,
                                  Group g, String type) throws SQLException, AuthorizeException
     {
-        ResourcePolicyDAO policyDAO = new ResourcePolicyDAO();
+        ResourcePolicyRepo policyDAO = new ResourcePolicyRepoImpl();
         ResourcePolicy rp = policyDAO.create(c);
 
         policyDAO.setResource(rp, o);
@@ -676,7 +676,7 @@ public class AuthorizeManager
     public static void addPolicies(Context c, List<ResourcePolicy> policies, DSpaceObject dest)
             throws SQLException, AuthorizeException
     {
-        ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+        ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
         // now add them to the destination object
         for (ResourcePolicy srp : policies)
         {
@@ -937,7 +937,6 @@ public class AuthorizeManager
     {
         List<ResourcePolicy> policies = getPoliciesActionFilter(c, o, actionID);
 
-        GroupDAO groupDAO = new GroupDAO();
         List<Group> groups = new ArrayList<Group>();
         for (ResourcePolicy resourcePolicy : policies) {
             if(resourcePolicy.getGroup() != null)
@@ -1050,7 +1049,7 @@ public class AuthorizeManager
                     isAnonymousInPlace = true;
                 }
             }
-            ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+            ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
             if (!isAnonymousInPlace)
             {
                 // add policies for all the groups
@@ -1086,7 +1085,7 @@ public class AuthorizeManager
             policy.setRpType(ResourcePolicy.TYPE_CUSTOM);
         }
 
-        ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+        ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
         if (policy == null)
         {
             policy = resourcePolicyDAO.create(context);

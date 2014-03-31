@@ -25,36 +25,10 @@ import org.dspace.core.LogManager;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class BitstreamFormatRepoImpl
+public class BitstreamFormatRepoImpl implements BitstreamFormatRepo
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(BitstreamFormat.class);
-
-    /**
-     * The "unknown" support level - for bitstream formats that are unknown to
-     * the system
-     */
-    public static final int UNKNOWN = 0;
-
-    /**
-     * The "known" support level - for bitstream formats that are known to the
-     * system, but not fully supported
-     */
-    public static final int KNOWN = 1;
-
-    /**
-     * The "supported" support level - for bitstream formats known to the system
-     * and fully supported.
-     */
-    public static final int SUPPORTED = 2;
-
-
-    /** translate support-level ID to string.  MUST keep this table in sync
-     *  with support level definitions above.
-     */
-    private static final String supportLevelText[] =
-        { "UNKNOWN", "KNOWN", "SUPPORTED" };
-
 
     private BitstreamFormatDAO bitstreamFormatDAO = new BitstreamFormatDAOImpl();
 
@@ -138,9 +112,9 @@ public class BitstreamFormatRepoImpl
      *         there's no bitstream format with the given short description
      * @throws SQLException
      */
-    public BitstreamFormat findByShortDescription(Context context,
-            String desc) throws SQLException
+    public BitstreamFormat findByShortDescription(Context context, String desc) throws SQLException
     {
+
         return bitstreamFormatDAO.findByMIMEType(context, desc);
     }
 
@@ -156,8 +130,7 @@ public class BitstreamFormatRepoImpl
      * @throws IllegalStateException
      *             if the "unknown" bitstream format couldn't be found
      */
-    public BitstreamFormat findUnknown(Context context)
-            throws SQLException
+    public BitstreamFormat findUnknown(Context context) throws SQLException
     {
         BitstreamFormat bf = findByShortDescription(context, "Unknown");
 
@@ -195,8 +168,7 @@ public class BitstreamFormatRepoImpl
      * @return the bitstream formats.
      * @throws SQLException
      */
-    public List<BitstreamFormat> findNonInternal(Context context)
-            throws SQLException
+    public List<BitstreamFormat> findNonInternal(Context context) throws SQLException
     {
 
         return bitstreamFormatDAO.findNonInternal(context);
@@ -211,8 +183,7 @@ public class BitstreamFormatRepoImpl
      * @throws SQLException
      * @throws AuthorizeException
      */
-    public BitstreamFormat create(Context context) throws SQLException,
-            AuthorizeException
+    public BitstreamFormat create(Context context) throws SQLException, AuthorizeException
     {
         // Check authorisation - only administrators can create new formats
         if (!AuthorizeManager.isAdmin(context))

@@ -14,7 +14,8 @@ import org.apache.log4j.Logger;
 //import org.dspace.eperson.Group;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupDAO;
+import org.dspace.eperson.GroupRepo;
+import org.dspace.eperson.GroupRepoImpl;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;
@@ -553,7 +554,7 @@ public class Context
      */
     public Group[] getSpecialGroups() throws SQLException
     {
-        GroupDAO groupDAO = new GroupDAO();
+        GroupRepo groupDAO = new GroupRepoImpl();
         List<Group> myGroups = new ArrayList<Group>();
         for (Integer groupId : specialGroups)
         {

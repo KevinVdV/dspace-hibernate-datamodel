@@ -9,6 +9,7 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Constants;
@@ -119,8 +120,8 @@ public class InstallItem
         DCDate now = DCDate.getCurrent();
         
         // If the item doesn't have a date.accessioned, set it to today
-        MetadataValue[] dateAccessioned = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "accessioned", Item.ANY);
-        if (dateAccessioned.length == 0)
+        List<MetadataValue> dateAccessioned = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "accessioned", Item.ANY);
+        if (dateAccessioned.size() == 0)
         {
             itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
         }
@@ -129,7 +130,7 @@ public class InstallItem
         // In the below loop, we temporarily clear all issued dates and re-add, one-by-one,
         // replacing "today" with today's date.
         // NOTE: As of DSpace 4.0, DSpace no longer sets an issue date by default
-        MetadataValue[] currentDateIssued = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        List<MetadataValue> currentDateIssued = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
         itemDAO.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
         for (MetadataValue dcv : currentDateIssued)
         {
@@ -174,7 +175,7 @@ public class InstallItem
         // In the below loop, we temporarily clear all issued dates and re-add, one-by-one,
         // replacing "today" with today's date.
         // NOTE: As of DSpace 4.0, DSpace no longer sets an issue date by default
-        MetadataValue[] currentDateIssued = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        List<MetadataValue> currentDateIssued = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
         itemDAO.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
         for (MetadataValue dcv : currentDateIssued)
         {
@@ -195,9 +196,9 @@ public class InstallItem
 
         // If an issue date was passed in and it wasn't set to "today" (literal string)
         // then note this previous issue date in provenance message
-        if (currentDateIssued.length != 0)
+        if (currentDateIssued.size() != 0)
         {
-            String previousDateIssued = currentDateIssued[0].value;
+            String previousDateIssued = currentDateIssued.get(0).value;
             if(previousDateIssued!=null && !previousDateIssued.equalsIgnoreCase("today"))
             {
                 DCDate d = new DCDate(previousDateIssued);
@@ -235,7 +236,7 @@ public class InstallItem
 
         // remove in-progress submission
 //        TODO: HIBERNATE THIS STUFF WILL NOT WORK WHEN WORKFLOW COMES INTO PLAY
-        new WorkspaceItemDAO().deleteWrapper(c, (WorkspaceItem) is);
+        new WorkspaceItemRepoImpl().deleteWrapper(c, (WorkspaceItem) is);
 
         // remove the item's policies and replace them with
         // the defaults from the collection
@@ -259,19 +260,18 @@ public class InstallItem
     						throws SQLException
     {
         // Get non-internal format bitstreams
-        Bitstream[] bitstreams = new ItemRepoImpl().getNonInternalBitstreams(myitem);
+        List<Bitstream> bitstreams = new ItemRepoImpl().getNonInternalBitstreams(myitem);
 
         // Create provenance description
         StringBuilder myMessage = new StringBuilder();
-        myMessage.append("No. of bitstreams: ").append(bitstreams.length).append("\n");
+        myMessage.append("No. of bitstreams: ").append(bitstreams.size()).append("\n");
 
         // Add sizes and checksums of bitstreams
-        for (int j = 0; j < bitstreams.length; j++)
-        {
-            myMessage.append(bitstreams[j].getName()).append(": ")
-                    .append(bitstreams[j].getSize()).append(" bytes, checksum: ")
-                    .append(bitstreams[j].getChecksum()).append(" (")
-                    .append(bitstreams[j].getChecksumAlgorithm()).append(")\n");
+        for (Bitstream bitstream : bitstreams) {
+            myMessage.append(bitstream.getName()).append(": ")
+                    .append(bitstream.getSize()).append(" bytes, checksum: ")
+                    .append(bitstream.getChecksum()).append(" (")
+                    .append(bitstream.getChecksumAlgorithm()).append(")\n");
         }
 
         return myMessage.toString();

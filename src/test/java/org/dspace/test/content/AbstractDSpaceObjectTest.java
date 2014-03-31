@@ -10,8 +10,7 @@ package org.dspace.test.content;
 import java.sql.SQLException;
 import org.dspace.AbstractUnitTest;
 import org.dspace.content.*;
-import org.dspace.eperson.EPersonDAO;
-import org.dspace.eperson.GroupDAO;
+import org.dspace.eperson.GroupRepoImpl;
 import org.junit.*;
 import static org.junit.Assert.* ;
 import static org.hamcrest.CoreMatchers.*;
@@ -122,7 +121,7 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
         }
         else if(this.dspaceObject instanceof Item)
         {
-            assertThat("ITEM type", new ItemRepoImpl().find(context,
+            assertThat("ITEM type", itemDAO.find(context,
                 Constants.ITEM, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Collection)
@@ -132,18 +131,18 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
         }
         else if(this.dspaceObject instanceof Community)
         {
-            assertThat("COMMUNITY type", new CommunityRepoImpl().find(context,
-                Constants.COMMUNITY, dspaceObject.getID()), notNullValue());
+            assertThat("COMMUNITY type", communityRepo.find(context,
+                    Constants.COMMUNITY, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Group)
         {
-            assertThat("GROUP type", new GroupDAO().find(context,
+            assertThat("GROUP type", new GroupRepoImpl().find(context,
                 Constants.GROUP, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof EPerson)
         {
-            assertThat("EPERSON type", new EPersonDAO().find(context,
-                Constants.EPERSON, dspaceObject.getID()), notNullValue());
+            assertThat("EPERSON type", ePersonRepo.find(context,
+                    Constants.EPERSON, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Site)
         {

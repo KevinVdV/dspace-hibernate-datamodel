@@ -25,7 +25,6 @@ import java.util.List;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 
-import org.dspace.test.content.AbstractDSpaceObjectTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,8 +65,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
         try
         {
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityDAO.create(null, context);
-            this.collection = communityDAO.createCollection(context, owningCommunity);
+            this.owningCommunity = communityRepo.create(null, context);
+            this.collection = communityRepo.createCollection(context, owningCommunity);
             WorkspaceItem workspaceItem = workspaceItemDAO.create(context, collection, false);
             it = InstallItem.installItem(context, workspaceItem);
             this.b = itemDAO.createBundle(context, it, bundleName);
@@ -106,8 +105,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
         {
             itemDAO.removeBundle(context, it, b);
         }
-        collectionDAO.removeItem(context, collection, it);
-        communityDAO.removeCollection(context, owningCommunity, collection);
+        collectionRepo.removeItem(context, collection, it);
+        communityRepo.removeCollection(context, owningCommunity, collection);
         context.restoreAuthSystemState();
         super.destroy();
     }
@@ -249,7 +248,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         
         //let's add a bitstream
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bitstreamDAO.create(context, new FileInputStream(f));
+        Bitstream bs = bitstreamRepo.create(context, new FileInputStream(f));
         bs.setName(name);
         bundleDAO.addBitstream(context, b, bs);
         assertThat("testGetHandle 1", bundleDAO.getBitstreamByName(b, name), notNullValue());
@@ -280,7 +279,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         //let's add a bitstream
         String name = "name";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bitstreamDAO.create(context, new FileInputStream(f));
+        Bitstream bs = bitstreamRepo.create(context, new FileInputStream(f));
         bs.setName(name);
         bundleDAO.addBitstream(context, b, bs);
         assertThat("testGetBitstreams 2", b.getBitstreams(), notNullValue());
@@ -409,7 +408,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         };
 
         int id = 1;
-        Bitstream bs = bitstreamDAO.find(context, id);
+        Bitstream bs = bitstreamRepo.find(context, id);
         bundleDAO.addBitstream(context, b, bs);
         fail("Exception should have been thrown");
     }
@@ -477,7 +476,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         int id = 1;
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bitstreamDAO.find(context, id);
+        Bitstream bs = bitstreamRepo.find(context, id);
         bundleDAO.addBitstream(context, b, bs);
         context.commit();
         bundleDAO.removeBitstream(context, b, bs);

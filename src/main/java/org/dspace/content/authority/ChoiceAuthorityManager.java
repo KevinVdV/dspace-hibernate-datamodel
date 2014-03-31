@@ -14,7 +14,7 @@ import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 
-import org.dspace.content.MetadataFieldReoImpl;
+import org.dspace.content.MetadataFieldRepoImpl;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.PluginManager;
 
@@ -283,7 +283,7 @@ public final class ChoiceAuthorityManager
      */
     public static String makeFieldKey(String schema, String element, String qualifier)
     {
-        return MetadataFieldReoImpl.formKey(schema, element, qualifier);
+        return new MetadataFieldRepoImpl().formKey(schema, element, qualifier);
     }
 
     /**

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -130,7 +131,7 @@ public class EmbargoManager
         throws SQLException, AuthorizeException, IOException
     {
         init();
-        MetadataValue terms[] = new ItemRepoImpl().getMetadata(item, terms_schema, terms_element,
+        List<MetadataValue> terms = new ItemRepoImpl().getMetadata(item, terms_schema, terms_element,
                 terms_qualifier, Item.ANY);
 
         DCDate result = null;
@@ -140,7 +141,7 @@ public class EmbargoManager
             return null;
 
         result = setter.parseTerms(context, item,
-                terms.length > 0 ? terms[0].getValue() : null);
+                terms.size() > 0 ? terms.iterator().next().getValue() : null);
 
         if (result == null)
             return null;
@@ -340,11 +341,12 @@ public class EmbargoManager
         throws Exception
     {
         boolean status = false;
-        MetadataValue lift[] = new ItemRepoImpl().getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
+        List<MetadataValue> lift = new ItemRepoImpl().getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
 
-        if (lift.length > 0)
+        if (lift.size() > 0)
         {
-            DCDate liftDate = new DCDate(lift[0].getValue());
+            MetadataValue liftDateMdV = lift.iterator().next();
+            DCDate liftDate = new DCDate(liftDateMdV.getValue());
             // need to survive any failure on a single item, go on to process the rest.
             try
             {
@@ -357,13 +359,13 @@ public class EmbargoManager
                     {
                         if (line.hasOption('v'))
                         {
-                            System.err.println("Lifting embargo from Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].getValue());
+                            System.err.println("Lifting embargo from Item handle=" + item.getHandle(context) + ", lift date=" + liftDateMdV.getValue());
                         }
                         if (line.hasOption('n'))
                         {
                             if (!line.hasOption('q'))
                             {
-                                System.err.println("DRY RUN: would have lifted embargo from Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].getValue());
+                                System.err.println("DRY RUN: would have lifted embargo from Item handle=" + item.getHandle(context) + ", lift date=" + liftDateMdV.getValue());
                             }
                         }
                         else if (!line.hasOption('c'))
@@ -375,7 +377,7 @@ public class EmbargoManager
                     {
                         if (line.hasOption('v'))
                         {
-                            System.err.println("Checking current embargo on Item handle=" + item.getHandle(context) + ", lift date=" + lift[0].getValue());
+                            System.err.println("Checking current embargo on Item handle=" + item.getHandle(context) + ", lift date=" + liftDateMdV.getValue());
                         }
                         setter.checkEmbargo(context, item);
                     }
@@ -449,10 +451,10 @@ public class EmbargoManager
     // it was never under embargo, or the lift date has passed.
     private static DCDate recoverEmbargoDate(Item item) throws SQLException {
         DCDate liftDate = null;
-        MetadataValue lift[] = new ItemRepoImpl().getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
-        if (lift.length > 0)
+        List<MetadataValue> lift = new ItemRepoImpl().getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
+        if (lift.size() > 0)
         {
-            liftDate = new DCDate(lift[0].getValue());
+            liftDate = new DCDate(lift.iterator().next().getValue());
             // sanity check: do not allow an embargo lift date in the past.
             if (liftDate.toDate().before(new Date()))
             {

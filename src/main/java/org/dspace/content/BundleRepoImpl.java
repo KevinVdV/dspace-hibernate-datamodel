@@ -33,7 +33,7 @@ import org.dspace.event.Event;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
+public class BundleRepoImpl extends DSpaceObjectRepoImpl<Bundle>
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(Bundle.class);
@@ -459,7 +459,7 @@ public class BundleRepoImpl extends DSpaceObjectDAO<Bundle>
             collection = item.getOwningCollection();
             if (collection != null)
             {
-                community = collection.getOwningCommunity();
+                community = collection.getCommunities().iterator().next();
             }
         }
         switch (action)

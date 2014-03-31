@@ -31,7 +31,7 @@ import org.dspace.storage.bitstore.BitstreamStorageManager;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class BitstreamRepoImpl extends DSpaceObjectDAO<Bitstream>
+public class BitstreamRepoImpl extends DSpaceObjectRepoImpl<Bitstream> implements BitstreamRepo
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(Bitstream.class);
@@ -160,7 +160,7 @@ public class BitstreamRepoImpl extends DSpaceObjectDAO<Bitstream>
         return bitstream;
     }
 
-    public String getHandle()
+    public String getHandle(Context context)
     {
         // No Handles for bitstreams
         return null;
@@ -272,7 +272,8 @@ public class BitstreamRepoImpl extends DSpaceObjectDAO<Bitstream>
      * 
      * @throws SQLException
      */
-    void delete(Context context, Bitstream bitstream) throws SQLException, AuthorizeException {
+    public void delete(Context context, Bitstream bitstream) throws SQLException, AuthorizeException {
+        bitstream.setBundle(null);
         // changed to a check on remove
         // Check authorisation
         //AuthorizeManager.authorizeAction(bContext, this, Constants.DELETE);

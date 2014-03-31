@@ -156,7 +156,7 @@ public class MetadataImporter
         System.out.print("Registering Schema: " + name + " - " + namespace + " ... ");
         
         // check to see if the schema already exists
-        MetadataSchemaDAO metadataSchemaDAO = new MetadataSchemaDAO();
+        MetadataSchemaRepo metadataSchemaDAO = new MetadataSchemaRepoImpl();
         MetadataSchema s = metadataSchemaDAO.find(context, name);
         
         if (s == null)
@@ -226,7 +226,7 @@ public class MetadataImporter
         System.out.print("Registering Metadata: " + schema + "." + element + "." + qualifier + " ... ");
         
         // Find the matching schema object
-        MetadataSchemaDAO metadataSchemaDAO = new MetadataSchemaDAO();
+        MetadataSchemaRepo metadataSchemaDAO = new MetadataSchemaRepoImpl();
         MetadataSchema schemaObj = metadataSchemaDAO.find(context, schema);
         
         if (schemaObj == null)
@@ -234,7 +234,7 @@ public class MetadataImporter
             throw new RegistryImportException("Schema '" + schema + "' is not registered");
         }
 
-        MetadataFieldReoImpl metadataFieldDAO = new MetadataFieldReoImpl();
+        MetadataFieldRepoImpl metadataFieldDAO = new MetadataFieldRepoImpl();
         MetadataField mf = metadataFieldDAO.findByElement(context, schemaObj, element, qualifier);
         if (mf != null)
         {

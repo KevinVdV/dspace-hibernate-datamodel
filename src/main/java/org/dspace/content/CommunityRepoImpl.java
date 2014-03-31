@@ -7,20 +7,19 @@
  */
 package org.dspace.content;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
-import org.dspace.authorize.AuthorizeConfiguration;
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
-import org.dspace.authorize.ResourcePolicy;
-import org.dspace.authorize.ResourcePolicyDAO;
+import org.dspace.authorize.*;
+import org.dspace.authorize.ResourcePolicyRepoImpl;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupDAO;
+import org.dspace.eperson.GroupRepo;
+import org.dspace.eperson.GroupRepoImpl;
 import org.dspace.event.Event;
 import org.dspace.handle.HandleManager;
 
@@ -41,7 +40,7 @@ import java.util.MissingResourceException;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
+public class CommunityRepoImpl extends DSpaceObjectRepoImpl<Community> implements CommunityRepo
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(Community.class);
@@ -148,9 +147,9 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
 
         // create the default authorization policy for communities
         // of 'anonymous' READ
-        Group anonymousGroup = new GroupDAO().find(context, 0);
+        Group anonymousGroup = new GroupRepoImpl().find(context, 0);
 
-        ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+        ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
         ResourcePolicy myPolicy = resourcePolicyDAO.create(context);
         resourcePolicyDAO.setResource(myPolicy, newCommunity);
         myPolicy.setAction(Constants.READ);
@@ -327,7 +326,7 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
         {
             //turn off authorization so that Community Admins can create Sub-Community Admins
             context.turnOffAuthorisationSystem();
-            GroupDAO groupDAO = new GroupDAO();
+            GroupRepo groupDAO = new GroupRepoImpl();
             admins = groupDAO.create(context);
             context.restoreAuthSystemState();
             
@@ -417,7 +416,7 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
     /**
      * Internal method to process subcommunities recursively
      */
-    private void addCollectionList(Community community, List<Collection> collectionList) throws SQLException
+    protected void addCollectionList(Community community, List<Collection> collectionList) throws SQLException
     {
         for (Community subcommunity : community.getSubCommunities())
         {
@@ -430,36 +429,6 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
         }
     }
 
-    /**
-     * Create a new collection within this community. The collection is created
-     * without any workflow groups or default submitter group.
-     * 
-     * @return the new collection
-     */
-    public Collection createCollection(Context context, Community community) throws SQLException,
-            AuthorizeException
-    {
-        return createCollection(context, community, null);
-    }
-
-    /**
-     * Create a new collection within this community. The collection is created
-     * without any workflow groups or default submitter group.
-     *
-     * @param handle the pre-determined Handle to assign to the new community
-     * @return the new collection
-     */
-    public Collection createCollection(Context context, Community community, String handle) throws SQLException,
-            AuthorizeException
-    {
-        // Check authorisation
-        AuthorizeManager.authorizeAction(context, community, Constants.ADD);
-
-        Collection c = new CollectionRepoImpl().create(context, handle);
-        addCollection(context, community, c);
-
-        return c;
-    }
 
     /**
      * Add an exisiting collection to the community
@@ -479,8 +448,8 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
         if(!community.getCollections().contains(collection))
         {
             community.addCollection(collection);
+            collection.addCommunity(community);
         }
-        collection.setOwningCommunity(community);
         context.addEvent(new Event(Event.ADD, Constants.COMMUNITY, community.getID(), Constants.COLLECTION, collection.getID(), collection.getHandle(context)));
     }
     /**
@@ -548,7 +517,10 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
         AuthorizeManager.authorizeAction(context, community, Constants.REMOVE);
 
         community.removeCollection(c);
-        new CollectionRepoImpl().delete(context, c);
+        c.removeCommunity(community);
+        if(CollectionUtils.isEmpty(c.getCommunities())){
+            new CollectionRepoImpl().delete(context, c);
+        }
 
         log.info(LogManager.getHeader(context, "remove_collection",
                 "community_id=" + community.getID() + ",collection_id=" + c.getID()));
@@ -620,7 +592,7 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
     /**
      * Internal method to remove the community and all its childs from the database without aware of eventually parent  
      */
-    private void rawDelete(Context context, Community community) throws SQLException, AuthorizeException, IOException
+    protected void rawDelete(Context context, Community community) throws SQLException, AuthorizeException, IOException
     {
         log.info(LogManager.getHeader(context, "delete_community",
                 "community_id=" + community.getID()));
@@ -675,7 +647,7 @@ public class CommunityRepoImpl extends DSpaceObjectDAO<Community>
 
         if (g != null)
         {
-            new GroupDAO().delete(context, g);
+            new GroupRepoImpl().delete(context, g);
         }
     }
 

@@ -29,21 +29,18 @@ import org.dspace.core.LogManager;
  * @see org.dspace.content.MetadataValue
  * @see org.dspace.content.MetadataSchema
  */
-public class MetadataFieldReoImpl
+public class MetadataFieldRepoImpl implements MetadataFieldRepo
 {
 
     /** log4j logger */
-    private static Logger log = Logger.getLogger(MetadataFieldReoImpl.class);
-
-    // cache of field by ID (Integer)
-    private static Map<Integer, MetadataField> id2field = null;
+    private static Logger log = Logger.getLogger(MetadataFieldRepoImpl.class);
 
     private MetadataFieldDAO metadataFieldDAO = new MetadataFieldDAOImpl();
 
     /**
      * Default constructor.
      */
-    public MetadataFieldReoImpl()
+    public MetadataFieldRepoImpl()
     {
     }
 
@@ -82,7 +79,6 @@ public class MetadataFieldReoImpl
         metadataField.setScopeNote(scopeNote);
         metadataField.setMetadataSchema(metadataSchema);
         metadataFieldDAO.save(context, metadataField);
-        decache();
 
         log.info(LogManager.getHeader(context, "create_metadata_field",
                 "metadata_field_id=" + metadataField.getFieldID()));
@@ -158,7 +154,6 @@ public class MetadataFieldReoImpl
         }
 
         metadataFieldDAO.save(context, metadataField);
-        decache();
 
         log.info(LogManager.getHeader(context, "update_metadatafieldregistry",
                 "metadata_field_id=" + metadataField.getFieldID() + "element=" + metadataField.getElement()
@@ -185,7 +180,6 @@ public class MetadataFieldReoImpl
                 "metadata_field_id=" + metadataField.getFieldID()));
 
         metadataFieldDAO.delete(context, metadataField);
-        decache();
     }
 
     /**
@@ -200,7 +194,7 @@ public class MetadataFieldReoImpl
      * @return true if unique
      * @throws SQLException
      */
-    private boolean hasElement(Context context, int fieldId, MetadataSchema metadataSchema, String element, String qualifier) throws SQLException
+    protected boolean hasElement(Context context, int fieldId, MetadataSchema metadataSchema, String element, String qualifier) throws SQLException
     {
         return metadataFieldDAO.find(context, fieldId, metadataSchema, element, qualifier) != null;
     }
@@ -213,7 +207,7 @@ public class MetadataFieldReoImpl
      * @param qualifier
      * @return HTML FORM key
      */
-    public static String formKey(String schema, String element, String qualifier)
+    public String formKey(String schema, String element, String qualifier)
     {
         if (qualifier == null)
         {
@@ -236,52 +230,10 @@ public class MetadataFieldReoImpl
      * @return the metadata field object
      * @throws SQLException
      */
-    public MetadataField find(Context context, int id)
-            throws SQLException
+    public MetadataField find(Context context, int id) throws SQLException
     {
-        if (!isCacheInitialized())
-        {
-            initCache(context);
-        }
-
-        // 'sanity check' first.
-        Integer iid = Integer.valueOf(id);
-        if (!id2field.containsKey(iid))
-        {
-            return null;
-        }
-
-        return id2field.get(iid);
+        return metadataFieldDAO.findByID(context, MetadataField.class, id);
     }
 
-    // invalidate the cache e.g. after something modifies DB state.
-    private static void decache()
-    {
-        id2field = null;
-    }
-
-    private static boolean isCacheInitialized()
-    {
-        return id2field != null;
-    }
-    
-    // load caches if necessary
-    //TODO: REMOVE CACHE !
-    private synchronized void initCache(Context context) throws SQLException
-    {
-        if (!isCacheInitialized())
-        {
-            Map<Integer, MetadataField> new_id2field = new HashMap<Integer, MetadataField>();
-            log.info("Loading MetadataField elements into cache.");
-
-            // Grab rows from DB
-            List<MetadataField> metadataFields = metadataFieldDAO.findAll(context, MetadataField.class);
-            for (MetadataField metadataField : metadataFields) {
-                new_id2field.put(metadataField.getFieldID(), metadataField);
-            }
-
-            id2field = new_id2field;
-        }
-    }
 
 }

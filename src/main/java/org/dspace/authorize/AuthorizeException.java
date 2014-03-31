@@ -8,7 +8,6 @@
 package org.dspace.authorize;
 
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.DSpaceObjectDAO;
 
 /**
  * Exception indicating the current user of the context does not have permission

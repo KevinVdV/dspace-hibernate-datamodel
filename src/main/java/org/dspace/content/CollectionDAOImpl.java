@@ -56,8 +56,8 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
 
     public Iterator<Item> getItems(Context context, Collection collection, boolean inArchive, Integer limit, Integer offset) throws SQLException{
         Query query = context.getDBConnection()
-                .createQuery("select i from Item i join i.collections c WHERE :collection IN c.id AND i.inArchive=:in_archive");
-        query.setParameter("collection", collection.getID());
+                .createQuery("select i from Item i join i.collections c WHERE :collection IN c AND i.inArchive=:in_archive");
+        query.setParameter("collection", collection);
         query.setParameter("in_archive", true);
         if(offset != null)
         {
@@ -73,8 +73,8 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
     }
 
     public Iterator<Item> getAllItems(Context context, Collection collection) throws SQLException {
-        Query query = context.getDBConnection().createQuery("select i from Item i join i.collections c WHERE :collection IN c.id");
-        query.setParameter("collection", collection.getID());
+        Query query = context.getDBConnection().createQuery("select i from Item i join i.collections c WHERE :collection IN c");
+        query.setParameter("collection", collection);
 
         @SuppressWarnings("unchecked")
         Iterator<Item> iterator = query.iterate();
@@ -83,7 +83,7 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
 
     public Collection findByTemplateItem(Context context, Item item) throws SQLException {
         Criteria criteria = context.getDBConnection().createCriteria(Collection.class);
-        criteria.add(Restrictions.eq("template_item_id", item.getID()));
+        criteria.add(Restrictions.eq("template_item", item));
         return (Collection) criteria.uniqueResult();
     }
 

@@ -77,6 +77,7 @@ public class Bitstream extends DSpaceObject{
     )
     @SequenceGenerator(name="bundle2bitstream_seq", sequenceName="bundle2bitstream_seq", allocationSize = 1)
     @OrderBy("sequence_id asc")
+    //TODO: link to multiple bundles
     private Bundle bundle = null;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy="logo")

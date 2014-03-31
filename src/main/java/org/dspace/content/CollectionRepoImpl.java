@@ -7,13 +7,15 @@
  */
 package org.dspace.content;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
 import org.dspace.core.*;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupDAO;
+import org.dspace.eperson.GroupRepo;
+import org.dspace.eperson.GroupRepoImpl;
 import org.dspace.event.Event;
 import org.dspace.handle.HandleManager;
 
@@ -36,13 +38,14 @@ import java.util.*;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
+public class CollectionRepoImpl extends DSpaceObjectRepoImpl<Collection> implements CollectionRepo
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(Collection.class);
 
     private CollectionDAO collectionDAO = new CollectionDAOImpl();
 
+    private CommunityRepo communityRepo = new CommunityRepoImpl();
 
     /**
      * Construct a collection with the given table row
@@ -90,8 +93,8 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
     }
 
     /**
-     * Create a new collection, with a new ID. This method is not public, and
-     * does not check authorisation.
+     * Create a new collection with a new ID.
+     * Once created the collection is added to the given community
      *
      * @param context
      *            DSpace context object
@@ -100,15 +103,15 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
      * @throws SQLException
      * @throws AuthorizeException
      */
-    Collection create(Context context) throws SQLException,
+    public Collection create(Context context, Community community) throws SQLException,
             AuthorizeException
     {
-        return create(context, null);
+        return create(context, community, null);
     }
 
     /**
-     * Create a new collection, with a new ID. This method is not public, and
-     * does not check authorisation.
+     * Create a new collection with the supplied handle and with a new ID.
+     * Once created the collection is added to the given community
      *
      * @param context
      *            DSpace context object
@@ -118,10 +121,13 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
      * @throws SQLException
      * @throws AuthorizeException
      */
-    Collection create(Context context, String handle) throws SQLException,
+    public Collection create(Context context, Community community, String handle) throws SQLException,
             AuthorizeException
     {
         Collection newCollection = collectionDAO.create(context, new Collection());
+        //Add our newly created collection to our community, authorization checks occur in THIS method
+        communityRepo.addCollection(context, community, newCollection);
+
         //Update our community so we have a collection identifier
         if(handle == null)
         {
@@ -132,9 +138,9 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
 
         // create the default authorization policy for collections
         // of 'anonymous' READ
-        Group anonymousGroup = new GroupDAO().find(context, 0);
+        Group anonymousGroup = new GroupRepoImpl().find(context, 0);
 
-        ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
+        ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
         ResourcePolicy myPolicy = resourcePolicyDAO.create(context);
         resourcePolicyDAO.setResource(myPolicy, newCollection);
         myPolicy.setAction(Constants.READ);
@@ -338,7 +344,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
         {
             //turn off authorization so that Collection Admins can create Collection Workflow Groups
             context.turnOffAuthorisationSystem();
-            GroupDAO groupDAO = new GroupDAO();
+            GroupRepo groupDAO = new GroupRepoImpl();
             Group g = groupDAO.create(context);
             context.restoreAuthSystemState();
 
@@ -424,7 +430,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
         {
             //turn off authorization so that Collection Admins can create Collection Submitters
             context.turnOffAuthorisationSystem();
-            GroupDAO groupDAO = new GroupDAO();
+            GroupRepo groupDAO = new GroupRepoImpl();
             submitters = groupDAO.create(context);
             context.restoreAuthSystemState();
 
@@ -480,7 +486,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
         {
             //turn off authorization so that Community Admins can create Collection Admins
             context.turnOffAuthorisationSystem();
-            GroupDAO groupDAO = new GroupDAO();
+            GroupRepo groupDAO = new GroupRepoImpl();
             admins = groupDAO.create(context);
             context.restoreAuthSystemState();
 
@@ -579,8 +585,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
 
         if (collection.getTemplateItem() == null)
         {
-            Item template = new ItemRepoImpl().create(context);
-            collection.setTemplate(template);
+            Item template = new ItemRepoImpl().createTemplateItem(context, collection);
 
             log.info(LogManager.getHeader(context, "create_template_item",
                     "collection_id=" + collection.getID() + ",template_item_id="
@@ -773,10 +778,18 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
      * @throws AuthorizeException
      * @throws IOException
      */
-    void delete(Context context, Collection collection) throws SQLException, AuthorizeException, IOException
+    //TODO: create unit test for this !
+    public void delete(Context context, Collection collection) throws SQLException, AuthorizeException, IOException
     {
         log.info(LogManager.getHeader(context, "delete_collection",
                 "collection_id=" + collection.getID()));
+        //Check community delete rights, we should be able to remove the collection from EVERY community we are linked to
+        //TODO: move this to the community impl ?
+        List<Community> communities = collection.getCommunities();
+        for (Community community : communities) {
+            AuthorizeManager.authorizeAction(context, community, Constants.REMOVE);
+        }
+        collection.getCommunities().clear();
 
         context.addEvent(new Event(Event.DELETE, Constants.COLLECTION, collection.getID(), collection.getHandle(context)));
 
@@ -787,7 +800,6 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
 //                getID());
 
         // Remove Template Item
-        //TODO: HIBERNATE, IMPLEMENT WHEN ITEMS BECOME AVAILABLE
         removeTemplateItem(context, collection);
 
         // Remove items
@@ -892,7 +904,7 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
         DatabaseManager.delete(ourContext, collectionRow);
 */
         // Remove any workflow groups - must happen after deleting collection
-        GroupDAO groupDAO = new GroupDAO();
+        GroupRepo groupDAO = new GroupRepoImpl();
         Group g = null;
 
         g = collection.getWorkflowStep1();
@@ -933,20 +945,6 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
         }
         collectionDAO.delete(context, collection);
     }
-
-    /**
-     * Get the communities this collection appears in
-     *
-     * @return array of <code>Community</code> objects
-     * @throws SQLException
-     */
-    public Community[] getCommunities(Collection collection) throws SQLException
-    {
-        // Get the bundle table rows
-        //At the moment only a single community is allowed to be parent of a collection
-        return new Community[]{collection.getOwningCommunity()};
-    }
-
 
     /**
      * return an array of collections that user has a given permission on
@@ -1039,30 +1037,35 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
     public DSpaceObject getAdminObject(Context context, Collection collection, int action) throws SQLException
     {
         DSpaceObject adminObject = null;
-        Community community = collection.getOwningCommunity();
+        List<Community> communities = collection.getCommunities();
+        Community community = null;
+        if(CollectionUtils.isNotEmpty(communities))
+        {
+            community = communities.iterator().next();
+        }
 
         switch (action)
         {
-        case Constants.REMOVE:
-            if (AuthorizeConfiguration.canCollectionAdminPerformItemDeletion())
-            {
-                adminObject = collection;
-            }
-            else if (AuthorizeConfiguration.canCommunityAdminPerformItemDeletion())
-            {
-                adminObject = community;
-            }
-            break;
+            case Constants.REMOVE:
+                if (AuthorizeConfiguration.canCollectionAdminPerformItemDeletion())
+                {
+                    adminObject = collection;
+                }
+                else if (AuthorizeConfiguration.canCommunityAdminPerformItemDeletion())
+                {
+                    adminObject = community;
+                }
+                break;
 
-        case Constants.DELETE:
-            if (AuthorizeConfiguration.canCommunityAdminPerformSubelementDeletion())
-            {
-                adminObject = community;
-            }
-            break;
-        default:
-            adminObject = collection;
-            break;
+            case Constants.DELETE:
+                if (AuthorizeConfiguration.canCommunityAdminPerformSubelementDeletion())
+                {
+                    adminObject = community;
+                }
+                break;
+            default:
+                adminObject = collection;
+                break;
         }
         return adminObject;
     }
@@ -1070,6 +1073,11 @@ public class CollectionRepoImpl extends DSpaceObjectDAO<Collection>
     @Override
     public DSpaceObject getParentObject(Context context, Collection collection) throws SQLException
     {
-        return collection.getOwningCommunity();
+        List<Community> communities = collection.getCommunities();
+        if(CollectionUtils.isNotEmpty(communities)){
+            return communities.iterator().next();
+        }else{
+            return null;
+        }
     }
 }

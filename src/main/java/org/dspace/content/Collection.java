@@ -11,7 +11,9 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -83,19 +85,13 @@ public class Collection extends DSpaceObject {
     private Item template;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "community2collection",
             joinColumns = {@JoinColumn(name = "collection_id") },
             inverseJoinColumns = {@JoinColumn(name = "community_id") }
     )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="integer"),
-            generator = "community2collection_seq"
-    )
-    @SequenceGenerator(name="community2collection_seq", sequenceName="community2collection_seq", allocationSize = 1)
-    private Community owningCommunity = null;
+    private List<Community> communities = new ArrayList<Community>();
 
 
 
@@ -318,17 +314,21 @@ public class Collection extends DSpaceObject {
         context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, getID(), null));
     }
 
-    void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
         modifiedMetadata = true;
     }
 
-    public Community getOwningCommunity() {
-        return owningCommunity;
+    public List<Community> getCommunities() {
+        return communities;
     }
 
-    void setOwningCommunity(Community owningCommunity) {
-        this.owningCommunity = owningCommunity;
+    protected void addCommunity(Community community) {
+        this.communities.add(community);
+    }
+
+    protected void removeCommunity(Community community){
+        this.communities.remove(community);
     }
 
     /**
@@ -341,7 +341,7 @@ public class Collection extends DSpaceObject {
         return logo;
     }
 
-    void setLogo(Bitstream logo) {
+    protected void setLogo(Bitstream logo) {
         this.logo = logo;
         this.modified = true;
     }
@@ -358,7 +358,7 @@ public class Collection extends DSpaceObject {
         return template;
     }
 
-    void setTemplate(Item template) {
+    protected void setTemplate(Item template) {
         this.template = template;
         modified = true;
     }

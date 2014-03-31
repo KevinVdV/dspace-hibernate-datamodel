@@ -11,6 +11,8 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import mockit.NonStrictExpectations;
 import java.sql.SQLException;
+import java.util.List;
+
 import org.dspace.AbstractUnitTest;
 import org.apache.log4j.Logger;
 import org.dspace.content.MetadataSchema;
@@ -52,7 +54,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
         try
         {
             context.turnOffAuthorisationSystem();
-            this.ms = metadataSchemaDAO.create(context, shortName, nameSpace);
+            this.ms = metadataSchemaRepo.create(context, shortName, nameSpace);
             context.restoreAuthSystemState();
         }
         catch (SQLException ex)
@@ -78,10 +80,10 @@ public class MetadataSchemaTest extends AbstractUnitTest
     @After
     @Override
     public void destroy() throws Exception {
-        if(metadataSchemaDAO.find(context, ms.getSchemaID()) != null)
+        if(metadataSchemaRepo.find(context, ms.getSchemaID()) != null)
         {
             context.turnOffAuthorisationSystem();
-            metadataSchemaDAO.delete(context, ms);
+            metadataSchemaRepo.delete(context, ms);
             context.restoreAuthSystemState();
         }
 
@@ -163,9 +165,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace";
         String name = "name";
-        MetadataSchema m = metadataSchemaDAO.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaRepo.create(context, name, namespace);
 
-        MetadataSchema found = metadataSchemaDAO.findByNamespace(context, namespace);
+        MetadataSchema found = metadataSchemaRepo.findByNamespace(context, namespace);
         assertThat("testCreateAuth 0",found.getSchemaID(), equalTo(m.getSchemaID()));
     }
 
@@ -185,8 +187,8 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace";
         String name = "name";
-        MetadataSchema m = metadataSchemaDAO.create(context, name, namespace);
-        metadataSchemaDAO.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaRepo.create(context, name, namespace);
+        metadataSchemaRepo.create(context, name, namespace);
         fail("Exception expected");
     }
 
@@ -206,7 +208,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = ms.getNamespace();
         String name = ms.getName();
-        metadataSchemaDAO.create(context, name, namespace);
+        metadataSchemaRepo.create(context, name, namespace);
         fail("Exception expected");
     }
 
@@ -217,7 +219,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
     public void testFindByNamespace() throws Exception
     {
         log.info(">>"+ms.getNamespace()+" "+ms.getName());
-        MetadataSchema found = metadataSchemaDAO.findByNamespace(context, ms.getNamespace());
+        MetadataSchema found = metadataSchemaRepo.findByNamespace(context, ms.getNamespace());
         assertThat("testFindByNamespace 0",found, notNullValue());
         assertThat("testFindByNamespace 1",found.getSchemaID(), equalTo(ms.getSchemaID()));
     }
@@ -238,11 +240,11 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace2";
         String name = "name2";
-        MetadataSchema m = metadataSchemaDAO.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaRepo.create(context, name, namespace);
 
-        metadataSchemaDAO.update(context, m);
+        metadataSchemaRepo.update(context, m);
 
-        MetadataSchema found = metadataSchemaDAO.findByNamespace(context, namespace);
+        MetadataSchema found = metadataSchemaRepo.findByNamespace(context, namespace);
         assertThat("testUpdateAuth 0",found.getSchemaID(), equalTo(m.getSchemaID()));
     }
 
@@ -262,10 +264,10 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace2";
         String name = "name2";
-        MetadataSchema m = metadataSchemaDAO.create(context, null, null);
+        MetadataSchema m = metadataSchemaRepo.create(context, null, null);
         m.setName(name);
         m.setNamespace(namespace);
-        metadataSchemaDAO.update(context, m);
+        metadataSchemaRepo.update(context, m);
         fail("Exception expected");
     }
 
@@ -285,11 +287,11 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = ms.getNamespace();
         String name = ms.getName();
-        MetadataSchema m = metadataSchemaDAO.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaRepo.create(context, name, namespace);
 
         m.setName(name);
         m.setNamespace(namespace);
-        metadataSchemaDAO.update(context, m);
+        metadataSchemaRepo.update(context, m);
         fail("Exception expected");
     }
 
@@ -309,12 +311,12 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace3";
         String name = "name3";
-        MetadataSchema m = metadataSchemaDAO.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaRepo.create(context, name, namespace);
         context.commit();
 
-        metadataSchemaDAO.delete(context, m);
+        metadataSchemaRepo.delete(context, m);
 
-        MetadataSchema found = metadataSchemaDAO.findByNamespace(context, namespace);
+        MetadataSchema found = metadataSchemaRepo.findByNamespace(context, namespace);
         assertThat("testDeleteAuth 0",found, nullValue());
     }
 
@@ -334,10 +336,10 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace3";
         String name = "name3";
-        MetadataSchema m = metadataSchemaDAO.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaRepo.create(context, name, namespace);
         context.commit();
 
-        metadataSchemaDAO.delete(context, m);
+        metadataSchemaRepo.delete(context, m);
         fail("Exception expected");
     }
 
@@ -347,9 +349,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     @Test
     public void testFindAll() throws Exception
     {
-        MetadataSchema[] found = metadataSchemaDAO.findAll(context);
+        List<MetadataSchema> found = metadataSchemaRepo.findAll(context);
         assertThat("testFindAll 0",found, notNullValue());
-        assertTrue("testFindAll 1",found.length >= 1);
+        assertTrue("testFindAll 1",found.size() >= 1);
 
         boolean added = false;
         for(MetadataSchema msc: found)
@@ -368,7 +370,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
     @Test
     public void testFind_Context_int() throws Exception
     {
-        MetadataSchema found = metadataSchemaDAO.find(context, ms.getSchemaID());
+        MetadataSchema found = metadataSchemaRepo.find(context, ms.getSchemaID());
         assertThat("testFind_Context_int 0",found, notNullValue());
         assertThat("testFind_Context_int 1",found.getSchemaID(), equalTo(ms.getSchemaID()));
         assertThat("testFind_Context_int 2",found.getName(), equalTo(ms.getName()));
@@ -382,13 +384,13 @@ public class MetadataSchemaTest extends AbstractUnitTest
     public void testFind_Context_String() throws Exception
     {
         String shortName = ms.getName();
-        MetadataSchema found = metadataSchemaDAO.find(context, shortName);
+        MetadataSchema found = metadataSchemaRepo.find(context, shortName);
         assertThat("testFind_Context_String 0",found, notNullValue());
         assertThat("testFind_Context_String 1",found.getSchemaID(), equalTo(ms.getSchemaID()));
         assertThat("testFind_Context_String 2",found.getName(), equalTo(ms.getName()));
         assertThat("testFind_Context_String 3",found.getNamespace(), equalTo(ms.getNamespace()));
 
-        found = metadataSchemaDAO.find(context, null);
+        found = metadataSchemaRepo.find(context, null);
         assertThat("testFind_Context_String 4",found, nullValue());
     }
 

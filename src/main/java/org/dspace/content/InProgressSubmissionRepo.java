@@ -12,7 +12,7 @@ import java.sql.SQLException;
  * Date: 10/03/14
  * Time: 09:44
  */
-public interface InProgressSubmissionDAO<T extends InProgressSubmission> {
+public interface InProgressSubmissionRepo<T extends InProgressSubmission> {
 
     /**
      * Get the submitter

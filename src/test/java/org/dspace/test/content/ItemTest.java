@@ -20,13 +20,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dspace.authorize.ResourcePolicyDAO;
 import org.dspace.content.*;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.EPersonDAO;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupDAO;
 import org.junit.*;
 import static org.junit.Assert.* ;
 import static org.hamcrest.CoreMatchers.*;
@@ -53,11 +50,6 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     private Collection collection;
     private Community owningCommunity;
 
-
-    private BitstreamFormatRepoImpl bitstreamFormatDAO = new BitstreamFormatRepoImpl();
-    private ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAO();
-    private GroupDAO groupDAO = new GroupDAO();
-
     /**
      * This method will be run before every test as per @Before. It will
      * initialize resources required for the tests.
@@ -74,8 +66,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         {
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityDAO.create(null, context);
-            this.collection = communityDAO.createCollection(context, owningCommunity);
+            this.owningCommunity = communityRepo.create(null, context);
+            this.collection = collectionRepo.create(context, owningCommunity);
 
             this.it = createItem();
 
@@ -179,7 +171,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertTrue("testFindBySubmitter 1",added);
 
         context.turnOffAuthorisationSystem();
-        all = itemDAO.findBySubmitter(context, new EPersonDAO().create(context));
+        all = itemDAO.findBySubmitter(context, ePersonRepo.create(context));
         context.restoreAuthSystemState();
 
         assertThat("testFindBySubmitter 2", all, notNullValue());
@@ -284,9 +276,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String element = "contributor";
         String qualifier = "author";
         String lang = Item.ANY;
-        MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testGetMetadata_4args 0", dc, notNullValue());
-        assertTrue("testGetMetadata_4args 1", dc.length == 0);
+        assertTrue("testGetMetadata_4args 1", dc.size() == 0);
     }
 
     /**
@@ -296,19 +288,19 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testGetMetadata_String()
     {
         String mdString = "dc.contributor.author";
-        MetadataValue[] dc = itemDAO.getMetadata(it, mdString);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, mdString);
         assertThat("testGetMetadata_String 0",dc,notNullValue());
-        assertTrue("testGetMetadata_String 1",dc.length == 0);
+        assertTrue("testGetMetadata_String 1",dc.size() == 0);
 
         mdString = "dc.contributor.*";
         dc = itemDAO.getMetadata(it, mdString);
         assertThat("testGetMetadata_String 2",dc,notNullValue());
-        assertTrue("testGetMetadata_String 3",dc.length == 0);
+        assertTrue("testGetMetadata_String 3",dc.size() == 0);
 
         mdString = "dc.contributor";
         dc = itemDAO.getMetadata(it, mdString);
         assertThat("testGetMetadata_String 4",dc,notNullValue());
-        assertTrue("testGetMetadata_String 5",dc.length == 0);
+        assertTrue("testGetMetadata_String 5",dc.size() == 0);
     }
 
     /**
@@ -319,8 +311,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     {
         //Create our "test" metadata field
         context.turnOffAuthorisationSystem();
-        MetadataSchema metadataSchema = new MetadataSchemaDAO().create(context, "test", "test");
-        MetadataField metadataField = new MetadataFieldReoImpl().create(context, metadataSchema, "type", null, null);
+        MetadataSchema metadataSchema = new MetadataSchemaRepoImpl().create(context, "test", "test");
+        MetadataField metadataField = metadataFieldRepo.create(context, metadataSchema, "type", null, null);
         context.restoreAuthSystemState();
 
         // Set the item to have two pieces of metadata for dc.type and dc2.type
@@ -330,13 +322,13 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         itemDAO.addMetadata(context, it, "test", "type", null, null, testType);
 
         // Check that only one is returned when we ask for all dc.type values
-        MetadataValue[] values = itemDAO.getMetadata(it, "dc", "type", null, null);
-        assertTrue("Return results", values.length == 1);
+        List<MetadataValue> values = itemDAO.getMetadata(it, "dc", "type", null, null);
+        assertTrue("Return results", values.size() == 1);
 
         //Delete the field & schema
         context.turnOffAuthorisationSystem();
-        new MetadataFieldReoImpl().delete(context,  metadataField);
-        new MetadataSchemaDAO().delete(context, metadataSchema);
+        metadataFieldRepo.delete(context, metadataField);
+        metadataSchemaRepo.delete(context, metadataSchema);
         context.restoreAuthSystemState();
     }
 
@@ -353,19 +345,19 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String[] values = {"value0","value1"};
         itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values);
 
-        MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_5args_1 0",dc,notNullValue());
-        assertTrue("testAddMetadata_5args_1 1",dc.length == 2);
-        assertThat("testAddMetadata_5args_1 2",dc[0].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_5args_1 3",dc[0].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_5args_1 4",dc[0].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_5args_1 5",dc[0].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_5args_1 6",dc[0].getValue(),equalTo(values[0]));
-        assertThat("testAddMetadata_5args_1 7",dc[1].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_5args_1 8",dc[1].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_5args_1 9",dc[1].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_5args_1 10",dc[1].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_5args_1 11",dc[1].getValue(),equalTo(values[1]));
+        assertTrue("testAddMetadata_5args_1 1",dc.size() == 2);
+        assertThat("testAddMetadata_5args_1 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_5args_1 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_5args_1 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_5args_1 5",dc.get(0).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_5args_1 6",dc.get(0).getValue(),equalTo(values[0]));
+        assertThat("testAddMetadata_5args_1 7",dc.get(1).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_5args_1 8",dc.get(1).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_5args_1 9",dc.get(1).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_5args_1 10",dc.get(1).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_5args_1 11",dc.get(1).getValue(),equalTo(values[1]));
     }
 
     /**
@@ -386,23 +378,23 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         int[] confidences = {0,0};
         itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
-        MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_1 0",dc,notNullValue());
-        assertTrue("testAddMetadata_7args_1 1",dc.length == 2);
-        assertThat("testAddMetadata_7args_1 2",dc[0].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_7args_1 3",dc[0].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_7args_1 4",dc[0].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_7args_1 5",dc[0].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_1 6",dc[0].getValue(),equalTo(values[0]));
-        assertThat("testAddMetadata_7args_1 7",dc[0].getAuthority(),equalTo(authorities[0]));
-        assertThat("testAddMetadata_7args_1 8",dc[0].getConfidence(),equalTo(confidences[0]));
-        assertThat("testAddMetadata_7args_1 9",dc[1].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_7args_1 10",dc[1].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_7args_1 11",dc[1].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_7args_1 12",dc[1].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_1 13",dc[1].getValue(),equalTo(values[1]));
-        assertThat("testAddMetadata_7args_1 14",dc[1].getAuthority(),equalTo(authorities[1]));
-        assertThat("testAddMetadata_7args_1 15",dc[1].getConfidence(),equalTo(confidences[1]));
+        assertTrue("testAddMetadata_7args_1 1",dc.size() == 2);
+        assertThat("testAddMetadata_7args_1 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_7args_1 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_7args_1 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_7args_1 5",dc.get(0).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_7args_1 6",dc.get(0).getValue(),equalTo(values[0]));
+        assertThat("testAddMetadata_7args_1 7",dc.get(0).getAuthority(),equalTo(authorities[0]));
+        assertThat("testAddMetadata_7args_1 8",dc.get(0).getConfidence(),equalTo(confidences[0]));
+        assertThat("testAddMetadata_7args_1 9",dc.get(1).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_7args_1 10",dc.get(1).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_7args_1 11",dc.get(1).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_7args_1 12",dc.get(1).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_7args_1 13",dc.get(1).getValue(),equalTo(values[1]));
+        assertThat("testAddMetadata_7args_1 14",dc.get(1).getAuthority(),equalTo(authorities[1]));
+        assertThat("testAddMetadata_7args_1 15",dc.get(1).getConfidence(),equalTo(confidences[1]));
     }
 
     /**
@@ -422,23 +414,23 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         int[] confidences = {0,0};
         itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
-        MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_1 0",dc,notNullValue());
-        assertTrue("testAddMetadata_7args_1 1",dc.length == 2);
-        assertThat("testAddMetadata_7args_1 2",dc[0].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_7args_1 3",dc[0].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_7args_1 4",dc[0].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_7args_1 5",dc[0].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_1 6",dc[0].getValue(),equalTo(values[0]));
-        assertThat("testAddMetadata_7args_1 7",dc[0].getAuthority(),nullValue());
-        assertThat("testAddMetadata_7args_1 8",dc[0].getConfidence(),equalTo(-1));
-        assertThat("testAddMetadata_7args_1 9",dc[1].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_7args_1 10",dc[1].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_7args_1 11",dc[1].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_7args_1 12",dc[1].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_1 13",dc[1].getValue(),equalTo(values[1]));
-        assertThat("testAddMetadata_7args_1 14",dc[1].getAuthority(),nullValue());
-        assertThat("testAddMetadata_7args_1 15",dc[1].getConfidence(),equalTo(-1));
+        assertTrue("testAddMetadata_7args_1 1",dc.size() == 2);
+        assertThat("testAddMetadata_7args_1 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_7args_1 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_7args_1 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_7args_1 5",dc.get(0).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_7args_1 6",dc.get(0).getValue(),equalTo(values[0]));
+        assertThat("testAddMetadata_7args_1 7",dc.get(0).getAuthority(),nullValue());
+        assertThat("testAddMetadata_7args_1 8",dc.get(0).getConfidence(),equalTo(-1));
+        assertThat("testAddMetadata_7args_1 9",dc.get(1).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_7args_1 10",dc.get(1).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_7args_1 11",dc.get(1).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_7args_1 12",dc.get(1).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_7args_1 13",dc.get(1).getValue(),equalTo(values[1]));
+        assertThat("testAddMetadata_7args_1 14",dc.get(1).getAuthority(),nullValue());
+        assertThat("testAddMetadata_7args_1 15",dc.get(1).getConfidence(),equalTo(-1));
     }
 
     /**
@@ -454,19 +446,19 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String[] values = {"value0","value1"};
         itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values);
 
-        MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_5args_2 0",dc,notNullValue());
-        assertTrue("testAddMetadata_5args_2 1",dc.length == 2);
-        assertThat("testAddMetadata_5args_2 2",dc[0].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_5args_2 3",dc[0].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_5args_2 4",dc[0].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_5args_2 5",dc[0].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_5args_2 6",dc[0].getValue(),equalTo(values[0]));
-        assertThat("testAddMetadata_5args_2 7",dc[1].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_5args_2 8",dc[1].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_5args_2 9",dc[1].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_5args_2 10",dc[1].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_5args_2 11",dc[1].getValue(),equalTo(values[1]));
+        assertTrue("testAddMetadata_5args_2 1",dc.size() == 2);
+        assertThat("testAddMetadata_5args_2 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_5args_2 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_5args_2 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_5args_2 5",dc.get(0).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_5args_2 6",dc.get(0).getValue(),equalTo(values[0]));
+        assertThat("testAddMetadata_5args_2 7",dc.get(1).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_5args_2 8",dc.get(1).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_5args_2 9",dc.get(1).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_5args_2 10",dc.get(1).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_5args_2 11",dc.get(1).getValue(),equalTo(values[1]));
     }
 
     /**
@@ -487,16 +479,16 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         int confidences = 0;
         itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
-        MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_2 0",dc,notNullValue());
-        assertTrue("testAddMetadata_7args_2 1",dc.length == 1);
-        assertThat("testAddMetadata_7args_2 2",dc[0].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_7args_2 3",dc[0].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_7args_2 4",dc[0].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_7args_2 5",dc[0].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_2 6",dc[0].getValue(),equalTo(values));
-        assertThat("testAddMetadata_7args_2 7",dc[0].getAuthority(),equalTo(authorities));
-        assertThat("testAddMetadata_7args_2 8", dc[0].getConfidence(), equalTo(confidences));
+        assertTrue("testAddMetadata_7args_2 1",dc.size() == 1);
+        assertThat("testAddMetadata_7args_2 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_7args_2 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_7args_2 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_7args_2 5",dc.get(0).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_7args_2 6",dc.get(0).getValue(),equalTo(values));
+        assertThat("testAddMetadata_7args_2 7",dc.get(0).getAuthority(),equalTo(authorities));
+        assertThat("testAddMetadata_7args_2 8", dc.get(0).getConfidence(), equalTo(confidences));
     }
 
     /**
@@ -516,16 +508,16 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         int confidences = 0;
         itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
-        MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_2 0",dc,notNullValue());
-        assertTrue("testAddMetadata_7args_2 1",dc.length == 1);
-        assertThat("testAddMetadata_7args_2 2",dc[0].getMetadataField().getMetadataSchema().getName(),equalTo(schema));
-        assertThat("testAddMetadata_7args_2 3",dc[0].getMetadataField().getElement(),equalTo(element));
-        assertThat("testAddMetadata_7args_2 4",dc[0].getMetadataField().getQualifier(),equalTo(qualifier));
-        assertThat("testAddMetadata_7args_2 5",dc[0].getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_2 6",dc[0].getValue(),equalTo(values));
-        assertThat("testAddMetadata_7args_2 7",dc[0].getAuthority(),nullValue());
-        assertThat("testAddMetadata_7args_2 8",dc[0].getConfidence(),equalTo(-1));
+        assertTrue("testAddMetadata_7args_2 1",dc.size() == 1);
+        assertThat("testAddMetadata_7args_2 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
+        assertThat("testAddMetadata_7args_2 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
+        assertThat("testAddMetadata_7args_2 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
+        assertThat("testAddMetadata_7args_2 5",dc.get(0).getLanguage(),equalTo(lang));
+        assertThat("testAddMetadata_7args_2 6",dc.get(0).getValue(),equalTo(values));
+        assertThat("testAddMetadata_7args_2 7",dc.get(0).getAuthority(),nullValue());
+        assertThat("testAddMetadata_7args_2 8",dc.get(0).getConfidence(),equalTo(-1));
     }
 
     /**
@@ -543,9 +535,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         itemDAO.clearMetadata(context, it, schema, element, qualifier, lang);
 
-        MetadataValue[] dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testClearMetadata 0",dc,notNullValue());
-        assertTrue("testClearMetadata 1", dc.length == 0);
+        assertTrue("testClearMetadata 1", dc.size() == 0);
     }
 
     /**
@@ -570,7 +562,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testSetSubmitter() throws SQLException, AuthorizeException
     {
         context.turnOffAuthorisationSystem();
-        EPerson sub = new EPersonDAO().create(context);
+        EPerson sub = ePersonRepo.create(context);
         context.restoreAuthSystemState();
 
         it.setSubmitter(sub);
@@ -595,8 +587,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetCommunities() throws Exception
     {
-        assertThat("testGetCommunities 0", new ItemRepoImpl().getCommunities(context, it), notNullValue());
-        assertTrue("testGetCommunities 1", new ItemRepoImpl().getCommunities(context, it).length == 1);
+        assertThat("testGetCommunities 0", itemDAO.getCommunities(it), notNullValue());
+        assertTrue("testGetCommunities 1", itemDAO.getCommunities(it).size() == 1);
     }
 
     /**
@@ -617,7 +609,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     {
         String name = "name";
         assertThat("testGetBundles_String 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testGetBundles_String 1", itemDAO.getBundles(it, name).length == 0);
+        assertTrue("testGetBundles_String 1", itemDAO.getBundles(it, name).size() == 0);
     }
 
     /**
@@ -640,7 +632,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertThat("testCreateBundleAuth 0",created, notNullValue());
         assertThat("testCreateBundleAuth 1",created.getName(), equalTo(name));
         assertThat("testCreateBundleAuth 2", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testCreateBundleAuth 3", itemDAO.getBundles(it, name).length == 1);
+        assertTrue("testCreateBundleAuth 3", itemDAO.getBundles(it, name).size() == 1);
     }
 
     /**
@@ -724,8 +716,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         created.setName(name);
 
         assertThat("testAddBundleAuth 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testAddBundleAuth 1", itemDAO.getBundles(it, name).length == 1);
-        assertThat("testAddBundleAuth 2", itemDAO.getBundles(it, name)[0], equalTo(created));
+        assertTrue("testAddBundleAuth 1", itemDAO.getBundles(it, name).size() == 1);
+        assertThat("testAddBundleAuth 2", itemDAO.getBundles(it, name).get(0), equalTo(created));
     }
 
     /**
@@ -775,7 +767,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         itemDAO.removeBundle(context, it, created);
         assertThat("testRemoveBundleAuth 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testRemoveBundleAuth 1", itemDAO.getBundles(it, name).length == 0);
+        assertTrue("testRemoveBundleAuth 1", itemDAO.getBundles(it, name).size() == 0);
     }
 
     /**
@@ -892,7 +884,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testGetNonInternalBitstreams() throws Exception
     {
         assertThat("testGetNonInternalBitstreams 0", itemDAO.getNonInternalBitstreams(it), notNullValue());
-        assertTrue("testGetNonInternalBitstreams 1", itemDAO.getNonInternalBitstreams(it).length == 0);
+        assertTrue("testGetNonInternalBitstreams 1", itemDAO.getNonInternalBitstreams(it).size() == 0);
     }
 
     /**
@@ -918,7 +910,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         itemDAO.removeDSpaceLicense(context, it);
         assertThat("testRemoveDSpaceLicenseAuth 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testRemoveDSpaceLicenseAuth 1", itemDAO.getBundles(it, name).length == 0);
+        assertTrue("testRemoveDSpaceLicenseAuth 1", itemDAO.getBundles(it, name).size() == 0);
     }
 
     /**
@@ -970,13 +962,13 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String bsname = "License";
         File f = new File(testProps.get("test.bitstream").toString());
         Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), bsname);
-        result.setFormat(bitstreamFormatDAO.findByShortDescription(context, bsname));
+        bitstreamRepo.setFormat(context, result, bitstreamFormatRepo.findByShortDescription(context, bsname));
         bundleDAO.addBitstream(context, created, result);
 
 
         itemDAO.removeLicenses(context, it);
         assertThat("testRemoveLicensesAuth 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testRemoveLicensesAuth 1", itemDAO.getBundles(it, name).length == 0);
+        assertTrue("testRemoveLicensesAuth 1", itemDAO.getBundles(it, name).size() == 0);
     }
 
     /**
@@ -1003,7 +995,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String bsname = "License";
         File f = new File(testProps.get("test.bitstream").toString());
         Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), bsname);
-        result.setFormat(bitstreamFormatDAO.findByShortDescription(context, bsname));
+        bitstreamRepo.setFormat(context, result, bitstreamFormatRepo.findByShortDescription(context, bsname));
         bundleDAO.addBitstream(context, created, result);
 
         itemDAO.removeLicenses(context, it);
@@ -1185,7 +1177,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         boolean added = false;
-        Iterator<Item> items = collectionDAO.getItems(context, collection);
+        Iterator<Item> items = collectionRepo.getItems(context, collection);
         while(items.hasNext())
         {
             Item tmp = items.next();
@@ -1203,7 +1195,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertThat("testDeleteAuth 1", found, nullValue());
 
         added = false;
-        items = collectionDAO.getItems(context, collection);
+        items = collectionRepo.getItems(context, collection);
         while(items.hasNext())
         {
             Item tmp = items.next();
@@ -1307,7 +1299,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String bsname = "License";
         File f = new File(testProps.get("test.bitstream").toString());
         Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), bsname);
-        result.setFormat(bitstreamFormatDAO.findByShortDescription(context, bsname));
+        bitstreamRepo.setFormat(context, result, bitstreamFormatRepo.findByShortDescription(context, bsname));
         bundleDAO.addBitstream(context, created, result);
 
         List<ResourcePolicy> newpolicies = new ArrayList<ResourcePolicy>();
@@ -1346,7 +1338,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     {
         context.turnOffAuthorisationSystem();
         List<ResourcePolicy> newpolicies = new ArrayList<ResourcePolicy>();
-        Group g = groupDAO.create(context);
+        Group g = groupRepo.create(context);
         ResourcePolicy pol1 = resourcePolicyDAO.create(context);
         newpolicies.add(pol1);
         pol1.setGroup(g);
@@ -1388,7 +1380,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String bsname = "License";
         File f = new File(testProps.get("test.bitstream").toString());
         Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), bsname);
-        result.setFormat(bitstreamFormatDAO.findByShortDescription(context, bsname));
+        bitstreamRepo.setFormat(context, result, bitstreamFormatRepo.findByShortDescription(context, bsname));
         bundleDAO.addBitstream(context, created, result);
 
         context.restoreAuthSystemState();
@@ -1461,11 +1453,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetCollectionsNotLinked() throws Exception
     {
-        Collection[] result = itemDAO.getCollectionsNotLinked(context, it);
+        List<Collection> result = itemDAO.getCollectionsNotLinked(context, it);
         boolean isin = false;
         for(Collection c: result)
         {
-            Iterator<Item> iit = collectionDAO.getAllItems(context, collection);
+            Iterator<Item> iit = collectionRepo.getAllItems(context, collection);
             while(iit.hasNext())
             {
                 if(iit.next().getID() == it.getID())
@@ -1700,7 +1692,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     }
 
     protected Collection createCollection() throws SQLException, AuthorizeException {
-        return communityDAO.createCollection(context, owningCommunity);
+        return collectionRepo.create(context, owningCommunity);
     }
 
     protected Item createItem() throws SQLException, IOException, AuthorizeException, IllegalAccessException {
