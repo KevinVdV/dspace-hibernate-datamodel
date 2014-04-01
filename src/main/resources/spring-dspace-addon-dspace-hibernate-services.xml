@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
+
+    <bean id="managerFactory" class="org.dspace.factory.ManagerFactoryImpl" scope="singleton"/>
+
+
+
+    <!-- Manager declarations -->
+    <bean id="org.dspace.content.BitstreamFormatRepo" class="org.dspace.content.BitstreamFormatRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.BitstreamRepo" class="org.dspace.content.BitstreamRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.BundleRepo" class="org.dspace.content.BundleRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.CollectionRepo" class="org.dspace.content.CollectionRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.CommunityRepo" class="org.dspace.content.CommunityRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.eperson.EPersonRepo" class="org.dspace.eperson.EPersonRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.eperson.GroupRepo" class="org.dspace.eperson.GroupRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.ItemRepo" class="org.dspace.content.ItemRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.MetadataFieldRepo" class="org.dspace.content.MetadataFieldRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.MetadataSchemaRepo" class="org.dspace.content.MetadataSchemaRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.MetadataValueRepo" class="org.dspace.content.MetadataValueRepoImpl" scope="singleton"/>
+    <bean id="org.dspace.content.WorkspaceItemRepo" class="org.dspace.content.WorkspaceItemRepoImpl" scope="singleton"/>
+
+
+</beans>

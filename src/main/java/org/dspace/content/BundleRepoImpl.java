@@ -33,7 +33,7 @@ import org.dspace.event.Event;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class BundleRepoImpl extends DSpaceObjectRepoImpl<Bundle>
+public class BundleRepoImpl extends DSpaceObjectRepoImpl<Bundle> implements BundleRepo
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(Bundle.class);

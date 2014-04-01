@@ -7,5 +7,5 @@ package org.dspace.content;
  * Time: 10:21
  * To change this template use File | Settings | File Templates.
  */
-public interface BundleRepo {
+public interface BundleRepo extends DSpaceObjectRepo<Bundle> {
 }

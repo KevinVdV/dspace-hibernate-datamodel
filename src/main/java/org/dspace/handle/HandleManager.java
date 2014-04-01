@@ -19,9 +19,6 @@ import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.hibernate.HibernateQueryUtil;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
 
 /**
  * Interface to the <a href="http://www.handle.net" target=_new>CNRI Handle
@@ -43,6 +40,8 @@ public class HandleManager
 
     /** Prefix registered to no one */
     static final String EXAMPLE_PREFIX = "123456789";
+
+    private static HandleDAO handleDAO = new HandleDAOImpl();
 
     /** Private Constructor */
     private HandleManager()
@@ -181,13 +180,13 @@ public class HandleManager
     {
         Handle handle = new Handle();
         //Update our changes so that we have an identifier
-        HibernateQueryUtil.update(context, handle);
+        handleDAO.save(context, handle);
         String handleId = createId(handle.getId());
 
         handle.setHandle(handleId);
         handle.setResource_type_id(dso.getType());
         handle.setResource_id(dso.getID());
-        HibernateQueryUtil.update(context, handle);
+        handleDAO.save(context, handle);
 
         if (log.isDebugEnabled())
         {
@@ -255,7 +254,7 @@ public class HandleManager
 
         handle.setResource_type_id(dso.getType());
         handle.setResource_id(dso.getID());
-        HibernateQueryUtil.update(context, handle);
+        handleDAO.save(context, handle);
 
         if (log.isDebugEnabled())
         {
@@ -287,7 +286,7 @@ public class HandleManager
                 // can verify during a restore whether the same *type* of resource
                 // is reusing this handle!
                 handle.setResource_id(null);
-                HibernateQueryUtil.update(context, handle);
+                handleDAO.save(context, handle);
 
                 if(log.isDebugEnabled())
                 {
@@ -450,10 +449,7 @@ public class HandleManager
     public static List<String> getHandlesForPrefix(Context context, String prefix)
             throws SQLException
     {
-        String sql = "SELECT handle FROM handle WHERE handle LIKE ? ";
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("handle", prefix+"%");
-        List<Handle> handles = HibernateQueryUtil.searchQuery(context, Handle.class, params, null);
+        List<Handle> handles = handleDAO.findByPrefix(context, prefix);
         List<String> handleStrings = new ArrayList<String>(handles.size());
         for (Handle handle : handles) {
             handleStrings.add(handle.getHandle());
@@ -493,15 +489,9 @@ public class HandleManager
      * @exception SQLException
      *                If a database error occurs
      */
-    private static List<Handle> getInternalHandles(Context context, int type, int id)
-            throws SQLException
+    protected static List<Handle> getInternalHandles(Context context, int type, int id) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(Handle.class);
-        criteria.add(Restrictions.and(
-                Restrictions.eq("resource_type_id", type),
-                Restrictions.eq("resource_id", id)
-        ));
-	    return criteria.list();
+        return handleDAO.getHandlesByTypeAndId(context, type, id);
     }
 
     /**
@@ -523,7 +513,7 @@ public class HandleManager
             throw new IllegalArgumentException("Handle is null");
         }
 
-        return HibernateQueryUtil.findByUnique(context, Handle.class, "handle", handle);
+        return handleDAO.findByHandle(context, handle);
     }
 
     /**

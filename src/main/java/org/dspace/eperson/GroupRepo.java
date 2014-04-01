@@ -1,6 +1,7 @@
 package org.dspace.eperson;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.DSpaceObjectRepo;
 import org.dspace.core.Context;
 
 import java.sql.SQLException;
@@ -12,7 +13,7 @@ import java.util.Set;
  * Date: 31/03/14
  * Time: 13:07
  */
-public interface GroupRepo {
+public interface GroupRepo extends DSpaceObjectRepo<Group> {
 
     public Group create(Context context) throws SQLException, AuthorizeException;
 
