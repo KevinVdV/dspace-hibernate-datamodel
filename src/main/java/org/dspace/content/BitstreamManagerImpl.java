@@ -20,6 +20,7 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.event.Event;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -40,6 +41,7 @@ public class BitstreamManagerImpl extends DSpaceObjectManagerImpl<Bitstream> imp
 
     private BitstreamDAO bitstreamDAO = new BitstreamDAOImpl();
 
+    @Autowired(required = true)
     private BitstreamFormatManager bitstreamFormatManager;
 
     /**
@@ -363,10 +365,5 @@ public class BitstreamManagerImpl extends DSpaceObjectManagerImpl<Bitstream> imp
             return bitstream.getCollection();
         }
         return null;
-    }
-
-    @Required
-    public void setBitstreamFormatManager(BitstreamFormatManager bitstreamFormatManager) {
-        this.bitstreamFormatManager = bitstreamFormatManager;
     }
 }

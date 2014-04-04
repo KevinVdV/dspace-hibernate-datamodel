@@ -21,6 +21,7 @@ import org.dspace.eperson.GroupManager;
 import org.dspace.event.Event;
 import org.dspace.factory.DSpaceManagerFactory;
 import org.dspace.handle.HandleManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.io.IOException;
@@ -47,7 +48,10 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
 
         //TODO: auto wire it in so we have a singleTon
     private CommunityDAO communityDAO = new CommunityDAOImpl();
+
+    @Autowired(required = true)
     private CollectionManager collectionManager;
+    @Autowired(required = true)
     private GroupManager groupManager;
 
 
@@ -756,15 +760,5 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
         {
             return null;
         }       
-    }
-
-    @Required
-    public void setCollectionManager(CollectionManager collectionManager) {
-        this.collectionManager = collectionManager;
-    }
-
-    @Required
-    public void setGroupManager(GroupManager groupManager) {
-        this.groupManager = groupManager;
     }
 }

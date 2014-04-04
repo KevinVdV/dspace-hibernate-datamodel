@@ -13,7 +13,6 @@ import java.io.IOException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
 import org.dspace.content.ItemManager;
-import org.dspace.content.ItemManagerImpl;
 import org.dspace.core.Context;
 import org.dspace.factory.DSpaceManagerFactory;
 

@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.GroupManager;
-import org.dspace.eperson.GroupManagerImpl;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;

@@ -27,6 +27,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.factory.DSpaceManagerFactory;
 import org.dspace.handle.HandleManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
 import javax.annotation.PostConstruct;
@@ -54,11 +55,17 @@ public class ItemManagerImpl extends DSpaceObjectManagerImpl<Item> implements It
 
     private ItemDAO itemDAO = new ItemDAOImpl();
 
+    @Autowired(required = true)
     private MetadataSchemaManager metadataSchemaManager;
+    @Autowired(required = true)
     private MetadataValueManager metadataValueManager;
+    @Autowired(required = true)
     private MetadataFieldManager metadataFieldManager;
+    @Autowired(required = true)
     private CommunityManager communityManager;
+    @Autowired(required = true)
     private BundleManager bundleManager;
+    @Autowired(required = true)
     private BitstreamFormatManager bitstreamFormatManager;
 
     /** Handle, if any */
@@ -1598,35 +1605,5 @@ public class ItemManagerImpl extends DSpaceObjectManagerImpl<Item> implements It
         }
 
         return itemDAO.findByAuthorityValue(context, mdf, value, true);
-    }
-
-    @Required
-    public void setMetadataSchemaManager(MetadataSchemaManager metadataSchemaManager) {
-        this.metadataSchemaManager = metadataSchemaManager;
-    }
-
-    @Required
-    public void setBundleManager(BundleManager bundleManager) {
-        this.bundleManager = bundleManager;
-    }
-
-    @Required
-    public void setBitstreamFormatManager(BitstreamFormatManager bitstreamFormatManager) {
-        this.bitstreamFormatManager = bitstreamFormatManager;
-    }
-
-    @Required
-    public void setMetadataValueManager(MetadataValueManager metadataValueManager) {
-        this.metadataValueManager = metadataValueManager;
-    }
-
-    @Required
-    public void setMetadataFieldManager(MetadataFieldManager metadataFieldManager) {
-        this.metadataFieldManager = metadataFieldManager;
-    }
-
-    @Required
-    public void setCommunityManager(CommunityManager communityManager) {
-        this.communityManager = communityManager;
     }
 }

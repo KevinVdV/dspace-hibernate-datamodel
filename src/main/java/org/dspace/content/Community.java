@@ -43,7 +43,7 @@ public class Community extends DSpaceObject{
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentCommunity")
     private List<Community> subCommunities = new ArrayList<Community>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owningCommunity")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "communities")
     private List<Collection> collections = new ArrayList<Collection>();
 
     @Column(name = "name")

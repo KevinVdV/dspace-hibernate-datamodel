@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.DSpaceObjectManager;
-import org.dspace.content.DSpaceObjectManagerImpl;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;

@@ -15,7 +15,6 @@ import java.util.Enumeration;
 import org.apache.log4j.Logger;
 
 import org.dspace.content.MetadataFieldManager;
-import org.dspace.content.MetadataFieldManagerImpl;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.PluginManager;
 import org.dspace.factory.DSpaceManagerFactory;

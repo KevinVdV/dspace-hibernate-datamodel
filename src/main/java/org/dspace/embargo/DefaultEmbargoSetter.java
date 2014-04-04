@@ -18,7 +18,6 @@ import org.dspace.core.Context;
 import org.dspace.core.Constants;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.GroupManager;
-import org.dspace.eperson.GroupManagerImpl;
 import org.dspace.factory.DSpaceManagerFactory;
 import org.dspace.license.CreativeCommons;
 

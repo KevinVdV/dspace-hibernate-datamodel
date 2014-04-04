@@ -21,6 +21,7 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -35,7 +36,10 @@ public class WorkspaceItemManagerImpl implements WorkspaceItemManager
     private static Logger log = Logger.getLogger(WorkspaceItem.class);
 
     private WorkspaceItemDAO workspaceItemDAO = new WorkspaceItemDAOImpl();
+
+    @Autowired(required = true)
     private CollectionManager collectionManager;
+    @Autowired(required = true)
     private ItemManager itemManager;
 
     /**
@@ -383,15 +387,5 @@ public class WorkspaceItemManagerImpl implements WorkspaceItemManager
         // Need to delete the workspaceitem row first since it refers
         // to item ID
         workspaceItemDAO.delete(context, workspaceItem);
-    }
-
-    @Required
-    public void setCollectionManager(CollectionManager collectionManager) {
-        this.collectionManager = collectionManager;
-    }
-
-    @Required
-    public void setItemManager(ItemManager itemManager) {
-        this.itemManager = itemManager;
     }
 }

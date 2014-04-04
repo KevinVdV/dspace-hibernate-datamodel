@@ -21,6 +21,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.event.Event;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -41,7 +42,9 @@ public class BundleManagerImpl extends DSpaceObjectManagerImpl<Bundle> implement
 
     private BundleDAO bundleDAO = new BundleDAOImpl();
 
+    @Autowired(required = true)
     protected ItemManager itemManager;
+    @Autowired(required = true)
     protected BitstreamManager bitstreamManager;
 
     /**
@@ -504,15 +507,5 @@ public class BundleManagerImpl extends DSpaceObjectManagerImpl<Bundle> implement
     public DSpaceObject getParentObject(Context context, Bundle bundle) throws SQLException
     {
         return bundle.getItem();
-    }
-
-    @Required
-    public void setBitstreamManager(BitstreamManager bitstreamManager) {
-        this.bitstreamManager = bitstreamManager;
-    }
-
-    @Required
-    public void setItemManager(ItemManager itemManager) {
-        this.itemManager = itemManager;
     }
 }

@@ -10,7 +10,6 @@ package org.dspace.test.content;
 import java.sql.SQLException;
 import org.dspace.AbstractUnitTest;
 import org.dspace.content.*;
-import org.dspace.eperson.GroupManagerImpl;
 import org.dspace.factory.DSpaceManagerFactory;
 import org.junit.*;
 import static org.junit.Assert.* ;

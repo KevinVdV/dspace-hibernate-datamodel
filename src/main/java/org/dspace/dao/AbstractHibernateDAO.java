@@ -15,9 +15,8 @@ import java.util.List;
 public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
 
     public T create(Context context, T t) throws SQLException {
-        @SuppressWarnings("unchecked")
-        T result = (T) context.getDBConnection().save(t);
-        return result;
+        context.getDBConnection().save(t);
+        return t;
     }
 
     public void save(Context context, T t) throws SQLException {
