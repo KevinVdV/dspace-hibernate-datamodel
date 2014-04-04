@@ -22,7 +22,6 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamDAO;
 import org.dspace.content.BitstreamDAOImpl;
-import org.dspace.content.BitstreamRepoImpl;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
@@ -34,6 +33,7 @@ import edu.sdsc.grid.io.local.LocalFile;
 import edu.sdsc.grid.io.srb.SRBAccount;
 import edu.sdsc.grid.io.srb.SRBFile;
 import edu.sdsc.grid.io.srb.SRBFileSystem;
+import org.dspace.factory.DSpaceManagerFactory;
 
 /**
  * <P>
@@ -330,7 +330,7 @@ public class BitstreamStorageManager
         }
         
         bitstream.setDeleted(false);
-        new BitstreamRepoImpl().update(context, bitstream);
+        DSpaceManagerFactory.getInstance().getBitstreamManager().update(context, bitstream);
 
         int bitstreamId = bitstream.getID();
 
@@ -374,7 +374,7 @@ public class BitstreamStorageManager
 			bitstream.setDeleted(true);
 			bitstream.setInternalId(sInternalId);
 			bitstream.setStoreNumber(assetstore);
-            new BitstreamRepoImpl().update(context, bitstream);
+            DSpaceManagerFactory.getInstance().getBitstreamManager().update(context, bitstream);
 
 			tempContext.complete();
 		} catch (SQLException sqle) {
@@ -475,7 +475,7 @@ public class BitstreamStorageManager
 		bitstream.setChecksumAlgorithm("MD5");
 		bitstream.setSizeBytes(file.length());
 		bitstream.setDeleted(false);
-		new BitstreamRepoImpl().update(context, bitstream);
+        DSpaceManagerFactory.getInstance().getBitstreamManager().update(context, bitstream);
 
 		int bitstreamId = bitstream.getID();
 		if (log.isDebugEnabled()) 
@@ -520,7 +520,7 @@ public class BitstreamStorageManager
     public static InputStream retrieve(Context context, int id)
             throws SQLException, IOException
     {
-		GeneralFile file = getFile(new BitstreamRepoImpl().find(context, id));
+		GeneralFile file = getFile(DSpaceManagerFactory.getInstance().getBitstreamManager().find(context, id));
 
 		return (file != null) ? FileFactory.newFileInputStream(file) : null;
     }

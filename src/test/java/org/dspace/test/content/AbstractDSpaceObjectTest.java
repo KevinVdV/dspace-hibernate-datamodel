@@ -10,7 +10,8 @@ package org.dspace.test.content;
 import java.sql.SQLException;
 import org.dspace.AbstractUnitTest;
 import org.dspace.content.*;
-import org.dspace.eperson.GroupRepoImpl;
+import org.dspace.eperson.GroupManagerImpl;
+import org.dspace.factory.DSpaceManagerFactory;
 import org.junit.*;
 import static org.junit.Assert.* ;
 import static org.hamcrest.CoreMatchers.*;
@@ -109,40 +110,35 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
     @Test
     public void testFind() throws SQLException
     {
+        DSpaceObjectManager dSpaceObjectManager = DSpaceManagerFactory.getInstance().getDSpaceObjectManager(dspaceObject.getType());
+
         if(this.dspaceObject instanceof Bitstream)
         {
-            assertThat("BITSTREAM type", new BitstreamRepoImpl().find(context,
-                Constants.BITSTREAM, dspaceObject.getID()), notNullValue());
+            assertThat("BITSTREAM type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Bundle)
         {
-            assertThat("BUNDLE type", new BundleRepoImpl().find(context,
-                Constants.BUNDLE, dspaceObject.getID()), notNullValue());
+            assertThat("BUNDLE type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Item)
         {
-            assertThat("ITEM type", itemDAO.find(context,
-                Constants.ITEM, dspaceObject.getID()), notNullValue());
+            assertThat("ITEM type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Collection)
         {
-            assertThat("COLLECTION type", new CollectionRepoImpl().find(context,
-                Constants.COLLECTION, dspaceObject.getID()), notNullValue());
+            assertThat("COLLECTION type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Community)
         {
-            assertThat("COMMUNITY type", communityRepo.find(context,
-                    Constants.COMMUNITY, dspaceObject.getID()), notNullValue());
+            assertThat("COMMUNITY type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Group)
         {
-            assertThat("GROUP type", new GroupRepoImpl().find(context,
-                Constants.GROUP, dspaceObject.getID()), notNullValue());
+            assertThat("GROUP type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof EPerson)
         {
-            assertThat("EPERSON type", ePersonRepo.find(context,
-                    Constants.EPERSON, dspaceObject.getID()), notNullValue());
+            assertThat("EPERSON type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Site)
         {

@@ -52,6 +52,9 @@ public class Item extends DSpaceObject{
     @JoinColumn(name = "owning_collection")
     private Collection owningCollection;
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "template")
+    private Collection templateItemOf;
+
     /** The e-person who submitted this item */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submitter_id")
@@ -376,5 +379,12 @@ public class Item extends DSpaceObject{
         context.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), null));
     }
 
+    Collection getTemplateItemOf() {
+        return templateItemOf;
+    }
+
+    void setTemplateItemOf(Collection templateItemOf) {
+        this.templateItemOf = templateItemOf;
+    }
 }
 

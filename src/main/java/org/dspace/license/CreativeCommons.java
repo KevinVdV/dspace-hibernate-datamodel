@@ -28,6 +28,7 @@ import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
+import org.dspace.factory.DSpaceManagerFactory;
 
 public class CreativeCommons
 {
@@ -52,6 +53,11 @@ public class CreativeCommons
 
     protected static final Templates templates;
 
+    protected static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
+    protected static final BitstreamFormatManager bitstreamFormatManager = DSpaceManagerFactory.getInstance().getBitstreamFormatManager();
+    protected static final BitstreamManager bitstreamManager = DSpaceManagerFactory.getInstance().getBitstreamManager();
+    protected static final BundleManager bundleManager = DSpaceManagerFactory.getInstance().getBundleManager();
+
     static
     {
         // if defined, set a proxy server for http requests to Creative
@@ -64,7 +70,7 @@ public class CreativeCommons
             System.setProperty("http.proxyHost", proxyHost);
             System.setProperty("http.proxyPort", proxyPort);
         }
-        
+
         try
         {
             templates = TransformerFactory.newInstance().newTemplates(
@@ -75,8 +81,8 @@ public class CreativeCommons
         {
             throw new RuntimeException(e.getMessage(),e);
         }
-       
-        
+
+
     }
 
     /**
@@ -92,14 +98,13 @@ public class CreativeCommons
     private static Bundle getCcBundle(Context context, Item item)
         throws SQLException, AuthorizeException, IOException
     {
-        ItemRepoImpl itemDAO = new ItemRepoImpl();
-        List<Bundle> bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = itemManager.getBundles(item, CC_BUNDLE_NAME);
 
         if ((bundles.size() > 0) && (bundles.get(0) != null))
         {
-            itemDAO.removeBundle(context, item, bundles.get(0));
+            itemManager.removeBundle(context, item, bundles.get(0));
         }
-        return itemDAO.createBundle(context, item, CC_BUNDLE_NAME);
+        return itemManager.createBundle(context, item, CC_BUNDLE_NAME);
     }
 
 
@@ -114,11 +119,11 @@ public class CreativeCommons
     {
         Bundle bundle = getCcBundle(context, item);
         // set the format
-        BitstreamFormat bs_rdf_format = new BitstreamFormatRepoImpl().findByShortDescription(context, "RDF XML");
+        BitstreamFormat bs_rdf_format = bitstreamFormatManager.findByShortDescription(context, "RDF XML");
         // set the RDF bitstream
         setBitstreamFromBytes(context, bundle, BSN_LICENSE_RDF, bs_rdf_format, licenseRdf.getBytes());
     }
-    
+
 
     /**
      * This is a bit of the "do-the-right-thing" method for CC stuff in an item
@@ -133,13 +138,12 @@ public class CreativeCommons
         String license_text = fetchLicenseText(cc_license_url);
         String license_rdf = fetchLicenseRDF(cc_license_url);
 
-        BitstreamFormatRepo bitstreamFormatDAO = new BitstreamFormatRepoImpl();
         // set the formats
-        BitstreamFormat bs_url_format = bitstreamFormatDAO.findByShortDescription(
+        BitstreamFormat bs_url_format = bitstreamFormatManager.findByShortDescription(
                 context, "License");
-        BitstreamFormat bs_text_format = bitstreamFormatDAO.findByShortDescription(
+        BitstreamFormat bs_text_format = bitstreamFormatManager.findByShortDescription(
                 context, "CC License");
-        BitstreamFormat bs_rdf_format = bitstreamFormatDAO.findByShortDescription(
+        BitstreamFormat bs_rdf_format = bitstreamFormatManager.findByShortDescription(
                 context, "RDF XML");
 
         // set the URL bitstream
@@ -175,40 +179,37 @@ public class CreativeCommons
     {
         Bundle bundle = getCcBundle(context, item);
 
-        BitstreamFormatRepo bitstreamFormatDAO = new BitstreamFormatRepoImpl();
      // set the format
         BitstreamFormat bs_format;
         if (mimeType.equalsIgnoreCase("text/xml"))
         {
-        	bs_format = bitstreamFormatDAO.findByShortDescription(context, "CC License");
+        	bs_format = bitstreamFormatManager.findByShortDescription(context, "CC License");
         } else if (mimeType.equalsIgnoreCase("text/rdf")) {
-            bs_format = bitstreamFormatDAO.findByShortDescription(context, "RDF XML");
+            bs_format = bitstreamFormatManager.findByShortDescription(context, "RDF XML");
         } else {
-        	bs_format = bitstreamFormatDAO.findByShortDescription(context, "License");
+        	bs_format = bitstreamFormatManager.findByShortDescription(context, "License");
         }
 
-        BundleRepoImpl bundleDAO = new BundleRepoImpl();
-        Bitstream bs = bundleDAO.createBitstream(context, bundle, licenseStm);
+        Bitstream bs = bundleManager.createBitstream(context, bundle, licenseStm);
         bs.setSource(CC_BS_SOURCE);
         bs.setName((mimeType != null &&
                     (mimeType.equalsIgnoreCase("text/xml") ||
                      mimeType.equalsIgnoreCase("text/rdf"))) ?
                    BSN_LICENSE_RDF : BSN_LICENSE_TEXT);
-        new BitstreamRepoImpl().setFormat(context, bs, bs_format);
-        bundleDAO.update(context, bundle);
+        bitstreamManager.setFormat(context, bs, bs_format);
+        bundleManager.update(context, bundle);
     }
 
-    
+
     public static void removeLicense(Context context, Item item)
             throws SQLException, IOException, AuthorizeException
     {
         // remove CC license bundle if one exists
-        ItemRepoImpl itemDAO = new ItemRepoImpl();
-        List<Bundle> bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = itemManager.getBundles(item, CC_BUNDLE_NAME);
 
         if ((bundles.size() > 0) && (bundles.get(0) != null))
         {
-            itemDAO.removeBundle(context, item, bundles.get(0));
+            itemManager.removeBundle(context, item, bundles.get(0));
         }
     }
 
@@ -216,8 +217,7 @@ public class CreativeCommons
             throws SQLException, IOException
     {
         // try to find CC license bundle
-        ItemRepoImpl itemDAO = new ItemRepoImpl();
-        List<Bundle> bundles = itemDAO.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = itemManager.getBundles(item, CC_BUNDLE_NAME);
 
         if (bundles.size() == 0)
         {
@@ -293,9 +293,9 @@ public class CreativeCommons
     		return result.getBuffer().toString();
     	}
     }
-    
-    
-    /** 
+
+
+    /**
     *
     *  The next two methods are old CC.
     * Remains until prev. usages are eliminated.
@@ -313,11 +313,11 @@ public class CreativeCommons
 
         return (urlBytes != null) ? new String(urlBytes) : "";
     }
-    
+
     public static String fetchLicenseRDF(String license_url)
     {
         StringWriter result = new StringWriter();
-        
+
         try
         {
             templates.newTransformer().transform(
@@ -345,14 +345,14 @@ public class CreativeCommons
             throws SQLException, IOException, AuthorizeException
     {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        Bitstream bs = new BundleRepoImpl().createBitstream(context, bundle, bais);
+        Bitstream bs = bundleManager.createBitstream(context, bundle, bais);
 
         bs.setName(bitstream_name);
         bs.setSource(CC_BS_SOURCE);
-        new BitstreamRepoImpl().setFormat(context, bs, format);
+        bitstreamManager.setFormat(context, bs, format);
 
         // commit everything
-        new BitstreamRepoImpl().update(context, bs);
+        bitstreamManager.update(context, bs);
     }
 
     /**
@@ -385,7 +385,7 @@ public class CreativeCommons
         // look for the CC bundle
         try
         {
-            List<Bundle> bundles = new ItemRepoImpl().getBundles(item, CC_BUNDLE_NAME);
+            List<Bundle> bundles = itemManager.getBundles(item, CC_BUNDLE_NAME);
 
             if ((bundles != null) && (bundles.size() > 0))
             {
@@ -403,7 +403,7 @@ public class CreativeCommons
             return null;
         }
 
-        return new BundleRepoImpl().getBitstreamByName(cc_bundle, bitstream_name);
+        return bundleManager.getBitstreamByName(cc_bundle, bitstream_name);
     }
 
     private static byte[] getBytesFromBitstream(Context context, Item item, String bitstream_name)
@@ -419,7 +419,7 @@ public class CreativeCommons
 
         // create a ByteArrayOutputStream
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Utils.copy(new BitstreamRepoImpl().retrieve(context, bs), baos);
+        Utils.copy(bitstreamManager.retrieve(context, bs), baos);
 
         return baos.toByteArray();
     }
@@ -458,18 +458,18 @@ public class CreativeCommons
     {
     	return new MdField(ConfigurationManager.getProperty("cc.license." + fieldId));
     }
-    
+
     // Shibboleth for Creative Commons license data - i.e. characters that reliably indicate CC in a URI
     private static final String ccShib = "creativecommons";
-    
+
     /**
      * Helper class for using CC-related Metadata fields
-     * 
+     *
      */
     public static class MdField
     {
     	private String[] params = new String[4];
-    	
+
     	public MdField(String fieldName)
     	{
     		if (fieldName != null && fieldName.length() > 0)
@@ -482,19 +482,18 @@ public class CreativeCommons
     			params[3] = Item.ANY;
     		}
     	}
-    	
+
     	/**
     	 * Returns first value that matches Creative Commons 'shibboleth',
     	 * or null if no matching values.
     	 * NB: this method will succeed only for metadata fields holding CC URIs
-    	 * 
+    	 *
     	 * @param item - the item to read
     	 * @return value - the first CC-matched value, or null if no such value
     	 */
     	public String ccItemValue(Item item)
     	{
-            ItemRepoImpl itemDAO = new ItemRepoImpl();
-            List<MetadataValue> dcvalues = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
+            List<MetadataValue> dcvalues = itemManager.getMetadata(item, params[0], params[1], params[2], params[3]);
             for (MetadataValue dcvalue : dcvalues)
             {
                 if ((dcvalue.getValue()).contains(ccShib))
@@ -505,11 +504,11 @@ public class CreativeCommons
             }
             return null;
     	}
-    	
+
     	/**
     	 * Returns the value that matches the value mapped to the passed key if any.
     	 * NB: this only delivers a license name (if present in field) given a license URI
-    	 * 
+    	 *
     	 * @param item - the item to read
     	 * @param key - the key for desired value
     	 * @return value - the value associated with key or null if no such value
@@ -517,11 +516,10 @@ public class CreativeCommons
     	public String keyedItemValue(Item item, String key)
     		throws AuthorizeException, IOException, SQLException
     	{
-            ItemRepoImpl itemDAO = new ItemRepoImpl();
     		 CCLookup ccLookup = new CCLookup();
              ccLookup.issue(key);
              String matchValue = ccLookup.getLicenseName();
-            List<MetadataValue> dcvalues = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
+            List<MetadataValue> dcvalues = itemManager.getMetadata(item, params[0], params[1], params[2], params[3]);
              for (MetadataValue dcvalue : dcvalues)
              {
             	 if (dcvalue.getValue().equals(matchValue))
@@ -531,10 +529,10 @@ public class CreativeCommons
              }
     		return null;
     	}
-    	
+
     	/**
     	 * Removes the passed value from the set of values for the field in passed item.
-    	 * 
+    	 *
     	 * @param item - the item to update
     	 * @param value - the value to remove
     	 */
@@ -543,8 +541,7 @@ public class CreativeCommons
     	{
     		if (value != null)
     		{
-                ItemRepoImpl itemDAO = new ItemRepoImpl();
-    			 List<MetadataValue> dcvalues  = itemDAO.getMetadata(item, params[0], params[1], params[2], params[3]);
+    			 List<MetadataValue> dcvalues  = itemManager.getMetadata(item, params[0], params[1], params[2], params[3]);
                  ArrayList<String> arrayList = new ArrayList<String>();
                  for (MetadataValue dcvalue : dcvalues)
                  {
@@ -554,19 +551,19 @@ public class CreativeCommons
                      }
                   }
                   String[] values = arrayList.toArray(new String[arrayList.size()]);
-                itemDAO.clearMetadata(context, item, params[0], params[1], params[2], params[3]);
-                itemDAO.addMetadata(context, item, params[0], params[1], params[2], params[3], values);
+                itemManager.clearMetadata(context, item, params[0], params[1], params[2], params[3]);
+                itemManager.addMetadata(context, item, params[0], params[1], params[2], params[3], values);
     		}
     	}
-    	
+
     	/**
     	 * Adds passed value to the set of values for the field in passed item.
-    	 * 
+    	 *
     	 * @param item - the item to update
     	 * @param value - the value to add in this field
     	 */
     	public void addItemValue(Context context, Item item, String value) throws SQLException {
-    		new ItemRepoImpl().addMetadata(context, item, params[0], params[1], params[2], params[3], value);
+            itemManager.addMetadata(context, item, params[0], params[1], params[2], params[3], value);
     	}
     }
 }

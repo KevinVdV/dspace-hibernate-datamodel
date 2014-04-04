@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.*;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
@@ -23,7 +24,6 @@ import static org.hamcrest.CoreMatchers.*;
 import mockit.*;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Constants;
 
 /**
@@ -57,7 +57,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         {   
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            this.community = communityRepo.create(null, context);
+            this.community = communityManager.create(null, context);
             this.dspaceObject = community;
             //we need to commit the changes so we don't block the table for testing
             context.restoreAuthSystemState();
@@ -96,7 +96,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     public void testCommunityFind() throws Exception
     {
         int id = community.getID();
-        Community found =  communityRepo.find(context, id);
+        Community found =  communityManager.find(context, id);
         assertThat("testCommunityFind 0", found, notNullValue());
         assertThat("testCommunityFind 1", found.getID(), equalTo(id));
         //the community created by default has no name
@@ -122,12 +122,12 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         // test that a Community Admin can create a Community with parent (Sub-Community)
-        Community son = communityRepo.create(community, context);
+        Community son = communityManager.create(community, context);
         //the item created by default has no name set
         assertThat("testCreate 2", son, notNullValue());        
         assertThat("testCreate 3", son.getName(), equalTo(""));        
-        assertTrue("testCreate 4", communityRepo.getAllParents(son).length == 1);
-        assertThat("testCreate 5", communityRepo.getAllParents(son)[0], equalTo(community));
+        assertTrue("testCreate 4", communityManager.getAllParents(son).length == 1);
+        assertThat("testCreate 5", communityManager.getAllParents(son)[0], equalTo(community));
     }
 
 
@@ -149,18 +149,18 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         //Test that a full Admin can create a Community without a parent (Top-Level Community)
-        Community created = communityRepo.create(null, context);
+        Community created = communityManager.create(null, context);
         //the item created by default has no name set
         assertThat("testCreate 0", created, notNullValue());
         assertThat("testCreate 1", created.getName(), equalTo(""));
 
         //Test that a full Admin can also create a Community with a parent (Sub-Community)
-        Community son = communityRepo.create(created, context);
+        Community son = communityManager.create(created, context);
         //the item created by default has no name set
         assertThat("testCreate 2", son, notNullValue());
         assertThat("testCreate 3", son.getName(), equalTo(""));
-        assertTrue("testCreate 4", communityRepo.getAllParents(son).length == 1);
-        assertThat("testCreate 5", communityRepo.getAllParents(son)[0], equalTo(created));
+        assertTrue("testCreate 4", communityManager.getAllParents(son).length == 1);
+        assertThat("testCreate 5", communityManager.getAllParents(son)[0], equalTo(created));
     }
 
     /**
@@ -182,7 +182,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         // test creating community with no parent (as a non-admin & non-Community Admin)
         // this should throw an exception
-        Community created = communityRepo.create(null, context);
+        Community created = communityManager.create(null, context);
         fail("Exception expected");
     }
 
@@ -205,7 +205,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         // test creating community with a specified handle which is NOT already in use
         // (this handle should not already be used by system, as it doesn't start with "1234567689" prefix)
-        Community created = communityRepo.create(null, context, "987654321/100");
+        Community created = communityManager.create(null, context, "987654321/100");
 
         // check that community was created, and that its handle was set to proper value
         assertThat("testCreateWithValidHandle 0", created, notNullValue());
@@ -235,7 +235,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         // test creating community with a specified handle which IS already in use
         // This should throw an exception
-        Community created = communityRepo.create(null, context, inUseHandle);
+        Community created = communityManager.create(null, context, inUseHandle);
         fail("Exception expected");
     }
 
@@ -258,7 +258,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         // test creating community with no parent (as a non-admin, but with Community Admin rights)
         // this should throw an exception, as only admins can create Top Level communities
-        Community created = communityRepo.create(null, context);
+        Community created = communityManager.create(null, context);
         fail("Exception expected");
     }
 
@@ -268,7 +268,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     @Test
     public void testFindAll() throws Exception
     {
-        List<Community> all = communityRepo.findAll(context);
+        List<Community> all = communityManager.findAll(context);
         assertThat("testFindAll 0", all, notNullValue());
         assertTrue("testFindAll 1", all.size() >= 1);
 
@@ -289,12 +289,12 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     @Test
     public void testFindAllTop() throws Exception
     {
-        List<Community> all = communityRepo.findAllTop(context);
+        List<Community> all = communityManager.findAllTop(context);
         assertThat("testFindAllTop 0", all, notNullValue());
         assertTrue("testFindAllTop 1", all.size() >= 1);
         for(Community cm: all)
         {
-            assertThat("testFindAllTop for", communityRepo.getAllParents(cm).length, equalTo(0));
+            assertThat("testFindAllTop for", communityManager.getAllParents(cm).length, equalTo(0));
         }
 
         boolean added = false;
@@ -355,12 +355,12 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         String copy = "copyright declaration";
         String sidebar = "side bar text";
 
-        communityRepo.setName(community, name);
+        communityManager.setName(community, name);
         community.setShortDescription(sdesc);
         community.setIntroductoryText(itext);
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityRepo.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityManager.setLogo(context, community, new FileInputStream(f));
         community.setCopyrightText(copy);
         community.setSideBarText(sidebar);
 
@@ -408,15 +408,15 @@ public class CommunityTest extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE); result = true;
                  AuthorizeManager.authorizeAction((Context) any, (Community) any,
-                        Constants.WRITE); result = null;
+                         Constants.WRITE); result = null;
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityRepo.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityManager.setLogo(context, community, new FileInputStream(f));
         assertThat("testSetLogoAuth 0", community.getLogo(), equalTo(logo));
 
-        communityRepo.setLogo(context, community, null);
+        communityManager.setLogo(context, community, null);
         assertThat("testSetLogoAuth 1", community.getLogo(), nullValue());
     }
 
@@ -435,15 +435,15 @@ public class CommunityTest extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE); result = true;
                  AuthorizeManager.authorizeAction((Context) any, (Community) any,
-                        Constants.WRITE); result = null;
+                         Constants.WRITE); result = null;
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityRepo.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityManager.setLogo(context, community, new FileInputStream(f));
         assertThat("testSetLogoAuth2 0", community.getLogo(), equalTo(logo));
 
-        communityRepo.setLogo(context, community, null);
+        communityManager.setLogo(context, community, null);
         assertThat("testSetLogoAuth2 1", community.getLogo(), nullValue());
     }
 
@@ -462,15 +462,15 @@ public class CommunityTest extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE); result = false;
                  AuthorizeManager.authorizeAction((Context) any, (Community) any,
-                        Constants.WRITE); result = null;
+                         Constants.WRITE); result = null;
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityRepo.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityManager.setLogo(context, community, new FileInputStream(f));
         assertThat("testSetLogoAuth3 0", community.getLogo(), equalTo(logo));
 
-        communityRepo.setLogo(context, community, null);
+        communityManager.setLogo(context, community, null);
         assertThat("testSetLogoAuth3 1", community.getLogo(), nullValue());
     }
 
@@ -489,15 +489,15 @@ public class CommunityTest extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE); result = false;
                  AuthorizeManager.authorizeAction((Context) any, (Community) any,
-                        Constants.WRITE); result = null;
+                         Constants.WRITE); result = null;
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityRepo.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityManager.setLogo(context, community, new FileInputStream(f));
         assertThat("testSetLogoAuth4 0", community.getLogo(), equalTo(logo));
 
-        communityRepo.setLogo(context, community, null);
+        communityManager.setLogo(context, community, null);
         assertThat("testSetLogoAuth4 1", community.getLogo(), nullValue());
     }
 
@@ -521,7 +521,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityRepo.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityManager.setLogo(context, community, new FileInputStream(f));
         fail("EXception expected");
     }
 
@@ -543,7 +543,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: we need to verify the update, how?
-        communityRepo.update(context, community);
+        communityManager.update(context, community);
         fail("Exception must be thrown");
     }
 
@@ -565,7 +565,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: we need to verify the update, how?
-        communityRepo.update(context, community);
+        communityManager.update(context, community);
     }
 
     /**
@@ -583,7 +583,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = communityRepo.createAdministrators(context, community);
+        Group result = communityManager.createAdministrators(context, community);
         assertThat("testCreateAdministratorsAuth 0", community.getAdministrators(), notNullValue());
         assertThat("testCreateAdministratorsAuth 1", community.getAdministrators(), equalTo(result));
     }
@@ -603,7 +603,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = communityRepo.createAdministrators(context, community);
+        Group result = communityManager.createAdministrators(context, community);
         fail("Exception should have been thrown");
     }
 
@@ -623,10 +623,10 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = communityRepo.createAdministrators(context, community);
+        Group result = communityManager.createAdministrators(context, community);
         assertThat("testRemoveAdministratorsAuth 0", community.getAdministrators(), notNullValue());
         assertThat("testRemoveAdministratorsAuth 1", community.getAdministrators(), equalTo(result));
-        communityRepo.removeAdministrators(context, community);
+        communityManager.removeAdministrators(context, community);
         assertThat("testRemoveAdministratorsAuth 2", community.getAdministrators(), nullValue());
     }
 
@@ -645,7 +645,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        communityRepo.removeAdministrators(context, community);
+        communityManager.removeAdministrators(context, community);
         fail("Should have thrown exception");
     }
 
@@ -680,7 +680,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         assertThat("testGetCollections 0", community.getCollections(), notNullValue());
         assertTrue("testGetCollections 1", community.getCollections().size() == 0);
 
-        Collection result = collectionRepo.create(context, community);
+        Collection result = collectionManager.create(context, community);
         assertThat("testGetCollections 2", community.getCollections(), notNullValue());
         assertTrue("testGetCollections 3", community.getCollections().size() == 1);
         assertThat("testGetCollections 4", community.getCollections().iterator().next(), equalTo(result));
@@ -708,7 +708,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         assertTrue("testGetSubcommunities 1", community.getSubCommunities().size() == 0);
 
         //community with  parent
-        Community son = communityRepo.create(community, context);
+        Community son = communityManager.create(community, context);
         assertThat("testGetSubcommunities 2", community.getSubCommunities(), notNullValue());
         assertTrue("testGetSubcommunities 3", community.getSubCommunities().size() == 1);
         assertThat("testGetSubcommunities 4", community.getSubCommunities().iterator().next(), equalTo(son));
@@ -735,7 +735,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         assertThat("testGetParentCommunity 0", community.getParentCommunity(), nullValue());
 
         //community with  parent
-        Community son = communityRepo.create(community, context);
+        Community son = communityManager.create(community, context);
         assertThat("testGetParentCommunity 1",son.getParentCommunity(), notNullValue());
         assertThat("testGetParentCommunity 2", son.getParentCommunity(), equalTo(community));
     }
@@ -758,14 +758,14 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         //empty by default
-        assertThat("testGetAllParents 0", communityRepo.getAllParents(community), notNullValue());
-        assertTrue("testGetAllParents 1", communityRepo.getAllParents(community).length == 0);
+        assertThat("testGetAllParents 0", communityManager.getAllParents(community), notNullValue());
+        assertTrue("testGetAllParents 1", communityManager.getAllParents(community).length == 0);
 
         //community with  parent
-        Community son = communityRepo.create(community, context);
-        assertThat("testGetAllParents 2", communityRepo.getAllParents(son), notNullValue());
-        assertTrue("testGetAllParents 3", communityRepo.getAllParents(son).length == 1);
-        assertThat("testGetAllParents 4", communityRepo.getAllParents(son)[0], equalTo(community));
+        Community son = communityManager.create(community, context);
+        assertThat("testGetAllParents 2", communityManager.getAllParents(son), notNullValue());
+        assertTrue("testGetAllParents 3", communityManager.getAllParents(son).length == 1);
+        assertThat("testGetAllParents 4", communityManager.getAllParents(son)[0], equalTo(community));
     }
 
     /**
@@ -786,17 +786,17 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         //empty by default
-        assertThat("testGetAllCollections 0", communityRepo.getAllCollections(community), notNullValue());
-        assertTrue("testGetAllCollections 1", communityRepo.getAllCollections(community).length == 0);
+        assertThat("testGetAllCollections 0", communityManager.getAllCollections(community), notNullValue());
+        assertTrue("testGetAllCollections 1", communityManager.getAllCollections(community).length == 0);
 
         //community has a collection and a subcommunity, subcommunity has a collection
-        Collection collOfC = collectionRepo.create(context, community);
-        Community sub = communityRepo.create(community, context);
-        Collection collOfSub = collectionRepo.create(context, sub);
-        assertThat("testGetAllCollections 2", communityRepo.getAllCollections(community), notNullValue());
-        assertTrue("testGetAllCollections 3", communityRepo.getAllCollections(community).length == 2);
-        assertThat("testGetAllCollections 4", communityRepo.getAllCollections(community)[0], equalTo(collOfSub));
-        assertThat("testGetAllCollections 5", communityRepo.getAllCollections(community)[1], equalTo(collOfC));
+        Collection collOfC = collectionManager.create(context, community);
+        Community sub = communityManager.create(community, context);
+        Collection collOfSub = collectionManager.create(context, sub);
+        assertThat("testGetAllCollections 2", communityManager.getAllCollections(community), notNullValue());
+        assertTrue("testGetAllCollections 3", communityManager.getAllCollections(community).length == 2);
+        assertThat("testGetAllCollections 4", communityManager.getAllCollections(community)[0], equalTo(collOfSub));
+        assertThat("testGetAllCollections 5", communityManager.getAllCollections(community)[1], equalTo(collOfC));
     }
 
     /**
@@ -814,7 +814,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Collection result = collectionRepo.create(context, community);
+        Collection result = collectionManager.create(context, community);
         assertThat("testCreateCollectionAuth 0", result, notNullValue());
         assertThat("testCreateCollectionAuth 1", community.getCollections(), notNullValue());
         assertThat("testCreateCollectionAuth 2", community.getCollections().iterator().next(), equalTo(result));
@@ -835,7 +835,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Collection result = collectionRepo.create(context, community);
+        Collection result = collectionManager.create(context, community);
         fail("Exception expected");
     }
 
@@ -854,7 +854,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Collection col = collectionRepo.create(context, community);
+        Collection col = collectionManager.create(context, community);
         assertThat("testAddCollectionAuth 0", community.getCollections(), notNullValue());
         assertThat("testAddCollectionAuth 1", community.getCollections().iterator().next(), equalTo(col));
     }
@@ -874,8 +874,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Collection col = collectionRepo.create(context, community);
-        communityRepo.addCollection(context, community, col);
+        Collection col = collectionManager.create(context, community);
+        communityManager.addCollection(context, community, col);
         fail("Exception expected");
     }
 
@@ -896,7 +896,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Community result = communityRepo.createSubcommunity(context, community);
+        Community result = communityManager.createSubcommunity(context, community);
         assertThat("testCreateSubcommunityAuth 0", community.getSubCommunities(), notNullValue());
         assertTrue("testCreateSubcommunityAuth 1", community.getSubCommunities().size() == 1);
         assertThat("testCreateSubcommunityAuth 2", community.getSubCommunities().iterator().next(), equalTo(result));
@@ -919,7 +919,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Community result = communityRepo.createSubcommunity(context, community);
+        Community result = communityManager.createSubcommunity(context, community);
         fail("Exception expected");
     }
 
@@ -941,8 +941,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Community result = communityRepo.create(null, context);
-        communityRepo.addSubcommunity(context, community, result);
+        Community result = communityManager.create(null, context);
+        communityManager.addSubcommunity(context, community, result);
         assertThat("testAddSubcommunityAuth 0", community.getSubCommunities(), notNullValue());
         assertTrue("testAddSubcommunityAuth 1", community.getSubCommunities().size() == 1);
         assertThat("testAddSubcommunityAuth 2", community.getSubCommunities().iterator().next(), equalTo(result));
@@ -965,8 +965,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Community result = communityRepo.create(null, context);
-        communityRepo.addSubcommunity(context, community, result);
+        Community result = communityManager.create(null, context);
+        communityManager.addSubcommunity(context, community, result);
         fail("Exception expected");
     }
 
@@ -990,13 +990,13 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Collection col = collectionRepo.create(context, community);
-        communityRepo.addCollection(context, community, col);
+        Collection col = collectionManager.create(context, community);
+        communityManager.addCollection(context, community, col);
         assertThat("testRemoveCollectionAuth 0", community.getCollections(), notNullValue());
         assertTrue("testRemoveCollectionAuth 1", community.getCollections().size() == 1);
         assertThat("testRemoveCollectionAuth 2", community.getCollections().iterator().next(), equalTo(col));
         
-        communityRepo.removeCollection(context, community, col);
+        communityManager.removeCollection(context, community, col);
         assertThat("testRemoveCollectionAuth 3", community.getCollections(), notNullValue());
         assertTrue("testRemoveCollectionAuth 4", community.getCollections().size() == 0);
     }
@@ -1018,12 +1018,12 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Collection col = collectionRepo.create(context, community);
+        Collection col = collectionManager.create(context, community);
         assertThat("testRemoveCollectionNoAuth 0", community.getCollections(), notNullValue());
         assertTrue("testRemoveCollectionNoAuth 1", community.getCollections().size() == 1);
         assertThat("testRemoveCollectionNoAuth 2", community.getCollections().iterator().next(), equalTo(col));
 
-        communityRepo.removeCollection(context, community, col);
+        communityManager.removeCollection(context, community, col);
         fail("Exception expected");
     }
 
@@ -1047,13 +1047,13 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Community com = communityRepo.create(null,context);
-        communityRepo.addSubcommunity(context, community, com);
+        Community com = communityManager.create(null,context);
+        communityManager.addSubcommunity(context, community, com);
         assertThat("testRemoveSubcommunityAuth 0", community.getSubCommunities(), notNullValue());
         assertTrue("testRemoveSubcommunityAuth 1", community.getSubCommunities().size() == 1);
         assertThat("testRemoveSubcommunityAuth 2", community.getSubCommunities().iterator().next(), equalTo(com));
 
-        communityRepo.removeSubcommunity(context, community, com);
+        communityManager.removeSubcommunity(context, community, com);
         assertThat("testRemoveSubcommunityAuth 3", community.getSubCommunities(), notNullValue());
         assertTrue("testRemoveSubcommunityAuth 4", community.getSubCommunities().size() == 0);
     }
@@ -1076,8 +1076,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         int id = community.getID();
-        communityRepo.delete(context, community);
-        Community found = communityRepo.find(context, id);
+        communityManager.delete(context, community);
+        Community found = communityManager.find(context, id);
         assertThat("testDeleteAuth 0",found, nullValue());
     }
 
@@ -1099,8 +1099,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         int id = community.getID();
-        communityRepo.delete(context, community);
-        Community found = communityRepo.find(context, id);
+        communityManager.delete(context, community);
+        Community found = communityManager.find(context, id);
         assertThat("testDeleteAuth2 0",found, nullValue());
     }
 
@@ -1122,7 +1122,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         int id = community.getID();
-        communityRepo.delete(context, community);
+        communityManager.delete(context, community);
         fail("Exception expected");
     }
 
@@ -1142,7 +1142,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         assertFalse("testEquals 0", community.equals(null));
-        assertFalse("testEquals 1", community.equals(communityRepo.create(null, context)));
+        assertFalse("testEquals 1", community.equals(communityManager.create(null, context)));
         assertTrue("testEquals 2", community.equals(community));
     }
 
@@ -1175,7 +1175,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth 0", communityRepo.canEditBoolean(context, community));
+        assertTrue("testCanEditBooleanAuth 0", communityManager.canEditBoolean(context, community));
     }
 
     /**
@@ -1197,7 +1197,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth2 0", communityRepo.canEditBoolean(context, community));
+        assertTrue("testCanEditBooleanAuth2 0", communityManager.canEditBoolean(context, community));
     }
 
     /**
@@ -1219,7 +1219,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth3 0", communityRepo.canEditBoolean(context, community));
+        assertTrue("testCanEditBooleanAuth3 0", communityManager.canEditBoolean(context, community));
     }
 
     /**
@@ -1241,7 +1241,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth4 0", communityRepo.canEditBoolean(context, community));
+        assertTrue("testCanEditBooleanAuth4 0", communityManager.canEditBoolean(context, community));
     }
 
     /**
@@ -1263,7 +1263,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertFalse("testCanEditBooleanNoAuth 0", communityRepo.canEditBoolean(context, community));
+        assertFalse("testCanEditBooleanNoAuth 0", communityManager.canEditBoolean(context, community));
     }    
 
     /**
@@ -1285,7 +1285,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        communityRepo.canEdit(context, community);
+        communityManager.canEdit(context, community);
     }
 
     /**
@@ -1307,7 +1307,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        communityRepo.canEdit(context, community);
+        communityManager.canEdit(context, community);
     }
 
     /**
@@ -1329,7 +1329,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        communityRepo.canEdit(context, community);
+        communityManager.canEdit(context, community);
     }
 
     /**
@@ -1343,7 +1343,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                  AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE); result = false;
+                         Constants.WRITE); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Community) any,
@@ -1351,7 +1351,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        communityRepo.canEdit(context, community);
+        communityManager.canEdit(context, community);
         fail("Exception expected");
     }
 
@@ -1374,10 +1374,10 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     public void testGetAdminObject() throws SQLException
     {
         //default community has no admin object
-        assertThat("testGetAdminObject 0", (Community) communityRepo.getAdminObject(community, Constants.REMOVE), equalTo(community));
-        assertThat("testGetAdminObject 1", (Community) communityRepo.getAdminObject(community, Constants.ADD), equalTo(community));
-        assertThat("testGetAdminObject 2", communityRepo.getAdminObject(community, Constants.DELETE), nullValue());
-        assertThat("testGetAdminObject 3", (Community) communityRepo.getAdminObject(community, Constants.ADMIN), equalTo(community));
+        assertThat("testGetAdminObject 0", (Community) communityManager.getAdminObject(community, Constants.REMOVE), equalTo(community));
+        assertThat("testGetAdminObject 1", (Community) communityManager.getAdminObject(community, Constants.ADD), equalTo(community));
+        assertThat("testGetAdminObject 2", communityManager.getAdminObject(community, Constants.DELETE), nullValue());
+        assertThat("testGetAdminObject 3", (Community) communityManager.getAdminObject(community, Constants.ADMIN), equalTo(community));
     }
 
     /**
@@ -1390,13 +1390,13 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         try
         {
             //default has no parent
-            assertThat("testGetParentObject 0", communityRepo.getParentObject(context, community), nullValue());
+            assertThat("testGetParentObject 0", communityManager.getParentObject(context, community), nullValue());
 
             context.turnOffAuthorisationSystem();
-            Community son = communityRepo.createSubcommunity(context, community);
+            Community son = communityManager.createSubcommunity(context, community);
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", communityRepo.getParentObject(context, son), notNullValue());
-            assertThat("testGetParentObject 2", (Community) communityRepo.getParentObject(context, son), equalTo(community));
+            assertThat("testGetParentObject 1", communityManager.getParentObject(context, son), notNullValue());
+            assertThat("testGetParentObject 2", (Community) communityManager.getParentObject(context, son), equalTo(community));
         }
         catch(AuthorizeException ex)
         {

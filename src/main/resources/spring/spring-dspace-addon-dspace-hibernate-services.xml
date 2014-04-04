@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
+
+    <bean id="managerFactory" class="org.dspace.factory.ManagerFactoryImpl"/>
+
+
+
+    <!-- ******************** -->
+    <!-- Manager declarations -->
+    <!-- ******************** -->
+
+    <!--
+    It is important to note that managers can reference eachother but ONLY their children
+        So the BundleRepo can contain a reference to the bitstreamManager but could never contain a reference to the item manager
+    -->
+
+    <bean id="org.dspace.content.BitstreamFormatManager" class="org.dspace.content.BitstreamFormatManagerImpl"/>
+
+
+    <bean id="org.dspace.content.BitstreamManager" class="org.dspace.content.BitstreamManagerImpl">
+        <property name="bitstreamFormatManager">
+            <bean factory-bean="managerFactory" factory-method="getBitstreamFormatManager"/>
+        </property>
+    </bean>
+
+    <bean id="org.dspace.content.BundleManager" class="org.dspace.content.BundleManagerImpl">
+        <property name="bitstreamManager">
+            <bean factory-bean="managerFactory" factory-method="getBitstreamManager"/>
+        </property>
+        <property name="itemManager">
+            <bean factory-bean="managerFactory" factory-method="getItemManager"/>
+        </property>
+    </bean>
+
+    <bean id="org.dspace.content.ItemManager" class="org.dspace.content.ItemManagerImpl">
+        <property name="bitstreamFormatManager">
+            <bean factory-bean="managerFactory" factory-method="getBitstreamFormatManager"/>
+        </property>
+        <property name="bundleManager">
+            <bean factory-bean="managerFactory" factory-method="getBundleManager"/>
+        </property>
+        <property name="communityManager">
+            <bean factory-bean="managerFactory" factory-method="getCommunityManager"/>
+        </property>
+        <property name="metadataSchemaManager">
+            <bean factory-bean="managerFactory" factory-method="getMetadataSchemaManager"/>
+        </property>
+        <property name="metadataFieldManager">
+            <bean factory-bean="managerFactory" factory-method="getMetadataFieldManager"/>
+        </property>
+        <property name="metadataValueManager">
+            <bean factory-bean="managerFactory" factory-method="getMetadataValueManager"/>
+        </property>
+    </bean>
+
+
+    <bean id="org.dspace.content.CollectionManager" class="org.dspace.content.CollectionManagerImpl">
+        <property name="communityManager">
+            <bean factory-bean="managerFactory" factory-method="getCommunityManager"/>
+        </property>
+        <property name="itemManager">
+            <bean factory-bean="managerFactory" factory-method="getItemManager"/>
+        </property>
+        <property name="groupManager">
+            <bean factory-bean="managerFactory" factory-method="getGroupManager"/>
+        </property>
+    </bean>
+
+    <bean id="org.dspace.content.CommunityManager" class="org.dspace.content.CommunityManagerImpl">
+        <property name="collectionManager">
+            <bean factory-bean="managerFactory" factory-method="getCollectionManager"/>
+        </property>
+        <property name="groupManager">
+            <bean factory-bean="managerFactory" factory-method="getGroupManager"/>
+        </property>
+
+    </bean>
+    <bean id="org.dspace.eperson.EPersonManager" class="org.dspace.eperson.EPersonManagerImpl"/>
+    <bean id="org.dspace.eperson.GroupManager" class="org.dspace.eperson.GroupManagerImpl"/>
+    <bean id="org.dspace.authorize.ResourcePolicyManager" class="org.dspace.authorize.ResourcePolicyManagerImpl"/>
+
+    <bean id="org.dspace.content.MetadataFieldManager" class="org.dspace.content.MetadataFieldManagerImpl"/>
+    <bean id="org.dspace.content.MetadataSchemaManager" class="org.dspace.content.MetadataSchemaManagerImpl"/>
+    <bean id="org.dspace.content.MetadataValueManager" class="org.dspace.content.MetadataValueManagerImpl"/>
+    <bean id="org.dspace.content.WorkspaceItemManager" class="org.dspace.content.WorkspaceItemManagerImpl">
+        <property name="collectionManager">
+            <bean factory-bean="managerFactory" factory-method="getCollectionManager"/>
+        </property>
+        <property name="itemManager">
+            <bean factory-bean="managerFactory" factory-method="getItemManager"/>
+        </property>
+    </bean>
+
+
+</beans>

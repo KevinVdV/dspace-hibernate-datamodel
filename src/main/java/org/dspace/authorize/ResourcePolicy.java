@@ -222,7 +222,7 @@ public class ResourcePolicy implements Cloneable{
     /**
      * assign an EPerson to this policy
      */
-    public void setEPerson(EPerson eperson)
+    void setEPerson(EPerson eperson)
     {
         this.eperson = eperson;
     }
@@ -242,7 +242,7 @@ public class ResourcePolicy implements Cloneable{
      *
      * @return groupID, or null if no group set
      */
-    public void setGroup(Group epersonGroup)
+    void setGroup(Group epersonGroup)
     {
         this.epersonGroup = epersonGroup;
     }

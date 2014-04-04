@@ -16,6 +16,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.embargo.EmbargoManager;
 import org.dspace.event.Event;
+import org.dspace.factory.DSpaceManagerFactory;
 
 /**
  * Support to install an Item in the archive.
@@ -25,6 +26,9 @@ import org.dspace.event.Event;
  */
 public class InstallItem
 {
+    private static final CollectionManager collectionManager = DSpaceManagerFactory.getInstance().getCollectionManager();
+    private static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
+
     /**
      * Take an InProgressSubmission and turn it into a fully-archived Item,
      * creating a new Handle.
@@ -99,7 +103,6 @@ public class InstallItem
         throws SQLException, IOException, AuthorizeException
     {
         Item item = is.getItem();
-        ItemRepoImpl itemDAO = new ItemRepoImpl();
 
         //TODO HIBERNATE: Implement once identifier services framework comes into play
         /*
@@ -120,35 +123,35 @@ public class InstallItem
         DCDate now = DCDate.getCurrent();
         
         // If the item doesn't have a date.accessioned, set it to today
-        List<MetadataValue> dateAccessioned = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "accessioned", Item.ANY);
+        List<MetadataValue> dateAccessioned = itemManager.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "accessioned", Item.ANY);
         if (dateAccessioned.size() == 0)
         {
-            itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
+            itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
         }
         
         // If issue date is set as "today" (literal string), then set it to current date
         // In the below loop, we temporarily clear all issued dates and re-add, one-by-one,
         // replacing "today" with today's date.
         // NOTE: As of DSpace 4.0, DSpace no longer sets an issue date by default
-        List<MetadataValue> currentDateIssued = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-        itemDAO.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        List<MetadataValue> currentDateIssued = itemManager.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        itemManager.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
         for (MetadataValue dcv : currentDateIssued)
         {
             MetadataField metadataField = dcv.getMetadataField();
             if(dcv.value!=null && dcv.value.equalsIgnoreCase("today"))
             {
                 DCDate issued = new DCDate(now.getYear(),now.getMonth(),now.getDay(),-1,-1,-1);
-                itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, issued.toString());
+                itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, issued.toString());
             }
             else if(dcv.value!=null)
             {
-                itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, dcv.value);
+                itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, dcv.value);
             }
         }
         
         // Record that the item was restored
         String provDescription = "Restored into DSpace on "+ now + " (GMT).";
-        itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
+        itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
 
         return finishItem(c, item, is);
     }
@@ -159,8 +162,7 @@ public class InstallItem
     {
         // create accession date
         DCDate now = DCDate.getCurrent();
-        ItemRepoImpl itemDAO = new ItemRepoImpl();
-        itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
+        itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
 
         // add date available if not under embargo, otherwise it will
         // be set when the embargo is lifted.
@@ -168,26 +170,26 @@ public class InstallItem
         // problems before we set inArchive.
         if (EmbargoManager.getEmbargoTermsAsDate(c, item) == null)
         {
-            itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "available", null, now.toString());
+            itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "available", null, now.toString());
         }
 
         // If issue date is set as "today" (literal string), then set it to current date
         // In the below loop, we temporarily clear all issued dates and re-add, one-by-one,
         // replacing "today" with today's date.
         // NOTE: As of DSpace 4.0, DSpace no longer sets an issue date by default
-        List<MetadataValue> currentDateIssued = itemDAO.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-        itemDAO.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        List<MetadataValue> currentDateIssued = itemManager.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        itemManager.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
         for (MetadataValue dcv : currentDateIssued)
         {
             MetadataField metadataField = dcv.getMetadataField();
             if(dcv.value!=null && dcv.value.equalsIgnoreCase("today"))
             {
                 DCDate issued = new DCDate(now.getYear(),now.getMonth(),now.getDay(),-1,-1,-1);
-                itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, issued.toString());
+                itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, issued.toString());
             }
             else if(dcv.value!=null)
             {
-                itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, dcv.value);
+                itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, dcv.value);
             }
         }
 
@@ -208,7 +210,7 @@ public class InstallItem
         }
 
         // Add provenance description
-        itemDAO.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
+        itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
     }
 
     // final housekeeping when adding new Item to archive
@@ -216,9 +218,8 @@ public class InstallItem
     private static Item finishItem(Context c, Item item, InProgressSubmission is)
         throws SQLException, IOException, AuthorizeException
     {
-        CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
         // create collection2item mapping
-        collectionDAO.addItem(c, is.getCollection(), item);
+        collectionManager.addItem(c, is.getCollection(), item);
 
         // set owning collection
         item.setOwningCollection(is.getCollection());
@@ -227,20 +228,18 @@ public class InstallItem
         item.setInArchive(true);
         
         // save changes ;-)
-        ItemRepoImpl itemDAO = new ItemRepoImpl();
-        itemDAO.update(c, item);
+        itemManager.update(c, item);
 
         // Notify interested parties of newly archived Item
         c.addEvent(new Event(Event.INSTALL, Constants.ITEM, item.getID(),
                 item.getHandle(c)));
 
         // remove in-progress submission
-//        TODO: HIBERNATE THIS STUFF WILL NOT WORK WHEN WORKFLOW COMES INTO PLAY
-        new WorkspaceItemRepoImpl().deleteWrapper(c, (WorkspaceItem) is);
+        DSpaceManagerFactory.getInstance().getInProgressSubmissionManager(is).deleteWrapper(c, is);
 
         // remove the item's policies and replace them with
         // the defaults from the collection
-        itemDAO.inheritCollectionDefaultPolicies(c, item, item.getOwningCollection());
+        itemManager.inheritCollectionDefaultPolicies(c, item, item.getOwningCollection());
 
         // set embargo lift date and take away read access if indicated.
         EmbargoManager.setEmbargo(c, item);
@@ -260,7 +259,7 @@ public class InstallItem
     						throws SQLException
     {
         // Get non-internal format bitstreams
-        List<Bitstream> bitstreams = new ItemRepoImpl().getNonInternalBitstreams(myitem);
+        List<Bitstream> bitstreams = itemManager.getNonInternalBitstreams(myitem);
 
         // Create provenance description
         StringBuilder myMessage = new StringBuilder();

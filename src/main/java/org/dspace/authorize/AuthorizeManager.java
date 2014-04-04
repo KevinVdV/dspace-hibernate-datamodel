@@ -16,8 +16,8 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupRepo;
-import org.dspace.eperson.GroupRepoImpl;
+import org.dspace.eperson.GroupManager;
+import org.dspace.factory.DSpaceManagerFactory;
 import org.dspace.hibernate.HibernateQueryUtil;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
@@ -40,6 +40,10 @@ import org.hibernate.criterion.Restrictions;
 //TODO: SPLIT UP INTO DAO, MANAGER, .....
 public class AuthorizeManager
 {
+
+
+    private static final GroupManager groupManager = DSpaceManagerFactory.getInstance().getGroupManager();
+    private static final ResourcePolicyManager resourcePolicyManager = DSpaceManagerFactory.getInstance().getResourcePolicyManager();
     /**
      * Utility method, checks that the current user of the given context can
      * perform all of the specified actions on the given object. An
@@ -294,12 +298,10 @@ public class AuthorizeManager
 //            }
         }
 
-        GroupRepo groupDAO = new GroupRepoImpl();
-        ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
         for (ResourcePolicy rp : getPoliciesActionFilter(c, o, action))
         {
             // check policies for date validity
-            if (resourcePolicyDAO.isDateValid(rp))
+            if (resourcePolicyManager.isDateValid(rp))
             {
                 if (rp.getEPerson() != null && rp.getEPerson().getID() == userid)
                 {
@@ -307,7 +309,7 @@ public class AuthorizeManager
                 }
 
                 if ((rp.getGroup() != null)
-                        && (groupDAO.isMember(c, rp.getGroup())))
+                        && (groupManager.isMember(c, rp.getGroup())))
                 {
                     // group was set, and eperson is a member
                     // of that group
@@ -365,12 +367,10 @@ public class AuthorizeManager
         //
         List<ResourcePolicy> policies = getPoliciesActionFilter(c, o, Constants.ADMIN);
 
-        ResourcePolicyRepo policyDAO = new ResourcePolicyRepoImpl();
-        GroupRepo groupDAO = new GroupRepoImpl();
         for (ResourcePolicy rp : policies)
         {
             // check policies for date validity
-            if (policyDAO.isDateValid(rp))
+            if (resourcePolicyManager.isDateValid(rp))
             {
                 if (rp.getEPerson() != null && rp.getEPerson().getID() == userid)
                 {
@@ -378,7 +378,7 @@ public class AuthorizeManager
                 }
 
                 if ((rp.getGroup() != null)
-                        && (groupDAO.isMember(c, rp.getGroup())))
+                        && (groupManager.isMember(c, rp.getGroup())))
                 {
                     // group was set, and eperson is a member
                     // of that group
@@ -427,7 +427,7 @@ public class AuthorizeManager
             return false; // anonymous users can't be admins....
         } else
         {
-            return new GroupRepoImpl().isMember(c, 1);
+            return groupManager.isMember(c, 1);
         }
     }
 
@@ -475,15 +475,14 @@ public class AuthorizeManager
     public static void addPolicy(Context context, DSpaceObject o, int actionID,
                                  EPerson e, String type) throws SQLException, AuthorizeException
     {
-        ResourcePolicyRepo policyDAO = new ResourcePolicyRepoImpl();
-        ResourcePolicy rp = policyDAO.create(context);
+        ResourcePolicy rp = resourcePolicyManager.create(context);
 
-        policyDAO.setResource(rp, o);
+        resourcePolicyManager.setResource(rp, o);
         rp.setAction(actionID);
         rp.setEPerson(e);
         rp.setRpType(type);
 
-        policyDAO.update(context, rp);
+        resourcePolicyManager.update(context, rp);
 
         o.updateLastModified(context);
     }
@@ -531,15 +530,14 @@ public class AuthorizeManager
     public static void addPolicy(Context c, DSpaceObject o, int actionID,
                                  Group g, String type) throws SQLException, AuthorizeException
     {
-        ResourcePolicyRepo policyDAO = new ResourcePolicyRepoImpl();
-        ResourcePolicy rp = policyDAO.create(c);
+        ResourcePolicy rp = resourcePolicyManager.create(c);
 
-        policyDAO.setResource(rp, o);
+        resourcePolicyManager.setResource(rp, o);
         rp.setAction(actionID);
-        policyDAO.setGroup(rp, g);
+        resourcePolicyManager.setGroup(rp, g);
         rp.setRpType(type);
 
-        policyDAO.update(c, rp);
+        resourcePolicyManager.update(c, rp);
 
         o.updateLastModified(c);
     }
@@ -676,14 +674,13 @@ public class AuthorizeManager
     public static void addPolicies(Context c, List<ResourcePolicy> policies, DSpaceObject dest)
             throws SQLException, AuthorizeException
     {
-        ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
         // now add them to the destination object
         for (ResourcePolicy srp : policies)
         {
-            ResourcePolicy rp = resourcePolicyDAO.create(c);
+            ResourcePolicy rp = resourcePolicyManager.create(c);
 
             // copy over values
-            resourcePolicyDAO.setResource(rp, dest);
+            resourcePolicyManager.setResource(rp, dest);
             rp.setAction(srp.getAction());
             rp.setEPerson(srp.getEPerson());
             rp.setGroup(srp.getGroup());
@@ -693,7 +690,7 @@ public class AuthorizeManager
             rp.setRpDescription(srp.getRpDescription());
             rp.setRpType(srp.getRpType());
             // and write out new policy
-            resourcePolicyDAO.update(c, rp);
+            resourcePolicyManager.update(c, rp);
         }
 
         dest.updateLastModified(c);
@@ -1049,7 +1046,6 @@ public class AuthorizeManager
                     isAnonymousInPlace = true;
                 }
             }
-            ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
             if (!isAnonymousInPlace)
             {
                 // add policies for all the groups
@@ -1057,7 +1053,7 @@ public class AuthorizeManager
                 {
                     ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, g, null, embargoDate, Constants.READ, reason, dso);
                     if (rp != null)
-                        resourcePolicyDAO.update(context, rp);
+                        resourcePolicyManager.update(context, rp);
                 }
 
             } else
@@ -1065,9 +1061,26 @@ public class AuthorizeManager
                 // add policy just for anonymous
                 ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, null, null, embargoDate, Constants.READ, reason, dso);
                 if (rp != null)
-                    resourcePolicyDAO.update(context, rp);
+                    resourcePolicyManager.update(context, rp);
             }
         }
+    }
+
+    public static void createResourcePolicy(Context context, DSpaceObject dso, Group group, EPerson eperson, int type) throws SQLException, AuthorizeException {
+        //TODO: use this method abit more !
+        if(group == null && eperson == null)
+        {
+            throw new IllegalArgumentException("We need at least an eperson or a group in order to create a resource policy.");
+        }
+
+        ResourcePolicy myPolicy = resourcePolicyManager.create(context);
+        resourcePolicyManager.setResource(myPolicy, dso);
+        myPolicy.setAction(type);
+        resourcePolicyManager.setGroup(myPolicy, group);
+        resourcePolicyManager.setEPerson(myPolicy, eperson);
+        resourcePolicyManager.update(context, myPolicy);
+
+
     }
 
 
@@ -1085,10 +1098,9 @@ public class AuthorizeManager
             policy.setRpType(ResourcePolicy.TYPE_CUSTOM);
         }
 
-        ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
         if (policy == null)
         {
-            policy = resourcePolicyDAO.create(context);
+            policy = resourcePolicyManager.create(context);
             policy.setResourceID(dso.getID());
             policy.setResourceType(dso.getType());
             policy.setAction(action);

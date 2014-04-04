@@ -2,7 +2,7 @@ package org.dspace.local;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
-import org.dspace.content.CollectionRepoImpl;
+import org.dspace.content.CollectionManagerImpl;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.eperson.*;
@@ -25,7 +25,7 @@ public class TestStuff {
     public static void main(String[] args) throws SQLException, AuthorizeException, EPersonDeletionException {
         Context context = new Context();
         context.turnOffAuthorisationSystem();
-        GroupRepoImpl groupManager = new GroupRepoImpl();
+        GroupManagerImpl groupManager = new GroupManagerImpl();
         Group groupEntity = groupManager.create(context);
         groupEntity.setName("TEST-GROUP");
         Group childGroup = groupManager.create(context);
@@ -44,7 +44,7 @@ public class TestStuff {
         context.commit();
         for(EPerson person : people)
         {
-            new EPersonRepoImpl().delete(context, person);
+            new EPersonManagerImpl().delete(context, person);
         }
 
 
@@ -52,7 +52,7 @@ public class TestStuff {
         groupManager.delete(context, childGroup);
         groupManager.delete(context, groupEntity);
         //Lookup collection items to test query
-        CollectionRepoImpl collectionDAO = new CollectionRepoImpl();
+        CollectionManagerImpl collectionDAO = new CollectionManagerImpl();
         Collection collection = (Collection) HandleManager.resolveToObject(context, "10986/2117");
         Iterator<Item> allItems = collectionDAO.getAllItems(context, collection);
         while (allItems.hasNext()) {
@@ -74,7 +74,7 @@ public class TestStuff {
     }
 
     private static EPerson createPerson(Context context, String mail) throws SQLException, AuthorizeException {
-        EPersonRepoImpl ePersonDAO = new EPersonRepoImpl();
+        EPersonManagerImpl ePersonDAO = new EPersonManagerImpl();
         EPerson ePersonEntity = ePersonDAO.findByEmail(context, mail);
         if(ePersonEntity == null)
         {

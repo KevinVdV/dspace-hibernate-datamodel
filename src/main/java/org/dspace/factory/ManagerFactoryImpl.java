@@ -1,9 +1,10 @@
 package org.dspace.factory;
 
+import org.dspace.authorize.ResourcePolicyManager;
 import org.dspace.content.*;
 import org.dspace.eperson.*;
-import org.dspace.kernel.ServiceManager;
-import org.dspace.utils.DSpace;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,69 +13,98 @@ import org.dspace.utils.DSpace;
  * Time: 08:05
  * To change this template use File | Settings | File Templates.
  */
-public class ManagerFactoryImpl extends AbstractDSpaceManagerFactory {
+@Component
+public class ManagerFactoryImpl extends DSpaceManagerFactory {
 
-    //TODO: auto wire this in ?
-    private static ServiceManager serviceManager = new DSpace().getServiceManager();
+    @Autowired(required = true)
+    private BitstreamFormatManager bitstreamFormatManager;
+    @Autowired(required = true)
+    private BitstreamManager bitstreamManager;
+    @Autowired(required = true)
+    private BundleManager bundleManager;
+    @Autowired(required = true)
+    private ItemManager itemManager;
+    @Autowired(required = true)
+    private CollectionManager collectionManager;
+    @Autowired(required = true)
+    private CommunityManager communityManager;
+    @Autowired(required = true)
+    private GroupManager groupManager;
+    @Autowired(required = true)
+    private EPersonManager epersonManager;
+    @Autowired(required = true)
+    private MetadataSchemaManager metadataSchemaManager;
+    @Autowired(required = true)
+    private MetadataFieldManager metadataFieldManager;
+    @Autowired(required = true)
+    private MetadataValueManager metadataValueManager;
+    @Autowired(required = true)
+    private WorkspaceItemManager workspaceItemManager;
+    @Autowired(required = true)
+    private ResourcePolicyManager resourcePolicyManager;
 
-    public BitstreamFormatRepo getBitstreamFormatManager()
+
+    public BitstreamFormatManager getBitstreamFormatManager()
     {
-        return serviceManager.getServiceByName(BitstreamFormatRepo.class.getName(), BitstreamFormatRepo.class);
+        return bitstreamFormatManager;
     }
 
-    public BitstreamRepo getBitstreamManager()
+    public BitstreamManager getBitstreamManager()
     {
-        return serviceManager.getServiceByName(BitstreamRepo.class.getName(), BitstreamRepo.class);
+        return bitstreamManager;
     }
 
-    public BundleRepo getBundleManager()
+    public BundleManager getBundleManager()
     {
-        return serviceManager.getServiceByName(BundleRepo.class.getName(), BundleRepo.class);
+        return bundleManager;
     }
 
-    public CollectionRepo getCollectionManager()
+    public CollectionManager getCollectionManager()
     {
-        return serviceManager.getServiceByName(CollectionRepo.class.getName(), CollectionRepo.class);
+        return collectionManager;
     }
 
-    public CommunityRepo getCommunityManager()
+    public CommunityManager getCommunityManager()
     {
-        return serviceManager.getServiceByName(CommunityRepo.class.getName(), CommunityRepo.class);
+        return communityManager;
     }
 
-    public EPersonRepo getEPersonManager()
+    public EPersonManager getEPersonManager()
     {
-        return serviceManager.getServiceByName(EPersonRepo.class.getName(), EPersonRepo.class);
+        return epersonManager;
     }
 
-    public GroupRepo getGroupManager()
+    public GroupManager getGroupManager()
     {
-        return serviceManager.getServiceByName(GroupRepo.class.getName(), GroupRepo.class);
+        return groupManager;
     }
 
-    public ItemRepo getItemManager()
+    public ItemManager getItemManager()
     {
-        return serviceManager.getServiceByName(ItemRepo.class.getName(), ItemRepo.class);
+        return itemManager;
     }
 
-    public MetadataFieldRepo getMetadataFieldManager()
+    public MetadataSchemaManager getMetadataSchemaManager()
     {
-        return serviceManager.getServiceByName(MetadataFieldRepo.class.getName(), MetadataFieldRepo.class);
+        return metadataSchemaManager;
     }
 
-    public MetadataSchemaRepo getMetadataSchemaManager()
+    public MetadataFieldManager getMetadataFieldManager()
     {
-        return serviceManager.getServiceByName(MetadataSchemaRepo.class.getName(), MetadataSchemaRepo.class);
+        return metadataFieldManager;
     }
 
-    public MetadataValueRepo getMetadataValueManager()
+    public MetadataValueManager getMetadataValueManager()
     {
-        return serviceManager.getServiceByName(MetadataValueRepo.class.getName(), MetadataValueRepo.class);
-
+        return metadataValueManager;
     }
 
-    public WorkspaceItemRepo getWorkspaceItemManager()
+    public WorkspaceItemManager getWorkspaceItemManager()
     {
-        return serviceManager.getServiceByName(WorkspaceItemRepo.class.getName(), WorkspaceItemRepo.class);
+        return workspaceItemManager;
+    }
+
+    public ResourcePolicyManager getResourcePolicyManager() {
+        return resourcePolicyManager;
     }
 }

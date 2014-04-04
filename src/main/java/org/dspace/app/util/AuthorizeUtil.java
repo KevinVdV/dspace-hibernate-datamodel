@@ -17,6 +17,7 @@ import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.*;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.factory.DSpaceManagerFactory;
 
 /**
  * This class is an addition to the AuthorizeManager that perform authorization
@@ -27,6 +28,9 @@ import org.dspace.core.Context;
  */
 public class AuthorizeUtil
 {
+
+    private static final CollectionManager collectionManager = DSpaceManagerFactory.getInstance().getCollectionManager();
+    private static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
 
     /**
      * Is allowed manage (create, remove, edit) bitstream's policies in the
@@ -223,11 +227,11 @@ public class AuthorizeUtil
             }
             else if (AuthorizeConfiguration.canCollectionAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, new ItemRepoImpl().getParentObject(context, item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, itemManager.getParentObject(context, item), Constants.ADMIN);
             }
             else if (AuthorizeConfiguration.canCommunityAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, new ItemRepoImpl().getParentObject(context, item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, itemManager.getParentObject(context, item), Constants.ADMIN);
             }
             else
             {
@@ -253,7 +257,7 @@ public class AuthorizeUtil
     public static void authorizeManageTemplateItem(Context context,
             Collection collection) throws AuthorizeException, SQLException
     {
-        boolean isAuthorized = new CollectionRepoImpl().canEditBoolean(context, collection, false);
+        boolean isAuthorized = collectionManager.canEditBoolean(context, collection, false);
 
         if (!isAuthorized
                 && AuthorizeConfiguration
@@ -269,7 +273,7 @@ public class AuthorizeUtil
             Community parent = collection.getCommunities().iterator().next();
             AuthorizeManager.authorizeAction(context, parent, Constants.ADMIN);
         }
-        else if (!isAuthorized && !AuthorizeManager.isAdmin(context)) 
+        else if (!isAuthorized && !AuthorizeManager.isAdmin(context))
         {
             throw new AuthorizeException(
                     "You are not authorized to create a template item for the collection");
@@ -496,23 +500,24 @@ public class AuthorizeUtil
     {
         switch (rp.getResourceType())
         {
+
         case Constants.BITSTREAM:
-            authorizeManageBitstreamPolicy(c, new BitstreamRepoImpl().find(c, rp
+            authorizeManageBitstreamPolicy(c, DSpaceManagerFactory.getInstance().getBitstreamManager().find(c, rp
                     .getResourceID()));
             break;
         case Constants.BUNDLE:
-            authorizeManageBundlePolicy(c, new BundleRepoImpl().find(c, rp.getResourceID()));
+            authorizeManageBundlePolicy(c, DSpaceManagerFactory.getInstance().getBundleManager().find(c, rp.getResourceID()));
             break;
 
         case Constants.ITEM:
-            authorizeManageItemPolicy(c, new ItemRepoImpl().find(c, rp.getResourceID()));
+            authorizeManageItemPolicy(c, DSpaceManagerFactory.getInstance().getItemManager().find(c, rp.getResourceID()));
             break;
         case Constants.COLLECTION:
-            authorizeManageCollectionPolicy(c, new CollectionRepoImpl().find(c, rp
+            authorizeManageCollectionPolicy(c, DSpaceManagerFactory.getInstance().getCollectionManager().find(c, rp
                     .getResourceID()));
             break;
         case Constants.COMMUNITY:
-            authorizeManageCommunityPolicy(c, new CommunityRepoImpl().find(c, rp
+            authorizeManageCommunityPolicy(c, DSpaceManagerFactory.getInstance().getCommunityManager().find(c, rp
                     .getResourceID()));
             break;
 

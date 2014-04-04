@@ -23,13 +23,15 @@ import org.apache.log4j.Logger;
 import org.dspace.administer.MetadataImporter;
 import org.dspace.administer.RegistryImportException;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.ResourcePolicyRepo;
-import org.dspace.authorize.ResourcePolicyRepoImpl;
+import org.dspace.authorize.ResourcePolicyManager;
 import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.eperson.*;
+import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.servicemanager.DSpaceKernelImpl;
+import org.dspace.servicemanager.DSpaceKernelInit;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -69,21 +71,22 @@ public class AbstractUnitTest
      */
     protected static EPerson eperson;
 
-    protected CommunityRepo communityRepo = new CommunityRepoImpl();
-    protected CollectionRepo collectionRepo = new CollectionRepoImpl();
-    protected ItemRepo itemDAO = new ItemRepoImpl();
-    protected WorkspaceItemRepo workspaceItemDAO = new WorkspaceItemRepoImpl();
-    protected BitstreamRepoImpl bitstreamRepo = new BitstreamRepoImpl();
-    protected BundleRepoImpl bundleDAO = new BundleRepoImpl();
-    protected MetadataSchemaRepo metadataSchemaRepo = new MetadataSchemaRepoImpl();
-    protected MetadataFieldRepo metadataFieldRepo = new MetadataFieldRepoImpl();
-    protected ResourcePolicyRepo resourcePolicyDAO = new ResourcePolicyRepoImpl();
-    protected static EPersonRepo ePersonRepo = new EPersonRepoImpl();
-    protected static GroupRepo groupRepo = new GroupRepoImpl();
-    protected BitstreamFormatRepo bitstreamFormatRepo = new BitstreamFormatRepoImpl();
+    protected DSpaceManagerFactory managerFactory = DSpaceManagerFactory.getInstance();
+    protected CommunityManager communityManager = managerFactory.getCommunityManager();
+    protected CollectionManager collectionManager = managerFactory.getCollectionManager();
+    protected ItemManager itemManager = managerFactory.getItemManager();
+    protected WorkspaceItemManager workspaceItemManager = managerFactory.getWorkspaceItemManager();
+    protected BitstreamManager bitstreamManager = managerFactory.getBitstreamManager();
+    protected BundleManager bundleManager = managerFactory.getBundleManager();
+    protected MetadataSchemaManager metadataSchemaManager = managerFactory.getMetadataSchemaManager();
+    protected MetadataFieldManager metadataFieldManager = managerFactory.getMetadataFieldManager();
+    protected ResourcePolicyManager resourcePolicyManager = managerFactory.getResourcePolicyManager();
+    protected EPersonManager ePersonManager = managerFactory.getEPersonManager();
+    protected GroupManager groupManager = managerFactory.getGroupManager();
+    protected BitstreamFormatManager bitstreamFormatManager = managerFactory.getBitstreamFormatManager();
 
 
-//    protected static DSpaceKernelImpl kernelImpl;
+    protected static DSpaceKernelImpl kernelImpl;
 
     /**
      * This method will be run before the first test as per @BeforeClass. It will
@@ -119,11 +122,11 @@ public class AbstractUnitTest
 
             // Initialise the service manager kernel
 //            TODO: HIBERNATE dspace kernel init
-//            kernelImpl = DSpaceKernelInit.getKernel(null);
-//            if (!kernelImpl.isRunning())
-//            {
-//                kernelImpl.start(ConfigurationManager.getProperty("dspace.dir"));
-//            }
+            kernelImpl = DSpaceKernelInit.getKernel(null);
+            if (!kernelImpl.isRunning())
+            {
+                kernelImpl.start(ConfigurationManager.getProperty("dspace.dir"));
+            }
 
             // Load the default registries. This assumes the temporary
             // filesystem is working and the in-memory DB in place.
@@ -135,7 +138,7 @@ public class AbstractUnitTest
             // always be in the database, if it has been initialized, to avoid
             // doing the work twice.
             //TODO: HIBERNATE, IS THIS REQUIRED ?
-            if(new MetadataFieldRepoImpl().find(ctx, 1) == null)
+            if(DSpaceManagerFactory.getInstance().getMetadataFieldManager().find(ctx, 1) == null)
             {
                 String base = ConfigurationManager.getProperty("dspace.dir")
                         + File.separator + "config" + File.separator
@@ -148,11 +151,11 @@ public class AbstractUnitTest
             }
 
                 //create eperson if required
-            ePersonRepo = new EPersonRepoImpl();
-            eperson = ePersonRepo.find(ctx, 1);
+            EPersonManager ePersonManager = DSpaceManagerFactory.getInstance().getEPersonManager();
+            eperson = ePersonManager.find(ctx, 1);
                 if(eperson == null)
                 {
-                    eperson = ePersonRepo.create(ctx);
+                    eperson = ePersonManager.create(ctx);
                     eperson.setFirstName("first");
                     eperson.setLastName("last");
                     eperson.setEmail("test@email.com");

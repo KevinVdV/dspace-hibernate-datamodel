@@ -13,8 +13,10 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.apache.log4j.Logger;
+import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.*;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
@@ -23,7 +25,6 @@ import static org.junit.Assert.* ;
 import static org.hamcrest.CoreMatchers.*;
 import mockit.*;
 import org.dspace.app.util.AuthorizeUtil;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Constants;
 import org.dspace.core.LicenseManager;
 
@@ -61,8 +62,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         {
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityRepo.create(null, context);
-            this.collection = communityRepo.createCollection(context, owningCommunity);
+            this.owningCommunity = communityManager.create(null, context);
+            this.collection = collectionManager.create(context, owningCommunity);
             this.dspaceObject = collection;
             //we need to commit the changes so we don't block the table for testing
             context.restoreAuthSystemState();
@@ -101,7 +102,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testCollectionFind() throws Exception
     {
         int id = collection.getID();
-        Collection found =  collectionRepo.find(context, id);
+        Collection found =  collectionManager.find(context, id);
         assertThat("testCollectionFind 0", found, notNullValue());
         assertThat("testCollectionFind 1", found.getID(), equalTo(id));
         //the community created by default has no name
@@ -114,7 +115,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testCreate() throws Exception
     {
-        Collection created = communityRepo.createCollection(context, owningCommunity);
+        Collection created = collectionManager.create(context, owningCommunity);
         assertThat("testCreate 0", created, notNullValue());
         assertThat("testCreate 1", created.getName(), equalTo(""));
     }
@@ -137,7 +138,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
         // test creating collection with a specified handle which is NOT already in use
         // (this handle should not already be used by system, as it doesn't start with "1234567689" prefix)
-        Collection created = communityRepo.createCollection(context, owningCommunity, "987654321/100");
+        Collection created = collectionManager.create(context, owningCommunity, "987654321/100");
 
         // check that collection was created, and that its handle was set to proper value
         assertThat("testCreateWithValidHandle 0", created, notNullValue());
@@ -168,7 +169,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
 
         // test creating collection with a specified handle which IS already in use
         // This should throw an exception
-        Collection created = communityRepo.createCollection(context, owningCommunity, inUseHandle);
+        Collection created = collectionManager.create(context, owningCommunity, inUseHandle);
         fail("Exception expected");
     }
 
@@ -179,7 +180,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testFindAll() throws Exception
     {
-        List<Collection> all = collectionRepo.findAll(context);
+        List<Collection> all = collectionManager.findAll(context);
         assertThat("testFindAll 0", all, notNullValue());
         assertTrue("testFindAll 1", all.size() >= 1);
 
@@ -200,7 +201,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetItems() throws Exception
     {
-        Iterator<Item> items = collectionRepo.getItems(context, collection);
+        Iterator<Item> items = collectionManager.getItems(context, collection);
         assertThat("testGetItems 0", items, notNullValue());
         //by default is empty
         assertFalse("testGetItems 1", items.hasNext());
@@ -212,7 +213,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetAllItems() throws Exception
     {
-        Iterator<Item> items = collectionRepo.getAllItems(context, collection);
+        Iterator<Item> items = collectionManager.getAllItems(context, collection);
         assertThat("testGetAllItems 0", items, notNullValue());
         //by default is empty
         assertFalse("testGetAllItems 1", items.hasNext());
@@ -253,7 +254,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         assertThat("testGetMetadata 5", collection.getTemplateItem(), nullValue());
         assertThat("testGetMetadata 6", collection.getProvenanceDescription(), nullValue());
         assertThat("testGetMetadata 7", collection.getSideBarText(), nullValue());
-        assertThat("testGetMetadata 8", collectionRepo.getLicense(collection), nullValue());
+        assertThat("testGetMetadata 8", collectionManager.getLicense(collection), nullValue());
     }
 
     /**
@@ -271,14 +272,14 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         String provDesc = "provenance description";
         String license = "license text";
 
-        collectionRepo.setName(collection, name);
+        collectionManager.setName(collection, name);
         collection.setShortDescription(sdesc);
         collection.setIntroductoryText(itext);
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionRepo.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
         collection.setCopyrightText(copy);
         collection.setSideBarText(sidebar);
-        Item templateItem = collectionRepo.createTemplateItem(context, collection);
+        Item templateItem = collectionManager.createTemplateItem(context, collection);
         collection.setProvenanceDescription(provDesc);
         collection.setLicense(license);
 
@@ -290,7 +291,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         assertThat("testSetMetadata 5", collection.getSideBarText(), equalTo(sidebar));
         assertThat("testGetMetadata 6", collection.getTemplateItem(), equalTo(templateItem));
         assertThat("testGetMetadata 7", collection.getProvenanceDescription(), equalTo(provDesc));
-        assertThat("testGetMetadata 8", collectionRepo.getLicense(collection), equalTo(license));
+        assertThat("testGetMetadata 8", collectionManager.getLicense(collection), equalTo(license));
     }
 
     /**
@@ -329,15 +330,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
                  AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE, true); result = null;
+                         Constants.WRITE, true); result = null;
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionRepo.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth 0", collection.getLogo(), equalTo(logo));
 
-        collectionRepo.setLogo(context, collection, null);
+        collectionManager.setLogo(context, collection, null);
         assertThat("testSetLogoAuth 1", collection.getLogo(), nullValue());
     }
 
@@ -352,19 +353,19 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                  AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                         Constants.WRITE, true); result = null;
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionRepo.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth2 0", collection.getLogo(), equalTo(logo));
 
-        collectionRepo.setLogo(context, collection, null);
+        collectionManager.setLogo(context, collection, null);
         assertThat("testSetLogoAuth2 1", collection.getLogo(), nullValue());
     }
 
@@ -379,19 +380,19 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                  AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                         Constants.WRITE, true); result = null;
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionRepo.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth3 0", collection.getLogo(), equalTo(logo));
 
-        collectionRepo.setLogo(context, collection, null);
+        collectionManager.setLogo(context, collection, null);
         assertThat("testSetLogoAuth3 1", collection.getLogo(), nullValue());
     }
 
@@ -406,19 +407,19 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                  AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                         Constants.WRITE, true); result = null;
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionRepo.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth4 0", collection.getLogo(), equalTo(logo));
 
-        collectionRepo.setLogo(context, collection, null);
+        collectionManager.setLogo(context, collection, null);
         assertThat("testSetLogoAuth4 1", collection.getLogo(), nullValue());
     }
 
@@ -433,16 +434,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = new AuthorizeException();
+                        Constants.WRITE, true); result = new AuthorizeException();
             }
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionRepo.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
         fail("EXception expected");
     }
 
@@ -462,7 +463,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         int step = 1;
-        Group result = collectionRepo.createWorkflowGroup(context, collection, step);
+        Group result = collectionManager.createWorkflowGroup(context, collection, step);
         assertThat("testCreateWorkflowGroupAuth 0", result, notNullValue());
     }
 
@@ -482,7 +483,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         int step = 1;
-        Group result = collectionRepo.createWorkflowGroup(context,  collection, step);
+        Group result = collectionManager.createWorkflowGroup(context,  collection, step);
         fail("Exception expected");
     }
 
@@ -494,12 +495,12 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         context.turnOffAuthorisationSystem();
         int step = 1;
-        Group g = groupDAO.create(context);
+        Group g = groupManager.create(context);
         context.commit();
         context.restoreAuthSystemState();
-        collectionRepo.setWorkflowGroup(collection, step, g);
-        assertThat("testSetWorkflowGroup 0", collectionRepo.getWorkflowGroup(collection, step), notNullValue());
-        assertThat("testSetWorkflowGroup 1", collectionRepo.getWorkflowGroup(collection, step), equalTo(g));
+        collectionManager.setWorkflowGroup(collection, step, g);
+        assertThat("testSetWorkflowGroup 0", collectionManager.getWorkflowGroup(collection, step), notNullValue());
+        assertThat("testSetWorkflowGroup 1", collectionManager.getWorkflowGroup(collection, step), equalTo(g));
     }
 
     /**
@@ -510,7 +511,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         //null by default
         int step = 1;
-        assertThat("testGetWorkflowGroup 0", collectionRepo.getWorkflowGroup(collection, step), nullValue());
+        assertThat("testGetWorkflowGroup 0", collectionManager.getWorkflowGroup(collection, step), nullValue());
     }
 
     /**
@@ -528,7 +529,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = collectionRepo.createSubmitters(context, collection);
+        Group result = collectionManager.createSubmitters(context, collection);
         assertThat("testCreateSubmittersAuth 0",result, notNullValue());
     }
 
@@ -547,7 +548,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = collectionRepo.createSubmitters(context, collection);
+        Group result = collectionManager.createSubmitters(context, collection);
         fail("Exception expected");
     }
 
@@ -566,7 +567,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionRepo.removeSubmitters(context, collection);
+        collectionManager.removeSubmitters(context, collection);
         assertThat("testRemoveSubmittersAuth 0", collection.getSubmitters(), nullValue());
     }
 
@@ -585,7 +586,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionRepo.removeSubmitters(context, collection);
+        collectionManager.removeSubmitters(context, collection);
         fail("Exception expected");
     }
 
@@ -613,7 +614,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = collectionRepo.createAdministrators(context, collection);
+        Group result = collectionManager.createAdministrators(context, collection);
         assertThat("testCreateAdministratorsAuth 0", result, notNullValue());
     }
 
@@ -632,7 +633,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = collectionRepo.createAdministrators(context, collection);
+        Group result = collectionManager.createAdministrators(context, collection);
         fail("Exception expected");
     }
 
@@ -651,7 +652,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionRepo.removeAdministrators(context, collection);
+        collectionManager.removeAdministrators(context, collection);
         assertThat("testRemoveAdministratorsAuth 0", collection.getAdministrators(), nullValue());
     }
 
@@ -670,7 +671,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionRepo.removeAdministrators(context, collection);
+        collectionManager.removeAdministrators(context, collection);
         fail("Exception expected");
     }
 
@@ -689,8 +690,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetLicense()
     {
-        assertThat("testGetLicense 0", collectionRepo.getLicense(collection), notNullValue());
-        assertThat("testGetLicense 1", collectionRepo.getLicense(collection), equalTo(LicenseManager.getDefaultSubmissionLicense()));
+        assertThat("testGetLicense 0", collectionManager.getLicense(collection), notNullValue());
+        assertThat("testGetLicense 1", collectionManager.getLicense(collection), equalTo(LicenseManager.getDefaultSubmissionLicense()));
     }
 
     /**
@@ -699,8 +700,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetLicenseCollection()
     {
-        assertThat("testGetLicenseCollection 0", collectionRepo.getLicenseCollection(collection), notNullValue());
-        assertThat("testGetLicenseCollection 1", collectionRepo.getLicenseCollection(collection), equalTo(""));
+        assertThat("testGetLicenseCollection 0", collectionManager.getLicenseCollection(collection), notNullValue());
+        assertThat("testGetLicenseCollection 1", collectionManager.getLicenseCollection(collection), equalTo(""));
     }
 
     /**
@@ -709,7 +710,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testHasCustomLicense()
     {
-        assertFalse("testHasCustomLicense 0", collectionRepo.hasCustomLicense(collection));
+        assertFalse("testHasCustomLicense 0", collectionManager.hasCustomLicense(collection));
     }
 
     /**
@@ -720,10 +721,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         String license = "license for test";
         collection.setLicense(license);
-        assertThat("testSetLicense 0", collectionRepo.getLicense(collection), notNullValue());
-        assertThat("testSetLicense 1", collectionRepo.getLicense(collection), equalTo(license));
-        assertThat("testSetLicense 2", collectionRepo.getLicenseCollection(collection), notNullValue());
-        assertThat("testSetLicense 3", collectionRepo.getLicenseCollection(collection), equalTo(license));
+        assertThat("testSetLicense 0", collectionManager.getLicense(collection), notNullValue());
+        assertThat("testSetLicense 1", collectionManager.getLicense(collection), equalTo(license));
+        assertThat("testSetLicense 2", collectionManager.getLicenseCollection(collection), notNullValue());
+        assertThat("testSetLicense 3", collectionManager.getLicenseCollection(collection), equalTo(license));
     }
 
     /**
@@ -750,7 +751,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionRepo.createTemplateItem(context, collection);
+        collectionManager.createTemplateItem(context, collection);
         assertThat("testCreateTemplateItemAuth 0", collection.getTemplateItem(), notNullValue());
     }
 
@@ -769,7 +770,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionRepo.createTemplateItem(context, collection);
+        collectionManager.createTemplateItem(context, collection);
         fail("Exception expected");
     }
 
@@ -788,7 +789,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionRepo.removeTemplateItem(context, collection);
+        collectionManager.removeTemplateItem(context, collection);
         assertThat("testRemoveTemplateItemAuth 0", collection.getTemplateItem(), nullValue());
     }
 
@@ -807,7 +808,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionRepo.removeTemplateItem(context, collection);
+        collectionManager.removeTemplateItem(context, collection);
         fail("Exception expected");
     }
 
@@ -933,16 +934,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TODO: how to check update?
-        collectionRepo.update(context, collection);
+        collectionManager.update(context, collection);
     }
 
     /**
@@ -956,16 +957,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TODO: how to check update?
-        collectionRepo.update(context, collection);
+        collectionManager.update(context, collection);
     }
 
     /**
@@ -979,16 +980,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TODO: how to check update?
-        collectionRepo.update(context, collection);
+        collectionManager.update(context, collection);
     }
 
     /**
@@ -1002,16 +1003,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TODO: how to check update?
-        collectionRepo.update(context, collection);
+        collectionManager.update(context, collection);
     }
 
     /**
@@ -1025,15 +1026,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = new AuthorizeException();
+                        Constants.WRITE, true); result = new AuthorizeException();
             }
         };
 
-        collectionRepo.update(context, collection);
+        collectionManager.update(context, collection);
         fail("Exception expected");
     }
 
@@ -1048,15 +1049,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth 0", collectionRepo.canEditBoolean(context, collection));
+        assertTrue("testCanEditBooleanAuth 0", collectionManager.canEditBoolean(context, collection));
     }
 
     /**
@@ -1070,15 +1071,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth2 0", collectionRepo.canEditBoolean(context, collection));
+        assertTrue("testCanEditBooleanAuth2 0", collectionManager.canEditBoolean(context, collection));
     }
 
     /**
@@ -1092,15 +1093,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth3 0", collectionRepo.canEditBoolean(context, collection));
+        assertTrue("testCanEditBooleanAuth3 0", collectionManager.canEditBoolean(context, collection));
     }
 
     /**
@@ -1114,15 +1115,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth4 0", collectionRepo.canEditBoolean(context, collection));
+        assertTrue("testCanEditBooleanAuth4 0", collectionManager.canEditBoolean(context, collection));
     }
 
     /**
@@ -1136,15 +1137,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = new AuthorizeException();
+                        Constants.WRITE, true); result = new AuthorizeException();
             }
         };
 
-        assertFalse("testCanEditBooleanNoAuth 0", collectionRepo.canEditBoolean(context, collection));
+        assertFalse("testCanEditBooleanNoAuth 0", collectionManager.canEditBoolean(context, collection));
     }
 
     /**
@@ -1158,15 +1159,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth_boolean 0", collectionRepo.canEditBoolean(context, collection, true));
+        assertTrue("testCanEditBooleanAuth_boolean 0", collectionManager.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1180,15 +1181,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth2_boolean 0", collectionRepo.canEditBoolean(context, collection, true));
+        assertTrue("testCanEditBooleanAuth2_boolean 0", collectionManager.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1202,15 +1203,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth3_boolean 0", collectionRepo.canEditBoolean(context, collection, true));
+        assertTrue("testCanEditBooleanAuth3_boolean 0", collectionManager.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1224,15 +1225,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth4_boolean 0", collectionRepo.canEditBoolean(context, collection, true));
+        assertTrue("testCanEditBooleanAuth4_boolean 0", collectionManager.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1246,15 +1247,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = true;
+                        Constants.WRITE, false); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = true;
+                        Constants.ADD, false); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = null;
+                        Constants.WRITE, false); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth5_boolean 0", collectionRepo.canEditBoolean(context, collection, false));
+        assertTrue("testCanEditBooleanAuth5_boolean 0", collectionManager.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1268,15 +1269,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = false;
+                        Constants.WRITE, false); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = true;
+                        Constants.ADD, false); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = null;
+                        Constants.WRITE, false); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth6_boolean 0", collectionRepo.canEditBoolean(context, collection, false));
+        assertTrue("testCanEditBooleanAuth6_boolean 0", collectionManager.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1290,15 +1291,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = true;
+                        Constants.WRITE, false); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = false;
+                        Constants.ADD, false); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = null;
+                        Constants.WRITE, false); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth7_boolean 0", collectionRepo.canEditBoolean(context, collection, false));
+        assertTrue("testCanEditBooleanAuth7_boolean 0", collectionManager.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1312,15 +1313,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = false;
+                        Constants.WRITE, false); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = false;
+                        Constants.ADD, false); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = null;
+                        Constants.WRITE, false); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth8_boolean 0", collectionRepo.canEditBoolean(context, collection, false));
+        assertTrue("testCanEditBooleanAuth8_boolean 0", collectionManager.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1334,15 +1335,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = new AuthorizeException();
+                        Constants.WRITE, true); result = new AuthorizeException();
             }
         };
 
-        assertFalse("testCanEditBooleanNoAuth_boolean 0", collectionRepo.canEditBoolean(context, collection, true));
+        assertFalse("testCanEditBooleanNoAuth_boolean 0", collectionManager.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1356,15 +1357,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = false;
+                        Constants.WRITE, false); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = false;
+                        Constants.ADD, false); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = new AuthorizeException();
+                        Constants.WRITE, false); result = new AuthorizeException();
             }
         };
 
-        assertFalse("testCanEditBooleanNoAuth_boolean 0", collectionRepo.canEditBoolean(context, collection, false));
+        assertFalse("testCanEditBooleanNoAuth_boolean 0", collectionManager.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1378,16 +1379,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TODO: how to check??
-        collectionRepo.canEdit(context, collection);
+        collectionManager.canEdit(context, collection);
     }
 
     /**
@@ -1401,16 +1402,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TODO: how to check??
-        collectionRepo.canEdit(context, collection);
+        collectionManager.canEdit(context, collection);
     }
 
     /**
@@ -1424,16 +1425,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TODO: how to check??
-        collectionRepo.canEdit(context, collection);
+        collectionManager.canEdit(context, collection);
     }
 
     /**
@@ -1447,16 +1448,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TODO: how to check??
-        collectionRepo.canEdit(context, collection);
+        collectionManager.canEdit(context, collection);
     }
 
     /**
@@ -1470,15 +1471,15 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = new AuthorizeException();
+                        Constants.WRITE, true); result = new AuthorizeException();
             }
         };
 
-        collectionRepo.canEdit(context, collection);
+        collectionManager.canEdit(context, collection);
         fail("Exception expected");
     }
 
@@ -1493,16 +1494,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, true);
+        collectionManager.canEdit(context,  collection, true);
     }
 
     /**
@@ -1516,16 +1517,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, true);
+        collectionManager.canEdit(context,  collection, true);
     }
 
     /**
@@ -1539,16 +1540,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, true);
+        collectionManager.canEdit(context,  collection, true);
     }
 
     /**
@@ -1562,16 +1563,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, true);
+        collectionManager.canEdit(context,  collection, true);
     }
 
     /**
@@ -1585,16 +1586,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = true;
+                        Constants.WRITE, false); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = true;
+                        Constants.ADD, false); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = null;
+                        Constants.WRITE, false); result = null;
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, false);
+        collectionManager.canEdit(context,  collection, false);
     }
 
     /**
@@ -1608,16 +1609,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = false;
+                        Constants.WRITE, false); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = true;
+                        Constants.ADD, false); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = null;
+                        Constants.WRITE, false); result = null;
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, false);
+        collectionManager.canEdit(context,  collection, false);
     }
 
     /**
@@ -1631,16 +1632,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = true;
+                        Constants.WRITE, false); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = false;
+                        Constants.ADD, false); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = null;
+                        Constants.WRITE, false); result = null;
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, false);
+        collectionManager.canEdit(context,  collection, false);
     }
 
     /**
@@ -1654,16 +1655,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = false;
+                        Constants.WRITE, false); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = false;
+                        Constants.ADD, false); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = null;
+                        Constants.WRITE, false); result = null;
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, false);
+        collectionManager.canEdit(context,  collection, false);
     }
 
     /**
@@ -1677,16 +1678,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,false); result = false;
+                        Constants.WRITE, false); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,false); result = false;
+                        Constants.ADD, false); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,false); result = new AuthorizeException();
+                        Constants.WRITE, false); result = new AuthorizeException();
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, false);
+        collectionManager.canEdit(context,  collection, false);
         fail("Exception expected");
     }
 
@@ -1701,16 +1702,16 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             AuthorizeManager authManager;
             {
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = false;
+                        Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = new AuthorizeException();
+                        Constants.WRITE, true); result = new AuthorizeException();
             }
         };
 
         //TOO: how to check?
-        collectionRepo.canEdit(context,  collection, true);
+        collectionManager.canEdit(context,  collection, true);
         fail("Exception expected");
     }
 
@@ -1733,8 +1734,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         int id = collection.getID();
-        communityRepo.removeCollection(context, owningCommunity, collection);
-        assertThat("testDelete 0", collectionRepo.find(context, id),nullValue());
+        communityManager.removeCollection(context, owningCommunity, collection);
+        assertThat("testDelete 0", collectionManager.find(context, id),nullValue());
     }
 
     /**
@@ -1755,7 +1756,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        communityRepo.removeCollection(context, owningCommunity, collection);
+        communityManager.removeCollection(context, owningCommunity, collection);
         fail("Exception expected");
     }
 
@@ -1778,7 +1779,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         int id = collection.getID();
-        communityRepo.removeCollection(context, owningCommunity, collection);
+        communityManager.removeCollection(context, owningCommunity, collection);
         fail("Exception expected");
     }
 
@@ -1788,8 +1789,9 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetCommunities() throws Exception
     {
-        assertThat("testGetCommunities 0", collection.getOwningCommunity(), notNullValue());
-        assertTrue("testGetCommunities 1", collection.getOwningCommunity().equals(owningCommunity));
+        assertThat("testGetCommunities 0", collection.getCommunities(), notNullValue());
+        assertTrue("testGetCommunities 1", CollectionUtils.isNotEmpty(collection.getCommunities()));
+        assertEquals("testGetCommunities 2", collection.getCommunities().iterator().next(), owningCommunity);
     }
 
     /**
@@ -1809,7 +1811,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         assertFalse("testEquals 0", collection.equals(null));
-        assertFalse("testEquals 1", collection.equals(collectionRepo.create(context, owningCommunity)));
+        assertFalse("testEquals 1", collection.equals(collectionManager.create(context, owningCommunity)));
         assertTrue("testEquals 2", collection.equals(collection));
     }
 
@@ -1830,30 +1832,30 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testFindAuthorized() throws Exception
     {
         context.turnOffAuthorisationSystem();
-        Community com = communityRepo.create(null, context);
+        Community com = communityManager.create(null, context);
         context.restoreAuthSystemState();
 
-        Collection[] found = collectionRepo.findAuthorized(context, com, Constants.WRITE);
+        Collection[] found = collectionManager.findAuthorized(context, com, Constants.WRITE);
         assertThat("testFindAuthorized 0",found,notNullValue());
         assertTrue("testFindAuthorized 1",found.length == 0);
 
-        found = collectionRepo.findAuthorized(context, null, Constants.WRITE);
+        found = collectionManager.findAuthorized(context, null, Constants.WRITE);
         assertThat("testFindAuthorized 2",found,notNullValue());
         assertTrue("testFindAuthorized 3",found.length == 0);
 
-        found = collectionRepo.findAuthorized(context, com, Constants.ADD);
+        found = collectionManager.findAuthorized(context, com, Constants.ADD);
         assertThat("testFindAuthorized 3",found,notNullValue());
         assertTrue("testFindAuthorized 4",found.length == 0);
 
-        found = collectionRepo.findAuthorized(context, null, Constants.ADD);
+        found = collectionManager.findAuthorized(context, null, Constants.ADD);
         assertThat("testFindAuthorized 5",found,notNullValue());
         assertTrue("testFindAuthorized 6",found.length == 0);
 
-        found = collectionRepo.findAuthorized(context, com, Constants.READ);
+        found = collectionManager.findAuthorized(context, com, Constants.READ);
         assertThat("testFindAuthorized 7",found,notNullValue());
         assertTrue("testFindAuthorized 8",found.length == 0);
 
-        found = collectionRepo.findAuthorized(context, null, Constants.READ);
+        found = collectionManager.findAuthorized(context, null, Constants.READ);
         assertThat("testFindAuthorized 9",found,notNullValue());
         assertTrue("testFindAuthorized 10",found.length >= 1);
     }
@@ -1877,10 +1879,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testGetAdminObject() throws SQLException
     {
         //default community has no admin object
-        assertThat("testGetAdminObject 0", (Collection) collectionRepo.getAdminObject(context, collection, Constants.REMOVE), equalTo(collection));
-        assertThat("testGetAdminObject 1", (Collection) collectionRepo.getAdminObject(context, collection, Constants.ADD), equalTo(collection));
-        assertThat("testGetAdminObject 2", (Community) collectionRepo.getAdminObject(context, collection, Constants.DELETE), equalTo(owningCommunity));
-        assertThat("testGetAdminObject 3", (Collection) collectionRepo.getAdminObject(context, collection, Constants.ADMIN), equalTo(collection));
+        assertThat("testGetAdminObject 0", (Collection) collectionManager.getAdminObject(context, collection, Constants.REMOVE), equalTo(collection));
+        assertThat("testGetAdminObject 1", (Collection) collectionManager.getAdminObject(context, collection, Constants.ADD), equalTo(collection));
+        assertThat("testGetAdminObject 2", (Community) collectionManager.getAdminObject(context, collection, Constants.DELETE), equalTo(owningCommunity));
+        assertThat("testGetAdminObject 3", (Collection) collectionManager.getAdminObject(context, collection, Constants.ADMIN), equalTo(collection));
     }
 
     /**
@@ -1893,12 +1895,12 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         try
         {
             context.turnOffAuthorisationSystem();
-            Community parent = communityRepo.create(null, context);
-            communityRepo.addCollection(context, parent, collection);
+            Community parent = communityManager.create(null, context);
+            communityManager.addCollection(context, parent, collection);
             context.commit();
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", collectionRepo.getParentObject(context, collection), notNullValue());
-            assertThat("testGetParentObject 2", (Community) collectionRepo.getParentObject(context, collection), equalTo(parent));
+            assertThat("testGetParentObject 1", collectionManager.getParentObject(context, collection), notNullValue());
+            assertThat("testGetParentObject 2", (Community) collectionManager.getParentObject(context, collection), equalTo(parent));
         }
         catch(AuthorizeException ex)
         {

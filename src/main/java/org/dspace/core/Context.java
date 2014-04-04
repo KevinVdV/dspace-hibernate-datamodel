@@ -14,11 +14,12 @@ import org.apache.log4j.Logger;
 //import org.dspace.eperson.Group;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupRepo;
-import org.dspace.eperson.GroupRepoImpl;
+import org.dspace.eperson.GroupManager;
+import org.dspace.eperson.GroupManagerImpl;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;
+import org.dspace.factory.DSpaceManagerFactory;
 import org.dspace.hibernate.HibernateUtil;
 import org.hibernate.Session;
 import org.springframework.util.CollectionUtils;
@@ -43,6 +44,7 @@ import org.springframework.util.CollectionUtils;
 public class Context
 {
     private static final Logger log = Logger.getLogger(Context.class);
+    protected static final GroupManager groupManager = DSpaceManagerFactory.getInstance().getGroupManager();
 
     /** option flags */
     public static final short READ_ONLY = 0x01;
@@ -554,11 +556,10 @@ public class Context
      */
     public Group[] getSpecialGroups() throws SQLException
     {
-        GroupRepo groupDAO = new GroupRepoImpl();
         List<Group> myGroups = new ArrayList<Group>();
         for (Integer groupId : specialGroups)
         {
-            myGroups.add(groupDAO.find(this, groupId));
+            myGroups.add(groupManager.find(this, groupId));
         }
 
         return myGroups.toArray(new Group[myGroups.size()]);

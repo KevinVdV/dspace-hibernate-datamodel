@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.*;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -29,7 +30,6 @@ import static org.junit.Assert.* ;
 import static org.hamcrest.CoreMatchers.*;
 import mockit.*;
 import org.dspace.app.util.AuthorizeUtil;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.core.Constants;
 
@@ -66,12 +66,12 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         {
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityRepo.create(null, context);
-            this.collection = collectionRepo.create(context, owningCommunity);
+            this.owningCommunity = communityManager.create(null, context);
+            this.collection = collectionManager.create(context, owningCommunity);
 
             this.it = createItem();
 
-            itemDAO.update(context, it);
+            itemManager.update(context, it);
             this.dspaceObject = it;
             //we need to commit the changes so we don't block the table for testing
             context.restoreAuthSystemState();
@@ -107,9 +107,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void destroy() throws Exception
     {
         context.turnOffAuthorisationSystem();
-        if(itemDAO.find(context,  it.getID()) != null)
+        if(itemManager.find(context,  it.getID()) != null)
         {
-            itemDAO.delete(context, it);
+            itemManager.delete(context, it);
         }
         context.restoreAuthSystemState();
         super.destroy();
@@ -123,7 +123,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testItemFind() throws Exception
     {
         int id = it.getID();
-        Item found =  itemDAO.find(context, id);
+        Item found =  itemManager.find(context, id);
         assertThat("testItemFind 0", found, notNullValue());
         assertThat("testItemFind 1", found.getID(), equalTo(id));
         assertThat("testItemFind 2", found.getName(), nullValue());
@@ -135,7 +135,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testFindAll() throws Exception
     {
-        Iterator<Item> all = itemDAO.findAll(context);
+        Iterator<Item> all = itemManager.findAll(context);
         assertThat("testFindAll 0", all, notNullValue());
 
         boolean added = false;
@@ -156,7 +156,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testFindBySubmitter() throws Exception
     {
-        Iterator<Item> all = itemDAO.findBySubmitter(context, context.getCurrentUser());
+        Iterator<Item> all = itemManager.findBySubmitter(context, context.getCurrentUser());
         assertThat("testFindBySubmitter 0", all, notNullValue());
 
         boolean added = false;
@@ -171,7 +171,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertTrue("testFindBySubmitter 1",added);
 
         context.turnOffAuthorisationSystem();
-        all = itemDAO.findBySubmitter(context, ePersonRepo.create(context));
+        all = itemManager.findBySubmitter(context, ePersonManager.create(context));
         context.restoreAuthSystemState();
 
         assertThat("testFindBySubmitter 2", all, notNullValue());
@@ -276,7 +276,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String element = "contributor";
         String qualifier = "author";
         String lang = Item.ANY;
-        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemManager.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testGetMetadata_4args 0", dc, notNullValue());
         assertTrue("testGetMetadata_4args 1", dc.size() == 0);
     }
@@ -288,17 +288,17 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testGetMetadata_String()
     {
         String mdString = "dc.contributor.author";
-        List<MetadataValue> dc = itemDAO.getMetadata(it, mdString);
+        List<MetadataValue> dc = itemManager.getMetadata(it, mdString);
         assertThat("testGetMetadata_String 0",dc,notNullValue());
         assertTrue("testGetMetadata_String 1",dc.size() == 0);
 
         mdString = "dc.contributor.*";
-        dc = itemDAO.getMetadata(it, mdString);
+        dc = itemManager.getMetadata(it, mdString);
         assertThat("testGetMetadata_String 2",dc,notNullValue());
         assertTrue("testGetMetadata_String 3",dc.size() == 0);
 
         mdString = "dc.contributor";
-        dc = itemDAO.getMetadata(it, mdString);
+        dc = itemManager.getMetadata(it, mdString);
         assertThat("testGetMetadata_String 4",dc,notNullValue());
         assertTrue("testGetMetadata_String 5",dc.size() == 0);
     }
@@ -311,24 +311,24 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     {
         //Create our "test" metadata field
         context.turnOffAuthorisationSystem();
-        MetadataSchema metadataSchema = new MetadataSchemaRepoImpl().create(context, "test", "test");
-        MetadataField metadataField = metadataFieldRepo.create(context, metadataSchema, "type", null, null);
+        MetadataSchema metadataSchema = metadataSchemaManager.create(context, "test", "test");
+        MetadataField metadataField = metadataFieldManager.create(context, metadataSchema, "type", null, null);
         context.restoreAuthSystemState();
 
         // Set the item to have two pieces of metadata for dc.type and dc2.type
         String dcType = "DC-TYPE";
         String testType = "TEST-TYPE";
-        itemDAO.addMetadata(context, it, "dc", "type", null, null, dcType);
-        itemDAO.addMetadata(context, it, "test", "type", null, null, testType);
+        itemManager.addMetadata(context, it, "dc", "type", null, null, dcType);
+        itemManager.addMetadata(context, it, "test", "type", null, null, testType);
 
         // Check that only one is returned when we ask for all dc.type values
-        List<MetadataValue> values = itemDAO.getMetadata(it, "dc", "type", null, null);
+        List<MetadataValue> values = itemManager.getMetadata(it, "dc", "type", null, null);
         assertTrue("Return results", values.size() == 1);
 
         //Delete the field & schema
         context.turnOffAuthorisationSystem();
-        metadataFieldRepo.delete(context, metadataField);
-        metadataSchemaRepo.delete(context, metadataSchema);
+        metadataFieldManager.delete(context, metadataField);
+        metadataSchemaManager.delete(context, metadataSchema);
         context.restoreAuthSystemState();
     }
 
@@ -343,9 +343,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String qualifier = "author";
         String lang = Item.ANY;
         String[] values = {"value0","value1"};
-        itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values);
+        itemManager.addMetadata(context, it, schema, element, qualifier, lang, values);
 
-        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemManager.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_5args_1 0",dc,notNullValue());
         assertTrue("testAddMetadata_5args_1 1",dc.size() == 2);
         assertThat("testAddMetadata_5args_1 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
@@ -376,9 +376,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String[] values = {"en_US","en"};
         String[] authorities = {"accepted","uncertain"};
         int[] confidences = {0,0};
-        itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
+        itemManager.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
-        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemManager.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_1 0",dc,notNullValue());
         assertTrue("testAddMetadata_7args_1 1",dc.size() == 2);
         assertThat("testAddMetadata_7args_1 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
@@ -412,9 +412,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String[] values = {"value0","value1"};
         String[] authorities = {"auth0","auth2"};
         int[] confidences = {0,0};
-        itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
+        itemManager.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
-        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemManager.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_1 0",dc,notNullValue());
         assertTrue("testAddMetadata_7args_1 1",dc.size() == 2);
         assertThat("testAddMetadata_7args_1 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
@@ -444,9 +444,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String qualifier = "author";
         String lang = Item.ANY;
         String[] values = {"value0","value1"};
-        itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values);
+        itemManager.addMetadata(context, it, schema, element, qualifier, lang, values);
 
-        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemManager.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_5args_2 0",dc,notNullValue());
         assertTrue("testAddMetadata_5args_2 1",dc.size() == 2);
         assertThat("testAddMetadata_5args_2 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
@@ -477,9 +477,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String values = "en";
         String authorities = "accepted";
         int confidences = 0;
-        itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
+        itemManager.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
-        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemManager.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_2 0",dc,notNullValue());
         assertTrue("testAddMetadata_7args_2 1",dc.size() == 1);
         assertThat("testAddMetadata_7args_2 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
@@ -506,9 +506,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String values = "value0";
         String authorities = "auth0";
         int confidences = 0;
-        itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
+        itemManager.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
-        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemManager.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testAddMetadata_7args_2 0",dc,notNullValue());
         assertTrue("testAddMetadata_7args_2 1",dc.size() == 1);
         assertThat("testAddMetadata_7args_2 2",dc.get(0).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
@@ -531,11 +531,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String qualifier = "author";
         String lang = Item.ANY;
         String values = "value0";
-        itemDAO.addMetadata(context, it, schema, element, qualifier, lang, values);
+        itemManager.addMetadata(context, it, schema, element, qualifier, lang, values);
 
-        itemDAO.clearMetadata(context, it, schema, element, qualifier, lang);
+        itemManager.clearMetadata(context, it, schema, element, qualifier, lang);
 
-        List<MetadataValue> dc = itemDAO.getMetadata(it, schema, element, qualifier, lang);
+        List<MetadataValue> dc = itemManager.getMetadata(it, schema, element, qualifier, lang);
         assertThat("testClearMetadata 0",dc,notNullValue());
         assertTrue("testClearMetadata 1", dc.size() == 0);
     }
@@ -562,7 +562,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testSetSubmitter() throws SQLException, AuthorizeException
     {
         context.turnOffAuthorisationSystem();
-        EPerson sub = ePersonRepo.create(context);
+        EPerson sub = ePersonManager.create(context);
         context.restoreAuthSystemState();
 
         it.setSubmitter(sub);
@@ -587,8 +587,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetCommunities() throws Exception
     {
-        assertThat("testGetCommunities 0", itemDAO.getCommunities(it), notNullValue());
-        assertTrue("testGetCommunities 1", itemDAO.getCommunities(it).size() == 1);
+        assertThat("testGetCommunities 0", itemManager.getCommunities(it), notNullValue());
+        assertTrue("testGetCommunities 1", itemManager.getCommunities(it).size() == 1);
     }
 
     /**
@@ -608,8 +608,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testGetBundles_String() throws Exception
     {
         String name = "name";
-        assertThat("testGetBundles_String 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testGetBundles_String 1", itemDAO.getBundles(it, name).size() == 0);
+        assertThat("testGetBundles_String 0", itemManager.getBundles(it, name), notNullValue());
+        assertTrue("testGetBundles_String 1", itemManager.getBundles(it, name).size() == 0);
     }
 
     /**
@@ -628,11 +628,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         assertThat("testCreateBundleAuth 0",created, notNullValue());
         assertThat("testCreateBundleAuth 1",created.getName(), equalTo(name));
-        assertThat("testCreateBundleAuth 2", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testCreateBundleAuth 3", itemDAO.getBundles(it, name).size() == 1);
+        assertThat("testCreateBundleAuth 2", itemManager.getBundles(it, name), notNullValue());
+        assertTrue("testCreateBundleAuth 3", itemManager.getBundles(it, name).size() == 1);
     }
 
     /**
@@ -651,7 +651,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         fail("Exception expected");
     }
 
@@ -671,7 +671,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = null;
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         fail("Exception expected");
     }
 
@@ -692,7 +692,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         fail("Exception expected");
     }
 
@@ -712,12 +712,12 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
-        assertThat("testAddBundleAuth 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testAddBundleAuth 1", itemDAO.getBundles(it, name).size() == 1);
-        assertThat("testAddBundleAuth 2", itemDAO.getBundles(it, name).get(0), equalTo(created));
+        assertThat("testAddBundleAuth 0", itemManager.getBundles(it, name), notNullValue());
+        assertTrue("testAddBundleAuth 1", itemManager.getBundles(it, name).size() == 1);
+        assertThat("testAddBundleAuth 2", itemManager.getBundles(it, name).get(0), equalTo(created));
     }
 
     /**
@@ -736,10 +736,10 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
-        itemDAO.addBundle(context, it, created);
+        itemManager.addBundle(context, it, created);
         fail("Exception expected");
     }
 
@@ -761,13 +761,13 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
-        itemDAO.addBundle(context, it, created);
+        itemManager.addBundle(context, it, created);
 
-        itemDAO.removeBundle(context, it, created);
-        assertThat("testRemoveBundleAuth 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testRemoveBundleAuth 1", itemDAO.getBundles(it, name).size() == 0);
+        itemManager.removeBundle(context, it, created);
+        assertThat("testRemoveBundleAuth 0", itemManager.getBundles(it, name), notNullValue());
+        assertTrue("testRemoveBundleAuth 1", itemManager.getBundles(it, name).size() == 0);
     }
 
     /**
@@ -788,10 +788,10 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
-        itemDAO.removeBundle(context, it, created);
+        itemManager.removeBundle(context, it, created);
         fail("Exception expected");
     }
 
@@ -812,7 +812,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         String name = "new bundle";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), name);
+        Bitstream result = itemManager.createSingleBitstream(context, it, new FileInputStream(f), name);
         assertThat("testCreateSingleBitstream_InputStream_StringAuth 0", result, notNullValue());
     }
 
@@ -833,7 +833,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         String name = "new bundle";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), name);
+        Bitstream result = itemManager.createSingleBitstream(context, it, new FileInputStream(f), name);
         fail("Exception expected");
     }
 
@@ -853,7 +853,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f));
+        Bitstream result = itemManager.createSingleBitstream(context, it, new FileInputStream(f));
         assertThat("testCreateSingleBitstream_InputStreamAuth 0", result, notNullValue());
     }
 
@@ -873,7 +873,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f));
+        Bitstream result = itemManager.createSingleBitstream(context, it, new FileInputStream(f));
         fail("Expected exception");
     }
 
@@ -883,8 +883,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetNonInternalBitstreams() throws Exception
     {
-        assertThat("testGetNonInternalBitstreams 0", itemDAO.getNonInternalBitstreams(it), notNullValue());
-        assertTrue("testGetNonInternalBitstreams 1", itemDAO.getNonInternalBitstreams(it).size() == 0);
+        assertThat("testGetNonInternalBitstreams 0", itemManager.getNonInternalBitstreams(it), notNullValue());
+        assertTrue("testGetNonInternalBitstreams 1", itemManager.getNonInternalBitstreams(it).size() == 0);
     }
 
     /**
@@ -905,12 +905,12 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "LICENSE";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
-        itemDAO.removeDSpaceLicense(context, it);
-        assertThat("testRemoveDSpaceLicenseAuth 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testRemoveDSpaceLicenseAuth 1", itemDAO.getBundles(it, name).size() == 0);
+        itemManager.removeDSpaceLicense(context, it);
+        assertThat("testRemoveDSpaceLicenseAuth 0", itemManager.getBundles(it, name), notNullValue());
+        assertTrue("testRemoveDSpaceLicenseAuth 1", itemManager.getBundles(it, name).size() == 0);
     }
 
     /**
@@ -931,10 +931,10 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "LICENSE";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
-        itemDAO.removeDSpaceLicense(context, it);
+        itemManager.removeDSpaceLicense(context, it);
         fail("Exception expected");
     }
 
@@ -956,19 +956,19 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "LICENSE";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
         String bsname = "License";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), bsname);
-        bitstreamRepo.setFormat(context, result, bitstreamFormatRepo.findByShortDescription(context, bsname));
-        bundleDAO.addBitstream(context, created, result);
+        Bitstream result = itemManager.createSingleBitstream(context, it, new FileInputStream(f), bsname);
+        bitstreamManager.setFormat(context, result, bitstreamFormatManager.findByShortDescription(context, bsname));
+        bundleManager.addBitstream(context, created, result);
 
 
-        itemDAO.removeLicenses(context, it);
-        assertThat("testRemoveLicensesAuth 0", itemDAO.getBundles(it, name), notNullValue());
-        assertTrue("testRemoveLicensesAuth 1", itemDAO.getBundles(it, name).size() == 0);
+        itemManager.removeLicenses(context, it);
+        assertThat("testRemoveLicensesAuth 0", itemManager.getBundles(it, name), notNullValue());
+        assertTrue("testRemoveLicensesAuth 1", itemManager.getBundles(it, name).size() == 0);
     }
 
     /**
@@ -989,16 +989,16 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "LICENSE";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
         String bsname = "License";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), bsname);
-        bitstreamRepo.setFormat(context, result, bitstreamFormatRepo.findByShortDescription(context, bsname));
-        bundleDAO.addBitstream(context, created, result);
+        Bitstream result = itemManager.createSingleBitstream(context, it, new FileInputStream(f), bsname);
+        bitstreamManager.setFormat(context, result, bitstreamFormatManager.findByShortDescription(context, bsname));
+        bundleManager.addBitstream(context, created, result);
 
-        itemDAO.removeLicenses(context, it);
+        itemManager.removeLicenses(context, it);
         fail("Exception expected");
     }
 
@@ -1018,7 +1018,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         //TOOD: how to test?
-        itemDAO.update(context, it);
+        itemManager.update(context, it);
     }
 
     /**
@@ -1036,9 +1036,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = false;
+                        Constants.ADD, true); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = new AuthorizeException();
+                        Constants.WRITE, true); result = new AuthorizeException();
 
             }
         };
@@ -1049,7 +1049,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         context.restoreAuthSystemState();
 
         //TOOD: how to test?
-        itemDAO.update(context, it);
+        itemManager.update(context, it);
     }
 
     /**
@@ -1065,11 +1065,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeAction((Context) any, (Item) any,
                         Constants.WRITE); result = new AuthorizeException();
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,anyBoolean); result = false;
+                        Constants.WRITE, anyBoolean); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,anyBoolean); result = false;
+                        Constants.ADD, anyBoolean); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,anyBoolean); result = new AuthorizeException();
+                        Constants.WRITE, anyBoolean); result = new AuthorizeException();
             }
         };
 
@@ -1079,7 +1079,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         context.restoreAuthSystemState();
 
         //TOOD: how to test?
-        itemDAO.update(context, it);
+        itemManager.update(context, it);
     }
 
     /**
@@ -1102,7 +1102,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
             }
         };
 
-        itemDAO.withdraw(context, it);
+        itemManager.withdraw(context, it);
         assertTrue("testWithdrawAuth 0", it.isWithdrawn());
     }
 
@@ -1121,7 +1121,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
             }
         };
 
-        itemDAO.withdraw(context, it);
+        itemManager.withdraw(context, it);
         fail("Exception expected");
     }
 
@@ -1133,8 +1133,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     {
 
         context.turnOffAuthorisationSystem();
-        itemDAO.withdraw(context, it);
-        itemDAO.reinstate(context, it);
+        itemManager.withdraw(context, it);
+        itemManager.reinstate(context, it);
         context.restoreAuthSystemState();
         assertFalse("testReinstate 0", it.isWithdrawn());
     }
@@ -1156,8 +1156,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
             }
         };
 
-        itemDAO.withdraw(context, it);
-        itemDAO.reinstate(context, it);
+        itemManager.withdraw(context, it);
+        itemManager.reinstate(context, it);
         fail("Exceotion expected");
     }
 
@@ -1177,7 +1177,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         boolean added = false;
-        Iterator<Item> items = collectionRepo.getItems(context, collection);
+        Iterator<Item> items = collectionManager.getItems(context, collection);
         while(items.hasNext())
         {
             Item tmp = items.next();
@@ -1190,12 +1190,12 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertTrue("testDeleteAuth 0", added);
 
         int id = it.getID();
-        itemDAO.delete(context,  it);
-        Item found = itemDAO.find(context, id);
+        itemManager.delete(context,  it);
+        Item found = itemManager.find(context, id);
         assertThat("testDeleteAuth 1", found, nullValue());
 
         added = false;
-        items = collectionRepo.getItems(context, collection);
+        items = collectionManager.getItems(context, collection);
         while(items.hasNext())
         {
             Item tmp = items.next();
@@ -1222,7 +1222,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
             }
         };
 
-        itemDAO.delete(context, it);
+        itemManager.delete(context, it);
         fail("Exception expected");
     }
 
@@ -1240,7 +1240,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
             assertFalse("testEquals 1",it.equals(item));
             assertTrue("testEquals 2", it.equals(it));
         } finally {
-            itemDAO.delete(context, item);
+            itemManager.delete(context, item);
             context.restoreAuthSystemState();
         }
     }
@@ -1255,7 +1255,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         Collection c = createCollection();
         context.restoreAuthSystemState();
 
-        boolean result = itemDAO.isOwningCollection(it, c);
+        boolean result = itemManager.isOwningCollection(it, c);
         assertFalse("testIsOwningCollection 0", result);
     }
 
@@ -1275,9 +1275,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testReplaceAllItemPolicies() throws Exception
     {
         List<ResourcePolicy> newpolicies = new ArrayList<ResourcePolicy>();
-        ResourcePolicy pol1 = resourcePolicyDAO.create(context);
+        ResourcePolicy pol1 = resourcePolicyManager.create(context);
         newpolicies.add(pol1);
-        itemDAO.replaceAllItemPolicies(context, it, newpolicies);
+        itemManager.replaceAllItemPolicies(context, it, newpolicies);
 
         List<ResourcePolicy> retrieved = AuthorizeManager.getPolicies(context, it);
         assertThat("testReplaceAllItemPolicies 0",retrieved, notNullValue());
@@ -1293,29 +1293,29 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         context.turnOffAuthorisationSystem();
         //we add some bundles for the test
         String name = "LICENSE";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
         String bsname = "License";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), bsname);
-        bitstreamRepo.setFormat(context, result, bitstreamFormatRepo.findByShortDescription(context, bsname));
-        bundleDAO.addBitstream(context, created, result);
+        Bitstream result = itemManager.createSingleBitstream(context, it, new FileInputStream(f), bsname);
+        bitstreamManager.setFormat(context, result, bitstreamFormatManager.findByShortDescription(context, bsname));
+        bundleManager.addBitstream(context, created, result);
 
         List<ResourcePolicy> newpolicies = new ArrayList<ResourcePolicy>();
-        newpolicies.add(resourcePolicyDAO.create(context));
-        newpolicies.add(resourcePolicyDAO.create(context));
-        newpolicies.add(resourcePolicyDAO.create(context));
+        newpolicies.add(resourcePolicyManager.create(context));
+        newpolicies.add(resourcePolicyManager.create(context));
+        newpolicies.add(resourcePolicyManager.create(context));
         context.restoreAuthSystemState();
 
-        itemDAO.replaceAllBitstreamPolicies(context, it, newpolicies);
+        itemManager.replaceAllBitstreamPolicies(context, it, newpolicies);
 
         List<ResourcePolicy> retrieved = new ArrayList<ResourcePolicy>();
         List<Bundle> bundles = it.getBundles();
         for(Bundle b: bundles)
         {
-            retrieved.addAll(bundleDAO.getBundlePolicies(context, b));
-            retrieved.addAll(bundleDAO.getBitstreamPolicies(context, b));
+            retrieved.addAll(bundleManager.getBundlePolicies(context, b));
+            retrieved.addAll(bundleManager.getBitstreamPolicies(context, b));
         }
         assertFalse("testReplaceAllBitstreamPolicies 0",retrieved.isEmpty());
 
@@ -1338,14 +1338,14 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     {
         context.turnOffAuthorisationSystem();
         List<ResourcePolicy> newpolicies = new ArrayList<ResourcePolicy>();
-        Group g = groupRepo.create(context);
-        ResourcePolicy pol1 = resourcePolicyDAO.create(context);
+        Group g = groupManager.create(context);
+        ResourcePolicy pol1 = resourcePolicyManager.create(context);
         newpolicies.add(pol1);
-        pol1.setGroup(g);
-        itemDAO.replaceAllItemPolicies(context, it, newpolicies);
+        resourcePolicyManager.setGroup(pol1, g);
+        itemManager.replaceAllItemPolicies(context, it, newpolicies);
         context.restoreAuthSystemState();
 
-        itemDAO.removeGroupPolicies(context, it, g);
+        itemManager.removeGroupPolicies(context, it, g);
 
         List<ResourcePolicy> retrieved = AuthorizeManager.getPolicies(context, it);
         assertThat("testRemoveGroupPolicies 0",retrieved, notNullValue());
@@ -1374,18 +1374,18 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         //we add some bundles for the test
         String name = "LICENSE";
-        Bundle created = itemDAO.createBundle(context, it, name);
+        Bundle created = itemManager.createBundle(context, it, name);
         created.setName(name);
 
         String bsname = "License";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream result = itemDAO.createSingleBitstream(context, it, new FileInputStream(f), bsname);
-        bitstreamRepo.setFormat(context, result, bitstreamFormatRepo.findByShortDescription(context, bsname));
-        bundleDAO.addBitstream(context, created, result);
+        Bitstream result = itemManager.createSingleBitstream(context, it, new FileInputStream(f), bsname);
+        bitstreamManager.setFormat(context, result, bitstreamFormatManager.findByShortDescription(context, bsname));
+        bundleManager.addBitstream(context, created, result);
 
         context.restoreAuthSystemState();
 
-        itemDAO.inheritCollectionDefaultPolicies(context, it, c);
+        itemManager.inheritCollectionDefaultPolicies(context, it, c);
 
         //test item policies
         List<ResourcePolicy> retrieved = AuthorizeManager.getPolicies(context, it);
@@ -1403,8 +1403,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         List<Bundle> bundles = it.getBundles();
         for(Bundle b: bundles)
         {
-            retrieved.addAll(bundleDAO.getBundlePolicies(context, b));
-            retrieved.addAll(bundleDAO.getBitstreamPolicies(context, b));
+            retrieved.addAll(bundleManager.getBundlePolicies(context, b));
+            retrieved.addAll(bundleManager.getBitstreamPolicies(context, b));
         }
         assertFalse("testInheritCollectionDefaultPolicies 1",retrieved.isEmpty());
 
@@ -1432,7 +1432,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         Collection to = createCollection();
         it.setOwningCollection(from);
 
-        itemDAO.move(context, it, from, to);
+        collectionManager.move(context, it, from, to);
         context.restoreAuthSystemState();
         assertThat("testMove 0",it.getOwningCollection(), notNullValue());
         assertThat("testMove 1", it.getOwningCollection(), equalTo(to));
@@ -1444,7 +1444,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testHasUploadedFiles() throws Exception
     {
-        assertFalse("testHasUploadedFiles 0",itemDAO.hasUploadedFiles(it));
+        assertFalse("testHasUploadedFiles 0", itemManager.hasUploadedFiles(it));
     }
 
     /**
@@ -1453,11 +1453,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetCollectionsNotLinked() throws Exception
     {
-        List<Collection> result = itemDAO.getCollectionsNotLinked(context, it);
+        List<Collection> result = collectionManager.getCollectionsNotLinked(context, it);
         boolean isin = false;
         for(Collection c: result)
         {
-            Iterator<Item> iit = collectionRepo.getAllItems(context, collection);
+            Iterator<Item> iit = collectionManager.getAllItems(context, collection);
             while(iit.hasNext())
             {
                 if(iit.next().getID() == it.getID())
@@ -1482,15 +1482,15 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Item) any,
                         Constants.WRITE); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth 0", itemDAO.canEdit(context, it));
+        assertTrue("testCanEditBooleanAuth 0", itemManager.canEdit(context, it));
     }
 
     /**
@@ -1506,15 +1506,15 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Item) any,
                         Constants.WRITE); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
-        assertTrue("testCanEditBooleanAuth2 0", itemDAO.canEdit(context, it));
+        assertTrue("testCanEditBooleanAuth2 0", itemManager.canEdit(context, it));
     }
 
     /**
@@ -1530,11 +1530,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Item) any,
                         Constants.WRITE); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,true); result = true;
+                        Constants.WRITE, true); result = true;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,true); result = true;
+                        Constants.ADD, true); result = true;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,true); result = null;
+                        Constants.WRITE, true); result = null;
             }
         };
 
@@ -1543,7 +1543,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         it.setOwningCollection(c);
         context.restoreAuthSystemState();
 
-        assertTrue("testCanEditBooleanAuth3 0", itemDAO.canEdit(context, it));
+        assertTrue("testCanEditBooleanAuth3 0", itemManager.canEdit(context, it));
     }
 
     /**
@@ -1559,11 +1559,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Item) any,
                         Constants.WRITE); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.WRITE,anyBoolean); result = false;
+                        Constants.WRITE, anyBoolean); result = false;
                 AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
-                        Constants.ADD,anyBoolean); result = false;
+                        Constants.ADD, anyBoolean); result = false;
                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
-                        Constants.WRITE,anyBoolean); result = new AuthorizeException();
+                        Constants.WRITE, anyBoolean); result = new AuthorizeException();
             }
         };
 
@@ -1572,7 +1572,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         it.setOwningCollection(c);
         context.restoreAuthSystemState();
 
-        assertFalse("testCanEditBooleanNoAuth 0", itemDAO.canEdit(context, it));
+        assertFalse("testCanEditBooleanNoAuth 0", itemManager.canEdit(context, it));
     }
 
     /**
@@ -1595,11 +1595,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String qualifier = "author";
         String value = "value";
 
-        Iterator<Item> result = itemDAO.findByMetadataField(context, schema, element, qualifier, value);
+        Iterator<Item> result = itemManager.findByMetadataField(context, schema, element, qualifier, value);
         assertThat("testFindByMetadataField 0", result, notNullValue());
         assertFalse("testFindByMetadataField 1", result.hasNext());
 
-        itemDAO.addMetadata(context, it, schema,element, qualifier, Item.ANY, value);
+        itemManager.addMetadata(context, it, schema,element, qualifier, Item.ANY, value);
         //Ensure that the current user can update the item
         new NonStrictExpectations()
         {
@@ -1609,9 +1609,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                         Constants.WRITE); result = null;
             }
         };
-        itemDAO.update(context, it);
+        itemManager.update(context, it);
 
-        result = itemDAO.findByMetadataField(context, schema, element, qualifier, value);
+        result = itemManager.findByMetadataField(context, schema, element, qualifier, value);
         assertThat("testFindByMetadataField 3",result,notNullValue());
         assertTrue("testFindByMetadataField 4",result.hasNext());
         assertTrue("testFindByMetadataField 5", result.next().equals(it));
@@ -1625,10 +1625,10 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testGetAdminObject() throws SQLException
     {
         //default community has no admin object
-        assertThat("testGetAdminObject 0", (Item)itemDAO.getAdminObject(context, it, Constants.REMOVE), equalTo(it));
-        assertThat("testGetAdminObject 1", (Item)itemDAO.getAdminObject(context, it, Constants.ADD), equalTo(it));
-        assertThat("testGetAdminObject 2", (Collection) itemDAO.getAdminObject(context, it, Constants.DELETE), equalTo(collection));
-        assertThat("testGetAdminObject 3", (Item)itemDAO.getAdminObject(context, it, Constants.ADMIN), equalTo(it));
+        assertThat("testGetAdminObject 0", (Item) itemManager.getAdminObject(context, it, Constants.REMOVE), equalTo(it));
+        assertThat("testGetAdminObject 1", (Item) itemManager.getAdminObject(context, it, Constants.ADD), equalTo(it));
+        assertThat("testGetAdminObject 2", (Collection) itemManager.getAdminObject(context, it, Constants.DELETE), equalTo(collection));
+        assertThat("testGetAdminObject 3", (Item) itemManager.getAdminObject(context, it, Constants.ADMIN), equalTo(it));
     }
 
     /**
@@ -1641,14 +1641,14 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         try
         {
             //default has collection parent
-            assertThat("testGetParentObject 0", itemDAO.getParentObject(context, it), notNullValue());
+            assertThat("testGetParentObject 0", itemManager.getParentObject(context, it), notNullValue());
 
             context.turnOffAuthorisationSystem();
             Collection parent = createCollection();
             it.setOwningCollection(parent);
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", itemDAO.getParentObject(context, it), notNullValue());
-            assertThat("testGetParentObject 2", (Collection)itemDAO.getParentObject(context, it), equalTo(parent));
+            assertThat("testGetParentObject 1", itemManager.getParentObject(context, it), notNullValue());
+            assertThat("testGetParentObject 2", (Collection) itemManager.getParentObject(context, it), equalTo(parent));
         }
         catch(AuthorizeException ex)
         {
@@ -1669,11 +1669,11 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String authority = "accepted";
         int confidence = 0;
 
-        Iterator<Item> result = itemDAO.findByAuthorityValue(context, schema, element, qualifier, value);
+        Iterator<Item> result = itemManager.findByAuthorityValue(context, schema, element, qualifier, value);
         assertThat("testFindByAuthorityValue 0", result, notNullValue());
         assertFalse("testFindByAuthorityValue 1", result.hasNext());
 
-        itemDAO.addMetadata(context, it, schema, element, qualifier, Item.ANY, value, authority, confidence);
+        itemManager.addMetadata(context, it, schema, element, qualifier, Item.ANY, value, authority, confidence);
         //Ensure that the current user can update the item
         new NonStrictExpectations()
         {
@@ -1683,20 +1683,20 @@ public class ItemTest  extends AbstractDSpaceObjectTest
                         Constants.WRITE); result = null;
             }
         };
-        itemDAO.update(context, it);
+        itemManager.update(context, it);
 
-        result = itemDAO.findByAuthorityValue(context, schema, element, qualifier, authority);
+        result = itemManager.findByAuthorityValue(context, schema, element, qualifier, authority);
         assertThat("testFindByAuthorityValue 3",result,notNullValue());
         assertTrue("testFindByAuthorityValue 4",result.hasNext());
         assertThat("testFindByAuthorityValue 5",result.next(),equalTo(it));
     }
 
     protected Collection createCollection() throws SQLException, AuthorizeException {
-        return collectionRepo.create(context, owningCommunity);
+        return collectionManager.create(context, owningCommunity);
     }
 
     protected Item createItem() throws SQLException, IOException, AuthorizeException, IllegalAccessException {
-        WorkspaceItem workspaceItem = workspaceItemDAO.create(context, collection, false);
+        WorkspaceItem workspaceItem = workspaceItemManager.create(context, collection, false);
         return InstallItem.installItem(context, workspaceItem);
     }
 

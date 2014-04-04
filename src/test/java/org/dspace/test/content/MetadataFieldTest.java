@@ -69,8 +69,8 @@ public class MetadataFieldTest extends AbstractUnitTest
         try
         {
             context.turnOffAuthorisationSystem();
-            this.dcSchema = metadataSchemaRepo.find(context, MetadataSchema.DC_SCHEMA);
-            this.mf = metadataFieldRepo.create(context,
+            this.dcSchema = metadataSchemaManager.find(context, MetadataSchema.DC_SCHEMA);
+            this.mf = metadataFieldManager.create(context,
                     dcSchema, element, qualifier, scopeNote);
             context.restoreAuthSystemState();
         }
@@ -100,10 +100,10 @@ public class MetadataFieldTest extends AbstractUnitTest
     @After
     @Override
     public void destroy() throws Exception {
-        if(metadataFieldRepo.find(context, mf.getFieldID()) != null)
+        if(metadataFieldManager.find(context, mf.getFieldID()) != null)
         {
             context.turnOffAuthorisationSystem();
-            metadataFieldRepo.delete(context, mf);
+            metadataFieldManager.delete(context, mf);
             context.restoreAuthSystemState();
         }
         super.destroy();
@@ -203,9 +203,9 @@ public class MetadataFieldTest extends AbstractUnitTest
 
         String elem = "elem1";
         String qual = "qual1";
-        MetadataField metadataField = metadataFieldRepo.create(context, dcSchema, elem, qual, null);
+        MetadataField metadataField = metadataFieldManager.create(context, dcSchema, elem, qual, null);
 
-        MetadataField found = metadataFieldRepo.findByElement(context, dcSchema, elem, qual);
+        MetadataField found = metadataFieldManager.findByElement(context, dcSchema, elem, qual);
         assertThat("testCreateAuth 0",found.getFieldID(), equalTo(metadataField.getFieldID()));
     }
 
@@ -225,7 +225,7 @@ public class MetadataFieldTest extends AbstractUnitTest
 
         String elem = "elem1";
         String qual = "qual1";
-        metadataFieldRepo.create(context, dcSchema, elem, qual, null);
+        metadataFieldManager.create(context, dcSchema, elem, qual, null);
         fail("Exception expected");
     }
 
@@ -245,7 +245,7 @@ public class MetadataFieldTest extends AbstractUnitTest
 
         String elem = element;
         String qual = qualifier;
-        metadataFieldRepo.create(context, dcSchema, elem, qual, null);
+        metadataFieldManager.create(context, dcSchema, elem, qual, null);
         fail("Exception expected");
     }
 
@@ -255,7 +255,7 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testFindByElement() throws Exception
     {
-        MetadataField found = metadataFieldRepo.findByElement(context, dcSchema, element, qualifier);
+        MetadataField found = metadataFieldManager.findByElement(context, dcSchema, element, qualifier);
         assertThat("testFindByElement 0",found, notNullValue());
         assertThat("testFindByElement 1",found.getFieldID(), equalTo(mf.getFieldID()));
         assertThat("testFindByElement 2",found.getElement(), equalTo(mf.getElement()));
@@ -268,7 +268,7 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testFindAll() throws Exception
     {
-        List<MetadataField> found = metadataFieldRepo.findAll(context);
+        List<MetadataField> found = metadataFieldManager.findAll(context);
         assertThat("testFindAll 0",found, notNullValue());
         assertTrue("testFindAll 1",found.size() >= 1);
 
@@ -289,10 +289,10 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testFindAllInSchema() throws Exception 
     {
-        List<MetadataField> found = metadataFieldRepo.findAllInSchema(context, MetadataSchema.DC_SCHEMA);
+        List<MetadataField> found = metadataFieldManager.findAllInSchema(context, MetadataSchema.DC_SCHEMA);
         assertThat("testFindAllInSchema 0",found, notNullValue());
         assertTrue("testFindAllInSchema 1",found.size() >= 1);
-        assertTrue("testFindAllInSchema 2",found.size() <= metadataFieldRepo.findAll(context).size());
+        assertTrue("testFindAllInSchema 2",found.size() <= metadataFieldManager.findAll(context).size());
 
         boolean added = false;
         for(MetadataField mdf: found)
@@ -321,11 +321,11 @@ public class MetadataFieldTest extends AbstractUnitTest
 
         String elem = "elem2";
         String qual = "qual2";
-        MetadataField m = metadataFieldRepo.create(context, dcSchema, elem, qual, null);
-        metadataFieldRepo.update(context, m);
+        MetadataField m = metadataFieldManager.create(context, dcSchema, elem, qual, null);
+        metadataFieldManager.update(context, m);
 
-        MetadataField found = metadataFieldRepo.findByElement(context, dcSchema, elem, qual);
-        metadataFieldRepo.delete(context, m);
+        MetadataField found = metadataFieldManager.findByElement(context, dcSchema, elem, qual);
+        metadataFieldManager.delete(context, m);
         assertThat("testUpdateAuth 0", found.getFieldID(), equalTo(m.getFieldID()));
     }
 
@@ -345,9 +345,9 @@ public class MetadataFieldTest extends AbstractUnitTest
 
         String elem = "elem2";
         String qual = "qual2";
-        MetadataField m = metadataFieldRepo.create(context, dcSchema, elem, qual, null);
-        metadataFieldRepo.update(context, m);
-        metadataFieldRepo.delete(context, m);
+        MetadataField m = metadataFieldManager.create(context, dcSchema, elem, qual, null);
+        metadataFieldManager.update(context, m);
+        metadataFieldManager.delete(context, m);
         fail("Exception expected");
     }
 
@@ -367,16 +367,16 @@ public class MetadataFieldTest extends AbstractUnitTest
 
         String elem = element;
         String qual = qualifier;
-        MetadataField m = metadataFieldRepo.create(context, dcSchema, null, null, null);
+        MetadataField m = metadataFieldManager.create(context, dcSchema, null, null, null);
         
         m.setElement(elem);
         m.setQualifier(qual);
         try {
-            metadataFieldRepo.update(context, m);
+            metadataFieldManager.update(context, m);
             fail("Exception expected");
         } finally {
             //Delete the reference so our next unit test will work
-            metadataFieldRepo.delete(context, m);
+            metadataFieldManager.delete(context, m);
         }
     }
 
@@ -396,12 +396,12 @@ public class MetadataFieldTest extends AbstractUnitTest
 
         String elem = "elem3";
         String qual = "qual3";
-        MetadataField m = metadataFieldRepo.create(context, dcSchema, elem, qual, null);
+        MetadataField m = metadataFieldManager.create(context, dcSchema, elem, qual, null);
         context.commit();
 
-        metadataFieldRepo.delete(context, m);
+        metadataFieldManager.delete(context, m);
 
-        MetadataField found = metadataFieldRepo.findByElement(context, dcSchema, elem, qual);
+        MetadataField found = metadataFieldManager.findByElement(context, dcSchema, elem, qual);
         assertThat("testDeleteAuth 0",found, nullValue());
     }
 
@@ -421,10 +421,10 @@ public class MetadataFieldTest extends AbstractUnitTest
 
         String elem = "elem3";
         String qual = "qual3";
-        MetadataField m = metadataFieldRepo.create(context, dcSchema, element, qualifier, null);
+        MetadataField m = metadataFieldManager.create(context, dcSchema, element, qualifier, null);
         context.commit();
 
-        metadataFieldRepo.delete(context, m);
+        metadataFieldManager.delete(context, m);
         fail("Exception expected");
     }
 
@@ -434,8 +434,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testFormKey()
     {
-        assertThat("testFormKey 0", metadataFieldRepo.formKey("dc", "elem", null), equalTo("dc_elem"));
-        assertThat("testFormKey 1", metadataFieldRepo.formKey("dc", "elem", "qual"), equalTo("dc_elem_qual"));
+        assertThat("testFormKey 0", metadataFieldManager.formKey("dc", "elem", null), equalTo("dc_elem"));
+        assertThat("testFormKey 1", metadataFieldManager.formKey("dc", "elem", "qual"), equalTo("dc_elem_qual"));
     }
 
     /**
@@ -446,10 +446,10 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         context.turnOffAuthorisationSystem();
 
-        metadataFieldRepo.update(context, mf);
+        metadataFieldManager.update(context, mf);
         int id = mf.getFieldID();
         
-        MetadataField found = metadataFieldRepo.find(context, id);
+        MetadataField found = metadataFieldManager.find(context, id);
         assertThat("testFind 0",found, notNullValue());
         assertThat("testFind 1",found.getFieldID(), equalTo(mf.getFieldID()));
         context.restoreAuthSystemState();

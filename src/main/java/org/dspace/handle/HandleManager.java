@@ -9,9 +9,7 @@ package org.dspace.handle;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
@@ -19,6 +17,7 @@ import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.factory.DSpaceManagerFactory;
 
 /**
  * Interface to the <a href="http://www.handle.net" target=_new>CNRI Handle
@@ -345,48 +344,14 @@ public class HandleManager
         int handletypeid = dbhandle.getResource_type_id();
         int resourceID = dbhandle.getResource_id();
 
-        if (handletypeid == Constants.ITEM)
+        DSpaceObject dso = DSpaceManagerFactory.getInstance().getDSpaceObjectManager(handletypeid).find(context, resourceID);
+        if(log.isDebugEnabled())
         {
-            //TODO: Hibernate, implement when item is available
-            /*
-            Item item = Item.find(context, resourceID);
+            log.debug("Resolved handle " + handle + " to " + dso.getClass().getSimpleName()
+                    + ((dso == null) ? (-1) : dso.getID()));
 
-            if (log.isDebugEnabled())
-            {
-                log.debug("Resolved handle " + handle + " to item "
-                        + ((item == null) ? (-1) : item.getID()));
-            }
-
-            return item;
-            */
         }
-        else if (handletypeid == Constants.COLLECTION)
-        {
-            Collection collection = new CollectionRepoImpl().find(context, resourceID);
-
-            if (log.isDebugEnabled())
-            {
-                log.debug("Resolved handle " + handle + " to collection "
-                        + ((collection == null) ? (-1) : collection.getID()));
-            }
-
-            return collection;
-        }
-        else if (handletypeid == Constants.COMMUNITY)
-        {
-            Community community = new CommunityRepoImpl().find(context, resourceID);
-
-            if (log.isDebugEnabled())
-            {
-                log.debug("Resolved handle " + handle + " to community "
-                        + ((community == null) ? (-1) : community.getID()));
-            }
-
-            return community;
-        }
-
-        throw new IllegalStateException("Unsupported Handle Type "
-                + Constants.typeText[handletypeid]);
+        return dso;
     }
 
     /**

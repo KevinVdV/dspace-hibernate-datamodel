@@ -25,6 +25,8 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
+import org.dspace.eperson.GroupManager;
+import org.dspace.factory.DSpaceManagerFactory;
 import org.dspace.handle.HandleManager;
 
 /**
@@ -71,6 +73,9 @@ public class EmbargoManager
     // set from the DSpace configuration by init()
     private static EmbargoSetter setter = null;
     private static EmbargoLifter lifter = null;
+    
+    protected static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
+    
 
     /**
      * Put an Item under embargo until the specified lift date.
@@ -96,15 +101,14 @@ public class EmbargoManager
         boolean ignoreAuth = context.ignoreAuthorization();
         try
         {
-            ItemRepoImpl itemDAO = new ItemRepoImpl();
             context.setIgnoreAuthorization(true);
-            itemDAO.clearMetadata(context, item, lift_schema, lift_element, lift_qualifier, Item.ANY);
-            itemDAO.addMetadata(context, item, lift_schema, lift_element, lift_qualifier, null, slift);
+            itemManager.clearMetadata(context, item, lift_schema, lift_element, lift_qualifier, Item.ANY);
+            itemManager.addMetadata(context, item, lift_schema, lift_element, lift_qualifier, null, slift);
             log.info("Set embargo on Item "+item.getHandle(context)+", expires on: "+slift);
 
             setter.setEmbargo(context, item);
 
-            itemDAO.update(context, item);
+            itemManager.update(context, item);
         }
         finally
         {
@@ -131,7 +135,7 @@ public class EmbargoManager
         throws SQLException, AuthorizeException, IOException
     {
         init();
-        List<MetadataValue> terms = new ItemRepoImpl().getMetadata(item, terms_schema, terms_element,
+        List<MetadataValue> terms = itemManager.getMetadata(item, terms_schema, terms_element,
                 terms_qualifier, Item.ANY);
 
         DCDate result = null;
@@ -178,17 +182,16 @@ public class EmbargoManager
     {
         init();
 
-        ItemRepoImpl itemDAO = new ItemRepoImpl();
         // new version of Embargo policies remain in place.
         //lifter.liftEmbargo(context, item);
-        itemDAO.clearMetadata(context, item, lift_schema, lift_element, lift_qualifier, Item.ANY);
+        itemManager.clearMetadata(context, item, lift_schema, lift_element, lift_qualifier, Item.ANY);
 
         // set the dc.date.available value to right now
-        itemDAO.clearMetadata(context, item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY);
-        itemDAO.addMetadata(context, item, MetadataSchema.DC_SCHEMA, "date", "available", null, DCDate.getCurrent().toString());
+        itemManager.clearMetadata(context, item, MetadataSchema.DC_SCHEMA, "date", "available", Item.ANY);
+        itemManager.addMetadata(context, item, MetadataSchema.DC_SCHEMA, "date", "available", null, DCDate.getCurrent().toString());
 
         log.info("Lifting embargo on Item "+item.getHandle(context));
-        itemDAO.update(context, item);
+        itemManager.update(context, item);
     }
 
     /**
@@ -301,7 +304,7 @@ public class EmbargoManager
             }
             else
             {
-                Iterator<Item> ii = new ItemRepoImpl().findByMetadataField(context, lift_schema, lift_element, lift_qualifier, Item.ANY);
+                Iterator<Item> ii = itemManager.findByMetadataField(context, lift_schema, lift_element, lift_qualifier, Item.ANY);
                 while (ii.hasNext())
                 {
                     if (processOneItem(context, ii.next(), line, now))
@@ -341,7 +344,7 @@ public class EmbargoManager
         throws Exception
     {
         boolean status = false;
-        List<MetadataValue> lift = new ItemRepoImpl().getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
+        List<MetadataValue> lift = itemManager.getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
 
         if (lift.size() > 0)
         {
@@ -451,7 +454,7 @@ public class EmbargoManager
     // it was never under embargo, or the lift date has passed.
     private static DCDate recoverEmbargoDate(Item item) throws SQLException {
         DCDate liftDate = null;
-        List<MetadataValue> lift = new ItemRepoImpl().getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
+        List<MetadataValue> lift = itemManager.getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
         if (lift.size() > 0)
         {
             liftDate = new DCDate(lift.iterator().next().getValue());
