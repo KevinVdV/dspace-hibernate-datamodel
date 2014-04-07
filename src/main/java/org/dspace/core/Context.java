@@ -553,7 +553,7 @@ public class Context
      * of.
      * @throws SQLException
      */
-    public Group[] getSpecialGroups() throws SQLException
+    public List<Group> getSpecialGroups() throws SQLException
     {
         List<Group> myGroups = new ArrayList<Group>();
         for (Integer groupId : specialGroups)
@@ -561,7 +561,7 @@ public class Context
             myGroups.add(groupManager.find(this, groupId));
         }
 
-        return myGroups.toArray(new Group[myGroups.size()]);
+        return myGroups;
     }
 
     protected void finalize() throws Throwable

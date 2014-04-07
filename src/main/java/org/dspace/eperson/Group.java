@@ -99,11 +99,6 @@ public class Group extends DSpaceObject {
     }
 
     @Override
-    public void updateLastModified(Context context) {
-        //Not required for groups
-    }
-
-    @Override
     public int getType() {
         return Constants.GROUP;
     }
@@ -152,36 +147,20 @@ public class Group extends DSpaceObject {
         return getEpeople().contains(e);
     }
 
+    /**
+     * Return Group members of a Group.
+     */
     public List<Group> getGroups() {
         return groups;
     }
 
-    public List<EPerson> getEpeople() {
-        return epeople;
-    }
-
-    /**
-     * Return Group members of a Group.
-     */
-    public Group[] getMemberGroups()
-    {
-        Group[] myArray = new Group[groups.size()];
-        myArray = groups.toArray(myArray);
-
-        return myArray;
-    }
 
     /**
      * Return EPerson members of a Group
      */
-    public EPerson[] getMembers()
-    {
-        EPerson[] myArray = new EPerson[epeople.size()];
-        myArray = epeople.toArray(myArray);
-
-        return myArray;
+    public List<EPerson> getEpeople() {
+        return epeople;
     }
-
 
     /**
      * Return <code>true</code> if <code>other</code> is the same Group as

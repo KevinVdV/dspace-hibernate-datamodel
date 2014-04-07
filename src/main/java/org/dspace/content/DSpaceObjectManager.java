@@ -18,5 +18,7 @@ public interface DSpaceObjectManager<T extends DSpaceObject> {
 
     public DSpaceObject getParentObject(Context context, T dso) throws SQLException;
 
+    public void updateLastModified(Context context, T dso) throws SQLException, AuthorizeException;
+
     public void update(Context context, T dso) throws SQLException, AuthorizeException;
 }

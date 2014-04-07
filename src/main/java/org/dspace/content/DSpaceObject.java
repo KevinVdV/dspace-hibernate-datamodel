@@ -34,9 +34,6 @@ public abstract class DSpaceObject {
      */
     public abstract String getName();
 
-    //TODO: MOVE TO THE MANAGER !
-    public abstract void updateLastModified(Context context);
-
     /**
      * Get the type of this object, found in Constants
      *

@@ -22,6 +22,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamDAO;
 import org.dspace.content.BitstreamDAOImpl;
+import org.dspace.content.BitstreamManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
@@ -34,6 +35,7 @@ import edu.sdsc.grid.io.srb.SRBAccount;
 import edu.sdsc.grid.io.srb.SRBFile;
 import edu.sdsc.grid.io.srb.SRBFileSystem;
 import org.dspace.factory.DSpaceManagerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <P>
@@ -68,7 +70,7 @@ public class BitstreamStorageManager
     /** log4j log */
     private static Logger log = Logger.getLogger(BitstreamStorageManager.class);
 
-    private static final BitstreamDAO bitstreamDAO = new BitstreamDAOImpl();
+    private static final BitstreamManager bitstreamManager = DSpaceManagerFactory.getInstance().getBitstreamManager();
 
 	/**
 	 * The asset store locations. The information for each GeneralFile in the
@@ -262,7 +264,7 @@ public class BitstreamStorageManager
         {
             tempContext = new Context();
 
-            bitstream = bitstreamDAO.create(context, new Bitstream());
+            bitstream = bitstreamManager.create(context, is);
             bitstream.setDeleted(true);
             bitstream.setInternalId(id);
 
@@ -273,7 +275,7 @@ public class BitstreamStorageManager
              */
             bitstream.setStoreNumber(incoming);
 
-            bitstreamDAO.save(context, bitstream);
+            bitstreamManager.update(context, bitstream);
 
             tempContext.complete();
         }
@@ -537,8 +539,7 @@ public class BitstreamStorageManager
      * @exception SQLException
      *                If a problem occurs accessing the RDBMS
      */
-    public static void cleanup(boolean deleteDbRecords, boolean verbose) throws SQLException, IOException
-    {
+    public static void cleanup(boolean deleteDbRecords, boolean verbose) throws SQLException, IOException, AuthorizeException {
         Context context = null;
         //TODO: HIBERNATE IMPLEMENT BitstreamInfoDAO
 //        BitstreamInfoDAO bitstreamInfoDAO = new BitstreamInfoDAO();
@@ -549,7 +550,7 @@ public class BitstreamStorageManager
             context = new Context();
 
 
-            List<Bitstream> storage = bitstreamDAO.findDeletedBitstreams(context);
+            List<Bitstream> storage = bitstreamManager.findDeletedBitstreams(context);
 
             for (Bitstream bitstream : storage)
             {
@@ -573,7 +574,7 @@ public class BitstreamStorageManager
                         {
                             System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
                         }
-                        bitstreamDAO.delete(context, bitstream);
+                        bitstreamManager.delete(context, bitstream);
                     }
                     continue;
                 }
@@ -599,7 +600,7 @@ public class BitstreamStorageManager
                     {
                         System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
                     }
-                    bitstreamDAO.delete(context, bitstream);
+                    bitstreamManager.delete(context, bitstream);
                 }
 
 				if (isRegisteredBitstream(bitstream.getInternalId())) {
@@ -610,7 +611,7 @@ public class BitstreamStorageManager
                 // Since versioning allows for multiple bitstreams, check if the internal identifier isn't used on another place
 
 
-                if(0 < bitstreamDAO.findDuplicateInternalIdentifier(context, bitstream).size())
+                if(0 < bitstreamManager.findDuplicateInternalIdentifier(context, bitstream).size())
                 {
                     boolean success = file.delete();
 

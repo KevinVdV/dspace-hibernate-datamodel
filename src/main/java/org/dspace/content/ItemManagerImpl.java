@@ -50,23 +50,24 @@ public class ItemManagerImpl extends DSpaceObjectManagerImpl<Item> implements It
 {
 
     /** log4j category */
-    private static final Logger log = Logger.getLogger(Item.class);
+    protected static final Logger log = Logger.getLogger(Item.class);
     /** The bundles in this item - kept in sync with DB */
 
-    private ItemDAO itemDAO = new ItemDAOImpl();
+    @Autowired(required = true)
+    protected ItemDAO itemDAO;
 
     @Autowired(required = true)
-    private MetadataSchemaManager metadataSchemaManager;
+    protected MetadataSchemaManager metadataSchemaManager;
     @Autowired(required = true)
-    private MetadataValueManager metadataValueManager;
+    protected MetadataValueManager metadataValueManager;
     @Autowired(required = true)
-    private MetadataFieldManager metadataFieldManager;
+    protected MetadataFieldManager metadataFieldManager;
     @Autowired(required = true)
-    private CommunityManager communityManager;
+    protected CommunityManager communityManager;
     @Autowired(required = true)
-    private BundleManager bundleManager;
+    protected BundleManager bundleManager;
     @Autowired(required = true)
-    private BitstreamFormatManager bitstreamFormatManager;
+    protected BitstreamFormatManager bitstreamFormatManager;
 
     /** Handle, if any */
 //    private String handle;
@@ -686,7 +687,7 @@ public class ItemManagerImpl extends DSpaceObjectManagerImpl<Item> implements It
             List<Community> owningCommunities = collection.getCommunities();
             for (Community community : owningCommunities) {
                 result.add(community);
-                result.addAll(Arrays.asList(communityManager.getAllParents(community)));
+                result.addAll(communityManager.getAllParents(community));
             }
         }
 
@@ -945,6 +946,16 @@ public class ItemManagerImpl extends DSpaceObjectManagerImpl<Item> implements It
                 removeBundle(context, item, bund);
             }
         }
+    }
+
+    /**
+     * Method that updates the last modified date of the item
+     */
+    public void updateLastModified(Context context, Item item) throws SQLException, AuthorizeException {
+        item.setLastModified(new Date());
+        update(context, item);
+        //Also fire a modified event since the item HAS been modified
+        context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(), null));
     }
 
     /**
@@ -1281,8 +1292,7 @@ public class ItemManagerImpl extends DSpaceObjectManagerImpl<Item> implements It
      *            Group referenced by policies that needs to be removed
      * @throws SQLException
      */
-    public void removeGroupPolicies(Context context, Item item, Group g) throws SQLException
-    {
+    public void removeGroupPolicies(Context context, Item item, Group g) throws SQLException, AuthorizeException {
         // remove Group's policies from Item
         AuthorizeManager.removeGroupPolicies(context, item, g);
 

@@ -16,6 +16,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * DSpace object that represents a metadata field, which is
@@ -33,7 +34,8 @@ public class MetadataFieldManagerImpl implements MetadataFieldManager
     /** log4j logger */
     private static Logger log = Logger.getLogger(MetadataFieldManagerImpl.class);
 
-    private MetadataFieldDAO metadataFieldDAO = new MetadataFieldDAOImpl();
+    @Autowired(required = true)
+    protected MetadataFieldDAO metadataFieldDAO;
 
     /**
      * Default constructor.

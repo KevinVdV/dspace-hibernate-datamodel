@@ -29,6 +29,7 @@ import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
 import org.dspace.event.Event;
 import org.dspace.factory.DSpaceManagerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class representing an e-person.
@@ -54,9 +55,10 @@ public class EPersonManagerImpl extends DSpaceObjectManagerImpl<EPerson> impleme
     public static final int LANGUAGE = 5;
 
     /** log4j logger */
-    private static Logger log = Logger.getLogger(EPersonManagerImpl.class);
+    protected static Logger log = Logger.getLogger(EPersonManagerImpl.class);
 
-    private EPersonDAO ePersonDAO = new EPersonDAOImpl();
+    @Autowired(required= true)
+    protected EPersonDAO ePersonDAO;
 
     public EPersonManagerImpl()
     {
@@ -383,10 +385,13 @@ public class EPersonManagerImpl extends DSpaceObjectManagerImpl<EPerson> impleme
         return answer;
     }
 
+    public void updateLastModified(Context context, EPerson ePerson) {
+        // Not required for eperson
+    }
+
     /**
      * Update the EPerson
      */
-    //TODO: Hibernate Use reflection for this method so no casting is required !
     public void update(Context context, EPerson eperson) throws SQLException, AuthorizeException
     {
         // Check authorisation - if you're not the eperson

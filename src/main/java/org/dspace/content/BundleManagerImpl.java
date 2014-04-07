@@ -40,7 +40,8 @@ public class BundleManagerImpl extends DSpaceObjectManagerImpl<Bundle> implement
     /** log4j logger */
     private static Logger log = Logger.getLogger(Bundle.class);
 
-    private BundleDAO bundleDAO = new BundleDAOImpl();
+    @Autowired(required = true)
+    protected BundleDAO bundleDAO;
 
     @Autowired(required = true)
     protected ItemManager itemManager;
@@ -248,7 +249,7 @@ public class BundleManagerImpl extends DSpaceObjectManagerImpl<Bundle> implement
         Item owningItem = (Item) getParentObject(context, bundle);
         if(owningItem != null)
         {
-            owningItem.updateLastModified(context);
+            itemManager.updateLastModified(context, owningItem);
             itemManager.update(context, owningItem);
 
         }
@@ -295,7 +296,7 @@ public class BundleManagerImpl extends DSpaceObjectManagerImpl<Bundle> implement
         Item owningItem = (Item) getParentObject(context, bundle);
         if(owningItem != null)
         {
-            owningItem.updateLastModified(context);
+            itemManager.updateLastModified(context, owningItem);
             itemManager.update(context, owningItem);
 
         }
@@ -312,6 +313,9 @@ public class BundleManagerImpl extends DSpaceObjectManagerImpl<Bundle> implement
         bitstreamManager.delete(context, b);
 
 
+    }
+
+    public void updateLastModified(Context context, Bundle bundle) {
     }
 
     /**

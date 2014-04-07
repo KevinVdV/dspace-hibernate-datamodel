@@ -235,7 +235,7 @@ public class Item extends DSpaceObject{
         return lastModified;
     }
 
-    public void setLastModified(Date lastModified) {
+    void setLastModified(Date lastModified) {
         this.lastModified = lastModified;
     }
 
@@ -243,7 +243,6 @@ public class Item extends DSpaceObject{
      * Get the owning Collection for the item
      *
      * @return Collection that is the owner of the item
-     * @throws java.sql.SQLException
      */
     public Collection getOwningCollection() {
         return owningCollection;
@@ -288,7 +287,6 @@ public class Item extends DSpaceObject{
      * Get the collections this item is in. The order is indeterminate.
      *
      * @return the collections this item is in, if any.
-     * @throws SQLException
      */
     public List<Collection> getCollections(){
         return collections;
@@ -353,30 +351,17 @@ public class Item extends DSpaceObject{
         this.dublinCoreChanged = dublinCoreChanged;
     }
 
-    public void setModified(boolean modified) {
+    void setModified(boolean modified) {
         this.modified = modified;
     }
 
 
-    public String getName()
+    public final String getName()
     {
         //TODO: IMPLEMENT THIS !
 //        MetadataValue t[] = getMetadata("dc", "title", null, Item.ANY);
 //        return (t.length >= 1) ? t[0].value : null;
         return null;
-    }
-
-
-
-    /**
-     * Method that updates the last modified date of the item
-     */
-    public void updateLastModified(Context context)
-    {
-        lastModified = new Date();
-        //TODO: HIBERNATE? WE SHOULD ALSO UPDATE OBJECT
-        //Also fire a modified event since the item HAS been modified
-        context.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), null));
     }
 
     Collection getTemplateItemOf() {

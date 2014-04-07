@@ -37,6 +37,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import org.apache.log4j.Logger;
+import org.dspace.services.EmailService;
+import org.dspace.utils.DSpace;
 
 /**
  * Class representing an e-mail message, also used to send e-mails.
@@ -245,9 +247,7 @@ public class Email
         }
 
         // Get session
-        //TODO: HIBERNATE FIX !
-        Session session = null;//new DSpace().getServiceManager().
-             //   getServicesByType(EmailService.class).get(0).getSession();
+        Session session = new DSpace().getServiceManager().getServicesByType(EmailService.class).get(0).getSession();
 
         // Create message
         MimeMessage message = new MimeMessage(session);

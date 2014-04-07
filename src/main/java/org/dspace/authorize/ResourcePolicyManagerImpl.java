@@ -9,6 +9,8 @@ package org.dspace.authorize;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import org.dspace.content.DSpaceObject;
@@ -18,6 +20,7 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.factory.DSpaceManagerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class representing a ResourcePolicy
@@ -30,7 +33,11 @@ public class ResourcePolicyManagerImpl implements ResourcePolicyManager
     /** log4j logger */
     private static Logger log = Logger.getLogger(ResourcePolicyManagerImpl.class);
 
-    private ResourcePolicyDAO resourcePolicyDAO = new ResourcePolicyDAOImpl();
+    @Autowired(required = true)
+    protected DSpaceManagerFactory managerFactory;
+
+    @Autowired(required = true)
+    protected ResourcePolicyDAO resourcePolicyDAO;
 
     /**
      * Construct an ResourcePolicy
@@ -71,19 +78,42 @@ public class ResourcePolicyManagerImpl implements ResourcePolicyManager
         return resourcePolicy;
     }
 
+    public List<ResourcePolicy> find(Context c, DSpaceObject o) throws SQLException
+    {
+        return resourcePolicyDAO.findByDso(c, o);
+    }
+
+
+    public List<ResourcePolicy> find(Context c, DSpaceObject o, String type) throws SQLException
+    {
+        return resourcePolicyDAO.findByDsoAndType(c, o, type);
+    }
+
+    public List<ResourcePolicy> find(Context context, Group group) throws SQLException {
+        return resourcePolicyDAO.findByGroup(context, group);
+    }
+
+    public List<ResourcePolicy> find(Context c, DSpaceObject o, int actionId) throws SQLException
+    {
+        return resourcePolicyDAO.findByDSoAndAction(c, o, actionId);
+    }
+
+    public List<ResourcePolicy> find(Context c, int dsoType, int dsoID, Group group, int action, int notPolicyID) throws SQLException {
+        return resourcePolicyDAO.findByTypeIdGroupAction(c, dsoType, dsoID, group, action, notPolicyID);
+    }
+
     /**
      * Delete an ResourcePolicy
      *
      */
-    public void delete(Context context, ResourcePolicy resourcePolicy) throws SQLException
-    {
+    public void delete(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException {
         if(resourcePolicy.getResourceID() != -1 && resourcePolicy.getResourceType() != -1)
         {
             //A policy for a DSpace Object has been modified, fire a modify event on the DSpace object
             DSpaceObject dso = DSpaceManagerFactory.getInstance().getDSpaceObjectManager(resourcePolicy.getResourceType()).find(context, resourcePolicy.getResourceID());
             if(dso != null)
             {
-                dso.updateLastModified(context);
+                managerFactory.getDSpaceObjectManager(dso).updateLastModified(context, dso);
             }
         }
 
@@ -186,6 +216,47 @@ public class ResourcePolicyManagerImpl implements ResourcePolicyManager
         return true; // date must be okay
     }
 
+    public void removeAllPolicies(Context c, DSpaceObject o) throws SQLException, AuthorizeException {
+        // FIXME: authorization check?
+        managerFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+        resourcePolicyDAO.deleteByDso(c, o);
+    }
+
+    public void removePolicies(Context c, DSpaceObject o, String type) throws SQLException, AuthorizeException {
+        managerFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+        resourcePolicyDAO.deleteByDsoAndType(c, o, type);
+    }
+
+    public void removeDsoGroupPolicies(Context context, DSpaceObject dso, Group group) throws SQLException, AuthorizeException {
+        managerFactory.getDSpaceObjectManager(dso).updateLastModified(context, dso);
+        resourcePolicyDAO.deleteByDsoGroupPolicies(context, dso, group);
+    }
+
+    public void removeDsoEPersonPolicies(Context context, DSpaceObject dso, EPerson ePerson) throws SQLException, AuthorizeException {
+        managerFactory.getDSpaceObjectManager(dso).updateLastModified(context, dso);
+        resourcePolicyDAO.deleteByDsoEPersonPolicies(context, dso, ePerson);
+
+    }
+
+    public void removeGroupPolicies(Context c, Group group) throws SQLException {
+        resourcePolicyDAO.deleteByGroup(c, group);
+    }
+
+    public void removePolicies(Context c, DSpaceObject o, int actionId) throws SQLException, AuthorizeException {
+        if (actionId == -1)
+        {
+            removeAllPolicies(c, o);
+        }else{
+            managerFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+            resourcePolicyDAO.deleteByDsoAndAction(c, o, actionId);
+        }
+    }
+
+    public void removeDsoAndTypeNotEqualsToPolicies(Context c, DSpaceObject o, String type) throws SQLException, AuthorizeException {
+        managerFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+        resourcePolicyDAO.deleteByDSOAndTypeNotEqualsTo(c, o, type);
+    }
+
 
     /**
      * Update the ResourcePolicy
@@ -196,7 +267,7 @@ public class ResourcePolicyManagerImpl implements ResourcePolicyManager
             DSpaceObjectManager objectManager = DSpaceManagerFactory.getInstance().getDSpaceObjectManager(resourcePolicy.getResourceType());
             DSpaceObject dso = objectManager.find(context, resourcePolicy.getResourceID());
             if(dso != null){
-                dso.updateLastModified(context);
+                managerFactory.getDSpaceObjectManager(dso).updateLastModified(context, dso);
             }
         }
 

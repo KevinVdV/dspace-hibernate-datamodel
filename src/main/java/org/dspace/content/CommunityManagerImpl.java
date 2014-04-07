@@ -46,8 +46,8 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
     /** log4j category */
     private static Logger log = Logger.getLogger(Community.class);
 
-        //TODO: auto wire it in so we have a singleTon
-    private CommunityDAO communityDAO = new CommunityDAOImpl();
+    @Autowired(required = true)
+    private CommunityDAO communityDAO;
 
     @Autowired(required = true)
     private CollectionManager collectionManager;
@@ -284,6 +284,12 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
         return community.getLogo();
     }
 
+    public void updateLastModified(Context context, Community community)
+    {
+        //Also fire a modified event since the community HAS been modified
+        context.addEvent(new Event(Event.MODIFY, Constants.COMMUNITY, community.getID(), null));
+    }
+
     /**
      * Update the community metadata (including logo) to the database.
      */
@@ -369,7 +375,7 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
      * 
      * @return an array of parent communities, empty if top-level
      */
-    public Community[] getAllParents(Community community) throws SQLException
+    public List<Community> getAllParents(Community community) throws SQLException
     {
         List<Community> parentList = new ArrayList<Community>();
         Community parent = community.getParentCommunity();
@@ -381,9 +387,7 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
         }
 
         // Put them in an array
-        Community[] communityArray = new Community[parentList.size()];
-        communityArray = parentList.toArray(communityArray);
-        return communityArray;
+        return parentList;
     }
 
     /**
@@ -391,7 +395,7 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
      * 
      * @return an array of collections
      */
-    public Collection[] getAllCollections(Community community) throws SQLException
+    public List<Collection> getAllCollections(Community community) throws SQLException
     {
         List<Collection> collectionList = new ArrayList<Collection>();
         List<Community> subCommunities = community.getSubCommunities();
@@ -405,12 +409,7 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
         {
             collectionList.add(collection);
         }
-
-        // Put them in an array
-        Collection[] collectionArray = new Collection[collectionList.size()];
-        collectionArray = (Collection[]) collectionList.toArray(collectionArray);
-
-        return collectionArray;
+        return collectionList;
 
     }
 
@@ -673,19 +672,16 @@ public class CommunityManagerImpl extends DSpaceObjectManagerImpl<Community> imp
 
     public void canEdit(Context context, Community community) throws AuthorizeException, SQLException
     {
-        Community[] parents = getAllParents(community);
+        List<Community> parents = getAllParents(community);
 
-        for (int i = 0; i < parents.length; i++)
-        {
-            if (AuthorizeManager.authorizeActionBoolean(context, parents[i],
-                    Constants.WRITE))
-            {
+        for (Community parent : parents) {
+            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+                    Constants.WRITE)) {
                 return;
             }
 
-            if (AuthorizeManager.authorizeActionBoolean(context, parents[i],
-                    Constants.ADD))
-            {
+            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+                    Constants.ADD)) {
                 return;
             }
         }

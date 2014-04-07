@@ -51,9 +51,13 @@ public abstract class DSpaceManagerFactory {
         //TODO: Implement workflowItem checks
         throw new UnsupportedOperationException();
     }
-    public DSpaceObjectManager getDSpaceObjectManager(DSpaceObject dso)
+    public DSpaceObjectManager<DSpaceObject> getDSpaceObjectManager(DSpaceObject dso)
     {
-        return getDSpaceObjectManager(dso.getType());
+        // No need to worry when supressing, as long as our "getDSpaceObjectManager" method is properly implemented
+        // no casting issues should occur
+        @SuppressWarnings("unchecked")
+        DSpaceObjectManager manager = getDSpaceObjectManager(dso.getType());
+        return manager;
     }
 
     public DSpaceObjectManager getDSpaceObjectManager(int type){

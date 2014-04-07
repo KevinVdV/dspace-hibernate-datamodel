@@ -15,6 +15,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class representing a schema in DSpace.
@@ -34,7 +35,8 @@ public class MetadataSchemaManagerImpl implements MetadataSchemaManager
     /** log4j logger */
     private static Logger log = Logger.getLogger(MetadataSchema.class);
 
-    private static MetadataSchemaDAO metadataSchemaDAO = new MetadataSchemaDAOImpl();
+    @Autowired(required = true)
+    protected static MetadataSchemaDAO metadataSchemaDAO;
 
     /**
      * Default constructor.

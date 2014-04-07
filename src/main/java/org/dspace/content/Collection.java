@@ -308,12 +308,6 @@ public class Collection extends DSpaceObject {
         return name;
     }
 
-    @Override
-    public void updateLastModified(Context context) {
-        //Also fire a modified event since the collection HAS been modified
-        context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, getID(), null));
-    }
-
     protected void setName(String name) {
         this.name = name;
         modifiedMetadata = true;

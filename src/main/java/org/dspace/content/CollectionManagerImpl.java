@@ -44,14 +44,15 @@ public class CollectionManagerImpl extends DSpaceObjectManagerImpl<Collection> i
     /** log4j category */
     private static Logger log = Logger.getLogger(Collection.class);
 
-    private CollectionDAO collectionDAO = new CollectionDAOImpl();
+    @Autowired(required = true)
+    protected CollectionDAO collectionDAO;
 
     @Autowired(required = true)
-    private ItemManager itemManager;
+    protected ItemManager itemManager;
     @Autowired(required = true)
-    private CommunityManager communityManager;
+    protected CommunityManager communityManager;
     @Autowired(required = true)
-    private GroupManager groupManager;
+    protected GroupManager groupManager;
 
     /**
      * Construct a collection with the given table row
@@ -682,6 +683,11 @@ public class CollectionManagerImpl extends DSpaceObjectManagerImpl<Collection> i
         context.addEvent(new Event(Event.REMOVE, Constants.COLLECTION, collection.getID(), Constants.ITEM, item.getID(), item.getHandle(context)));
     }
 
+    public void updateLastModified(Context context, Collection collection) {
+        //Also fire a modified event since the collection HAS been modified
+        context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, collection.getID(), null));
+    }
+
     /**
      * Update the collection metadata (including logo and workflow groups) to
      * the database. Inserts if this is a new collection.
@@ -942,7 +948,7 @@ public class CollectionManagerImpl extends DSpaceObjectManagerImpl<Collection> i
      * @return Collection [] of collections with matching permissions
      * @throws SQLException
      */
-    public Collection[] findAuthorized(Context context, Community comm,
+    public List<Collection> findAuthorized(Context context, Community comm,
             int actionID) throws java.sql.SQLException
     {
         List<Collection> myResults = new ArrayList<Collection>();
@@ -965,7 +971,7 @@ public class CollectionManagerImpl extends DSpaceObjectManagerImpl<Collection> i
                 myResults.add(myCollection);
             }
         }
-        return myResults.toArray(new Collection[myResults.size()]);
+        return myResults;
     }
 
 	/**

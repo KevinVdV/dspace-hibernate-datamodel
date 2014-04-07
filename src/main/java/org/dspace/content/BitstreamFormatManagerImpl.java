@@ -15,6 +15,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class representing a particular bitstream format.
@@ -30,7 +31,8 @@ public class BitstreamFormatManagerImpl implements BitstreamFormatManager
     /** log4j logger */
     private static Logger log = Logger.getLogger(BitstreamFormat.class);
 
-    private BitstreamFormatDAO bitstreamFormatDAO = new BitstreamFormatDAOImpl();
+    @Autowired(required = true)
+    private BitstreamFormatDAO bitstreamFormatDAO;
 
 
     /**

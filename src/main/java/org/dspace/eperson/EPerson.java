@@ -238,12 +238,6 @@ public class EPerson extends DSpaceObject {
     }
 
     @Override
-    public void updateLastModified(Context context) {
-        // Not required for eperson
-
-    }
-
-    @Override
     public int getType() {
         return Constants.EPERSON;
     }

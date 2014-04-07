@@ -10,6 +10,7 @@ package org.dspace.embargo;
 import java.sql.SQLException;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import org.dspace.authorize.*;
 import org.dspace.content.*;
@@ -103,7 +104,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
         // add only embargo policy
         if(embargoDate!=null){
 
-            Group[] authorizedGroups = AuthorizeManager.getAuthorizedGroups(context, owningCollection, Constants.DEFAULT_ITEM_READ);
+            List<Group> authorizedGroups = AuthorizeManager.getAuthorizedGroups(context, owningCollection, Constants.DEFAULT_ITEM_READ);
 
             // look for anonymous
             boolean isAnonymousInPlace=false;

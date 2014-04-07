@@ -1835,29 +1835,29 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         Community com = communityManager.create(null, context);
         context.restoreAuthSystemState();
 
-        Collection[] found = collectionManager.findAuthorized(context, com, Constants.WRITE);
+        List<Collection> found = collectionManager.findAuthorized(context, com, Constants.WRITE);
         assertThat("testFindAuthorized 0",found,notNullValue());
-        assertTrue("testFindAuthorized 1",found.length == 0);
+        assertTrue("testFindAuthorized 1",found.size() == 0);
 
         found = collectionManager.findAuthorized(context, null, Constants.WRITE);
         assertThat("testFindAuthorized 2",found,notNullValue());
-        assertTrue("testFindAuthorized 3",found.length == 0);
+        assertTrue("testFindAuthorized 3",found.size() == 0);
 
         found = collectionManager.findAuthorized(context, com, Constants.ADD);
         assertThat("testFindAuthorized 3",found,notNullValue());
-        assertTrue("testFindAuthorized 4",found.length == 0);
+        assertTrue("testFindAuthorized 4",found.size() == 0);
 
         found = collectionManager.findAuthorized(context, null, Constants.ADD);
         assertThat("testFindAuthorized 5",found,notNullValue());
-        assertTrue("testFindAuthorized 6",found.length == 0);
+        assertTrue("testFindAuthorized 6",found.size() == 0);
 
         found = collectionManager.findAuthorized(context, com, Constants.READ);
         assertThat("testFindAuthorized 7",found,notNullValue());
-        assertTrue("testFindAuthorized 8",found.length == 0);
+        assertTrue("testFindAuthorized 8",found.size() == 0);
 
         found = collectionManager.findAuthorized(context, null, Constants.READ);
         assertThat("testFindAuthorized 9",found,notNullValue());
-        assertTrue("testFindAuthorized 10",found.length >= 1);
+        assertTrue("testFindAuthorized 10",found.size() >= 1);
     }
 
     /**

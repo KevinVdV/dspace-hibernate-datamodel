@@ -108,11 +108,6 @@ public class Bundle extends DSpaceObject{
         return name;
     }
 
-    @Override
-    public void updateLastModified(Context context) {
-
-    }
-
     /**
      * Set the name of the bundle
      *

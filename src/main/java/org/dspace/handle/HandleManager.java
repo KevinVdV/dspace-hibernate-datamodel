@@ -18,6 +18,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.factory.DSpaceManagerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Interface to the <a href="http://www.handle.net" target=_new>CNRI Handle
@@ -40,7 +41,8 @@ public class HandleManager
     /** Prefix registered to no one */
     static final String EXAMPLE_PREFIX = "123456789";
 
-    private static HandleDAO handleDAO = new HandleDAOImpl();
+    @Autowired(required = true)
+    private static HandleDAO handleDAO;
 
     /** Private Constructor */
     private HandleManager()

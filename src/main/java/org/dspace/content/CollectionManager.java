@@ -79,7 +79,7 @@ public interface CollectionManager extends DSpaceObjectManager<Collection> {
 
     public void delete(Context context, Collection collection) throws SQLException, AuthorizeException, IOException;
 
-    public Collection[] findAuthorized(Context context, Community comm, int actionID) throws java.sql.SQLException;
+    public List<Collection> findAuthorized(Context context, Community comm, int actionID) throws java.sql.SQLException;
 
     public List<Collection> getCollectionsNotLinked(Context context, Item item) throws SQLException;
 

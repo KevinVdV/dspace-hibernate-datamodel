@@ -153,12 +153,6 @@ public class Bitstream extends DSpaceObject{
     }
 
     @Override
-    public void updateLastModified(Context context) {
-        //Also fire a modified event since the bitstream HAS been modified
-        context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
-    }
-
-    @Override
     public int getType() {
         return Constants.BITSTREAM;
     }

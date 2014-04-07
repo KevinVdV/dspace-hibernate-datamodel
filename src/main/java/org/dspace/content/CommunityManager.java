@@ -35,9 +35,9 @@ public interface CommunityManager extends DSpaceObjectManager<Community> {
 
     public void removeAdministrators(Context context, Community community) throws SQLException, AuthorizeException;
 
-    public Community[] getAllParents(Community community) throws SQLException;
+    public List<Community> getAllParents(Community community) throws SQLException;
 
-    public Collection[] getAllCollections(Community community) throws SQLException;
+    public List<Collection> getAllCollections(Community community) throws SQLException;
 
     public void addCollection(Context context, Community community, Collection collection) throws SQLException,
             AuthorizeException;

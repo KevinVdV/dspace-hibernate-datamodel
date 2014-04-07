@@ -1,10 +1,7 @@
 package org.dspace.eperson;
 
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.dao.AbstractDSpaceObjectDao;
-import org.dspace.dao.AbstractHibernateDAO;
-import org.dspace.hibernate.HibernateQueryUtil;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
@@ -12,10 +9,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: kevin (kevin at atmire.com)

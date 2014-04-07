@@ -18,6 +18,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.event.Event;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class representing a group of e-people.
@@ -35,7 +36,8 @@ public class GroupManagerImpl extends DSpaceObjectManagerImpl<Group> implements 
     /** log4j logger */
     private static Logger log = Logger.getLogger(GroupManagerImpl.class);
 
-    private GroupDAO groupDAO = new GroupDAOImpl();
+    @Autowired(required = true)
+    protected GroupDAO groupDAO;
 
     /**
      * Construct a Group from a given context and tablerow
@@ -257,7 +259,7 @@ public class GroupManagerImpl extends DSpaceObjectManagerImpl<Group> implements 
         // of a user who is not logged in.
         if ((c.getCurrentUser() == null) || (((c.getCurrentUser() != null) && (c.getCurrentUser().getID() == e.getID()))))
         {
-            Group[] specialGroups = c.getSpecialGroups();
+            List<Group> specialGroups = c.getSpecialGroups();
             for(Group special : specialGroups)
             {
                 groupIDs.add(special.getID());
@@ -479,7 +481,7 @@ public class GroupManagerImpl extends DSpaceObjectManagerImpl<Group> implements 
     public Group find(Context context, int id) throws SQLException
     {
         // First check the cache
-        return (Group) context.getDBConnection().get(Group.class, id);
+        return groupDAO.findByID(context, Group.class, id);
     }
 
     /**
@@ -628,6 +630,10 @@ public class GroupManagerImpl extends DSpaceObjectManagerImpl<Group> implements 
             }
             return !hasMembers;
         }
+    }
+
+    public void updateLastModified(Context context, Group group) {
+        //Not required for groups
     }
 
     /**

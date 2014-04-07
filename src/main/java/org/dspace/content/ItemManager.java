@@ -82,7 +82,7 @@ public interface ItemManager extends DSpaceObjectManager<Item> {
 
     public void replaceAllBitstreamPolicies(Context context, Item item, List<ResourcePolicy> newpolicies) throws SQLException, AuthorizeException;
 
-    public void removeGroupPolicies(Context context, Item item, Group g) throws SQLException;
+    public void removeGroupPolicies(Context context, Item item, Group g) throws SQLException, AuthorizeException;
 
     public void inheritCollectionDefaultPolicies(Context context, Item item, Collection c) throws SQLException, AuthorizeException;
 

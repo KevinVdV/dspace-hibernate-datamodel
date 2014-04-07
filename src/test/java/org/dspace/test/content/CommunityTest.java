@@ -126,8 +126,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         //the item created by default has no name set
         assertThat("testCreate 2", son, notNullValue());        
         assertThat("testCreate 3", son.getName(), equalTo(""));        
-        assertTrue("testCreate 4", communityManager.getAllParents(son).length == 1);
-        assertThat("testCreate 5", communityManager.getAllParents(son)[0], equalTo(community));
+        assertTrue("testCreate 4", communityManager.getAllParents(son).size() == 1);
+        assertThat("testCreate 5", communityManager.getAllParents(son).get(0), equalTo(community));
     }
 
 
@@ -159,8 +159,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         //the item created by default has no name set
         assertThat("testCreate 2", son, notNullValue());
         assertThat("testCreate 3", son.getName(), equalTo(""));
-        assertTrue("testCreate 4", communityManager.getAllParents(son).length == 1);
-        assertThat("testCreate 5", communityManager.getAllParents(son)[0], equalTo(created));
+        assertTrue("testCreate 4", communityManager.getAllParents(son).size() == 1);
+        assertThat("testCreate 5", communityManager.getAllParents(son).get(0), equalTo(created));
     }
 
     /**
@@ -294,7 +294,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         assertTrue("testFindAllTop 1", all.size() >= 1);
         for(Community cm: all)
         {
-            assertThat("testFindAllTop for", communityManager.getAllParents(cm).length, equalTo(0));
+            assertThat("testFindAllTop for", communityManager.getAllParents(cm).size(), equalTo(0));
         }
 
         boolean added = false;
@@ -759,13 +759,13 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         //empty by default
         assertThat("testGetAllParents 0", communityManager.getAllParents(community), notNullValue());
-        assertTrue("testGetAllParents 1", communityManager.getAllParents(community).length == 0);
+        assertTrue("testGetAllParents 1", communityManager.getAllParents(community).size() == 0);
 
         //community with  parent
         Community son = communityManager.create(community, context);
         assertThat("testGetAllParents 2", communityManager.getAllParents(son), notNullValue());
-        assertTrue("testGetAllParents 3", communityManager.getAllParents(son).length == 1);
-        assertThat("testGetAllParents 4", communityManager.getAllParents(son)[0], equalTo(community));
+        assertTrue("testGetAllParents 3", communityManager.getAllParents(son).size() == 1);
+        assertThat("testGetAllParents 4", communityManager.getAllParents(son).get(0), equalTo(community));
     }
 
     /**
@@ -787,16 +787,16 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         //empty by default
         assertThat("testGetAllCollections 0", communityManager.getAllCollections(community), notNullValue());
-        assertTrue("testGetAllCollections 1", communityManager.getAllCollections(community).length == 0);
+        assertTrue("testGetAllCollections 1", communityManager.getAllCollections(community).size() == 0);
 
         //community has a collection and a subcommunity, subcommunity has a collection
         Collection collOfC = collectionManager.create(context, community);
         Community sub = communityManager.create(community, context);
         Collection collOfSub = collectionManager.create(context, sub);
         assertThat("testGetAllCollections 2", communityManager.getAllCollections(community), notNullValue());
-        assertTrue("testGetAllCollections 3", communityManager.getAllCollections(community).length == 2);
-        assertThat("testGetAllCollections 4", communityManager.getAllCollections(community)[0], equalTo(collOfSub));
-        assertThat("testGetAllCollections 5", communityManager.getAllCollections(community)[1], equalTo(collOfC));
+        assertTrue("testGetAllCollections 3", communityManager.getAllCollections(community).size() == 2);
+        assertThat("testGetAllCollections 4", communityManager.getAllCollections(community).get(0), equalTo(collOfSub));
+        assertThat("testGetAllCollections 5", communityManager.getAllCollections(community).get(1), equalTo(collOfC));
     }
 
     /**

@@ -33,14 +33,15 @@ import org.springframework.beans.factory.annotation.Required;
 public class WorkspaceItemManagerImpl implements WorkspaceItemManager
 {
     /** log4j logger */
-    private static Logger log = Logger.getLogger(WorkspaceItem.class);
-
-    private WorkspaceItemDAO workspaceItemDAO = new WorkspaceItemDAOImpl();
+    protected static Logger log = Logger.getLogger(WorkspaceItem.class);
 
     @Autowired(required = true)
-    private CollectionManager collectionManager;
+    protected WorkspaceItemDAO workspaceItemDAO;
+
     @Autowired(required = true)
-    private ItemManager itemManager;
+    protected CollectionManager collectionManager;
+    @Autowired(required = true)
+    protected ItemManager itemManager;
 
     /**
      * Construct a workspace item corresponding to the given database row

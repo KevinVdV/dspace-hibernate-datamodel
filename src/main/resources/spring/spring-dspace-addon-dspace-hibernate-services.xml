@@ -28,6 +28,24 @@
     <!-- **************** -->
     <!-- DAO declarations -->
     <!-- **************** -->
+    <bean id="org.dspace.content.BitstreamDAO" class="org.dspace.content.BitstreamDAOImpl"/>
+    <bean id="org.dspace.content.BitstreamFormatDAO" class="org.dspace.content.BitstreamFormatDAOImpl"/>
+    <bean id="org.dspace.content.BundleDAO" class="org.dspace.content.BundleDAOImpl"/>
+    <bean id="org.dspace.content.CollectionDAO" class="org.dspace.content.CollectionDAOImpl"/>
+    <bean id="org.dspace.content.CommunityDAO" class="org.dspace.content.CommunityDAOImpl"/>
+    <bean id="org.dspace.content.ItemDAO" class="org.dspace.content.ItemDAOImpl"/>
+    <bean id="org.dspace.content.MetadataFieldDAO" class="org.dspace.content.MetadataFieldDAOImpl"/>
+    <bean id="org.dspace.content.MetadataSchemaDAO" class="org.dspace.content.MetadataSchemaDAOImpl"/>
+    <bean id="org.dspace.content.MetadataValueDAO" class="org.dspace.content.MetadataValueDAOImpl"/>
+    <bean id="org.dspace.content.WorkspaceItemDAO" class="org.dspace.content.WorkspaceItemDAOImpl"/>
+
+    <bean id="org.dspace.eperson.EPersonDAO" class="org.dspace.eperson.EPersonDAOImpl"/>
+    <bean id="org.dspace.eperson.GroupDAO" class="org.dspace.eperson.GroupDAOImpl"/>
+
+    <bean id="org.dspace.handle.HandleDAO" class="org.dspace.handle.HandleDAOImpl"/>
+
+    <bean id="org.dspace.authorize.ResourcePolicyDAO" class="org.dspace.authorize.ResourcePolicyDAOImpl"/>
+
 
 
 </beans>

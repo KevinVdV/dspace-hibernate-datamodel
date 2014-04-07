@@ -23,6 +23,10 @@ public interface BitstreamManager extends DSpaceObjectManager<Bitstream> {
 
     public Bitstream register(Context context, int assetstore, String bitstreamPath) throws IOException, SQLException, AuthorizeException;
 
+    public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException;
+
+    public List<Bitstream> findDuplicateInternalIdentifier(Context context, Bitstream bitstream) throws SQLException;
+
     public void setUserFormatDescription(Context context, Bitstream bitstream, String desc) throws SQLException;
 
     public String getFormatDescription(Bitstream bitstream);

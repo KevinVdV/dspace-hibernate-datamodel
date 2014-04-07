@@ -14,6 +14,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
+import org.dspace.utils.DSpace;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,10 +38,9 @@ public class IndexEventConsumer implements Consumer {
     // handles to delete since IDs are not useful by now.
     private Set<String> handlesToDelete = null;
 
-    //TODO: HIBERNATE: IMPLEMENT WHEN SERVICEMANAGER BECOEMS AVAILABLE
-//    DSpace dspace = new DSpace();
+    DSpace dspace = new DSpace();
 
-    IndexingService indexer;// = dspace.getServiceManager().getServiceByName(IndexingService.class.getName(),IndexingService.class);
+    IndexingService indexer = dspace.getServiceManager().getServiceByName(IndexingService.class.getName(),IndexingService.class);
 
     public void initialize() throws Exception {
 

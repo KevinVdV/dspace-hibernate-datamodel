@@ -156,13 +156,6 @@ public class Community extends DSpaceObject{
         return HandleManager.findHandle(context, this);
     }
 
-    @Override
-    public void updateLastModified(Context context)
-    {
-        //Also fire a modified event since the community HAS been modified
-        context.addEvent(new Event(Event.MODIFY, Constants.COMMUNITY, getID(), null));
-    }
-
     /**
      * Get the default group of administrators, if there is one. Note that the
      * authorization system may allow others to be administrators for the

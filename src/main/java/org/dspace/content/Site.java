@@ -105,12 +105,6 @@ public class Site extends DSpaceObject
         return ConfigurationManager.getProperty("dspace.name");
     }
 
-    @Override
-    public void updateLastModified(Context context)
-    {
-
-    }
-
     public String getURL()
     {
         return ConfigurationManager.getProperty("dspace.url");

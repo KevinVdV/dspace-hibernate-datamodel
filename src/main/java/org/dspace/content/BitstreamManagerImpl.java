@@ -21,7 +21,6 @@ import org.dspace.core.LogManager;
 import org.dspace.event.Event;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Class representing bitstreams stored in the DSpace system.
@@ -39,10 +38,11 @@ public class BitstreamManagerImpl extends DSpaceObjectManagerImpl<Bitstream> imp
     private static Logger log = Logger.getLogger(Bitstream.class);
 
 
-    private BitstreamDAO bitstreamDAO = new BitstreamDAOImpl();
+    @Autowired(required = true)
+    protected BitstreamDAO bitstreamDAO;
 
     @Autowired(required = true)
-    private BitstreamFormatManager bitstreamFormatManager;
+    protected BitstreamFormatManager bitstreamFormatManager;
 
     /**
      * Private constructor for creating a Bitstream object based on the contents
@@ -164,6 +164,14 @@ public class BitstreamManagerImpl extends DSpaceObjectManagerImpl<Bitstream> imp
         return bitstream;
     }
 
+    public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException {
+        return bitstreamDAO.findDeletedBitstreams(context);
+    }
+
+    public List<Bitstream> findDuplicateInternalIdentifier(Context context, Bitstream bitstream) throws SQLException {
+        return bitstreamDAO.findDuplicateInternalIdentifier(context, bitstream);
+    }
+
     public String getHandle(Context context)
     {
         // No Handles for bitstreams
@@ -239,6 +247,11 @@ public class BitstreamManagerImpl extends DSpaceObjectManagerImpl<Bitstream> imp
 
         // Update the ID in the table row
         bitstream.setFormat(f);
+    }
+
+    public void updateLastModified(Context context, Bitstream bitstream) {
+        //Fire a modified event since the bitstream HAS been modified
+        context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, bitstream.getID(), null));
     }
 
     /**

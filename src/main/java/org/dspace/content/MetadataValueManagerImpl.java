@@ -3,6 +3,7 @@ package org.dspace.content;
 import org.apache.log4j.Logger;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -15,8 +16,10 @@ import java.util.List;
 public class MetadataValueManagerImpl implements MetadataValueManager {
 
     /** log4j logger */
-    private static Logger log = Logger.getLogger(MetadataValueManagerImpl.class);
-    private MetadataValueDAO metadataValueDAO = new MetadataValueDAOImpl();
+    protected static Logger log = Logger.getLogger(MetadataValueManagerImpl.class);
+
+    @Autowired(required = true)
+    protected MetadataValueDAO metadataValueDAO;
 
     public MetadataValueManagerImpl() {
 
