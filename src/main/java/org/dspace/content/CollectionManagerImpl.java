@@ -387,7 +387,7 @@ public class CollectionManagerImpl extends DSpaceObjectManagerImpl<Collection> i
      *
      * @return the group of reviewers or <code>null</code>
      */
-    public Group getWorkflowGroup(Collection collection, int step) throws IllegalAccessException {
+    public Group getWorkflowGroup(Collection collection, int step) throws IllegalStateException {
         switch (step)
         {
             case 1:
@@ -397,7 +397,7 @@ public class CollectionManagerImpl extends DSpaceObjectManagerImpl<Collection> i
             case 3:
                 return collection.getWorkflowStep3();
             default:
-                throw new IllegalAccessException("Illegal step count: " + step);
+                throw new IllegalStateException("Illegal step count: " + step);
         }
     }
 

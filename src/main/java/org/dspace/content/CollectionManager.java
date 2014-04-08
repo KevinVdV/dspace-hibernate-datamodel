@@ -42,7 +42,7 @@ public interface CollectionManager extends DSpaceObjectManager<Collection> {
 
     public void setWorkflowGroup(Collection collection, int step, Group g);
 
-    public Group getWorkflowGroup(Collection collection, int step) throws IllegalAccessException;
+    public Group getWorkflowGroup(Collection collection, int step) throws IllegalStateException;
 
     public Group createSubmitters(Context context, Collection collection) throws SQLException, AuthorizeException;
 

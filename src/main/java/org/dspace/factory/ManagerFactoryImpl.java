@@ -3,6 +3,8 @@ package org.dspace.factory;
 import org.dspace.authorize.ResourcePolicyManager;
 import org.dspace.content.*;
 import org.dspace.eperson.*;
+import org.dspace.workflow.TaskListItemManager;
+import org.dspace.workflow.WorkflowItemManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +43,11 @@ public class ManagerFactoryImpl extends DSpaceManagerFactory {
     @Autowired(required = true)
     private WorkspaceItemManager workspaceItemManager;
     @Autowired(required = true)
+    private WorkflowItemManager workflowItemManager;
+    @Autowired(required = true)
     private ResourcePolicyManager resourcePolicyManager;
+    @Autowired(required = true)
+    private TaskListItemManager taskListItemManager;
 
 
     public BitstreamFormatManager getBitstreamFormatManager()
@@ -104,7 +110,16 @@ public class ManagerFactoryImpl extends DSpaceManagerFactory {
         return workspaceItemManager;
     }
 
+    public WorkflowItemManager getWorkflowItemManager() {
+        return workflowItemManager;
+    }
+
     public ResourcePolicyManager getResourcePolicyManager() {
         return resourcePolicyManager;
+    }
+
+    @Override
+    public TaskListItemManager getTaskListItemManager() {
+        return taskListItemManager;
     }
 }

@@ -31,7 +31,7 @@ public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> im
     public List<WorkspaceItem> findByCollection(Context context, Collection c) throws SQLException
     {
         Criteria criteria = context.getDBConnection().createCriteria(WorkspaceItem.class);
-        criteria.add(Restrictions.eq("collection_id", c.getID()));
+        criteria.add(Restrictions.eq("collection", c));
         @SuppressWarnings("unchecked")
         List<WorkspaceItem> result = criteria.list();
         return result;
@@ -40,7 +40,7 @@ public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> im
     public WorkspaceItem findByItem(Context context, Item i) throws SQLException
     {
         Criteria criteria = context.getDBConnection().createCriteria(WorkspaceItem.class);
-        criteria.add(Restrictions.eq("item_id", i.getID()));
+        criteria.add(Restrictions.eq("item", i));
         // Look for the unique workspaceitem entry where 'item_id' references this item
         return (WorkspaceItem) criteria.uniqueResult();
     }
@@ -48,7 +48,7 @@ public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> im
     public List<WorkspaceItem> findAll(Context context) throws SQLException
     {
         Criteria criteria = context.getDBConnection().createCriteria(WorkspaceItem.class);
-        criteria.addOrder(Order.asc("item_id"));
+        criteria.addOrder(Order.asc("item"));
         @SuppressWarnings("unchecked")
         List<WorkspaceItem> result = criteria.list();
         return result;

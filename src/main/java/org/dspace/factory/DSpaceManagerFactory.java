@@ -6,6 +6,9 @@ import org.dspace.core.Constants;
 import org.dspace.eperson.EPersonManager;
 import org.dspace.eperson.GroupManager;
 import org.dspace.utils.DSpace;
+import org.dspace.workflow.TaskListItemManager;
+import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.WorkflowItemManager;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,6 +18,8 @@ import org.dspace.utils.DSpace;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class DSpaceManagerFactory {
+
+    private TaskListItemManager taskListItemManager;
 
     public abstract BitstreamFormatManager getBitstreamFormatManager();
 
@@ -40,14 +45,24 @@ public abstract class DSpaceManagerFactory {
 
     public abstract WorkspaceItemManager getWorkspaceItemManager();
 
+    public abstract WorkflowItemManager getWorkflowItemManager();
+
     public abstract ResourcePolicyManager getResourcePolicyManager();
+
+    public abstract TaskListItemManager getTaskListItemManager();
+
 
     public InProgressSubmissionManager getInProgressSubmissionManager(InProgressSubmission inProgressSubmission)
     {
         if(inProgressSubmission instanceof WorkspaceItem)
         {
             return getWorkspaceItemManager();
+        }else
+        if(inProgressSubmission instanceof WorkflowItem)
+        {
+            return getWorkflowItemManager();
         }
+
         //TODO: Implement workflowItem checks
         throw new UnsupportedOperationException();
     }

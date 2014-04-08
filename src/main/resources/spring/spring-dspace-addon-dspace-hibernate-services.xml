@@ -25,6 +25,9 @@
     <bean id="org.dspace.content.MetadataValueManager" class="org.dspace.content.MetadataValueManagerImpl"/>
     <bean id="org.dspace.content.WorkspaceItemManager" class="org.dspace.content.WorkspaceItemManagerImpl"/>
 
+    <bean id="org.dspace.workflow.WorkflowItemManager" class="org.dspace.workflow.WorkflowItemManagerImpl"/>
+    <bean id="org.dspace.workflow.TaskListItemManager" class="org.dspace.workflow.TaskListItemManagerImpl"/>
+
     <!-- **************** -->
     <!-- DAO declarations -->
     <!-- **************** -->
@@ -38,6 +41,9 @@
     <bean id="org.dspace.content.MetadataSchemaDAO" class="org.dspace.content.MetadataSchemaDAOImpl"/>
     <bean id="org.dspace.content.MetadataValueDAO" class="org.dspace.content.MetadataValueDAOImpl"/>
     <bean id="org.dspace.content.WorkspaceItemDAO" class="org.dspace.content.WorkspaceItemDAOImpl"/>
+
+    <bean id="org.dspace.workflow.WorkflowItemDAO" class="org.dspace.workflow.WorkflowItemDAOImpl"/>
+    <bean id="org.dspace.workflow.TaskListItemDAO" class="org.dspace.workflow.TaskListItemDAOImpl"/>
 
     <bean id="org.dspace.eperson.EPersonDAO" class="org.dspace.eperson.EPersonDAOImpl"/>
     <bean id="org.dspace.eperson.GroupDAO" class="org.dspace.eperson.GroupDAOImpl"/>

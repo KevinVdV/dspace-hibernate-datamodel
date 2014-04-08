@@ -74,8 +74,6 @@ public class WorkspaceItemManagerImpl implements WorkspaceItemManager
                 log.debug(LogManager.getHeader(context, "find_workspace_item",
                         "not_found,workspace_item_id=" + id));
             }
-
-            return null;
         }
         else
         {
@@ -84,9 +82,8 @@ public class WorkspaceItemManagerImpl implements WorkspaceItemManager
                 log.debug(LogManager.getHeader(context, "find_workspace_item",
                         "workspace_item_id=" + id));
             }
-
-            return workspaceItem;
         }
+        return workspaceItem;
     }
 
     /**
@@ -230,6 +227,18 @@ public class WorkspaceItemManagerImpl implements WorkspaceItemManager
                         + "item_id=" + i.getID() + "collection_id="
                         + coll.getID()));
 
+        update(c, workspaceItem);
+        return workspaceItem;
+    }
+
+    public WorkspaceItem create(Context c, Collection coll, InProgressSubmission workflowItem) throws AuthorizeException, SQLException, IOException {
+        if(workflowItem instanceof WorkspaceItem)
+        {
+            throw new IllegalStateException("Cannot create workspace item for a workspace item !");
+        }
+        WorkspaceItem workspaceItem = workspaceItemDAO.create(c, new WorkspaceItem());
+        workspaceItem.setItem(workflowItem.getItem());
+        workspaceItem.setCollection(coll);
         update(c, workspaceItem);
         return workspaceItem;
     }
