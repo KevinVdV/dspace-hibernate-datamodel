@@ -15,9 +15,10 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.*;
+import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * This class is an addition to the AuthorizeManager that perform authorization
@@ -29,8 +30,8 @@ import org.dspace.factory.DSpaceManagerFactory;
 public class AuthorizeUtil
 {
 
-    private static final CollectionManager collectionManager = DSpaceManagerFactory.getInstance().getCollectionManager();
-    private static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
+    private static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
+    private static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
 
     /**
      * Is allowed manage (create, remove, edit) bitstream's policies in the
@@ -227,11 +228,11 @@ public class AuthorizeUtil
             }
             else if (AuthorizeConfiguration.canCollectionAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, itemManager.getParentObject(context, item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(context, item), Constants.ADMIN);
             }
             else if (AuthorizeConfiguration.canCommunityAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, itemManager.getParentObject(context, item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(context, item), Constants.ADMIN);
             }
             else
             {
@@ -257,7 +258,7 @@ public class AuthorizeUtil
     public static void authorizeManageTemplateItem(Context context,
             Collection collection) throws AuthorizeException, SQLException
     {
-        boolean isAuthorized = collectionManager.canEditBoolean(context, collection, false);
+        boolean isAuthorized = COLLECTION_SERVICE.canEditBoolean(context, collection, false);
 
         if (!isAuthorized
                 && AuthorizeConfiguration
@@ -498,26 +499,27 @@ public class AuthorizeUtil
     public static void authorizeManagePolicy(Context c, ResourcePolicy rp)
             throws SQLException, AuthorizeException
     {
+        DSpaceServiceFactory serviceFactory = DSpaceServiceFactory.getInstance();
         switch (rp.getResourceType())
         {
 
         case Constants.BITSTREAM:
-            authorizeManageBitstreamPolicy(c, DSpaceManagerFactory.getInstance().getBitstreamManager().find(c, rp
+            authorizeManageBitstreamPolicy(c, serviceFactory.getBitstreamService().find(c, rp
                     .getResourceID()));
             break;
         case Constants.BUNDLE:
-            authorizeManageBundlePolicy(c, DSpaceManagerFactory.getInstance().getBundleManager().find(c, rp.getResourceID()));
+            authorizeManageBundlePolicy(c, serviceFactory.getBundleService().find(c, rp.getResourceID()));
             break;
 
         case Constants.ITEM:
-            authorizeManageItemPolicy(c, DSpaceManagerFactory.getInstance().getItemManager().find(c, rp.getResourceID()));
+            authorizeManageItemPolicy(c, serviceFactory.getItemService().find(c, rp.getResourceID()));
             break;
         case Constants.COLLECTION:
-            authorizeManageCollectionPolicy(c, DSpaceManagerFactory.getInstance().getCollectionManager().find(c, rp
+            authorizeManageCollectionPolicy(c, serviceFactory.getCollectionService().find(c, rp
                     .getResourceID()));
             break;
         case Constants.COMMUNITY:
-            authorizeManageCommunityPolicy(c, DSpaceManagerFactory.getInstance().getCommunityManager().find(c, rp
+            authorizeManageCommunityPolicy(c, serviceFactory.getCommunityService().find(c, rp
                     .getResourceID()));
             break;
 

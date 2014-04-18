@@ -10,7 +10,8 @@ package org.dspace.test.content;
 import java.sql.SQLException;
 import org.dspace.AbstractUnitTest;
 import org.dspace.content.*;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.content.service.DSpaceObjectService;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.junit.*;
 import static org.junit.Assert.* ;
 import static org.hamcrest.CoreMatchers.*;
@@ -109,35 +110,35 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
     @Test
     public void testFind() throws SQLException
     {
-        DSpaceObjectManager dSpaceObjectManager = DSpaceManagerFactory.getInstance().getDSpaceObjectManager(dspaceObject.getType());
+        DSpaceObjectService dSpaceObjectService = DSpaceServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType());
 
         if(this.dspaceObject instanceof Bitstream)
         {
-            assertThat("BITSTREAM type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
+            assertThat("BITSTREAM type", dSpaceObjectService.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Bundle)
         {
-            assertThat("BUNDLE type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
+            assertThat("BUNDLE type", dSpaceObjectService.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Item)
         {
-            assertThat("ITEM type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
+            assertThat("ITEM type", dSpaceObjectService.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Collection)
         {
-            assertThat("COLLECTION type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
+            assertThat("COLLECTION type", dSpaceObjectService.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Community)
         {
-            assertThat("COMMUNITY type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
+            assertThat("COMMUNITY type", dSpaceObjectService.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Group)
         {
-            assertThat("GROUP type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
+            assertThat("GROUP type", dSpaceObjectService.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof EPerson)
         {
-            assertThat("EPERSON type", dSpaceObjectManager.find(context, dspaceObject.getID()), notNullValue());
+            assertThat("EPERSON type", dSpaceObjectService.find(context, dspaceObject.getID()), notNullValue());
         }
         else if(this.dspaceObject instanceof Site)
         {

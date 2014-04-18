@@ -23,9 +23,11 @@ import org.apache.xpath.XPathAPI;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
+import org.dspace.content.service.MetadataFieldService;
+import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.core.Context;
 
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -157,13 +159,13 @@ public class MetadataImporter
         System.out.print("Registering Schema: " + name + " - " + namespace + " ... ");
         
         // check to see if the schema already exists
-        MetadataSchemaManager metadataSchemaManager = DSpaceManagerFactory.getInstance().getMetadataSchemaManager();
-        MetadataSchema s = metadataSchemaManager.find(context, name);
+        MetadataSchemaService metadataSchemaService = DSpaceServiceFactory.getInstance().getMetadataSchemaService();
+        MetadataSchema s = metadataSchemaService.find(context, name);
         
         if (s == null)
         {
             // Schema does not exist - create
-            metadataSchemaManager.create(context, name, namespace);
+            metadataSchemaService.create(context, name, namespace);
             System.out.println("created");
         }
         else
@@ -180,7 +182,7 @@ public class MetadataImporter
             {
                 // Update the existing schema namespace and continue to type import
                 s.setNamespace(namespace);
-                metadataSchemaManager.update(context, s);
+                metadataSchemaService.update(context, s);
                 System.out.println("namespace updated (" + name + " = " + namespace + ")");
             }
             else
@@ -227,23 +229,23 @@ public class MetadataImporter
         System.out.print("Registering Metadata: " + schema + "." + element + "." + qualifier + " ... ");
         
         // Find the matching schema object
-        MetadataSchemaManager metadataSchemaManager = DSpaceManagerFactory.getInstance().getMetadataSchemaManager();
-        MetadataSchema schemaObj = metadataSchemaManager.find(context, schema);
+        MetadataSchemaService metadataSchemaService = DSpaceServiceFactory.getInstance().getMetadataSchemaService();
+        MetadataSchema schemaObj = metadataSchemaService.find(context, schema);
         
         if (schemaObj == null)
         {
             throw new RegistryImportException("Schema '" + schema + "' is not registered");
         }
 
-        MetadataFieldManager metadataFieldManager = DSpaceManagerFactory.getInstance().getMetadataFieldManager();
-        MetadataField mf = metadataFieldManager.findByElement(context, schemaObj, element, qualifier);
+        MetadataFieldService metadataFieldService = DSpaceServiceFactory.getInstance().getMetadataFieldService();
+        MetadataField mf = metadataFieldService.findByElement(context, schemaObj, element, qualifier);
         if (mf != null)
         {
             System.out.println("already exists, skipping");
             return;
         }
         
-        metadataFieldManager.create(context, schemaObj, element, qualifier, scopeNote);
+        metadataFieldService.create(context, schemaObj, element, qualifier, scopeNote);
         System.out.println("created");
     }
     

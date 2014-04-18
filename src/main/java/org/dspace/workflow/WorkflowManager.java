@@ -9,7 +9,6 @@ package org.dspace.workflow;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +23,8 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.*;
+import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
@@ -32,11 +33,14 @@ import org.dspace.core.LogManager;
 import org.dspace.curate.WorkflowCurator;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupManager;
-import org.dspace.factory.DSpaceManagerFactory;
-import org.dspace.handle.HandleManager;
+import org.dspace.eperson.service.GroupService;
+import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.service.HandleService;
 import org.dspace.usage.UsageWorkflowEvent;
 import org.dspace.utils.DSpace;
+import org.dspace.workflow.service.TaskListItemService;
+import org.dspace.workflow.service.WorkflowItemService;
 
 /**
  * Workflow state machine
@@ -109,12 +113,13 @@ public class WorkflowManager
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkflowManager.class);
 
-    protected static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
-    protected static final WorkflowItemManager workflowItemManager = DSpaceManagerFactory.getInstance().getWorkflowItemManager();
-    protected static final WorkspaceItemManager workspaceItemManager = DSpaceManagerFactory.getInstance().getWorkspaceItemManager();
-    protected static final CollectionManager collectionManager = DSpaceManagerFactory.getInstance().getCollectionManager();
-    protected static final GroupManager groupManager = DSpaceManagerFactory.getInstance().getGroupManager();
-    protected static final TaskListItemManager taskListItemManager = DSpaceManagerFactory.getInstance().getTaskListItemManager();
+    protected static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
+    protected static final WorkflowItemService WORKFLOW_ITEM_SERVICE = DSpaceServiceFactory.getInstance().getWorkflowItemService();
+    protected static final WorkspaceItemService WORKSPACE_ITEM_SERVICE = DSpaceServiceFactory.getInstance().getWorkspaceItemService();
+    protected static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
+    protected static final GroupService GROUP_SERVICE = DSpaceServiceFactory.getInstance().getGroupService();
+    protected static final TaskListItemService TASK_LIST_ITEM_SERVICE = DSpaceServiceFactory.getInstance().getTaskListItemService();
+    protected static final HandleService HANDLE_SERVICE = DSpaceServiceFactory.getInstance().getHandleService();
 
     /**
      * Translate symbolic name of workflow state into number.
@@ -162,14 +167,14 @@ public class WorkflowManager
 
         // create the WorkflowItem
 
-        WorkflowItem wfi = workflowItemManager.create(c, myitem, collection);
+        WorkflowItem wfi = WORKFLOW_ITEM_SERVICE.create(c, myitem, collection);
 
         wfi.setMultipleFiles(wsi.hasMultipleFiles());
         wfi.setMultipleTitles(wsi.hasMultipleTitles());
         wfi.setPublishedBefore(wsi.isPublishedBefore());
 
         // remove the WorkspaceItem
-        workspaceItemManager.deleteWrapper(c, wsi);
+        WORKSPACE_ITEM_SERVICE.deleteWrapper(c, wsi);
 
         // now get the workflow started
         wfi.setState(WFSTATE_SUBMIT);
@@ -205,7 +210,7 @@ public class WorkflowManager
     public static List<WorkflowItem> getOwnedTasks(Context c, EPerson e)
             throws java.sql.SQLException
     {
-        return workflowItemManager.findByEPerson(c, e);
+        return WORKFLOW_ITEM_SERVICE.findByEPerson(c, e);
     }
 
     /**
@@ -469,17 +474,17 @@ public class WorkflowManager
             wi.setOwner(null);
 
             // get reviewers (group 1 )
-            mygroup = collectionManager.getWorkflowGroup(mycollection, 1);
+            mygroup = COLLECTION_SERVICE.getWorkflowGroup(mycollection, 1);
 
-            if ((mygroup != null) && !(groupManager.isEmpty(mygroup)))
+            if ((mygroup != null) && !(GROUP_SERVICE.isEmpty(mygroup)))
             {
                 // get a list of all epeople in group (or any subgroups)
-                List<EPerson> epa = groupManager.allMembers(c, mygroup);
+                List<EPerson> epa = GROUP_SERVICE.allMembers(c, mygroup);
 
                 // there were reviewers, change the state
                 //  and add them to the list
                 createTasks(c, wi, epa);
-                workflowItemManager.update(c, wi);
+                WORKFLOW_ITEM_SERVICE.update(c, wi);
 
                 // email notification
                 notifyGroupOfTask(c, wi, mygroup, epa);
@@ -497,7 +502,7 @@ public class WorkflowManager
 
             // remove reviewers from tasklist
             // assign owner
-            taskListItemManager.deleteByWorkflowItem(c, wi);
+            TASK_LIST_ITEM_SERVICE.deleteByWorkflowItem(c, wi);
             wi.setOwner(newowner);
 
             break;
@@ -511,12 +516,12 @@ public class WorkflowManager
             wi.setOwner(null);
 
             // get approvers (group 2)
-            mygroup = collectionManager.getWorkflowGroup(mycollection, 2);
+            mygroup = COLLECTION_SERVICE.getWorkflowGroup(mycollection, 2);
 
-            if ((mygroup != null) && !(groupManager.isEmpty(mygroup)))
+            if ((mygroup != null) && !(GROUP_SERVICE.isEmpty(mygroup)))
             {
                 //get a list of all epeople in group (or any subgroups)
-                List<EPerson> epa = groupManager.allMembers(c, mygroup);
+                List<EPerson> epa = GROUP_SERVICE.allMembers(c, mygroup);
 
                 // there were approvers, change the state
                 //  timestamp, and add them to the list
@@ -538,7 +543,7 @@ public class WorkflowManager
 
             // remove admins from tasklist
             // assign owner
-            taskListItemManager.deleteByWorkflowItem(c, wi);
+            TASK_LIST_ITEM_SERVICE.deleteByWorkflowItem(c, wi);
             wi.setOwner(newowner);
 
             break;
@@ -548,12 +553,12 @@ public class WorkflowManager
             // any editors?
             // if so, add them to tasklist
             wi.setOwner(null);
-            mygroup = collectionManager.getWorkflowGroup(mycollection, 3);
+            mygroup = COLLECTION_SERVICE.getWorkflowGroup(mycollection, 3);
 
-            if ((mygroup != null) && !(groupManager.isEmpty(mygroup)))
+            if ((mygroup != null) && !(GROUP_SERVICE.isEmpty(mygroup)))
             {
                 // get a list of all epeople in group (or any subgroups)
-                List<EPerson> epa = groupManager.allMembers(c, mygroup);
+                List<EPerson> epa = GROUP_SERVICE.allMembers(c, mygroup);
 
                 // there were editors, change the state
                 //  timestamp, and add them to the list
@@ -575,7 +580,7 @@ public class WorkflowManager
 
             // remove editors from tasklist
             // assign owner
-            taskListItemManager.deleteByWorkflowItem(c, wi);
+            TASK_LIST_ITEM_SERVICE.deleteByWorkflowItem(c, wi);
             wi.setOwner(newowner);
 
             break;
@@ -584,7 +589,7 @@ public class WorkflowManager
 
             // put in archive in one transaction
             // remove workflow tasks
-            taskListItemManager.deleteByWorkflowItem(c, wi);
+            TASK_LIST_ITEM_SERVICE.deleteByWorkflowItem(c, wi);
 
             mycollection = wi.getCollection();
 
@@ -601,7 +606,7 @@ public class WorkflowManager
 
         if (!archived)
         {
-            workflowItemManager.update(c, wi);
+            WORKFLOW_ITEM_SERVICE.update(c, wi);
         }
 
         return archived;
@@ -680,11 +685,11 @@ public class WorkflowManager
             Email email = Email.getEmail(I18nUtil.getEmailFilename(supportedLocale, "submit_archive"));
 
             // Get the item handle to email to user
-            String handle = HandleManager.findHandle(c, i);
+            String handle = HANDLE_SERVICE.findHandle(c, i);
 
             // Get title
             //TODO: HIBERNATE: USE ITEM GETNAME METHOD
-            List<MetadataValue> titles = itemManager.getMetadata(i, MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
+            List<MetadataValue> titles = ITEM_SERVICE.getMetadata(i, MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
             String title = "";
             try
             {
@@ -702,7 +707,7 @@ public class WorkflowManager
             email.addRecipient(ep.getEmail());
             email.addArgument(title);
             email.addArgument(coll.getName());
-            email.addArgument(HandleManager.getCanonicalForm(handle));
+            email.addArgument(HANDLE_SERVICE.getCanonicalForm(handle));
 
             email.send();
         }
@@ -731,13 +736,13 @@ public class WorkflowManager
         // FIXME: Remove license
         // FIXME: Provenance statement?
         // Create the new workspace item row
-        WorkspaceItem workspaceItem = workspaceItemManager.create(c, mycollection, wfi);
+        WorkspaceItem workspaceItem = WORKSPACE_ITEM_SERVICE.create(c, mycollection, wfi);
 
 
         workspaceItem.setMultipleFiles(wfi.hasMultipleFiles());
         workspaceItem.setMultipleTitles(wfi.hasMultipleTitles());
         workspaceItem.setPublishedBefore(wfi.isPublishedBefore());
-        workspaceItemManager.update(c, workspaceItem);
+        WORKSPACE_ITEM_SERVICE.update(c, workspaceItem);
 
         //myitem.update();
         log.info(LogManager.getHeader(c, "return_to_workspace",
@@ -745,7 +750,7 @@ public class WorkflowManager
                         + workspaceItem.getID()));
 
         // Now remove the workflow object manually from the database
-        workflowItemManager.deleteWrapper(c, wfi);
+        WORKFLOW_ITEM_SERVICE.deleteWrapper(c, wfi);
 
 
         return workspaceItem;
@@ -772,7 +777,7 @@ public class WorkflowManager
         int oldState = wi.getState();
         // authorize a DSpaceActions.REJECT
         // stop workflow
-        taskListItemManager.deleteByWorkflowItem(c, wi);
+        TASK_LIST_ITEM_SERVICE.deleteByWorkflowItem(c, wi);
 
         // rejection provenance
         Item myitem = wi.getItem();
@@ -788,8 +793,8 @@ public class WorkflowManager
                 + rejection_message + " on " + now + " (GMT) ";
 
         // Add to item as a DC field
-        itemManager.addMetadata(c, myitem, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
-        itemManager.update(c, myitem);
+        ITEM_SERVICE.addMetadata(c, myitem, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
+        ITEM_SERVICE.update(c, myitem);
 
         // convert into personal workspace
         WorkspaceItem wsi = returnToWorkspace(c, wi);
@@ -816,7 +821,7 @@ public class WorkflowManager
         for (EPerson anEpa : epa) {
             // can we get away without creating a tasklistitem class?
             // do we want to?
-            taskListItemManager.create(c, wi, anEpa);
+            TASK_LIST_ITEM_SERVICE.create(c, wi, anEpa);
         }
     }
 
@@ -827,7 +832,7 @@ public class WorkflowManager
         try
         {
             // Get the item title
-            String title = getItemTitle(wi);
+            String title = wi.getItem().getName();
 
             // Get the submitter's name
             String submitter = getSubmitterName(wi);
@@ -862,7 +867,7 @@ public class WorkflowManager
         // check to see if notification is turned off
         // and only do it once - delete key after notification has
         // been suppressed for the first time
-        Integer myID = Integer.valueOf(wi.getItem().getID());
+        Integer myID = wi.getItem().getID();
 
         if (noEMail.containsKey(myID))
         {
@@ -874,7 +879,7 @@ public class WorkflowManager
             try
             {
                 // Get the item title
-                String title = getItemTitle(wi);
+                String title = wi.getItem().getName();
 
                 // Get the submitter's name
                 String submitter = getSubmitterName(wi);
@@ -936,7 +941,7 @@ public class WorkflowManager
         try
         {
             // Get the item title
-            String title = getItemTitle(wi);
+            String title = wi.getItem().getName();
 
             // Get the collection
             Collection coll = wi.getCollection();
@@ -946,7 +951,7 @@ public class WorkflowManager
             Locale supportedLocale = I18nUtil.getEPersonLocale(e);
             Email email = Email.getEmail(I18nUtil.getEmailFilename(supportedLocale,"submit_reject"));
 
-            email.addRecipient(getSubmitterEPerson(wi).getEmail());
+            email.addRecipient(WORKFLOW_ITEM_SERVICE.getSubmitter(wi).getEmail());
             email.addArgument(title);
             email.addArgument(coll.getName());
             email.addArgument(rejector);
@@ -975,37 +980,6 @@ public class WorkflowManager
         }
     }
 
-    // FIXME - are the following methods still needed?
-    private static EPerson getSubmitterEPerson(WorkflowItem wi)
-            throws SQLException
-    {
-        EPerson e = workflowItemManager.getSubmitter(wi);
-
-        return e;
-    }
-
-    /**
-     * get the title of the item in this workflow
-     *
-     * @param wi  the workflow item object
-     */
-    public static String getItemTitle(WorkflowItem wi) throws SQLException
-    {
-        Item myitem = wi.getItem();
-        //TODO: REPLACE BY GETNAME
-        List<MetadataValue> titles = itemManager.getMetadata(myitem, MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
-
-        // only return the first element, or "Untitled"
-        if (titles.size() > 0)
-        {
-            return titles.get(0).getValue();
-        }
-        else
-        {
-            return I18nUtil.getMessage("org.dspace.workflow.WorkflowManager.untitled ");
-        }
-    }
-
     /**
      * get the name of the eperson who started this workflow
      *
@@ -1013,7 +987,7 @@ public class WorkflowManager
      */
     public static String getSubmitterName(WorkflowItem wi) throws SQLException
     {
-        EPerson e = workflowItemManager.getSubmitter(wi);
+        EPerson e = WORKFLOW_ITEM_SERVICE.getSubmitter(wi);
 
         return getEPersonName(e);
     }
@@ -1047,8 +1021,8 @@ public class WorkflowManager
         provDescription += InstallItem.getBitstreamProvenanceMessage(item);
 
         // Add to item as a DC field
-        itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
-        itemManager.update(c, item);
+        ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
+        ITEM_SERVICE.update(c, item);
     }
 
     // Create workflow start provenance message
@@ -1078,7 +1052,7 @@ public class WorkflowManager
         provmessage += InstallItem.getBitstreamProvenanceMessage(myitem);
 
         // Add message to the DC
-        itemManager.addMetadata(c, myitem, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provmessage);
-        itemManager.update(c, myitem);
+        ITEM_SERVICE.addMetadata(c, myitem, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provmessage);
+        ITEM_SERVICE.update(c, myitem);
     }
 }

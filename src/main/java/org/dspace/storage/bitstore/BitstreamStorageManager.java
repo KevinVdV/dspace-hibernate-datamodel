@@ -20,9 +20,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
-import org.dspace.content.BitstreamDAO;
-import org.dspace.content.BitstreamDAOImpl;
-import org.dspace.content.BitstreamManager;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
@@ -34,8 +32,7 @@ import edu.sdsc.grid.io.local.LocalFile;
 import edu.sdsc.grid.io.srb.SRBAccount;
 import edu.sdsc.grid.io.srb.SRBFile;
 import edu.sdsc.grid.io.srb.SRBFileSystem;
-import org.dspace.factory.DSpaceManagerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * <P>
@@ -70,7 +67,7 @@ public class BitstreamStorageManager
     /** log4j log */
     private static Logger log = Logger.getLogger(BitstreamStorageManager.class);
 
-    private static final BitstreamManager bitstreamManager = DSpaceManagerFactory.getInstance().getBitstreamManager();
+    private static final BitstreamService BITSTREAM_SERVICE = DSpaceServiceFactory.getInstance().getBitstreamService();
 
 	/**
 	 * The asset store locations. The information for each GeneralFile in the
@@ -264,7 +261,7 @@ public class BitstreamStorageManager
         {
             tempContext = new Context();
 
-            bitstream = bitstreamManager.create(context, is);
+            bitstream = BITSTREAM_SERVICE.create(context, is);
             bitstream.setDeleted(true);
             bitstream.setInternalId(id);
 
@@ -275,7 +272,7 @@ public class BitstreamStorageManager
              */
             bitstream.setStoreNumber(incoming);
 
-            bitstreamManager.update(context, bitstream);
+            BITSTREAM_SERVICE.update(context, bitstream);
 
             tempContext.complete();
         }
@@ -332,7 +329,7 @@ public class BitstreamStorageManager
         }
         
         bitstream.setDeleted(false);
-        DSpaceManagerFactory.getInstance().getBitstreamManager().update(context, bitstream);
+        BITSTREAM_SERVICE.update(context, bitstream);
 
         int bitstreamId = bitstream.getID();
 
@@ -376,7 +373,7 @@ public class BitstreamStorageManager
 			bitstream.setDeleted(true);
 			bitstream.setInternalId(sInternalId);
 			bitstream.setStoreNumber(assetstore);
-            DSpaceManagerFactory.getInstance().getBitstreamManager().update(context, bitstream);
+            BITSTREAM_SERVICE.update(context, bitstream);
 
 			tempContext.complete();
 		} catch (SQLException sqle) {
@@ -477,7 +474,7 @@ public class BitstreamStorageManager
 		bitstream.setChecksumAlgorithm("MD5");
 		bitstream.setSizeBytes(file.length());
 		bitstream.setDeleted(false);
-        DSpaceManagerFactory.getInstance().getBitstreamManager().update(context, bitstream);
+        BITSTREAM_SERVICE.update(context, bitstream);
 
 		int bitstreamId = bitstream.getID();
 		if (log.isDebugEnabled()) 
@@ -522,7 +519,7 @@ public class BitstreamStorageManager
     public static InputStream retrieve(Context context, int id)
             throws SQLException, IOException
     {
-		GeneralFile file = getFile(DSpaceManagerFactory.getInstance().getBitstreamManager().find(context, id));
+		GeneralFile file = getFile(BITSTREAM_SERVICE.find(context, id));
 
 		return (file != null) ? FileFactory.newFileInputStream(file) : null;
     }
@@ -550,7 +547,7 @@ public class BitstreamStorageManager
             context = new Context();
 
 
-            List<Bitstream> storage = bitstreamManager.findDeletedBitstreams(context);
+            List<Bitstream> storage = BITSTREAM_SERVICE.findDeletedBitstreams(context);
 
             for (Bitstream bitstream : storage)
             {
@@ -574,7 +571,7 @@ public class BitstreamStorageManager
                         {
                             System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
                         }
-                        bitstreamManager.delete(context, bitstream);
+                        BITSTREAM_SERVICE.delete(context, bitstream);
                     }
                     continue;
                 }
@@ -600,7 +597,7 @@ public class BitstreamStorageManager
                     {
                         System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
                     }
-                    bitstreamManager.delete(context, bitstream);
+                    BITSTREAM_SERVICE.delete(context, bitstream);
                 }
 
 				if (isRegisteredBitstream(bitstream.getInternalId())) {
@@ -611,7 +608,7 @@ public class BitstreamStorageManager
                 // Since versioning allows for multiple bitstreams, check if the internal identifier isn't used on another place
 
 
-                if(0 < bitstreamManager.findDuplicateInternalIdentifier(context, bitstream).size())
+                if(0 < BITSTREAM_SERVICE.findDuplicateInternalIdentifier(context, bitstream).size())
                 {
                     boolean success = file.delete();
 

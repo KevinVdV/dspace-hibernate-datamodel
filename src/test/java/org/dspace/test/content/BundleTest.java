@@ -65,11 +65,11 @@ public class BundleTest extends AbstractDSpaceObjectTest
         try
         {
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityManager.create(null, context);
-            this.collection = collectionManager.create(context, owningCommunity);
-            WorkspaceItem workspaceItem = workspaceItemManager.create(context, collection, false);
+            this.owningCommunity = communityService.create(null, context);
+            this.collection = collectionService.create(context, owningCommunity);
+            WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, false);
             it = InstallItem.installItem(context, workspaceItem);
-            this.b = itemManager.createBundle(context, it, bundleName);
+            this.b = itemService.createBundle(context, it, bundleName);
             this.dspaceObject = b;
 
             //we need to commit the changes so we don't block the table for testing
@@ -101,12 +101,12 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Override
     public void destroy() throws Exception {
         context.turnOffAuthorisationSystem();
-        if(bundleManager.find(context, b.getID()) != null)
+        if(bundleService.find(context, b.getID()) != null)
         {
-            itemManager.removeBundle(context, it, b);
+            itemService.removeBundle(context, it, b);
         }
-        collectionManager.removeItem(context, collection, it);
-        communityManager.removeCollection(context, owningCommunity, collection);
+        collectionService.removeItem(context, collection, it);
+        communityService.removeCollection(context, owningCommunity, collection);
         context.restoreAuthSystemState();
         super.destroy();
     }
@@ -118,7 +118,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testBundleFind() throws SQLException
     {
         int id = b.getID();
-        Bundle found =  bundleManager.find(context, id);
+        Bundle found =  bundleService.find(context, id);
         assertThat("testBundleFind 0", found, notNullValue());
         assertThat("testBundleFind 1", found.getID(), equalTo(id));
     }
@@ -136,13 +136,13 @@ public class BundleTest extends AbstractDSpaceObjectTest
                         Constants.ADD, true); result = null;
             }
         };
-        Bundle created = itemManager.createBundle(context, it, "test");
+        Bundle created = itemService.createBundle(context, it, "test");
         //the item created by default has no name nor type set
         assertThat("testCreate 0", created, notNullValue());
         assertTrue("testCreate 1", created.getID() >= 0);
         assertTrue("testCreate 2", created.getBitstreams().size() == 0);
         assertThat("testCreate 3", created.getName(), equalTo("test"));
-        itemManager.removeBundle(context, it, created);
+        itemService.removeBundle(context, it, created);
     }
 
     /**
@@ -244,16 +244,16 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         String name = "name";
         //by default there is no bitstream
-        assertThat("testGetHandle 0", bundleManager.getBitstreamByName(b, name), nullValue());
+        assertThat("testGetHandle 0", bundleService.getBitstreamByName(b, name), nullValue());
         
         //let's add a bitstream
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bitstreamManager.create(context, new FileInputStream(f));
+        Bitstream bs = bitstreamService.create(context, new FileInputStream(f));
         bs.setName(name);
-        bundleManager.addBitstream(context, b, bs);
-        assertThat("testGetHandle 1", bundleManager.getBitstreamByName(b, name), notNullValue());
-        assertThat("testGetHandle 2", bundleManager.getBitstreamByName(b, name), equalTo(bs));
-        assertThat("testGetHandle 3", bundleManager.getBitstreamByName(b, name).getName(), equalTo(name));
+        bundleService.addBitstream(context, b, bs);
+        assertThat("testGetHandle 1", bundleService.getBitstreamByName(b, name), notNullValue());
+        assertThat("testGetHandle 2", bundleService.getBitstreamByName(b, name), equalTo(bs));
+        assertThat("testGetHandle 3", bundleService.getBitstreamByName(b, name).getName(), equalTo(name));
         context.commit();
     }
 
@@ -279,9 +279,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
         //let's add a bitstream
         String name = "name";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bitstreamManager.create(context, new FileInputStream(f));
+        Bitstream bs = bitstreamService.create(context, new FileInputStream(f));
         bs.setName(name);
-        bundleManager.addBitstream(context, b, bs);
+        bundleService.addBitstream(context, b, bs);
         assertThat("testGetBitstreams 2", b.getBitstreams(), notNullValue());
         assertThat("testGetBitstreams 3", b.getBitstreams().size(), equalTo(1));
         assertThat("testGetBitstreams 4", b.getBitstreams().get(0).getName(), equalTo(name));
@@ -316,7 +316,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         String name = "name";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleManager.createBitstream(context, b, new FileInputStream(f));
+        Bitstream bs = bundleService.createBitstream(context, b, new FileInputStream(f));
         fail("Exception should be thrown");
     }
 
@@ -337,11 +337,11 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         String name = "name";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleManager.createBitstream(context, b, new FileInputStream(f));
+        Bitstream bs = bundleService.createBitstream(context, b, new FileInputStream(f));
         bs.setName(name);
-        assertThat("testCreateBitstreamAuth 0", bundleManager.getBitstreamByName(b, name), notNullValue());
-        assertThat("testCreateBitstreamAuth 1", bundleManager.getBitstreamByName(b, name), equalTo(bs));
-        assertThat("testCreateBitstreamAuth 2", bundleManager.getBitstreamByName(b, name).getName(), equalTo(name));
+        assertThat("testCreateBitstreamAuth 0", bundleService.getBitstreamByName(b, name), notNullValue());
+        assertThat("testCreateBitstreamAuth 1", bundleService.getBitstreamByName(b, name), equalTo(bs));
+        assertThat("testCreateBitstreamAuth 2", bundleService.getBitstreamByName(b, name).getName(), equalTo(name));
     }
     
     /**
@@ -362,7 +362,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         int assetstore = 0;
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleManager.registerBitstream(context, b, assetstore, f.getAbsolutePath());
+        Bitstream bs = bundleService.registerBitstream(context, b, assetstore, f.getAbsolutePath());
         fail("Exception should be thrown");
     }
 
@@ -385,11 +385,11 @@ public class BundleTest extends AbstractDSpaceObjectTest
         int assetstore = 0;
         String name = "name bitstream";
         File f = new File(testProps.get("test.bitstream").toString());        
-        Bitstream bs = bundleManager.registerBitstream(context, b, assetstore, f.getName());
+        Bitstream bs = bundleService.registerBitstream(context, b, assetstore, f.getName());
         bs.setName(name);
-        assertThat("testRegisterBitstream 0", bundleManager.getBitstreamByName(b, name), notNullValue());
-        assertThat("testRegisterBitstream 1", bundleManager.getBitstreamByName(b, name), equalTo(bs));
-        assertThat("testRegisterBitstream 2", bundleManager.getBitstreamByName(b, name).getName(), equalTo(name));
+        assertThat("testRegisterBitstream 0", bundleService.getBitstreamByName(b, name), notNullValue());
+        assertThat("testRegisterBitstream 1", bundleService.getBitstreamByName(b, name), equalTo(bs));
+        assertThat("testRegisterBitstream 2", bundleService.getBitstreamByName(b, name).getName(), equalTo(name));
     }
 
     /**
@@ -408,8 +408,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
         };
 
         int id = 1;
-        Bitstream bs = bitstreamManager.find(context, id);
-        bundleManager.addBitstream(context, b, bs);
+        Bitstream bs = bitstreamService.find(context, id);
+        bundleService.addBitstream(context, b, bs);
         fail("Exception should have been thrown");
     }
 
@@ -430,11 +430,11 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleManager.createBitstream(context, b, new FileInputStream(f));
+        Bitstream bs = bundleService.createBitstream(context, b, new FileInputStream(f));
         bs.setName("name");
-        assertThat("testAddBitstreamAuth 0", bundleManager.getBitstreamByName(b, bs.getName()), notNullValue());
-        assertThat("testAddBitstreamAuth 1", bundleManager.getBitstreamByName(b, bs.getName()), equalTo(bs));
-        assertThat("testAddBitstreamAuth 2", bundleManager.getBitstreamByName(b, bs.getName()).getName(), equalTo(bs.getName()));
+        assertThat("testAddBitstreamAuth 0", bundleService.getBitstreamByName(b, bs.getName()), notNullValue());
+        assertThat("testAddBitstreamAuth 1", bundleService.getBitstreamByName(b, bs.getName()), equalTo(bs));
+        assertThat("testAddBitstreamAuth 2", bundleService.getBitstreamByName(b, bs.getName()).getName(), equalTo(bs.getName()));
     }
 
     /**
@@ -453,9 +453,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleManager.createBitstream(context, b, new FileInputStream(f));
+        Bitstream bs = bundleService.createBitstream(context, b, new FileInputStream(f));
         bs.setName("name");
-        bundleManager.removeBitstream(context, b, bs);
+        bundleService.removeBitstream(context, b, bs);
         fail("Exception should have been thrown");
     }
 
@@ -476,11 +476,11 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         int id = 1;
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bitstreamManager.find(context, id);
-        bundleManager.addBitstream(context, b, bs);
+        Bitstream bs = bitstreamService.find(context, id);
+        bundleService.addBitstream(context, b, bs);
         context.commit();
-        bundleManager.removeBitstream(context, b, bs);
-        assertThat("testRemoveBitstreamAuth 0", bundleManager.getBitstreamByName(b, bs.getName()), nullValue());
+        bundleService.removeBitstream(context, b, bs);
+        assertThat("testRemoveBitstreamAuth 0", bundleService.getBitstreamByName(b, bs.getName()), nullValue());
     }
 
 
@@ -492,7 +492,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         //TODO: we only check for sql errors
         //TODO: note that update can't throw authorize exception!!
-        bundleManager.update(context, b);
+        bundleService.update(context, b);
     }
 
     /**
@@ -510,9 +510,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
             }
         };
         int id = b.getID();
-        itemManager.removeBundle(context, it, b);
+        itemService.removeBundle(context, it, b);
         context.commit();
-        assertThat("testDelete 0", bundleManager.find(context, id), nullValue());
+        assertThat("testDelete 0", bundleService.find(context, id), nullValue());
     }
 
     /**
@@ -540,9 +540,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
             rp.setAction(Constants.READ);
         }
 
-        bundleManager.inheritCollectionDefaultPolicies(context, b, collection);
+        bundleService.inheritCollectionDefaultPolicies(context, b, collection);
 
-        List<ResourcePolicy> bspolicies = bundleManager.getBundlePolicies(context, b);
+        List<ResourcePolicy> bspolicies = AuthorizeManager.getPolicies(context, b);
         assertTrue("testInheritCollectionDefaultPolicies 0", newpolicies.size() == bspolicies.size());
 
         boolean equals = true;
@@ -555,7 +555,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         }
         assertTrue("testInheritCollectionDefaultPolicies 1", equals);
 
-        bspolicies = bundleManager.getBitstreamPolicies(context, b);
+        bspolicies = bundleService.getBitstreamPolicies(context, b);
         boolean exists = true;
         for(int i=0; bspolicies.size() > 0 && i < newpolicies.size() && exists; i++)
         {
@@ -575,12 +575,12 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testReplaceAllBitstreamPolicies() throws SQLException, AuthorizeException
     {
         List<ResourcePolicy> newpolicies = new ArrayList<ResourcePolicy>();
-        newpolicies.add(resourcePolicyManager.create(context));
-        newpolicies.add(resourcePolicyManager.create(context));
-        newpolicies.add(resourcePolicyManager.create(context));
-        bundleManager.replaceAllBitstreamPolicies(context, b, newpolicies);
+        newpolicies.add(resourcePolicyService.create(context));
+        newpolicies.add(resourcePolicyService.create(context));
+        newpolicies.add(resourcePolicyService.create(context));
+        bundleService.replaceAllBitstreamPolicies(context, b, newpolicies);
         
-        List<ResourcePolicy> bspolicies = bundleManager.getBundlePolicies(context, b);
+        List<ResourcePolicy> bspolicies = AuthorizeManager.getPolicies(context, b);
         assertTrue("testReplaceAllBitstreamPolicies 0", newpolicies.size() == bspolicies.size());
 
         boolean equals = true;
@@ -593,7 +593,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         }
         assertTrue("testReplaceAllBitstreamPolicies 1", equals);
 
-        bspolicies = bundleManager.getBitstreamPolicies(context, b);
+        bspolicies = bundleService.getBitstreamPolicies(context, b);
         boolean exists = true;
         for(int i=0; bspolicies.size() > 0 && i < newpolicies.size() && exists; i++)
         {
@@ -612,7 +612,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testGetBundlePolicies() throws SQLException
     {
         //empty by default
-        List<ResourcePolicy> bpolicies = bundleManager.getBundlePolicies(context, b);
+        List<ResourcePolicy> bpolicies = AuthorizeManager.getPolicies(context, b);
         assertFalse("testGetBundlePolicies 0", bpolicies.isEmpty());
     }
 
@@ -623,7 +623,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testGetBitstreamPolicies() throws SQLException
     {
         //empty by default
-        List<ResourcePolicy> bspolicies = bundleManager.getBitstreamPolicies(context, b);
+        List<ResourcePolicy> bspolicies = bundleService.getBitstreamPolicies(context, b);
         assertTrue("testGetBitstreamPolicies 0", bspolicies.isEmpty());
     }
 
@@ -635,8 +635,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testGetAdminObject() throws SQLException
     {
         //default bundle has no admin object
-        assertEquals("testGetAdminObject 0", bundleManager.getAdminObject(context, b, Constants.REMOVE), it);
-        assertEquals("testGetAdminObject 1", bundleManager.getAdminObject(context, b, Constants.ADD), it);
+        assertEquals("testGetAdminObject 0", bundleService.getAdminObject(context, b, Constants.REMOVE), it);
+        assertEquals("testGetAdminObject 1", bundleService.getAdminObject(context, b, Constants.ADD), it);
     }
 
     /**
@@ -647,7 +647,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testGetParentObject() throws SQLException
     {
         //default bundle has no parent
-        assertEquals("testGetParentObject 0", bundleManager.getParentObject(context, b), it);
+        assertEquals("testGetParentObject 0", bundleService.getParentObject(context, b), it);
     }
 
 }

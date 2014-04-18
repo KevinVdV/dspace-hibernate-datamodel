@@ -6,51 +6,54 @@
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
-    <bean id="managerFactory" class="org.dspace.factory.ManagerFactoryImpl"/>
+    <bean id="serviceFactory" class="org.dspace.factory.DSpaceServiceFactoryImpl"/>
 
     <!-- ******************** -->
     <!-- Manager declarations -->
     <!-- ******************** -->
-    <bean id="org.dspace.content.BitstreamFormatManager" class="org.dspace.content.BitstreamFormatManagerImpl"/>
-    <bean id="org.dspace.content.BitstreamManager" class="org.dspace.content.BitstreamManagerImpl"/>
-    <bean id="org.dspace.content.BundleManager" class="org.dspace.content.BundleManagerImpl"/>
-    <bean id="org.dspace.content.ItemManager" class="org.dspace.content.ItemManagerImpl"/>
-    <bean id="org.dspace.content.CollectionManager" class="org.dspace.content.CollectionManagerImpl"/>
-    <bean id="org.dspace.content.CommunityManager" class="org.dspace.content.CommunityManagerImpl"/>
-    <bean id="org.dspace.eperson.EPersonManager" class="org.dspace.eperson.EPersonManagerImpl"/>
-    <bean id="org.dspace.eperson.GroupManager" class="org.dspace.eperson.GroupManagerImpl"/>
-    <bean id="org.dspace.authorize.ResourcePolicyManager" class="org.dspace.authorize.ResourcePolicyManagerImpl"/>
-    <bean id="org.dspace.content.MetadataFieldManager" class="org.dspace.content.MetadataFieldManagerImpl"/>
-    <bean id="org.dspace.content.MetadataSchemaManager" class="org.dspace.content.MetadataSchemaManagerImpl"/>
-    <bean id="org.dspace.content.MetadataValueManager" class="org.dspace.content.MetadataValueManagerImpl"/>
-    <bean id="org.dspace.content.WorkspaceItemManager" class="org.dspace.content.WorkspaceItemManagerImpl"/>
+    <bean class="org.dspace.content.BitstreamFormatServiceImpl"/>
+    <bean class="org.dspace.content.BitstreamServiceImpl"/>
+    <bean class="org.dspace.content.BundleServiceImpl"/>
+    <bean class="org.dspace.content.ItemServiceImpl"/>
+    <bean class="org.dspace.content.CollectionServiceImpl"/>
+    <bean class="org.dspace.content.CommunityServiceImpl"/>
+    <bean class="org.dspace.eperson.EPersonServiceImpl"/>
+    <bean class="org.dspace.eperson.GroupServiceImpl"/>
+    <bean class="org.dspace.authorize.ResourcePolicyServiceImpl"/>
+    <bean class="org.dspace.content.MetadataFieldServiceImpl"/>
+    <bean class="org.dspace.content.MetadataSchemaServiceImpl"/>
+    <bean class="org.dspace.content.MetadataValueServiceImpl"/>
+    <bean class="org.dspace.content.WorkspaceItemServiceImpl"/>
 
-    <bean id="org.dspace.workflow.WorkflowItemManager" class="org.dspace.workflow.WorkflowItemManagerImpl"/>
-    <bean id="org.dspace.workflow.TaskListItemManager" class="org.dspace.workflow.TaskListItemManagerImpl"/>
+    <bean class="org.dspace.workflow.WorkflowItemServiceImpl"/>
+    <bean class="org.dspace.workflow.TaskListItemServiceImpl"/>
+
+    <bean class="org.dspace.handle.HandleServiceImpl"/>
 
     <!-- **************** -->
     <!-- DAO declarations -->
     <!-- **************** -->
-    <bean id="org.dspace.content.BitstreamDAO" class="org.dspace.content.BitstreamDAOImpl"/>
-    <bean id="org.dspace.content.BitstreamFormatDAO" class="org.dspace.content.BitstreamFormatDAOImpl"/>
-    <bean id="org.dspace.content.BundleDAO" class="org.dspace.content.BundleDAOImpl"/>
-    <bean id="org.dspace.content.CollectionDAO" class="org.dspace.content.CollectionDAOImpl"/>
-    <bean id="org.dspace.content.CommunityDAO" class="org.dspace.content.CommunityDAOImpl"/>
-    <bean id="org.dspace.content.ItemDAO" class="org.dspace.content.ItemDAOImpl"/>
-    <bean id="org.dspace.content.MetadataFieldDAO" class="org.dspace.content.MetadataFieldDAOImpl"/>
-    <bean id="org.dspace.content.MetadataSchemaDAO" class="org.dspace.content.MetadataSchemaDAOImpl"/>
-    <bean id="org.dspace.content.MetadataValueDAO" class="org.dspace.content.MetadataValueDAOImpl"/>
-    <bean id="org.dspace.content.WorkspaceItemDAO" class="org.dspace.content.WorkspaceItemDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.BitstreamDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.BitstreamFormatDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.BundleDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.CollectionDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.CommunityDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.ItemDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.MetadataFieldDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.MetadataSchemaDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.MetadataValueDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.WorkspaceItemDAOImpl"/>
 
-    <bean id="org.dspace.workflow.WorkflowItemDAO" class="org.dspace.workflow.WorkflowItemDAOImpl"/>
-    <bean id="org.dspace.workflow.TaskListItemDAO" class="org.dspace.workflow.TaskListItemDAOImpl"/>
+    <bean class="org.dspace.workflow.dao.impl.WorkflowItemDAOImpl"/>
+    <bean class="org.dspace.workflow.dao.impl.TaskListItemDAOImpl"/>
 
-    <bean id="org.dspace.eperson.EPersonDAO" class="org.dspace.eperson.EPersonDAOImpl"/>
-    <bean id="org.dspace.eperson.GroupDAO" class="org.dspace.eperson.GroupDAOImpl"/>
+    <bean class="org.dspace.eperson.dao.impl.EPersonDAOImpl"/>
+    <bean class="org.dspace.eperson.dao.impl.GroupDAOImpl"/>
 
-    <bean id="org.dspace.handle.HandleDAO" class="org.dspace.handle.HandleDAOImpl"/>
+    <bean class="org.dspace.handle.dao.impl.HandleDAOImpl"/>
 
-    <bean id="org.dspace.authorize.ResourcePolicyDAO" class="org.dspace.authorize.ResourcePolicyDAOImpl"/>
+    <bean class="org.dspace.authorize.dao.impl.ResourcePolicyDAOImpl"/>
+
 
 
 

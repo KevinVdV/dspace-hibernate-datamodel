@@ -25,10 +25,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
+import org.dspace.content.service.BitstreamFormatService;
+import org.dspace.content.service.BitstreamService;
+import org.dspace.content.service.BundleService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 
 public class CreativeCommons
 {
@@ -53,10 +56,10 @@ public class CreativeCommons
 
     protected static final Templates templates;
 
-    protected static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
-    protected static final BitstreamFormatManager bitstreamFormatManager = DSpaceManagerFactory.getInstance().getBitstreamFormatManager();
-    protected static final BitstreamManager bitstreamManager = DSpaceManagerFactory.getInstance().getBitstreamManager();
-    protected static final BundleManager bundleManager = DSpaceManagerFactory.getInstance().getBundleManager();
+    protected static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
+    protected static final BitstreamFormatService BITSTREAM_FORMAT_SERVICE = DSpaceServiceFactory.getInstance().getBitstreamFormatService();
+    protected static final BitstreamService BITSTREAM_SERVICE = DSpaceServiceFactory.getInstance().getBitstreamService();
+    protected static final BundleService BUNDLE_SERVICE = DSpaceServiceFactory.getInstance().getBundleService();
 
     static
     {
@@ -98,13 +101,13 @@ public class CreativeCommons
     private static Bundle getCcBundle(Context context, Item item)
         throws SQLException, AuthorizeException, IOException
     {
-        List<Bundle> bundles = itemManager.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = ITEM_SERVICE.getBundles(item, CC_BUNDLE_NAME);
 
         if ((bundles.size() > 0) && (bundles.get(0) != null))
         {
-            itemManager.removeBundle(context, item, bundles.get(0));
+            ITEM_SERVICE.removeBundle(context, item, bundles.get(0));
         }
-        return itemManager.createBundle(context, item, CC_BUNDLE_NAME);
+        return ITEM_SERVICE.createBundle(context, item, CC_BUNDLE_NAME);
     }
 
 
@@ -119,7 +122,7 @@ public class CreativeCommons
     {
         Bundle bundle = getCcBundle(context, item);
         // set the format
-        BitstreamFormat bs_rdf_format = bitstreamFormatManager.findByShortDescription(context, "RDF XML");
+        BitstreamFormat bs_rdf_format = BITSTREAM_FORMAT_SERVICE.findByShortDescription(context, "RDF XML");
         // set the RDF bitstream
         setBitstreamFromBytes(context, bundle, BSN_LICENSE_RDF, bs_rdf_format, licenseRdf.getBytes());
     }
@@ -139,11 +142,11 @@ public class CreativeCommons
         String license_rdf = fetchLicenseRDF(cc_license_url);
 
         // set the formats
-        BitstreamFormat bs_url_format = bitstreamFormatManager.findByShortDescription(
+        BitstreamFormat bs_url_format = BITSTREAM_FORMAT_SERVICE.findByShortDescription(
                 context, "License");
-        BitstreamFormat bs_text_format = bitstreamFormatManager.findByShortDescription(
+        BitstreamFormat bs_text_format = BITSTREAM_FORMAT_SERVICE.findByShortDescription(
                 context, "CC License");
-        BitstreamFormat bs_rdf_format = bitstreamFormatManager.findByShortDescription(
+        BitstreamFormat bs_rdf_format = BITSTREAM_FORMAT_SERVICE.findByShortDescription(
                 context, "RDF XML");
 
         // set the URL bitstream
@@ -183,21 +186,21 @@ public class CreativeCommons
         BitstreamFormat bs_format;
         if (mimeType.equalsIgnoreCase("text/xml"))
         {
-        	bs_format = bitstreamFormatManager.findByShortDescription(context, "CC License");
+        	bs_format = BITSTREAM_FORMAT_SERVICE.findByShortDescription(context, "CC License");
         } else if (mimeType.equalsIgnoreCase("text/rdf")) {
-            bs_format = bitstreamFormatManager.findByShortDescription(context, "RDF XML");
+            bs_format = BITSTREAM_FORMAT_SERVICE.findByShortDescription(context, "RDF XML");
         } else {
-        	bs_format = bitstreamFormatManager.findByShortDescription(context, "License");
+        	bs_format = BITSTREAM_FORMAT_SERVICE.findByShortDescription(context, "License");
         }
 
-        Bitstream bs = bundleManager.createBitstream(context, bundle, licenseStm);
+        Bitstream bs = BUNDLE_SERVICE.createBitstream(context, bundle, licenseStm);
         bs.setSource(CC_BS_SOURCE);
         bs.setName((mimeType != null &&
-                    (mimeType.equalsIgnoreCase("text/xml") ||
-                     mimeType.equalsIgnoreCase("text/rdf"))) ?
-                   BSN_LICENSE_RDF : BSN_LICENSE_TEXT);
-        bitstreamManager.setFormat(context, bs, bs_format);
-        bundleManager.update(context, bundle);
+                (mimeType.equalsIgnoreCase("text/xml") ||
+                        mimeType.equalsIgnoreCase("text/rdf"))) ?
+                BSN_LICENSE_RDF : BSN_LICENSE_TEXT);
+        BITSTREAM_SERVICE.setFormat(context, bs, bs_format);
+        BUNDLE_SERVICE.update(context, bundle);
     }
 
 
@@ -205,11 +208,11 @@ public class CreativeCommons
             throws SQLException, IOException, AuthorizeException
     {
         // remove CC license bundle if one exists
-        List<Bundle> bundles = itemManager.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = ITEM_SERVICE.getBundles(item, CC_BUNDLE_NAME);
 
         if ((bundles.size() > 0) && (bundles.get(0) != null))
         {
-            itemManager.removeBundle(context, item, bundles.get(0));
+            ITEM_SERVICE.removeBundle(context, item, bundles.get(0));
         }
     }
 
@@ -217,7 +220,7 @@ public class CreativeCommons
             throws SQLException, IOException
     {
         // try to find CC license bundle
-        List<Bundle> bundles = itemManager.getBundles(item, CC_BUNDLE_NAME);
+        List<Bundle> bundles = ITEM_SERVICE.getBundles(item, CC_BUNDLE_NAME);
 
         if (bundles.size() == 0)
         {
@@ -345,14 +348,14 @@ public class CreativeCommons
             throws SQLException, IOException, AuthorizeException
     {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        Bitstream bs = bundleManager.createBitstream(context, bundle, bais);
+        Bitstream bs = BUNDLE_SERVICE.createBitstream(context, bundle, bais);
 
         bs.setName(bitstream_name);
         bs.setSource(CC_BS_SOURCE);
-        bitstreamManager.setFormat(context, bs, format);
+        BITSTREAM_SERVICE.setFormat(context, bs, format);
 
         // commit everything
-        bitstreamManager.update(context, bs);
+        BITSTREAM_SERVICE.update(context, bs);
     }
 
     /**
@@ -385,7 +388,7 @@ public class CreativeCommons
         // look for the CC bundle
         try
         {
-            List<Bundle> bundles = itemManager.getBundles(item, CC_BUNDLE_NAME);
+            List<Bundle> bundles = ITEM_SERVICE.getBundles(item, CC_BUNDLE_NAME);
 
             if ((bundles != null) && (bundles.size() > 0))
             {
@@ -403,7 +406,7 @@ public class CreativeCommons
             return null;
         }
 
-        return bundleManager.getBitstreamByName(cc_bundle, bitstream_name);
+        return BUNDLE_SERVICE.getBitstreamByName(cc_bundle, bitstream_name);
     }
 
     private static byte[] getBytesFromBitstream(Context context, Item item, String bitstream_name)
@@ -419,7 +422,7 @@ public class CreativeCommons
 
         // create a ByteArrayOutputStream
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Utils.copy(bitstreamManager.retrieve(context, bs), baos);
+        Utils.copy(BITSTREAM_SERVICE.retrieve(context, bs), baos);
 
         return baos.toByteArray();
     }
@@ -493,7 +496,7 @@ public class CreativeCommons
     	 */
     	public String ccItemValue(Item item)
     	{
-            List<MetadataValue> dcvalues = itemManager.getMetadata(item, params[0], params[1], params[2], params[3]);
+            List<MetadataValue> dcvalues = ITEM_SERVICE.getMetadata(item, params[0], params[1], params[2], params[3]);
             for (MetadataValue dcvalue : dcvalues)
             {
                 if ((dcvalue.getValue()).contains(ccShib))
@@ -519,7 +522,7 @@ public class CreativeCommons
     		 CCLookup ccLookup = new CCLookup();
              ccLookup.issue(key);
              String matchValue = ccLookup.getLicenseName();
-            List<MetadataValue> dcvalues = itemManager.getMetadata(item, params[0], params[1], params[2], params[3]);
+            List<MetadataValue> dcvalues = ITEM_SERVICE.getMetadata(item, params[0], params[1], params[2], params[3]);
              for (MetadataValue dcvalue : dcvalues)
              {
             	 if (dcvalue.getValue().equals(matchValue))
@@ -541,7 +544,7 @@ public class CreativeCommons
     	{
     		if (value != null)
     		{
-    			 List<MetadataValue> dcvalues  = itemManager.getMetadata(item, params[0], params[1], params[2], params[3]);
+    			 List<MetadataValue> dcvalues  = ITEM_SERVICE.getMetadata(item, params[0], params[1], params[2], params[3]);
                  ArrayList<String> arrayList = new ArrayList<String>();
                  for (MetadataValue dcvalue : dcvalues)
                  {
@@ -551,8 +554,8 @@ public class CreativeCommons
                      }
                   }
                   String[] values = arrayList.toArray(new String[arrayList.size()]);
-                itemManager.clearMetadata(context, item, params[0], params[1], params[2], params[3]);
-                itemManager.addMetadata(context, item, params[0], params[1], params[2], params[3], values);
+                ITEM_SERVICE.clearMetadata(context, item, params[0], params[1], params[2], params[3]);
+                ITEM_SERVICE.addMetadata(context, item, params[0], params[1], params[2], params[3], values);
     		}
     	}
 
@@ -563,7 +566,7 @@ public class CreativeCommons
     	 * @param value - the value to add in this field
     	 */
     	public void addItemValue(Context context, Item item, String value) throws SQLException {
-            itemManager.addMetadata(context, item, params[0], params[1], params[2], params[3], value);
+            ITEM_SERVICE.addMetadata(context, item, params[0], params[1], params[2], params[3], value);
     	}
     }
 }

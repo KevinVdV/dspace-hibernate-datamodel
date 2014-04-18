@@ -16,9 +16,9 @@ import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 
-import org.dspace.content.MetadataFieldManager;
+import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * Broker for metadata authority settings configured for each metadata field.
@@ -51,7 +51,7 @@ import org.dspace.factory.DSpaceManagerFactory;
 public class MetadataAuthorityManager
 {
 
-    protected static final MetadataFieldManager metadataFieldManager = DSpaceManagerFactory.getInstance().getMetadataFieldManager();
+    protected static final MetadataFieldService METADATA_FIELD_SERVICE = DSpaceServiceFactory.getInstance().getMetadataFieldService();
     private static Logger log = Logger.getLogger(MetadataAuthorityManager.class);
 
     private static MetadataAuthorityManager cached = null;
@@ -186,7 +186,7 @@ public class MetadataAuthorityManager
      */
     public static String makeFieldKey(String schema, String element, String qualifier)
     {
-        return metadataFieldManager.formKey(schema, element, qualifier);
+        return METADATA_FIELD_SERVICE.formKey(schema, element, qualifier);
     }
 
     /**

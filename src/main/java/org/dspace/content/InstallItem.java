@@ -12,11 +12,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.embargo.EmbargoManager;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * Support to install an Item in the archive.
@@ -26,8 +27,8 @@ import org.dspace.factory.DSpaceManagerFactory;
  */
 public class InstallItem
 {
-    private static final CollectionManager collectionManager = DSpaceManagerFactory.getInstance().getCollectionManager();
-    private static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
+    private static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
+    private static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
 
     /**
      * Take an InProgressSubmission and turn it into a fully-archived Item,
@@ -123,35 +124,35 @@ public class InstallItem
         DCDate now = DCDate.getCurrent();
         
         // If the item doesn't have a date.accessioned, set it to today
-        List<MetadataValue> dateAccessioned = itemManager.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "accessioned", Item.ANY);
+        List<MetadataValue> dateAccessioned = ITEM_SERVICE.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "accessioned", Item.ANY);
         if (dateAccessioned.size() == 0)
         {
-            itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
+            ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
         }
         
         // If issue date is set as "today" (literal string), then set it to current date
         // In the below loop, we temporarily clear all issued dates and re-add, one-by-one,
         // replacing "today" with today's date.
         // NOTE: As of DSpace 4.0, DSpace no longer sets an issue date by default
-        List<MetadataValue> currentDateIssued = itemManager.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-        itemManager.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-        for (MetadataValue dcv : currentDateIssued)
+        List<MetadataValue> currentDateIssued = ITEM_SERVICE.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        ITEM_SERVICE.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        for (MetadataValue metadataValue : currentDateIssued)
         {
-            MetadataField metadataField = dcv.getMetadataField();
-            if(dcv.value!=null && dcv.value.equalsIgnoreCase("today"))
+            MetadataField metadataField = metadataValue.getMetadataField();
+            if(metadataValue.getValue()!=null && metadataValue.getValue().equalsIgnoreCase("today"))
             {
                 DCDate issued = new DCDate(now.getYear(),now.getMonth(),now.getDay(),-1,-1,-1);
-                itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, issued.toString());
+                ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), metadataValue.getLanguage(), issued.toString());
             }
-            else if(dcv.value!=null)
+            else if(metadataValue.getValue()!=null)
             {
-                itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, dcv.value);
+                ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), metadataValue.getLanguage(), metadataValue.getValue());
             }
         }
         
         // Record that the item was restored
         String provDescription = "Restored into DSpace on "+ now + " (GMT).";
-        itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
+        ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
 
         return finishItem(c, item, is);
     }
@@ -162,7 +163,7 @@ public class InstallItem
     {
         // create accession date
         DCDate now = DCDate.getCurrent();
-        itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
+        ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "accessioned", null, now.toString());
 
         // add date available if not under embargo, otherwise it will
         // be set when the embargo is lifted.
@@ -170,26 +171,26 @@ public class InstallItem
         // problems before we set inArchive.
         if (EmbargoManager.getEmbargoTermsAsDate(c, item) == null)
         {
-            itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "available", null, now.toString());
+            ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "available", null, now.toString());
         }
 
         // If issue date is set as "today" (literal string), then set it to current date
         // In the below loop, we temporarily clear all issued dates and re-add, one-by-one,
         // replacing "today" with today's date.
         // NOTE: As of DSpace 4.0, DSpace no longer sets an issue date by default
-        List<MetadataValue> currentDateIssued = itemManager.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-        itemManager.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
-        for (MetadataValue dcv : currentDateIssued)
+        List<MetadataValue> currentDateIssued = ITEM_SERVICE.getMetadata(item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        ITEM_SERVICE.clearMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+        for (MetadataValue metadataValue : currentDateIssued)
         {
-            MetadataField metadataField = dcv.getMetadataField();
-            if(dcv.value!=null && dcv.value.equalsIgnoreCase("today"))
+            MetadataField metadataField = metadataValue.getMetadataField();
+            if(metadataValue.getValue()!=null && metadataValue.getValue().equalsIgnoreCase("today"))
             {
                 DCDate issued = new DCDate(now.getYear(),now.getMonth(),now.getDay(),-1,-1,-1);
-                itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, issued.toString());
+                ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), metadataValue.getLanguage(), issued.toString());
             }
-            else if(dcv.value!=null)
+            else if(metadataValue.getValue()!=null)
             {
-                itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), dcv.language, dcv.value);
+                ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, metadataField.getElement(), metadataField.getQualifier(), metadataValue.getLanguage(), metadataValue.getValue());
             }
         }
 
@@ -200,7 +201,7 @@ public class InstallItem
         // then note this previous issue date in provenance message
         if (currentDateIssued.size() != 0)
         {
-            String previousDateIssued = currentDateIssued.get(0).value;
+            String previousDateIssued = currentDateIssued.get(0).getValue();
             if(previousDateIssued!=null && !previousDateIssued.equalsIgnoreCase("today"))
             {
                 DCDate d = new DCDate(previousDateIssued);
@@ -210,7 +211,7 @@ public class InstallItem
         }
 
         // Add provenance description
-        itemManager.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
+        ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
     }
 
     // final housekeeping when adding new Item to archive
@@ -219,7 +220,7 @@ public class InstallItem
         throws SQLException, IOException, AuthorizeException
     {
         // create collection2item mapping
-        collectionManager.addItem(c, is.getCollection(), item);
+        COLLECTION_SERVICE.addItem(c, is.getCollection(), item);
 
         // set owning collection
         item.setOwningCollection(is.getCollection());
@@ -228,18 +229,19 @@ public class InstallItem
         item.setInArchive(true);
         
         // save changes ;-)
-        itemManager.update(c, item);
+        ITEM_SERVICE.update(c, item);
 
         // Notify interested parties of newly archived Item
         c.addEvent(new Event(Event.INSTALL, Constants.ITEM, item.getID(),
                 item.getHandle(c)));
 
         // remove in-progress submission
-        DSpaceManagerFactory.getInstance().getInProgressSubmissionManager(is).deleteWrapper(c, is);
+        //TODO: FIX UNCHECKED CALL
+        DSpaceServiceFactory.getInstance().getInProgressSubmissionService(is).deleteWrapper(c, is);
 
         // remove the item's policies and replace them with
         // the defaults from the collection
-        itemManager.inheritCollectionDefaultPolicies(c, item, item.getOwningCollection());
+        ITEM_SERVICE.inheritCollectionDefaultPolicies(c, item, item.getOwningCollection());
 
         // set embargo lift date and take away read access if indicated.
         EmbargoManager.setEmbargo(c, item);
@@ -259,7 +261,7 @@ public class InstallItem
     						throws SQLException
     {
         // Get non-internal format bitstreams
-        List<Bitstream> bitstreams = itemManager.getNonInternalBitstreams(myitem);
+        List<Bitstream> bitstreams = ITEM_SERVICE.getNonInternalBitstreams(myitem);
 
         // Create provenance description
         StringBuilder myMessage = new StringBuilder();

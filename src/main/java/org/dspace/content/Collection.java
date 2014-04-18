@@ -1,20 +1,19 @@
 package org.dspace.content;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.service.CollectionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
-import org.dspace.event.Event;
-import org.dspace.handle.HandleManager;
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
+import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.service.HandleService;
 
 import javax.persistence.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -103,6 +102,12 @@ public class Collection extends DSpaceObject {
     @Transient
     private boolean modifiedMetadata;
 
+    @Transient
+    private CollectionService collectionService = DSpaceServiceFactory.getInstance().getCollectionService();
+
+    @Transient
+    private HandleService handleService = DSpaceServiceFactory.getInstance().getHandleService();
+
 
 
     /**
@@ -117,8 +122,7 @@ public class Collection extends DSpaceObject {
 
     @Override
     public String getHandle(Context context) throws SQLException {
-        //TODO: HIBERNATE: REMOVE THIS
-        return HandleManager.findHandle(context, this);
+        return handleService.findHandle(context, this);
     }
 
     /**
@@ -142,25 +146,36 @@ public class Collection extends DSpaceObject {
      *         collection as this object
      */
      @Override
-     public boolean equals(Object other)
+     public boolean equals(Object obj)
      {
-         if (other == null)
+         if (obj == null)
          {
              return false;
          }
-         if (getClass() != other.getClass())
+         if (getClass() != obj.getClass())
          {
              return false;
          }
-         final Collection otherCollection = (Collection) other;
-         return this.getID() == otherCollection.getID();
+         final Collection other = (Collection) obj;
+         if (this.getType() != other.getType())
+         {
+             return false;
+         }
+         if (this.getID() != other.getID())
+         {
+             return false;
+         }
 
+         return true;
      }
 
      @Override
      public int hashCode()
      {
-         return new HashCodeBuilder().append(getID()).toHashCode();
+         int hash = 5;
+         hash += 71 * hash + getType();
+         hash += 71 * hash + getID();
+         return hash;
      }
 
     /**
@@ -222,22 +237,22 @@ public class Collection extends DSpaceObject {
         return workflowStep3;
     }
 
-    public void setWorkflowStep1(Group workflowStep1) {
+    void setWorkflowStep1(Group workflowStep1) {
         this.workflowStep1 = workflowStep1;
         this.modified = true;
     }
 
-    public void setWorkflowStep2(Group workflowStep2) {
+    void setWorkflowStep2(Group workflowStep2) {
         this.workflowStep2 = workflowStep2;
         this.modified = true;
     }
 
-    public void setWorkflowStep3(Group workflowStep3) {
+    void setWorkflowStep3(Group workflowStep3) {
         this.workflowStep3 = workflowStep3;
         this.modified = true;
     }
 
-    String getLicense() {
+    String getLicenseInternal() {
         return license;
     }
 
@@ -275,6 +290,7 @@ public class Collection extends DSpaceObject {
     public void setSideBarText(String sideBarText) {
         this.sideBarText = sideBarText;
         modifiedMetadata = true;
+        addDetails("sideBarText");
     }
 
     public String getCopyrightText() {
@@ -284,6 +300,7 @@ public class Collection extends DSpaceObject {
     public void setCopyrightText(String copyrightText) {
         this.copyrightText = copyrightText;
         modifiedMetadata = true;
+        addDetails("copyrightText");
     }
 
     public String getProvenanceDescription() {
@@ -293,6 +310,7 @@ public class Collection extends DSpaceObject {
     public void setProvenanceDescription(String provenanceDescription) {
         this.provenanceDescription = provenanceDescription;
         modifiedMetadata = true;
+        addDetails("provenanceDescription");
     }
 
     public String getShortDescription() {
@@ -302,15 +320,17 @@ public class Collection extends DSpaceObject {
     public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
         modifiedMetadata = true;
+        addDetails("shortDescription");
     }
 
-    public String getName() {
+    String getNameInternal() {
         return name;
     }
 
-    protected void setName(String name) {
+    void setNameInteral(String name) {
         this.name = name;
         modifiedMetadata = true;
+        addDetails("name");
     }
 
     public List<Community> getCommunities() {
@@ -363,5 +383,46 @@ public class Collection extends DSpaceObject {
 
     public void setIntroductoryText(String introductoryText) {
         this.introductoryText = introductoryText;
+    }
+
+
+    /*
+        Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
+    */
+
+    public final String getLicense()
+    {
+        return collectionService.getLicense(this);
+    }
+
+    public final String getLicenseCollection()
+    {
+        return collectionService.getLicenseCollection(this);
+    }
+
+    public Group getWorkflowGroup(int step) throws IllegalStateException
+    {
+        return collectionService.getWorkflowGroup(this, step);
+    }
+
+    public Bitstream setLogo(Context context, InputStream is) throws AuthorizeException,IOException, SQLException
+    {
+        return collectionService.setLogo(context, this, is);
+    }
+
+    public String getName()
+    {
+        return collectionService.getName(this);
+    }
+
+
+    public void setName(Collection collection, String value) throws MissingResourceException
+    {
+        collectionService.setName(this, value);
+    }
+
+    public void setWorkflowGroup(int step, Group g)
+    {
+        collectionService.setWorkflowGroup(this, step, g);
     }
 }

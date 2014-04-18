@@ -1,21 +1,21 @@
 package org.dspace.content;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.service.CommunityService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
-import org.dspace.event.Event;
-import org.dspace.handle.HandleManager;
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
+import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.service.HandleService;
 
 import javax.persistence.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.MissingResourceException;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -82,6 +82,13 @@ public class Community extends DSpaceObject{
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata = false;
 
+    @Transient
+    private CommunityService communityService = DSpaceServiceFactory.getInstance().getCommunityService();
+
+    @Transient
+    private HandleService handleService = DSpaceServiceFactory.getInstance().getHandleService();
+
+
     /**
      * Get the internal ID of this community
      *
@@ -127,33 +134,49 @@ public class Community extends DSpaceObject{
      * Return <code>true</code> if <code>other</code> is the same Community
      * as this object, <code>false</code> otherwise
      *
-     * @param other
+     * @param obj
      *            object to compare to
      *
      * @return <code>true</code> if object passed in represents the same
      *         community as this object
      */
-    public boolean equals(Object other)
+    public boolean equals(Object obj)
     {
-        if (!(other instanceof Community))
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        final Community other = (Community) obj;
+        if (this.getType() != other.getType())
+        {
+            return false;
+        }
+        if (this.getID() != other.getID())
         {
             return false;
         }
 
-        return (getID() == ((Community) other).getID());
+        return true;
     }
 
+    @Override
     public int hashCode()
     {
-        return new HashCodeBuilder().append(getID()).toHashCode();
+        int hash = 5;
+        hash += 71 * hash + getType();
+        hash += 71 * hash + getID();
+        return hash;
     }
 
     /**
      * @see org.dspace.content.DSpaceObject#getHandle(Context context)
      */
     public String getHandle(Context context) throws SQLException {
-        //TODO: HIBERNATE: REMOVE THIS
-        return HandleManager.findHandle(context, this);
+        return handleService.findHandle(context, this);
     }
 
     /**
@@ -192,19 +215,19 @@ public class Community extends DSpaceObject{
         this.parentCommunity = parentCommunity;
     }
 
-    public boolean isModified() {
+    boolean isModified() {
         return modified;
     }
 
-    public boolean isModifiedMetadata() {
+    boolean isModifiedMetadata() {
         return modifiedMetadata;
     }
 
-    public void clearModifiedMetadata() {
+    void clearModifiedMetadata() {
         this.modifiedMetadata = false;
     }
 
-    public void clearModified() {
+    void clearModified() {
         this.modified = false;
     }
 
@@ -229,12 +252,13 @@ public class Community extends DSpaceObject{
         getCollections().remove(collection);
     }
 
-    public String getName() {
+    String getNameInternal() {
         return name;
     }
 
-    void setName(String name) {
+    void setNameInternal(String name) {
         this.name = name;
+        addDetails("name");
     }
 
     public String getShortDescription() {
@@ -282,5 +306,26 @@ public class Community extends DSpaceObject{
     void setLogo(Bitstream logo) {
         this.logo = logo;
         modified = true;
+    }
+
+
+    /*
+        Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
+     */
+
+
+    public final Bitstream setLogo(Context context, InputStream is) throws AuthorizeException,
+                IOException, SQLException
+    {
+        return communityService.setLogo(context, this, is);
+    }
+
+    public final void setName(String value)throws MissingResourceException{
+        communityService.setName(this, value);
+    }
+
+    public final String getName()
+    {
+        return communityService.getName(this);
     }
 }

@@ -12,9 +12,9 @@ import java.io.IOException;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
-import org.dspace.content.ItemManager;
+import org.dspace.content.ItemService;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * Default plugin implementation of the embargo lifting function.
@@ -24,7 +24,7 @@ import org.dspace.factory.DSpaceManagerFactory;
  */
 public class DefaultEmbargoLifter implements EmbargoLifter
 {
-    protected static final ItemManager itemManager = DSpaceManagerFactory.getInstance().getItemManager();
+    protected static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
 
     public DefaultEmbargoLifter()
     {
@@ -43,6 +43,6 @@ public class DefaultEmbargoLifter implements EmbargoLifter
     {
         // remove the item's policies and replace them with
         // the defaults from the collection
-        itemManager.inheritCollectionDefaultPolicies(context, item, item.getOwningCollection());
+        ITEM_SERVICE.inheritCollectionDefaultPolicies(context, item, item.getOwningCollection());
     }
 }

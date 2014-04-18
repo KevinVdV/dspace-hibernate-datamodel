@@ -9,9 +9,10 @@ package org.dspace.eperson;
 
 import org.apache.log4j.Logger;
 import org.dspace.core.*;
+import org.dspace.eperson.service.EPersonService;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 
 import javax.mail.MessagingException;
 import java.util.Date;
@@ -30,7 +31,7 @@ public class EPersonConsumer implements Consumer
     /** log4j logger */
     private static Logger log = Logger.getLogger(EPersonConsumer.class);
 
-    protected static final EPersonManager epersonManager = DSpaceManagerFactory.getInstance().getEPersonManager();
+    protected static final EPersonService EPERSON_SERVICE = DSpaceServiceFactory.getInstance().getEPersonService();
 
     /**
      * Initalise the consumer
@@ -74,7 +75,7 @@ public class EPersonConsumer implements Consumer
                     {
                         try
                         {
-                            EPerson eperson = epersonManager.find(context, id);
+                            EPerson eperson = EPERSON_SERVICE.find(context, id);
                             Email adminEmail = Email.getEmail(I18nUtil.getEmailFilename(context.getCurrentLocale(), "registration_notify"));
                             adminEmail.addRecipient(notifyRecipient);
 

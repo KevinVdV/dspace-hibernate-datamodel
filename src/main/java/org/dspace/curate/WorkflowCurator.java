@@ -7,9 +7,8 @@
  */
 package org.dspace.curate;
 
-import org.dspace.content.CollectionManager;
 import org.dspace.content.Item;
-import java.util.Arrays;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,17 +25,18 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
+import org.dspace.content.service.CollectionService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.EPersonManager;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupManager;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.eperson.service.EPersonService;
+import org.dspace.eperson.service.GroupService;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.workflow.WorkflowItem;
-import org.dspace.workflow.WorkflowItemManager;
 import org.dspace.workflow.WorkflowManager;
+import org.dspace.workflow.service.WorkflowItemService;
 
 // Warning - static import ahead!
 import static javax.xml.stream.XMLStreamConstants.*;
@@ -60,10 +60,10 @@ public class WorkflowCurator {
     private static Map<String, TaskSet> tsMap = new HashMap<String, TaskSet>();
     
     private static final String[] flowSteps = { "step1", "step2", "step3", "archive" };
-    protected static final EPersonManager ePersonManager = DSpaceManagerFactory.getInstance().getEPersonManager();
-    protected static final CollectionManager collectionManager = DSpaceManagerFactory.getInstance().getCollectionManager();
-    protected static final WorkflowItemManager workflowItemManager = DSpaceManagerFactory.getInstance().getWorkflowItemManager();
-    protected static final GroupManager groupManager = DSpaceManagerFactory.getInstance().getGroupManager();
+    protected static final EPersonService E_PERSON_SERVICE = DSpaceServiceFactory.getInstance().getEPersonService();
+    protected static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
+    protected static final WorkflowItemService WORKFLOW_ITEM_SERVICE = DSpaceServiceFactory.getInstance().getWorkflowItemService();
+    protected static final GroupService GROUP_MANAGER = DSpaceServiceFactory.getInstance().getGroupService();
 
     
     static {
@@ -102,7 +102,7 @@ public class WorkflowCurator {
                     curator.addTask(task.name);
                 }
                 curator.queue(c, String.valueOf(wfi.getID()), step.queue);
-                workflowItemManager.update(c, wfi);
+                WORKFLOW_ITEM_SERVICE.update(c, wfi);
                 return false;
             } else {
                 return curate(curator, c, wfi);
@@ -122,7 +122,7 @@ public class WorkflowCurator {
      */
     public static boolean curate(Curator curator, Context c, String wfId)
             throws AuthorizeException, IOException, SQLException, IllegalAccessException {
-        WorkflowItem wfi = workflowItemManager.find(c, Integer.parseInt(wfId));
+        WorkflowItem wfi = WORKFLOW_ITEM_SERVICE.find(c, Integer.parseInt(wfId));
         if (wfi != null) {
             if (curate(curator, c, wfi)) {
                 WorkflowManager.advance(c, wfi, c.getCurrentUser(), false, true);
@@ -197,33 +197,33 @@ public class WorkflowCurator {
                 int step = state2step(wfi.getState());
                 // make sure this step exists
                 if (step < 4) {
-                    Group wfGroup = collectionManager.getWorkflowGroup(wfi.getCollection(), step);
+                    Group wfGroup = COLLECTION_SERVICE.getWorkflowGroup(wfi.getCollection(), step);
                     if (wfGroup != null) {
-                        epList.addAll(groupManager.allMembers(c, wfGroup));
+                        epList.addAll(GROUP_MANAGER.allMembers(c, wfGroup));
                     }
                 }
             } else if ("$colladmin".equals(contact)) {
                 Group adGroup = wfi.getCollection().getAdministrators();
                 if (adGroup != null) {
-                    epList.addAll(groupManager.allMembers(c, adGroup));
+                    epList.addAll(GROUP_MANAGER.allMembers(c, adGroup));
                 }
             } else if ("$siteadmin".equals(contact)) {
-                EPerson siteEp = ePersonManager.findByEmail(c,
+                EPerson siteEp = E_PERSON_SERVICE.findByEmail(c,
                         ConfigurationManager.getProperty("mail.admin"));
                 if (siteEp != null) {
                     epList.add(siteEp);
                 }
             } else if (contact.indexOf("@") > 0) {
                 // little shaky heuristic here - assume an eperson email name
-                EPerson ep = ePersonManager.findByEmail(c, contact);
+                EPerson ep = E_PERSON_SERVICE.findByEmail(c, contact);
                 if (ep != null) {
                     epList.add(ep);
                 }
             } else {
                 // assume it is an arbitrary group name
-                Group group = groupManager.findByName(c, contact);
+                Group group = GROUP_MANAGER.findByName(c, contact);
                 if (group != null) {
-                    epList.addAll(groupManager.allMembers(c, group));
+                    epList.addAll(GROUP_MANAGER.allMembers(c, group));
                 } 
             }
         }

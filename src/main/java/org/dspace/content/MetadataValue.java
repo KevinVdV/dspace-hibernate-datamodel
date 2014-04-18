@@ -39,32 +39,32 @@ public class MetadataValue
     @Column(name="metadata_value_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="metadatavalue_seq")
     @SequenceGenerator(name="metadatavalue_seq", sequenceName="metadatavalue_seq")
-    protected int fieldId;
+    private int fieldId;
 
     /** The primary key for the metadata value */
     @ManyToOne
     @JoinColumn(name = "metadata_field_id")
-    protected MetadataField metadataField = null;
+    private MetadataField metadataField = null;
 
     /** The value of the field */
     @Column(name = "text_value")
-    protected String value;
+    private String value;
 
     /** The language of the field, may be <code>null</code> */
     @Column(name = "text_lang")
-    protected String language;
+    private String language;
 
     /** The position of the record. */
     @Column(name = "place")
-    public int place = 1;
+    private int place = 1;
 
     /** Authority key, if any */
     @Column(name = "authority")
-    protected String authority = null;
+    private String authority = null;
 
     /** Authority confidence value -- see Choices class for values */
     @Column(name = "confidence")
-    protected int confidence = -1;
+    private int confidence = -1;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="item_id", updatable = false)
@@ -278,4 +278,6 @@ public class MetadataValue
         hash = 47 * hash + this.item.getID();
         return hash;
     }
+
+
 }

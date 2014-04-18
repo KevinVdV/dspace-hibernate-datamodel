@@ -13,13 +13,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.dspace.authorize.*;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Constants;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupManager;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.eperson.service.GroupService;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.license.CreativeCommons;
 
 /**
@@ -34,7 +35,8 @@ import org.dspace.license.CreativeCommons;
  */
 public class DefaultEmbargoSetter implements EmbargoSetter
 {
-    protected static final GroupManager groupManager = DSpaceManagerFactory.getInstance().getGroupManager();
+    protected static final GroupService GROUP_SERVICE = DSpaceServiceFactory.getInstance().getGroupService();
+    protected static final ResourcePolicyService RESOURCE_POLICY_SERVICE = DSpaceServiceFactory.getInstance().getResourcePolicyService();
     protected String termsOpen = null;
 	
     public DefaultEmbargoSetter()
@@ -113,21 +115,21 @@ public class DefaultEmbargoSetter implements EmbargoSetter
                     isAnonymousInPlace=true;
                 }
             }
-            ResourcePolicyManager resourcePolicyManager = DSpaceManagerFactory.getInstance().getResourcePolicyManager();
+
             if(!isAnonymousInPlace){
                 // add policies for all the groups
                 for(Group g : authorizedGroups){
                     ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, g, null, embargoDate, Constants.READ, reason, dso);
                     if(rp!=null)
-                        resourcePolicyManager.update(context, rp);
+                        RESOURCE_POLICY_SERVICE.update(context, rp);
                 }
 
             }
             else{
                 // add policy just for anonymous
-                ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, groupManager.find(context, 0), null, embargoDate, Constants.READ, reason, dso);
+                ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, GROUP_SERVICE.find(context, 0), null, embargoDate, Constants.READ, reason, dso);
                 if(rp!=null)
-                    resourcePolicyManager.update(context, rp);
+                    RESOURCE_POLICY_SERVICE.update(context, rp);
             }
         }
 

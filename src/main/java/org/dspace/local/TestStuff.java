@@ -2,11 +2,12 @@ package org.dspace.local;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
-import org.dspace.content.CollectionManagerImpl;
+import org.dspace.content.CollectionServiceImpl;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.eperson.*;
-import org.dspace.handle.HandleManager;
+import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.HandleServiceImpl;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -25,7 +26,7 @@ public class TestStuff {
     public static void main(String[] args) throws SQLException, AuthorizeException, EPersonDeletionException {
         Context context = new Context();
         context.turnOffAuthorisationSystem();
-        GroupManagerImpl groupManager = new GroupManagerImpl();
+        GroupServiceImpl groupManager = new GroupServiceImpl();
         Group groupEntity = groupManager.create(context);
         groupEntity.setName("TEST-GROUP");
         Group childGroup = groupManager.create(context);
@@ -44,7 +45,7 @@ public class TestStuff {
         context.commit();
         for(EPerson person : people)
         {
-            new EPersonManagerImpl().delete(context, person);
+            new EPersonServiceImpl().delete(context, person);
         }
 
 
@@ -52,8 +53,8 @@ public class TestStuff {
         groupManager.delete(context, childGroup);
         groupManager.delete(context, groupEntity);
         //Lookup collection items to test query
-        CollectionManagerImpl collectionDAO = new CollectionManagerImpl();
-        Collection collection = (Collection) HandleManager.resolveToObject(context, "10986/2117");
+        CollectionServiceImpl collectionDAO = new CollectionServiceImpl();
+        Collection collection = (Collection) DSpaceServiceFactory.getInstance().getHandleService().resolveToObject(context, "10986/2117");
         Iterator<Item> allItems = collectionDAO.getAllItems(context, collection);
         while (allItems.hasNext()) {
             Item item = allItems.next();
@@ -74,7 +75,7 @@ public class TestStuff {
     }
 
     private static EPerson createPerson(Context context, String mail) throws SQLException, AuthorizeException {
-        EPersonManagerImpl ePersonDAO = new EPersonManagerImpl();
+        EPersonServiceImpl ePersonDAO = new EPersonServiceImpl();
         EPerson ePersonEntity = ePersonDAO.findByEmail(context, mail);
         if(ePersonEntity == null)
         {

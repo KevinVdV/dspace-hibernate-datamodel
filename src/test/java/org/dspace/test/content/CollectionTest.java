@@ -62,8 +62,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         {
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityManager.create(null, context);
-            this.collection = collectionManager.create(context, owningCommunity);
+            this.owningCommunity = communityService.create(null, context);
+            this.collection = collectionService.create(context, owningCommunity);
             this.dspaceObject = collection;
             //we need to commit the changes so we don't block the table for testing
             context.restoreAuthSystemState();
@@ -102,7 +102,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testCollectionFind() throws Exception
     {
         int id = collection.getID();
-        Collection found =  collectionManager.find(context, id);
+        Collection found =  collectionService.find(context, id);
         assertThat("testCollectionFind 0", found, notNullValue());
         assertThat("testCollectionFind 1", found.getID(), equalTo(id));
         //the community created by default has no name
@@ -115,7 +115,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testCreate() throws Exception
     {
-        Collection created = collectionManager.create(context, owningCommunity);
+        Collection created = collectionService.create(context, owningCommunity);
         assertThat("testCreate 0", created, notNullValue());
         assertThat("testCreate 1", created.getName(), equalTo(""));
     }
@@ -138,7 +138,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
         // test creating collection with a specified handle which is NOT already in use
         // (this handle should not already be used by system, as it doesn't start with "1234567689" prefix)
-        Collection created = collectionManager.create(context, owningCommunity, "987654321/100");
+        Collection created = collectionService.create(context, owningCommunity, "987654321/100");
 
         // check that collection was created, and that its handle was set to proper value
         assertThat("testCreateWithValidHandle 0", created, notNullValue());
@@ -169,7 +169,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
 
         // test creating collection with a specified handle which IS already in use
         // This should throw an exception
-        Collection created = collectionManager.create(context, owningCommunity, inUseHandle);
+        Collection created = collectionService.create(context, owningCommunity, inUseHandle);
         fail("Exception expected");
     }
 
@@ -180,7 +180,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testFindAll() throws Exception
     {
-        List<Collection> all = collectionManager.findAll(context);
+        List<Collection> all = collectionService.findAll(context);
         assertThat("testFindAll 0", all, notNullValue());
         assertTrue("testFindAll 1", all.size() >= 1);
 
@@ -201,7 +201,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetItems() throws Exception
     {
-        Iterator<Item> items = collectionManager.getItems(context, collection);
+        Iterator<Item> items = collectionService.getItems(context, collection);
         assertThat("testGetItems 0", items, notNullValue());
         //by default is empty
         assertFalse("testGetItems 1", items.hasNext());
@@ -213,7 +213,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetAllItems() throws Exception
     {
-        Iterator<Item> items = collectionManager.getAllItems(context, collection);
+        Iterator<Item> items = collectionService.getAllItems(context, collection);
         assertThat("testGetAllItems 0", items, notNullValue());
         //by default is empty
         assertFalse("testGetAllItems 1", items.hasNext());
@@ -254,7 +254,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         assertThat("testGetMetadata 5", collection.getTemplateItem(), nullValue());
         assertThat("testGetMetadata 6", collection.getProvenanceDescription(), nullValue());
         assertThat("testGetMetadata 7", collection.getSideBarText(), nullValue());
-        assertThat("testGetMetadata 8", collectionManager.getLicense(collection), nullValue());
+        assertThat("testGetMetadata 8", collectionService.getLicense(collection), nullValue());
     }
 
     /**
@@ -272,14 +272,14 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         String provDesc = "provenance description";
         String license = "license text";
 
-        collectionManager.setName(collection, name);
+        collectionService.setName(collection, name);
         collection.setShortDescription(sdesc);
         collection.setIntroductoryText(itext);
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
         collection.setCopyrightText(copy);
         collection.setSideBarText(sidebar);
-        Item templateItem = collectionManager.createTemplateItem(context, collection);
+        Item templateItem = collectionService.createTemplateItem(context, collection);
         collection.setProvenanceDescription(provDesc);
         collection.setLicense(license);
 
@@ -291,7 +291,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         assertThat("testSetMetadata 5", collection.getSideBarText(), equalTo(sidebar));
         assertThat("testGetMetadata 6", collection.getTemplateItem(), equalTo(templateItem));
         assertThat("testGetMetadata 7", collection.getProvenanceDescription(), equalTo(provDesc));
-        assertThat("testGetMetadata 8", collectionManager.getLicense(collection), equalTo(license));
+        assertThat("testGetMetadata 8", collectionService.getLicense(collection), equalTo(license));
     }
 
     /**
@@ -335,10 +335,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth 0", collection.getLogo(), equalTo(logo));
 
-        collectionManager.setLogo(context, collection, null);
+        collectionService.setLogo(context, collection, null);
         assertThat("testSetLogoAuth 1", collection.getLogo(), nullValue());
     }
 
@@ -362,10 +362,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth2 0", collection.getLogo(), equalTo(logo));
 
-        collectionManager.setLogo(context, collection, null);
+        collectionService.setLogo(context, collection, null);
         assertThat("testSetLogoAuth2 1", collection.getLogo(), nullValue());
     }
 
@@ -389,10 +389,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth3 0", collection.getLogo(), equalTo(logo));
 
-        collectionManager.setLogo(context, collection, null);
+        collectionService.setLogo(context, collection, null);
         assertThat("testSetLogoAuth3 1", collection.getLogo(), nullValue());
     }
 
@@ -416,10 +416,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth4 0", collection.getLogo(), equalTo(logo));
 
-        collectionManager.setLogo(context, collection, null);
+        collectionService.setLogo(context, collection, null);
         assertThat("testSetLogoAuth4 1", collection.getLogo(), nullValue());
     }
 
@@ -443,7 +443,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionManager.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
         fail("EXception expected");
     }
 
@@ -463,7 +463,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         int step = 1;
-        Group result = collectionManager.createWorkflowGroup(context, collection, step);
+        Group result = collectionService.createWorkflowGroup(context, collection, step);
         assertThat("testCreateWorkflowGroupAuth 0", result, notNullValue());
     }
 
@@ -483,7 +483,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         int step = 1;
-        Group result = collectionManager.createWorkflowGroup(context,  collection, step);
+        Group result = collectionService.createWorkflowGroup(context,  collection, step);
         fail("Exception expected");
     }
 
@@ -495,12 +495,12 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         context.turnOffAuthorisationSystem();
         int step = 1;
-        Group g = groupManager.create(context);
+        Group g = groupService.create(context);
         context.commit();
         context.restoreAuthSystemState();
-        collectionManager.setWorkflowGroup(collection, step, g);
-        assertThat("testSetWorkflowGroup 0", collectionManager.getWorkflowGroup(collection, step), notNullValue());
-        assertThat("testSetWorkflowGroup 1", collectionManager.getWorkflowGroup(collection, step), equalTo(g));
+        collectionService.setWorkflowGroup(collection, step, g);
+        assertThat("testSetWorkflowGroup 0", collectionService.getWorkflowGroup(collection, step), notNullValue());
+        assertThat("testSetWorkflowGroup 1", collectionService.getWorkflowGroup(collection, step), equalTo(g));
     }
 
     /**
@@ -511,7 +511,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         //null by default
         int step = 1;
-        assertThat("testGetWorkflowGroup 0", collectionManager.getWorkflowGroup(collection, step), nullValue());
+        assertThat("testGetWorkflowGroup 0", collectionService.getWorkflowGroup(collection, step), nullValue());
     }
 
     /**
@@ -529,7 +529,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = collectionManager.createSubmitters(context, collection);
+        Group result = collectionService.createSubmitters(context, collection);
         assertThat("testCreateSubmittersAuth 0",result, notNullValue());
     }
 
@@ -548,7 +548,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = collectionManager.createSubmitters(context, collection);
+        Group result = collectionService.createSubmitters(context, collection);
         fail("Exception expected");
     }
 
@@ -567,7 +567,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.removeSubmitters(context, collection);
+        collectionService.removeSubmitters(context, collection);
         assertThat("testRemoveSubmittersAuth 0", collection.getSubmitters(), nullValue());
     }
 
@@ -586,7 +586,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.removeSubmitters(context, collection);
+        collectionService.removeSubmitters(context, collection);
         fail("Exception expected");
     }
 
@@ -614,7 +614,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = collectionManager.createAdministrators(context, collection);
+        Group result = collectionService.createAdministrators(context, collection);
         assertThat("testCreateAdministratorsAuth 0", result, notNullValue());
     }
 
@@ -633,7 +633,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Group result = collectionManager.createAdministrators(context, collection);
+        Group result = collectionService.createAdministrators(context, collection);
         fail("Exception expected");
     }
 
@@ -652,7 +652,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.removeAdministrators(context, collection);
+        collectionService.removeAdministrators(context, collection);
         assertThat("testRemoveAdministratorsAuth 0", collection.getAdministrators(), nullValue());
     }
 
@@ -671,7 +671,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.removeAdministrators(context, collection);
+        collectionService.removeAdministrators(context, collection);
         fail("Exception expected");
     }
 
@@ -690,8 +690,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetLicense()
     {
-        assertThat("testGetLicense 0", collectionManager.getLicense(collection), notNullValue());
-        assertThat("testGetLicense 1", collectionManager.getLicense(collection), equalTo(LicenseManager.getDefaultSubmissionLicense()));
+        assertThat("testGetLicense 0", collectionService.getLicense(collection), notNullValue());
+        assertThat("testGetLicense 1", collectionService.getLicense(collection), equalTo(LicenseManager.getDefaultSubmissionLicense()));
     }
 
     /**
@@ -700,8 +700,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetLicenseCollection()
     {
-        assertThat("testGetLicenseCollection 0", collectionManager.getLicenseCollection(collection), notNullValue());
-        assertThat("testGetLicenseCollection 1", collectionManager.getLicenseCollection(collection), equalTo(""));
+        assertThat("testGetLicenseCollection 0", collectionService.getLicenseCollection(collection), notNullValue());
+        assertThat("testGetLicenseCollection 1", collectionService.getLicenseCollection(collection), equalTo(""));
     }
 
     /**
@@ -710,7 +710,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testHasCustomLicense()
     {
-        assertFalse("testHasCustomLicense 0", collectionManager.hasCustomLicense(collection));
+        assertFalse("testHasCustomLicense 0", collectionService.hasCustomLicense(collection));
     }
 
     /**
@@ -721,10 +721,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         String license = "license for test";
         collection.setLicense(license);
-        assertThat("testSetLicense 0", collectionManager.getLicense(collection), notNullValue());
-        assertThat("testSetLicense 1", collectionManager.getLicense(collection), equalTo(license));
-        assertThat("testSetLicense 2", collectionManager.getLicenseCollection(collection), notNullValue());
-        assertThat("testSetLicense 3", collectionManager.getLicenseCollection(collection), equalTo(license));
+        assertThat("testSetLicense 0", collectionService.getLicense(collection), notNullValue());
+        assertThat("testSetLicense 1", collectionService.getLicense(collection), equalTo(license));
+        assertThat("testSetLicense 2", collectionService.getLicenseCollection(collection), notNullValue());
+        assertThat("testSetLicense 3", collectionService.getLicenseCollection(collection), equalTo(license));
     }
 
     /**
@@ -751,7 +751,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.createTemplateItem(context, collection);
+        collectionService.createTemplateItem(context, collection);
         assertThat("testCreateTemplateItemAuth 0", collection.getTemplateItem(), notNullValue());
     }
 
@@ -770,7 +770,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.createTemplateItem(context, collection);
+        collectionService.createTemplateItem(context, collection);
         fail("Exception expected");
     }
 
@@ -789,7 +789,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.removeTemplateItem(context, collection);
+        collectionService.removeTemplateItem(context, collection);
         assertThat("testRemoveTemplateItemAuth 0", collection.getTemplateItem(), nullValue());
     }
 
@@ -808,7 +808,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.removeTemplateItem(context, collection);
+        collectionService.removeTemplateItem(context, collection);
         fail("Exception expected");
     }
 
@@ -943,7 +943,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: how to check update?
-        collectionManager.update(context, collection);
+        collectionService.update(context, collection);
     }
 
     /**
@@ -966,7 +966,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: how to check update?
-        collectionManager.update(context, collection);
+        collectionService.update(context, collection);
     }
 
     /**
@@ -989,7 +989,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: how to check update?
-        collectionManager.update(context, collection);
+        collectionService.update(context, collection);
     }
 
     /**
@@ -1012,7 +1012,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: how to check update?
-        collectionManager.update(context, collection);
+        collectionService.update(context, collection);
     }
 
     /**
@@ -1034,7 +1034,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.update(context, collection);
+        collectionService.update(context, collection);
         fail("Exception expected");
     }
 
@@ -1057,7 +1057,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth 0", collectionManager.canEditBoolean(context, collection));
+        assertTrue("testCanEditBooleanAuth 0", collectionService.canEditBoolean(context, collection));
     }
 
     /**
@@ -1079,7 +1079,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth2 0", collectionManager.canEditBoolean(context, collection));
+        assertTrue("testCanEditBooleanAuth2 0", collectionService.canEditBoolean(context, collection));
     }
 
     /**
@@ -1101,7 +1101,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth3 0", collectionManager.canEditBoolean(context, collection));
+        assertTrue("testCanEditBooleanAuth3 0", collectionService.canEditBoolean(context, collection));
     }
 
     /**
@@ -1123,7 +1123,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth4 0", collectionManager.canEditBoolean(context, collection));
+        assertTrue("testCanEditBooleanAuth4 0", collectionService.canEditBoolean(context, collection));
     }
 
     /**
@@ -1145,7 +1145,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertFalse("testCanEditBooleanNoAuth 0", collectionManager.canEditBoolean(context, collection));
+        assertFalse("testCanEditBooleanNoAuth 0", collectionService.canEditBoolean(context, collection));
     }
 
     /**
@@ -1167,7 +1167,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth_boolean 0", collectionManager.canEditBoolean(context, collection, true));
+        assertTrue("testCanEditBooleanAuth_boolean 0", collectionService.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1189,7 +1189,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth2_boolean 0", collectionManager.canEditBoolean(context, collection, true));
+        assertTrue("testCanEditBooleanAuth2_boolean 0", collectionService.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1211,7 +1211,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth3_boolean 0", collectionManager.canEditBoolean(context, collection, true));
+        assertTrue("testCanEditBooleanAuth3_boolean 0", collectionService.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1233,7 +1233,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth4_boolean 0", collectionManager.canEditBoolean(context, collection, true));
+        assertTrue("testCanEditBooleanAuth4_boolean 0", collectionService.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1255,7 +1255,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth5_boolean 0", collectionManager.canEditBoolean(context, collection, false));
+        assertTrue("testCanEditBooleanAuth5_boolean 0", collectionService.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1277,7 +1277,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth6_boolean 0", collectionManager.canEditBoolean(context, collection, false));
+        assertTrue("testCanEditBooleanAuth6_boolean 0", collectionService.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1299,7 +1299,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth7_boolean 0", collectionManager.canEditBoolean(context, collection, false));
+        assertTrue("testCanEditBooleanAuth7_boolean 0", collectionService.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1321,7 +1321,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertTrue("testCanEditBooleanAuth8_boolean 0", collectionManager.canEditBoolean(context, collection, false));
+        assertTrue("testCanEditBooleanAuth8_boolean 0", collectionService.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1343,7 +1343,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertFalse("testCanEditBooleanNoAuth_boolean 0", collectionManager.canEditBoolean(context, collection, true));
+        assertFalse("testCanEditBooleanNoAuth_boolean 0", collectionService.canEditBoolean(context, collection, true));
     }
 
     /**
@@ -1365,7 +1365,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        assertFalse("testCanEditBooleanNoAuth_boolean 0", collectionManager.canEditBoolean(context, collection, false));
+        assertFalse("testCanEditBooleanNoAuth_boolean 0", collectionService.canEditBoolean(context, collection, false));
     }
 
     /**
@@ -1388,7 +1388,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: how to check??
-        collectionManager.canEdit(context, collection);
+        collectionService.canEdit(context, collection);
     }
 
     /**
@@ -1411,7 +1411,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: how to check??
-        collectionManager.canEdit(context, collection);
+        collectionService.canEdit(context, collection);
     }
 
     /**
@@ -1434,7 +1434,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: how to check??
-        collectionManager.canEdit(context, collection);
+        collectionService.canEdit(context, collection);
     }
 
     /**
@@ -1457,7 +1457,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TODO: how to check??
-        collectionManager.canEdit(context, collection);
+        collectionService.canEdit(context, collection);
     }
 
     /**
@@ -1479,7 +1479,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        collectionManager.canEdit(context, collection);
+        collectionService.canEdit(context, collection);
         fail("Exception expected");
     }
 
@@ -1503,7 +1503,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, true);
+        collectionService.canEdit(context,  collection, true);
     }
 
     /**
@@ -1526,7 +1526,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, true);
+        collectionService.canEdit(context,  collection, true);
     }
 
     /**
@@ -1549,7 +1549,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, true);
+        collectionService.canEdit(context,  collection, true);
     }
 
     /**
@@ -1572,7 +1572,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, true);
+        collectionService.canEdit(context,  collection, true);
     }
 
     /**
@@ -1595,7 +1595,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, false);
+        collectionService.canEdit(context,  collection, false);
     }
 
     /**
@@ -1618,7 +1618,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, false);
+        collectionService.canEdit(context,  collection, false);
     }
 
     /**
@@ -1641,7 +1641,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, false);
+        collectionService.canEdit(context,  collection, false);
     }
 
     /**
@@ -1664,7 +1664,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, false);
+        collectionService.canEdit(context,  collection, false);
     }
 
     /**
@@ -1687,7 +1687,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, false);
+        collectionService.canEdit(context,  collection, false);
         fail("Exception expected");
     }
 
@@ -1711,7 +1711,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         //TOO: how to check?
-        collectionManager.canEdit(context,  collection, true);
+        collectionService.canEdit(context,  collection, true);
         fail("Exception expected");
     }
 
@@ -1734,8 +1734,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         int id = collection.getID();
-        communityManager.removeCollection(context, owningCommunity, collection);
-        assertThat("testDelete 0", collectionManager.find(context, id),nullValue());
+        communityService.removeCollection(context, owningCommunity, collection);
+        assertThat("testDelete 0", collectionService.find(context, id),nullValue());
     }
 
     /**
@@ -1756,7 +1756,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        communityManager.removeCollection(context, owningCommunity, collection);
+        communityService.removeCollection(context, owningCommunity, collection);
         fail("Exception expected");
     }
 
@@ -1779,7 +1779,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         int id = collection.getID();
-        communityManager.removeCollection(context, owningCommunity, collection);
+        communityService.removeCollection(context, owningCommunity, collection);
         fail("Exception expected");
     }
 
@@ -1811,7 +1811,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         assertFalse("testEquals 0", collection.equals(null));
-        assertFalse("testEquals 1", collection.equals(collectionManager.create(context, owningCommunity)));
+        assertFalse("testEquals 1", collection.equals(collectionService.create(context, owningCommunity)));
         assertTrue("testEquals 2", collection.equals(collection));
     }
 
@@ -1832,30 +1832,30 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testFindAuthorized() throws Exception
     {
         context.turnOffAuthorisationSystem();
-        Community com = communityManager.create(null, context);
+        Community com = communityService.create(null, context);
         context.restoreAuthSystemState();
 
-        List<Collection> found = collectionManager.findAuthorized(context, com, Constants.WRITE);
+        List<Collection> found = collectionService.findAuthorized(context, com, Constants.WRITE);
         assertThat("testFindAuthorized 0",found,notNullValue());
         assertTrue("testFindAuthorized 1",found.size() == 0);
 
-        found = collectionManager.findAuthorized(context, null, Constants.WRITE);
+        found = collectionService.findAuthorized(context, null, Constants.WRITE);
         assertThat("testFindAuthorized 2",found,notNullValue());
         assertTrue("testFindAuthorized 3",found.size() == 0);
 
-        found = collectionManager.findAuthorized(context, com, Constants.ADD);
+        found = collectionService.findAuthorized(context, com, Constants.ADD);
         assertThat("testFindAuthorized 3",found,notNullValue());
         assertTrue("testFindAuthorized 4",found.size() == 0);
 
-        found = collectionManager.findAuthorized(context, null, Constants.ADD);
+        found = collectionService.findAuthorized(context, null, Constants.ADD);
         assertThat("testFindAuthorized 5",found,notNullValue());
         assertTrue("testFindAuthorized 6",found.size() == 0);
 
-        found = collectionManager.findAuthorized(context, com, Constants.READ);
+        found = collectionService.findAuthorized(context, com, Constants.READ);
         assertThat("testFindAuthorized 7",found,notNullValue());
         assertTrue("testFindAuthorized 8",found.size() == 0);
 
-        found = collectionManager.findAuthorized(context, null, Constants.READ);
+        found = collectionService.findAuthorized(context, null, Constants.READ);
         assertThat("testFindAuthorized 9",found,notNullValue());
         assertTrue("testFindAuthorized 10",found.size() >= 1);
     }
@@ -1879,10 +1879,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testGetAdminObject() throws SQLException
     {
         //default community has no admin object
-        assertThat("testGetAdminObject 0", (Collection) collectionManager.getAdminObject(context, collection, Constants.REMOVE), equalTo(collection));
-        assertThat("testGetAdminObject 1", (Collection) collectionManager.getAdminObject(context, collection, Constants.ADD), equalTo(collection));
-        assertThat("testGetAdminObject 2", (Community) collectionManager.getAdminObject(context, collection, Constants.DELETE), equalTo(owningCommunity));
-        assertThat("testGetAdminObject 3", (Collection) collectionManager.getAdminObject(context, collection, Constants.ADMIN), equalTo(collection));
+        assertThat("testGetAdminObject 0", (Collection) collectionService.getAdminObject(context, collection, Constants.REMOVE), equalTo(collection));
+        assertThat("testGetAdminObject 1", (Collection) collectionService.getAdminObject(context, collection, Constants.ADD), equalTo(collection));
+        assertThat("testGetAdminObject 2", (Community) collectionService.getAdminObject(context, collection, Constants.DELETE), equalTo(owningCommunity));
+        assertThat("testGetAdminObject 3", (Collection) collectionService.getAdminObject(context, collection, Constants.ADMIN), equalTo(collection));
     }
 
     /**
@@ -1895,12 +1895,12 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         try
         {
             context.turnOffAuthorisationSystem();
-            Community parent = communityManager.create(null, context);
-            communityManager.addCollection(context, parent, collection);
+            Community parent = communityService.create(null, context);
+            communityService.addCollection(context, parent, collection);
             context.commit();
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", collectionManager.getParentObject(context, collection), notNullValue());
-            assertThat("testGetParentObject 2", (Community) collectionManager.getParentObject(context, collection), equalTo(parent));
+            assertThat("testGetParentObject 1", collectionService.getParentObject(context, collection), notNullValue());
+            assertThat("testGetParentObject 2", (Community) collectionService.getParentObject(context, collection), equalTo(parent));
         }
         catch(AuthorizeException ex)
         {

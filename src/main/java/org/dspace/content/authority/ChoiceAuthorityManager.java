@@ -14,10 +14,10 @@ import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 
-import org.dspace.content.MetadataFieldManager;
+import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.PluginManager;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * Broker for ChoiceAuthority plugins, and for other information configured
@@ -40,7 +40,7 @@ import org.dspace.factory.DSpaceManagerFactory;
  */
 public final class ChoiceAuthorityManager
 {
-    protected static final MetadataFieldManager metadataFieldManager = DSpaceManagerFactory.getInstance().getMetadataFieldManager();
+    protected static final MetadataFieldService METADATA_FIELD_SERVICE = DSpaceServiceFactory.getInstance().getMetadataFieldService();
     private static Logger log = Logger.getLogger(ChoiceAuthorityManager.class);
 
     private static ChoiceAuthorityManager cached = null;
@@ -285,7 +285,7 @@ public final class ChoiceAuthorityManager
      */
     public static String makeFieldKey(String schema, String element, String qualifier)
     {
-        return metadataFieldManager.formKey(schema, element, qualifier);
+        return METADATA_FIELD_SERVICE.formKey(schema, element, qualifier);
     }
 
     /**

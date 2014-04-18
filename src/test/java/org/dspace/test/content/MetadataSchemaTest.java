@@ -54,7 +54,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
         try
         {
             context.turnOffAuthorisationSystem();
-            this.ms = metadataSchemaManager.create(context, shortName, nameSpace);
+            this.ms = metadataSchemaService.create(context, shortName, nameSpace);
             context.restoreAuthSystemState();
         }
         catch (SQLException ex)
@@ -80,10 +80,10 @@ public class MetadataSchemaTest extends AbstractUnitTest
     @After
     @Override
     public void destroy() throws Exception {
-        if(metadataSchemaManager.find(context, ms.getSchemaID()) != null)
+        if(metadataSchemaService.find(context, ms.getSchemaID()) != null)
         {
             context.turnOffAuthorisationSystem();
-            metadataSchemaManager.delete(context, ms);
+            metadataSchemaService.delete(context, ms);
             context.restoreAuthSystemState();
         }
 
@@ -165,9 +165,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace";
         String name = "name";
-        MetadataSchema m = metadataSchemaManager.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaService.create(context, name, namespace);
 
-        MetadataSchema found = metadataSchemaManager.findByNamespace(context, namespace);
+        MetadataSchema found = metadataSchemaService.findByNamespace(context, namespace);
         assertThat("testCreateAuth 0",found.getSchemaID(), equalTo(m.getSchemaID()));
     }
 
@@ -187,8 +187,8 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace";
         String name = "name";
-        MetadataSchema m = metadataSchemaManager.create(context, name, namespace);
-        metadataSchemaManager.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaService.create(context, name, namespace);
+        metadataSchemaService.create(context, name, namespace);
         fail("Exception expected");
     }
 
@@ -208,7 +208,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = ms.getNamespace();
         String name = ms.getName();
-        metadataSchemaManager.create(context, name, namespace);
+        metadataSchemaService.create(context, name, namespace);
         fail("Exception expected");
     }
 
@@ -219,7 +219,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
     public void testFindByNamespace() throws Exception
     {
         log.info(">>"+ms.getNamespace()+" "+ms.getName());
-        MetadataSchema found = metadataSchemaManager.findByNamespace(context, ms.getNamespace());
+        MetadataSchema found = metadataSchemaService.findByNamespace(context, ms.getNamespace());
         assertThat("testFindByNamespace 0",found, notNullValue());
         assertThat("testFindByNamespace 1",found.getSchemaID(), equalTo(ms.getSchemaID()));
     }
@@ -240,11 +240,11 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace2";
         String name = "name2";
-        MetadataSchema m = metadataSchemaManager.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaService.create(context, name, namespace);
 
-        metadataSchemaManager.update(context, m);
+        metadataSchemaService.update(context, m);
 
-        MetadataSchema found = metadataSchemaManager.findByNamespace(context, namespace);
+        MetadataSchema found = metadataSchemaService.findByNamespace(context, namespace);
         assertThat("testUpdateAuth 0",found.getSchemaID(), equalTo(m.getSchemaID()));
     }
 
@@ -264,10 +264,10 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace2";
         String name = "name2";
-        MetadataSchema m = metadataSchemaManager.create(context, null, null);
+        MetadataSchema m = metadataSchemaService.create(context, null, null);
         m.setName(name);
         m.setNamespace(namespace);
-        metadataSchemaManager.update(context, m);
+        metadataSchemaService.update(context, m);
         fail("Exception expected");
     }
 
@@ -287,11 +287,11 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = ms.getNamespace();
         String name = ms.getName();
-        MetadataSchema m = metadataSchemaManager.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaService.create(context, name, namespace);
 
         m.setName(name);
         m.setNamespace(namespace);
-        metadataSchemaManager.update(context, m);
+        metadataSchemaService.update(context, m);
         fail("Exception expected");
     }
 
@@ -311,12 +311,12 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace3";
         String name = "name3";
-        MetadataSchema m = metadataSchemaManager.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaService.create(context, name, namespace);
         context.commit();
 
-        metadataSchemaManager.delete(context, m);
+        metadataSchemaService.delete(context, m);
 
-        MetadataSchema found = metadataSchemaManager.findByNamespace(context, namespace);
+        MetadataSchema found = metadataSchemaService.findByNamespace(context, namespace);
         assertThat("testDeleteAuth 0",found, nullValue());
     }
 
@@ -336,10 +336,10 @@ public class MetadataSchemaTest extends AbstractUnitTest
 
         String namespace = "namespace3";
         String name = "name3";
-        MetadataSchema m = metadataSchemaManager.create(context, name, namespace);
+        MetadataSchema m = metadataSchemaService.create(context, name, namespace);
         context.commit();
 
-        metadataSchemaManager.delete(context, m);
+        metadataSchemaService.delete(context, m);
         fail("Exception expected");
     }
 
@@ -349,7 +349,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
     @Test
     public void testFindAll() throws Exception
     {
-        List<MetadataSchema> found = metadataSchemaManager.findAll(context);
+        List<MetadataSchema> found = metadataSchemaService.findAll(context);
         assertThat("testFindAll 0",found, notNullValue());
         assertTrue("testFindAll 1",found.size() >= 1);
 
@@ -370,7 +370,7 @@ public class MetadataSchemaTest extends AbstractUnitTest
     @Test
     public void testFind_Context_int() throws Exception
     {
-        MetadataSchema found = metadataSchemaManager.find(context, ms.getSchemaID());
+        MetadataSchema found = metadataSchemaService.find(context, ms.getSchemaID());
         assertThat("testFind_Context_int 0",found, notNullValue());
         assertThat("testFind_Context_int 1",found.getSchemaID(), equalTo(ms.getSchemaID()));
         assertThat("testFind_Context_int 2",found.getName(), equalTo(ms.getName()));
@@ -384,13 +384,13 @@ public class MetadataSchemaTest extends AbstractUnitTest
     public void testFind_Context_String() throws Exception
     {
         String shortName = ms.getName();
-        MetadataSchema found = metadataSchemaManager.find(context, shortName);
+        MetadataSchema found = metadataSchemaService.find(context, shortName);
         assertThat("testFind_Context_String 0",found, notNullValue());
         assertThat("testFind_Context_String 1",found.getSchemaID(), equalTo(ms.getSchemaID()));
         assertThat("testFind_Context_String 2",found.getName(), equalTo(ms.getName()));
         assertThat("testFind_Context_String 3",found.getNamespace(), equalTo(ms.getNamespace()));
 
-        found = metadataSchemaManager.find(context, null);
+        found = metadataSchemaService.find(context, null);
         assertThat("testFind_Context_String 4",found, nullValue());
     }
 

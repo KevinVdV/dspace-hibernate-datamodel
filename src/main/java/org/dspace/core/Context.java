@@ -14,11 +14,11 @@ import org.apache.log4j.Logger;
 //import org.dspace.eperson.Group;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupManager;
+import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.hibernate.HibernateUtil;
 import org.hibernate.Session;
 import org.springframework.util.CollectionUtils;
@@ -43,7 +43,7 @@ import org.springframework.util.CollectionUtils;
 public class Context
 {
     private static final Logger log = Logger.getLogger(Context.class);
-    protected static final GroupManager groupManager = DSpaceManagerFactory.getInstance().getGroupManager();
+    protected static final GroupService GROUP_SERVICE = DSpaceServiceFactory.getInstance().getGroupService();
 
     /** option flags */
     public static final short READ_ONLY = 0x01;
@@ -558,7 +558,7 @@ public class Context
         List<Group> myGroups = new ArrayList<Group>();
         for (Integer groupId : specialGroups)
         {
-            myGroups.add(groupManager.find(this, groupId));
+            myGroups.add(GROUP_SERVICE.find(this, groupId));
         }
 
         return myGroups;

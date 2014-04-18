@@ -1,10 +1,14 @@
 package org.dspace.content;
 
+import org.dspace.content.service.BitstreamFormatService;
+import org.dspace.core.Context;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -51,6 +55,8 @@ public class BitstreamFormat {
     @Cascade( { org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN })
     private List<String> fileExtensions;
 
+    @Transient
+    private BitstreamFormatService bitstreamFormatService = DSpaceServiceFactory.getInstance().getBitstreamFormatService();
 
     /**
      * Get the internal identifier of this bitstream format
@@ -72,7 +78,7 @@ public class BitstreamFormat {
         return shortDescription;
     }
 
-    void setShortDescription(String shortDescription) {
+    void setShortDescriptionInternal(String shortDescription) {
         this.shortDescription = shortDescription;
     }
 
@@ -137,7 +143,7 @@ public class BitstreamFormat {
      *
      * @param supportLevel the support level
      */
-    public void setSupportLevel(int supportLevel) {
+    void setSupportLevelInternal(int supportLevel) {
         this.supportLevel = supportLevel;
     }
 
@@ -184,4 +190,19 @@ public class BitstreamFormat {
     public void setFileExtensions(List<String> fileExtensions) {
         this.fileExtensions = fileExtensions;
     }
+
+    /*
+        Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
+    */
+
+    public void setShortDescription(Context context, String s) throws SQLException
+    {
+        bitstreamFormatService.setShortDescription(context, this, s);
+    }
+
+    public void setSupportLevel(int sl)
+    {
+        bitstreamFormatService.setSupportLevel(this, sl);
+    }
+
 }

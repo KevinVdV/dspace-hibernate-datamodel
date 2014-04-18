@@ -23,13 +23,16 @@ import org.apache.log4j.Logger;
 import org.dspace.administer.MetadataImporter;
 import org.dspace.administer.RegistryImportException;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.ResourcePolicyManager;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.*;
+import org.dspace.content.service.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.eperson.*;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.eperson.service.EPersonService;
+import org.dspace.eperson.service.GroupService;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.servicemanager.DSpaceKernelImpl;
 import org.dspace.servicemanager.DSpaceKernelInit;
 import org.junit.After;
@@ -71,19 +74,19 @@ public class AbstractUnitTest
      */
     protected static EPerson eperson;
 
-    protected DSpaceManagerFactory managerFactory = DSpaceManagerFactory.getInstance();
-    protected CommunityManager communityManager = managerFactory.getCommunityManager();
-    protected CollectionManager collectionManager = managerFactory.getCollectionManager();
-    protected ItemManager itemManager = managerFactory.getItemManager();
-    protected WorkspaceItemManager workspaceItemManager = managerFactory.getWorkspaceItemManager();
-    protected BitstreamManager bitstreamManager = managerFactory.getBitstreamManager();
-    protected BundleManager bundleManager = managerFactory.getBundleManager();
-    protected MetadataSchemaManager metadataSchemaManager = managerFactory.getMetadataSchemaManager();
-    protected MetadataFieldManager metadataFieldManager = managerFactory.getMetadataFieldManager();
-    protected ResourcePolicyManager resourcePolicyManager = managerFactory.getResourcePolicyManager();
-    protected EPersonManager ePersonManager = managerFactory.getEPersonManager();
-    protected GroupManager groupManager = managerFactory.getGroupManager();
-    protected BitstreamFormatManager bitstreamFormatManager = managerFactory.getBitstreamFormatManager();
+    protected DSpaceServiceFactory serviceFactory = DSpaceServiceFactory.getInstance();
+    protected CommunityService communityService = serviceFactory.getCommunityService();
+    protected CollectionService collectionService = serviceFactory.getCollectionService();
+    protected ItemService itemService = serviceFactory.getItemService();
+    protected WorkspaceItemService workspaceItemService = serviceFactory.getWorkspaceItemService();
+    protected BitstreamService bitstreamService = serviceFactory.getBitstreamService();
+    protected BundleService bundleService = serviceFactory.getBundleService();
+    protected MetadataSchemaService metadataSchemaService = serviceFactory.getMetadataSchemaService();
+    protected MetadataFieldService metadataFieldService = serviceFactory.getMetadataFieldService();
+    protected ResourcePolicyService resourcePolicyService = serviceFactory.getResourcePolicyService();
+    protected EPersonService ePersonService = serviceFactory.getEPersonService();
+    protected GroupService groupService = serviceFactory.getGroupService();
+    protected BitstreamFormatService bitstreamFormatService = serviceFactory.getBitstreamFormatService();
 
 
     protected static DSpaceKernelImpl kernelImpl;
@@ -138,7 +141,7 @@ public class AbstractUnitTest
             // always be in the database, if it has been initialized, to avoid
             // doing the work twice.
             //TODO: HIBERNATE, IS THIS REQUIRED ?
-            if(DSpaceManagerFactory.getInstance().getMetadataFieldManager().find(ctx, 1) == null)
+            if(DSpaceServiceFactory.getInstance().getMetadataFieldService().find(ctx, 1) == null)
             {
                 String base = ConfigurationManager.getProperty("dspace.dir")
                         + File.separator + "config" + File.separator
@@ -151,11 +154,11 @@ public class AbstractUnitTest
             }
 
                 //create eperson if required
-            EPersonManager ePersonManager = DSpaceManagerFactory.getInstance().getEPersonManager();
-            eperson = ePersonManager.find(ctx, 1);
+            EPersonService ePersonService = DSpaceServiceFactory.getInstance().getEPersonService();
+            eperson = ePersonService.find(ctx, 1);
                 if(eperson == null)
                 {
-                    eperson = ePersonManager.create(ctx);
+                    eperson = ePersonService.create(ctx);
                     eperson.setFirstName("first");
                     eperson.setLastName("last");
                     eperson.setEmail("test@email.com");

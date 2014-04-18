@@ -15,11 +15,14 @@ import org.apache.log4j.Logger;
 
 import org.dspace.content.*;
 import org.dspace.content.Collection;
+import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.CommunityService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
-import org.dspace.factory.DSpaceManagerFactory;
-import org.dspace.handle.HandleManager;
+import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.service.HandleService;
 
 /**
  * Curator orchestrates and manages the application of a one or more curation
@@ -61,8 +64,9 @@ public class Curator
     private TaskResolver resolver = new TaskResolver();
     private TxScope txScope = TxScope.OPEN;
 
-    protected static final CommunityManager communityManager = DSpaceManagerFactory.getInstance().getCommunityManager();
-    protected static final CollectionManager collectionManager = DSpaceManagerFactory.getInstance().getCollectionManager();
+    protected static final CommunityService COMMUNITY_SERVICE = DSpaceServiceFactory.getInstance().getCommunityService();
+    protected static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
+    protected static final HandleService HANDLE_SERVICE = DSpaceServiceFactory.getInstance().getHandleService();
 
 
     /**
@@ -187,7 +191,7 @@ public class Curator
             //Save the context on current execution thread
             curationCtx.set(c);
            
-            DSpaceObject dso = HandleManager.resolveToObject(c, id);
+            DSpaceObject dso = HANDLE_SERVICE.resolveToObject(c, id);
             if (dso != null)
             {
                 curate(dso);
@@ -415,7 +419,7 @@ public class Curator
             
             //Then, perform this task for all Top-Level Communities in the Site
             // (this will recursively perform task for all objects in DSpace)
-            for (Community subcomm : communityManager.findAllTop(ctx))
+            for (Community subcomm : COMMUNITY_SERVICE.findAllTop(ctx))
             {
                 if (! doCommunity(tr, subcomm))
                 {
@@ -483,7 +487,7 @@ public class Curator
             {
                 return false;
             }
-            Iterator<Item> iter = collectionManager.getItems(curationContext(), coll);
+            Iterator<Item> iter = COLLECTION_SERVICE.getItems(curationContext(), coll);
             while (iter.hasNext())
             {
                 if (! tr.run(curationContext(), iter.next()))

@@ -3,6 +3,8 @@ package org.dspace.eperson;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.eperson.service.EPersonService;
+import org.dspace.factory.DSpaceServiceFactory;
 
 import javax.persistence.*;
 import java.sql.SQLException;
@@ -61,6 +63,9 @@ public class EPerson extends DSpaceObject {
     @Column(name="phone")
     private String phone;
 
+    @Transient
+    private EPersonService ePersonService = DSpaceServiceFactory.getInstance().getEPersonService();
+
 
     /*
     @ManyToMany(fetch = FetchType.LAZY)
@@ -79,23 +84,15 @@ public class EPerson extends DSpaceObject {
     private List<Group> groups = new ArrayList<Group>();
     */
 
-    //TODO: HIBERNATE: modified get it out of here ?
     /** Flag set when data is modified, for events */
     @Transient
-    private boolean modified;
+    private boolean modified = false;
 
     /** Flag set when metadata is modified, for events */
     @Transient
-    private boolean modifiedMetadata;
+    private boolean modifiedMetadata = false;
 
     public EPerson() {
-        //TODO: HIBERNATE CACHE CONTEXT
-        //context.cache(this, row.getIntColumn("eperson_id"));
-        modified = false;
-        modifiedMetadata = false;
-        // Cache ourselves
-        //TODO HIBERNATE: Implement the details !
-        //clearDetails();
     }
 
     /**
@@ -185,8 +182,6 @@ public class EPerson extends DSpaceObject {
         return email;
     }
 
-
-
     /**
      * Set the EPerson's email
      *
@@ -224,17 +219,6 @@ public class EPerson extends DSpaceObject {
     public int getID()
     {
         return id;
-    }
-
-    @Override
-    public String getHandle(Context context) throws SQLException {
-        return null;
-    }
-
-
-    @Override
-    public String getName() {
-        return getEmail();
     }
 
     @Override
@@ -435,19 +419,19 @@ public class EPerson extends DSpaceObject {
         return password;
     }
 
-    public boolean isModified() {
+    boolean isModified() {
         return modified;
     }
 
-    public boolean isModifiedMetadata() {
+    boolean isModifiedMetadata() {
         return modifiedMetadata;
     }
 
-    public void setModifiedMetadata(boolean modifiedMetadata) {
+    void setModifiedMetadata(boolean modifiedMetadata) {
         this.modifiedMetadata = modifiedMetadata;
     }
 
-    public void setModified(boolean modified) {
+    void setModified(boolean modified) {
         this.modified = modified;
     }
 
@@ -458,5 +442,14 @@ public class EPerson extends DSpaceObject {
     public void setPhone(String phone) {
         this.phone = phone;
         modifiedMetadata = true;
+    }
+
+    /*
+        Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
+    */
+
+    public String getName()
+    {
+        return ePersonService.getName(this);
     }
 }

@@ -11,13 +11,14 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.*;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.GroupManager;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.eperson.service.GroupService;
+import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * AuthorizeManager handles all authorization checks for DSpace. For better
@@ -39,9 +40,9 @@ public class AuthorizeManager
 {
 
 
-    private static final DSpaceManagerFactory managerFactory = DSpaceManagerFactory.getInstance();
-    private static final GroupManager groupManager = managerFactory.getGroupManager();
-    private static final ResourcePolicyManager resourcePolicyManager = managerFactory.getResourcePolicyManager();
+    private static final DSpaceServiceFactory SERVICE_FACTORY = DSpaceServiceFactory.getInstance();
+    private static final GroupService GROUP_SERVICE = SERVICE_FACTORY.getGroupService();
+    private static final ResourcePolicyService RESOURCE_POLICY_SERVICE = SERVICE_FACTORY.getResourcePolicyService();
     /**
      * Utility method, checks that the current user of the given context can
      * perform all of the specified actions on the given object. An
@@ -287,7 +288,7 @@ public class AuthorizeManager
 
             // perform isAdmin check to see
             // if user is an Admin on this object
-            DSpaceObject adminObject = useInheritance ? managerFactory.getDSpaceObjectManager(o).getAdminObject(c, o, action) : null;
+            DSpaceObject adminObject = useInheritance ? SERVICE_FACTORY.getDSpaceObjectManager(o).getAdminObject(c, o, action) : null;
 //
             if (isAdmin(c, adminObject))
             {
@@ -298,7 +299,7 @@ public class AuthorizeManager
         for (ResourcePolicy rp : getPoliciesActionFilter(c, o, action))
         {
             // check policies for date validity
-            if (resourcePolicyManager.isDateValid(rp))
+            if (RESOURCE_POLICY_SERVICE.isDateValid(rp))
             {
                 if (rp.getEPerson() != null && rp.getEPerson().getID() == userid)
                 {
@@ -306,7 +307,7 @@ public class AuthorizeManager
                 }
 
                 if ((rp.getGroup() != null)
-                        && (groupManager.isMember(c, rp.getGroup())))
+                        && (GROUP_SERVICE.isMember(c, rp.getGroup())))
                 {
                     // group was set, and eperson is a member
                     // of that group
@@ -367,7 +368,7 @@ public class AuthorizeManager
         for (ResourcePolicy rp : policies)
         {
             // check policies for date validity
-            if (resourcePolicyManager.isDateValid(rp))
+            if (RESOURCE_POLICY_SERVICE.isDateValid(rp))
             {
                 if (rp.getEPerson() != null && rp.getEPerson().getID() == userid)
                 {
@@ -375,7 +376,7 @@ public class AuthorizeManager
                 }
 
                 if ((rp.getGroup() != null)
-                        && (groupManager.isMember(c, rp.getGroup())))
+                        && (GROUP_SERVICE.isMember(c, rp.getGroup())))
                 {
                     // group was set, and eperson is a member
                     // of that group
@@ -388,7 +389,7 @@ public class AuthorizeManager
         // check the *parent* objects of this object.  This allows Admin
         // permissions to be inherited automatically (e.g. Admin on Community
         // is also an Admin of all Collections/Items in that Community)
-        DSpaceObject parent = managerFactory.getDSpaceObjectManager(o).getParentObject(c, o);
+        DSpaceObject parent = SERVICE_FACTORY.getDSpaceObjectManager(o).getParentObject(c, o);
         if (parent != null)
         {
             return isAdmin(c, parent);
@@ -423,7 +424,7 @@ public class AuthorizeManager
             return false; // anonymous users can't be admins....
         } else
         {
-            return groupManager.isMember(c, 1);
+            return GROUP_SERVICE.isMember(c, 1);
         }
     }
 
@@ -471,16 +472,16 @@ public class AuthorizeManager
     public static void addPolicy(Context context, DSpaceObject o, int actionID,
                                  EPerson e, String type) throws SQLException, AuthorizeException
     {
-        ResourcePolicy rp = resourcePolicyManager.create(context);
+        ResourcePolicy rp = RESOURCE_POLICY_SERVICE.create(context);
 
-        resourcePolicyManager.setResource(rp, o);
+        RESOURCE_POLICY_SERVICE.setResource(rp, o);
         rp.setAction(actionID);
         rp.setEPerson(e);
         rp.setRpType(type);
 
-        resourcePolicyManager.update(context, rp);
+        RESOURCE_POLICY_SERVICE.update(context, rp);
 
-        managerFactory.getDSpaceObjectManager(o).updateLastModified(context, o);
+        SERVICE_FACTORY.getDSpaceObjectManager(o).updateLastModified(context, o);
     }
 
     /**
@@ -526,16 +527,16 @@ public class AuthorizeManager
     public static void addPolicy(Context c, DSpaceObject o, int actionID,
                                  Group g, String type) throws SQLException, AuthorizeException
     {
-        ResourcePolicy rp = resourcePolicyManager.create(c);
+        ResourcePolicy rp = RESOURCE_POLICY_SERVICE.create(c);
 
-        resourcePolicyManager.setResource(rp, o);
+        RESOURCE_POLICY_SERVICE.setResource(rp, o);
         rp.setAction(actionID);
-        resourcePolicyManager.setGroup(rp, g);
+        rp.setGroup(g);
         rp.setRpType(type);
 
-        resourcePolicyManager.update(c, rp);
+        RESOURCE_POLICY_SERVICE.update(c, rp);
 
-        managerFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+        SERVICE_FACTORY.getDSpaceObjectManager(o).updateLastModified(c, o);
     }
 
     /**
@@ -550,7 +551,7 @@ public class AuthorizeManager
     public static List<ResourcePolicy> getPolicies(Context c, DSpaceObject o)
             throws SQLException
     {
-        return resourcePolicyManager.find(c, o);
+        return RESOURCE_POLICY_SERVICE.find(c, o);
     }
 
 
@@ -566,7 +567,7 @@ public class AuthorizeManager
     public static List<ResourcePolicy> findPoliciesByDSOAndType(Context c, DSpaceObject o, String type)
             throws SQLException
     {
-        return resourcePolicyManager.find(c, o, type);
+        return RESOURCE_POLICY_SERVICE.find(c, o, type);
     }
 
     /**
@@ -581,7 +582,7 @@ public class AuthorizeManager
     public static List<ResourcePolicy> getPoliciesForGroup(Context c, Group g)
             throws SQLException
     {
-        return resourcePolicyManager.find(c, g);
+        return RESOURCE_POLICY_SERVICE.find(c, g);
     }
 
     /**
@@ -598,7 +599,7 @@ public class AuthorizeManager
      */
     public static List<ResourcePolicy> getPoliciesActionFilter(Context c, DSpaceObject o, int actionID) throws SQLException
     {
-        return resourcePolicyManager.find(c, o, actionID);
+        return RESOURCE_POLICY_SERVICE.find(c, o, actionID);
     }
 
     /**
@@ -653,10 +654,10 @@ public class AuthorizeManager
         // now add them to the destination object
         for (ResourcePolicy srp : policies)
         {
-            ResourcePolicy rp = resourcePolicyManager.create(c);
+            ResourcePolicy rp = RESOURCE_POLICY_SERVICE.create(c);
 
             // copy over values
-            resourcePolicyManager.setResource(rp, dest);
+            RESOURCE_POLICY_SERVICE.setResource(rp, dest);
             rp.setAction(srp.getAction());
             rp.setEPerson(srp.getEPerson());
             rp.setGroup(srp.getGroup());
@@ -666,10 +667,10 @@ public class AuthorizeManager
             rp.setRpDescription(srp.getRpDescription());
             rp.setRpType(srp.getRpType());
             // and write out new policy
-            resourcePolicyManager.update(c, rp);
+            RESOURCE_POLICY_SERVICE.update(c, rp);
         }
 
-        managerFactory.getDSpaceObjectManager(dest).updateLastModified(c, dest);
+        SERVICE_FACTORY.getDSpaceObjectManager(dest).updateLastModified(c, dest);
     }
 
     /**
@@ -684,7 +685,7 @@ public class AuthorizeManager
      */
     public static void removeAllPolicies(Context c, DSpaceObject o)
             throws SQLException, AuthorizeException {
-        resourcePolicyManager.removeAllPolicies(c, o);
+        RESOURCE_POLICY_SERVICE.removeAllPolicies(c, o);
     }
 
     /**
@@ -699,7 +700,7 @@ public class AuthorizeManager
      */
     public static void removeAllPoliciesByDSOAndTypeNotEqualsTo(Context c, DSpaceObject o, String type)
             throws SQLException, AuthorizeException {
-        resourcePolicyManager.removeDsoAndTypeNotEqualsToPolicies(c, o, type);
+        RESOURCE_POLICY_SERVICE.removeDsoAndTypeNotEqualsToPolicies(c, o, type);
     }
 
 
@@ -717,7 +718,7 @@ public class AuthorizeManager
      */
     public static void removeAllPoliciesByDSOAndType(Context c, DSpaceObject o, String type)
             throws SQLException, AuthorizeException {
-        resourcePolicyManager.removePolicies(c, o, type);
+        RESOURCE_POLICY_SERVICE.removePolicies(c, o, type);
     }
 
     /**
@@ -736,7 +737,7 @@ public class AuthorizeManager
      */
     public static void removePoliciesActionFilter(Context context,
                                                   DSpaceObject dso, int actionID) throws SQLException, AuthorizeException {
-        resourcePolicyManager.removePolicies(context, dso, actionID);
+        RESOURCE_POLICY_SERVICE.removePolicies(context, dso, actionID);
     }
 
     /**
@@ -753,7 +754,7 @@ public class AuthorizeManager
     public static void removeGroupPolicies(Context c, Group group)
             throws SQLException
     {
-        resourcePolicyManager.removeGroupPolicies(c, group);
+        RESOURCE_POLICY_SERVICE.removeGroupPolicies(c, group);
     }
 
     /**
@@ -771,7 +772,7 @@ public class AuthorizeManager
      */
     public static void removeGroupPolicies(Context c, DSpaceObject o, Group g)
             throws SQLException, AuthorizeException {
-        resourcePolicyManager.removeDsoGroupPolicies(c, o, g);
+        RESOURCE_POLICY_SERVICE.removeDsoGroupPolicies(c, o, g);
     }
 
     /**
@@ -789,7 +790,7 @@ public class AuthorizeManager
      */
     public static void removeEPersonPolicies(Context c, DSpaceObject o, EPerson e)
             throws SQLException, AuthorizeException {
-        resourcePolicyManager.removeDsoEPersonPolicies(c, o, e);
+        RESOURCE_POLICY_SERVICE.removeDsoEPersonPolicies(c, o, e);
     }
 
     /**
@@ -842,7 +843,7 @@ public class AuthorizeManager
     public static ResourcePolicy findByTypeIdGroupAction(Context c, int dsoType, int dsoID, Group group, int action, int policyID) throws SQLException
     {
 
-        List<ResourcePolicy> policies = resourcePolicyManager.find(c, dsoType, dsoID, group, action, policyID);
+        List<ResourcePolicy> policies = RESOURCE_POLICY_SERVICE.find(c, dsoType, dsoID, group, action, policyID);
 
         if (CollectionUtils.isNotEmpty(policies))
         {
@@ -892,7 +893,7 @@ public class AuthorizeManager
                 {
                     ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, g, null, embargoDate, Constants.READ, reason, dso);
                     if (rp != null)
-                        resourcePolicyManager.update(context, rp);
+                        RESOURCE_POLICY_SERVICE.update(context, rp);
                 }
 
             } else
@@ -900,7 +901,7 @@ public class AuthorizeManager
                 // add policy just for anonymous
                 ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, null, null, embargoDate, Constants.READ, reason, dso);
                 if (rp != null)
-                    resourcePolicyManager.update(context, rp);
+                    RESOURCE_POLICY_SERVICE.update(context, rp);
             }
         }
     }
@@ -912,12 +913,12 @@ public class AuthorizeManager
             throw new IllegalArgumentException("We need at least an eperson or a group in order to create a resource policy.");
         }
 
-        ResourcePolicy myPolicy = resourcePolicyManager.create(context);
-        resourcePolicyManager.setResource(myPolicy, dso);
+        ResourcePolicy myPolicy = RESOURCE_POLICY_SERVICE.create(context);
+        RESOURCE_POLICY_SERVICE.setResource(myPolicy, dso);
         myPolicy.setAction(type);
-        resourcePolicyManager.setGroup(myPolicy, group);
-        resourcePolicyManager.setEPerson(myPolicy, eperson);
-        resourcePolicyManager.update(context, myPolicy);
+        myPolicy.setGroup(group);
+        myPolicy.setEPerson(eperson);
+        RESOURCE_POLICY_SERVICE.update(context, myPolicy);
 
 
     }
@@ -939,7 +940,7 @@ public class AuthorizeManager
 
         if (policy == null)
         {
-            policy = resourcePolicyManager.create(context);
+            policy = RESOURCE_POLICY_SERVICE.create(context);
             policy.setResourceID(dso.getID());
             policy.setResourceType(dso.getType());
             policy.setAction(action);

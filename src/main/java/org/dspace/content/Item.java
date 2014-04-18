@@ -2,18 +2,15 @@ package org.dspace.content;
 
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.event.Event;
-import org.dspace.handle.HandleManager;
-import org.hibernate.annotations.Cascade;
+import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.service.HandleService;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
 
-import org.dspace.content.Collection;
 import javax.persistence.*;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -66,11 +63,6 @@ public class Item extends DSpaceObject{
             joinColumns = {@JoinColumn(name = "item_id") },
             inverseJoinColumns = {@JoinColumn(name = "collection_id") }
     )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="integer"),
-            generator = "collection2item_seq"
-    )
     @SequenceGenerator(name="collection2item_seq", sequenceName="collection2item_seq", allocationSize = 1)
     private List<Collection> collections = new ArrayList<Collection>();
 
@@ -81,6 +73,12 @@ public class Item extends DSpaceObject{
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "item", cascade = {CascadeType.ALL}, orphanRemoval=true)
     @OrderBy("metadataField, place")
     private List<MetadataValue> metadata = new ArrayList<MetadataValue>();
+
+    @Transient
+    private ItemService itemService = DSpaceServiceFactory.getInstance().getItemService();
+
+    @Transient
+    private HandleService handleService = DSpaceServiceFactory.getInstance().getHandleService();
 
 
 
@@ -157,8 +155,7 @@ public class Item extends DSpaceObject{
 
     @Override
     public String getHandle(Context context) throws SQLException {
-                //TODO: HIBERNATE: REMOVE THIS
-        return HandleManager.findHandle(context, this);
+        return handleService.findHandle(context, this);
     }
 
     /**
@@ -206,7 +203,7 @@ public class Item extends DSpaceObject{
      * @param isArchived
      *            new value for the flag
      */
-    public void setInArchive(boolean isArchived) {
+    void setInArchive(boolean isArchived) {
         this.inArchive = isArchived;
         modified = true;
 
@@ -312,6 +309,7 @@ public class Item extends DSpaceObject{
     void addMetadata(MetadataValue metadataValue) {
         dublinCoreChanged = true;
         this.metadata.add(metadataValue);
+        addDetails(metadataValue.getMetadataField().toString());
     }
 
 
@@ -329,39 +327,30 @@ public class Item extends DSpaceObject{
         bundles.remove(bundle);
     }
 
-    public void addCollection(Collection collection)
+    void addCollection(Collection collection)
     {
         getCollections().add(collection);
     }
 
-    public void removeCollection(Collection collection)
+    void removeCollection(Collection collection)
     {
         getCollections().remove(collection);
     }
 
-    public boolean isDublinCoreChanged() {
+    boolean isDublinCoreChanged() {
         return dublinCoreChanged;
     }
 
-    public boolean isModified() {
+    boolean isModified() {
         return modified;
     }
 
-    public void setDublinCoreChanged(boolean dublinCoreChanged) {
+    void setDublinCoreChanged(boolean dublinCoreChanged) {
         this.dublinCoreChanged = dublinCoreChanged;
     }
 
     void setModified(boolean modified) {
         this.modified = modified;
-    }
-
-
-    public final String getName()
-    {
-        //TODO: IMPLEMENT THIS !
-//        MetadataValue t[] = getMetadata("dc", "title", null, Item.ANY);
-//        return (t.length >= 1) ? t[0].value : null;
-        return null;
     }
 
     Collection getTemplateItemOf() {
@@ -371,5 +360,43 @@ public class Item extends DSpaceObject{
     void setTemplateItemOf(Collection templateItemOf) {
         this.templateItemOf = templateItemOf;
     }
+
+
+    /*
+        Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
+     */
+
+
+
+    public final String getName()
+    {
+        return itemService.getName(this);
+    }
+
+    public final List<Bundle> getBundles(Item item, String name) throws SQLException
+    {
+        return itemService.getBundles(item, name);
+    }
+
+    public final List<Community> getCommunities(Item item) throws SQLException
+    {
+        return itemService.getCommunities(item);
+    }
+
+    public final List<MetadataValue> getMetadata(Item item, String schema, String element, String qualifier, String lang)
+    {
+        return itemService.getMetadata(item, schema, element, qualifier, lang);
+    }
+
+    public final List<MetadataValue> getMetadata(Item item, String mdString)
+    {
+        return itemService.getMetadata(item, mdString);
+    }
+
+    public final List<Bitstream> getNonInternalBitstreams(Item item) throws SQLException
+    {
+        return itemService.getNonInternalBitstreams(item);
+    }
+
 }
 

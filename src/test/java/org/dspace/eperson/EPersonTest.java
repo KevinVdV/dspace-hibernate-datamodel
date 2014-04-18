@@ -27,13 +27,13 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Before
     public void setUp() throws SQLException, AuthorizeException {
-        EPerson eperson = ePersonManager.create(context);
+        EPerson eperson = ePersonService.create(context);
         eperson.setEmail("kevin@dspace.org");
         eperson.setFirstName("Kevin");
         eperson.setLastName("Van de Velde");
         eperson.setNetid("1985");
         eperson.setPassword("test");
-        ePersonManager.update(context, eperson);
+        ePersonService.update(context, eperson);
 
     }
 
@@ -51,7 +51,7 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testFindByEmail() throws Exception {
-        EPerson ePersonEntity = ePersonManager.findByEmail(context, "kevin@dspace.org");
+        EPerson ePersonEntity = ePersonService.findByEmail(context, "kevin@dspace.org");
         assertNotNull("No eperson retrieved",ePersonEntity);
         assertEquals("Didn't find the expected entity", "kevin@dspace.org", ePersonEntity.getEmail());
     }
@@ -62,26 +62,26 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testSearch() throws Exception {
-        EPerson[] expectedResult = new EPerson[]{ePersonManager.findByEmail(context, "kevin@dspace.org")};
+        EPerson[] expectedResult = new EPerson[]{ePersonService.findByEmail(context, "kevin@dspace.org")};
 //        Search first name
-        List<EPerson> searchResult = ePersonManager.search(context, "Velde");
+        List<EPerson> searchResult = ePersonService.search(context, "Velde");
         assertArrayEquals("Find by last name", searchResult.toArray(new EPerson[searchResult.size()]), expectedResult);
 //        Search last name
-        searchResult = ePersonManager.search(context, "kevin");
+        searchResult = ePersonService.search(context, "kevin");
         assertArrayEquals("Find by first name", searchResult.toArray(new EPerson[searchResult.size()]), expectedResult);
 //        Search email
-        searchResult = ePersonManager.search(context, "kevin@dspace.org");
+        searchResult = ePersonService.search(context, "kevin@dspace.org");
         assertArrayEquals("Find by email", searchResult.toArray(new EPerson[searchResult.size()]), expectedResult);
     }
 
     @Test
     public void testSearchResultCount() throws Exception {
 //        Search first name
-        assertEquals("Count by last name", ePersonManager.searchResultCount(context, "Velde"), 1);
+        assertEquals("Count by last name", ePersonService.searchResultCount(context, "Velde"), 1);
 //        Search last name
-        assertEquals("Count by first name", ePersonManager.searchResultCount(context, "kevin"), 1);
+        assertEquals("Count by first name", ePersonService.searchResultCount(context, "kevin"), 1);
 //        Search email
-        assertEquals("Count by email", ePersonManager.searchResultCount(context, "kevin@dspace.org"), 1);
+        assertEquals("Count by email", ePersonService.searchResultCount(context, "kevin@dspace.org"), 1);
     }
 
     public void testFindAll() throws Exception {
@@ -90,8 +90,8 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testCreate() throws Exception {
-        EPerson eperson = ePersonManager.create(context);
-        EPerson ePersonEntity = ePersonManager.findByEmail(context, "kevin@dspace.org");
+        EPerson eperson = ePersonService.create(context);
+        EPerson ePersonEntity = ePersonService.findByEmail(context, "kevin@dspace.org");
         //Ensure that the identifier sequence increments by one
         assertEquals("verify identifier sequence", eperson.getID(), ePersonEntity.getID() - 1);
     }
@@ -114,8 +114,8 @@ public class EPersonTest extends AbstractUnitTest {
 
     @Test
     public void testCheckPassword() throws Exception {
-        EPerson eperson = ePersonManager.findByEmail(context, "kevin@mire.be");
-        ePersonManager.checkPassword(context, eperson, "test");
+        EPerson eperson = ePersonService.findByEmail(context, "kevin@mire.be");
+        ePersonService.checkPassword(context, eperson, "test");
     }
 
     public void testUpdate() throws Exception {

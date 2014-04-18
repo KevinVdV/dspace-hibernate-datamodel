@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceManagerFactory;
+import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * An Event object represents a single action that changed one object in the
@@ -319,7 +319,7 @@ public class Event implements Serializable
         }
         else
         {
-            return DSpaceManagerFactory.getInstance().getDSpaceObjectManager(type).find(context, id);
+            return DSpaceServiceFactory.getInstance().getDSpaceObjectService(type).find(context, id);
         }
     }
 
@@ -331,7 +331,7 @@ public class Event implements Serializable
      */
     public DSpaceObject getSubject(Context context) throws SQLException
     {
-        return DSpaceManagerFactory.getInstance().getDSpaceObjectManager(getSubjectType()).find(context, getSubjectID());
+        return DSpaceServiceFactory.getInstance().getDSpaceObjectService(getSubjectType()).find(context, getSubjectID());
     }
 
     /**

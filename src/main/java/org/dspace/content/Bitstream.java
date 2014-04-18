@@ -1,8 +1,10 @@
 package org.dspace.content;
 
+import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Event;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
 
@@ -98,9 +100,8 @@ public class Bitstream extends DSpaceObject{
     @Transient
     private boolean modifiedMetadata;
 
-
-
-
+    @Transient
+    private BitstreamService bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
 
     /**
      * Get the internal identifier of this bitstream
@@ -110,11 +111,6 @@ public class Bitstream extends DSpaceObject{
     public int getID()
     {
         return id;
-    }
-
-    @Override
-    public String getHandle(Context context) throws SQLException {
-        return null;
     }
 
     /**
@@ -137,8 +133,7 @@ public class Bitstream extends DSpaceObject{
     {
         this.sequenceId = sid;
         modifiedMetadata = true;
-        //TODO: HIBERNATE, IMPLEMENT DETAILS
-//        addDetails("SequenceID");
+        addDetails("SequenceID");
     }
 
     /**
@@ -147,7 +142,7 @@ public class Bitstream extends DSpaceObject{
      *
      * @return the name of the bitstream
      */
-    public String getName()
+    String getNameInternal()
     {
         return name;
     }
@@ -167,8 +162,7 @@ public class Bitstream extends DSpaceObject{
     {
         this.name = n;
         modifiedMetadata = true;
-        //TODO: HIBERNATE, IMPLEMENT DETAILS
-//        addDetails("Name");
+        addDetails("Name");
     }
 
     /**
@@ -193,8 +187,7 @@ public class Bitstream extends DSpaceObject{
     {
         this.source = n;
         modifiedMetadata = true;
-        //TODO: HIBERNATE, IMPLEMENT DETAILS
-//        addDetails("Source");
+        addDetails("Source");
     }
 
     /**
@@ -218,8 +211,7 @@ public class Bitstream extends DSpaceObject{
     {
         this.description = n;
         modifiedMetadata = true;
-        //TODO: HIBERNATE, IMPLEMENT DETAILS
-//        addDetails("Description");
+        addDetails("Description");
     }
 
 
@@ -348,24 +340,50 @@ public class Bitstream extends DSpaceObject{
         return userFormatDescription;
     }
 
-    public void setUserFormatDescription(String userFormatDescription) {
+    void setUserFormatDescription(String userFormatDescription) {
         this.userFormatDescription = userFormatDescription;
         modifiedMetadata = true;
+        addDetails("UserFormatDescription");
     }
 
-    public boolean isModifiedMetadata() {
+    boolean isModifiedMetadata() {
         return modifiedMetadata;
     }
 
-    public void setModifiedMetadata(boolean modifiedMetadata) {
+    void setModifiedMetadata(boolean modifiedMetadata) {
         this.modifiedMetadata = modifiedMetadata;
     }
 
-    public boolean isModified() {
+    boolean isModified() {
         return modified;
     }
 
-    public void setModified(boolean modified) {
+    void setModified(boolean modified) {
         this.modified = modified;
+    }
+
+    /*
+        Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
+     */
+
+
+    public void setUserFormatDescription(Context context, String desc) throws SQLException
+    {
+        bitstreamService.setUserFormatDescription(context, this, desc);
+    }
+
+    public String getFormatDescription()
+    {
+        return bitstreamService.getFormatDescription(this);
+    }
+
+    public void setFormat(Context context, BitstreamFormat f) throws SQLException
+    {
+        bitstreamService.setFormat(context, this, f);
+    }
+
+    public String getName()
+    {
+        return bitstreamService.getName(this);
     }
 }

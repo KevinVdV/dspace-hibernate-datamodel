@@ -20,8 +20,6 @@ import java.util.List;
 @Table(name="bundle")
 public class Bundle extends DSpaceObject{
 
-    private static final String bitstreamOrdering  = ConfigurationManager.getProperty("webui.bitstream.order.field") + " " + ConfigurationManager.getProperty("webui.bitstream.order.direction");
-
     @Id
     @Column(name="bundle_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="bundle_seq")
@@ -84,11 +82,6 @@ public class Bundle extends DSpaceObject{
     public int getID()
     {
         return id;
-    }
-
-    @Override
-    public String getHandle(Context context) throws SQLException {
-        return null;
     }
 
     /**
@@ -193,5 +186,36 @@ public class Bundle extends DSpaceObject{
      */
     void setItem(Item item) {
         this.item = item;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        final Bundle other = (Bundle) obj;
+        if (this.getType() != other.getType())
+        {
+            return false;
+        }
+        if(this.getID() != other.getID())
+        {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int hash = 5;
+        hash += 71 * hash + getType();
+        hash += 71 * hash + getID();
+        return hash;
     }
 }

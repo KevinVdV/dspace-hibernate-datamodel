@@ -162,4 +162,16 @@ public class MetadataField {
         hash = 47 * hash + getMetadataSchema().getSchemaID();
         return hash;
     }
+
+    @Override
+    public String toString() {
+        if (qualifier == null)
+        {
+            return getMetadataSchema().getName() + "_" + element;
+        }
+        else
+        {
+            return getMetadataSchema().getName() + "_" + element + "_" + qualifier;
+        }
+    }
 }

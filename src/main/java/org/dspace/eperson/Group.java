@@ -3,6 +3,8 @@ package org.dspace.eperson;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.eperson.service.GroupService;
+import org.dspace.factory.DSpaceServiceFactory;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
 
@@ -32,7 +34,7 @@ public class Group extends DSpaceObject {
 
     /** Flag set when metadata is modified, for events */
     @Transient
-    private boolean modifiedMetadata;
+    private boolean modifiedMetadata = false;
 
     /** lists of epeople and groups in the group */
     @ManyToMany(fetch = FetchType.LAZY)
@@ -64,13 +66,10 @@ public class Group extends DSpaceObject {
     private List<Group> groups = new ArrayList<Group>();
 
 
+    @Transient
+    private GroupService groupService = DSpaceServiceFactory.getInstance().getGroupService();
+
     public Group() {
-        // Cache ourselves
-        //TODO: HIBERNATE CACHE CONTEXT
-        //context.cache(this, row.getIntColumn("eperson_group_id"));
-        modifiedMetadata = false;
-        //TODO HIBERNATE: Implement the details !
-        //clearDetails();
     }
 
     /**
@@ -83,17 +82,12 @@ public class Group extends DSpaceObject {
         return id;
     }
 
-    @Override
-    public String getHandle(Context context) {
-        return null;
-    }
-
     /**
      * get name of group
      *
      * @return name
      */
-    public String getName()
+    String getNameInternal()
     {
         return name;
     }
@@ -113,8 +107,7 @@ public class Group extends DSpaceObject {
     {
         this.name = name;
         modifiedMetadata = true;
-        //TODO HIBERNATE: Implement the details !
-        //addDetails("name");
+        addDetails("name");
     }
 
     void addMember(EPerson e)
@@ -196,13 +189,25 @@ public class Group extends DSpaceObject {
     {
         int hash = 7;
         hash = 59 * hash + this.getID();
-        hash = 59 * hash + (this.getName() != null? this.getName().hashCode():0);
+        hash = 59 * hash + (this.getNameInternal() != null? this.getNameInternal().hashCode():0);
         return hash;
     }
 
     public boolean isModifiedMetadata()
     {
         return modifiedMetadata;
+    }
+
+
+    /*
+        Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
+    */
+
+
+
+    public String getName()
+    {
+        return groupService.getName(this);
     }
 
 }
