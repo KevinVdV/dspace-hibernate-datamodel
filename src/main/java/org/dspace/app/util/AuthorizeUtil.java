@@ -16,6 +16,7 @@ import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.*;
 import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.CommunityService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.factory.DSpaceServiceFactory;
@@ -30,6 +31,7 @@ import org.dspace.factory.DSpaceServiceFactory;
 public class AuthorizeUtil
 {
 
+    private static final CommunityService COMMUNITY_SERVICE = DSpaceServiceFactory.getInstance().getCommunityService();
     private static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
     private static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
 
@@ -50,7 +52,7 @@ public class AuthorizeUtil
     public static void authorizeManageBitstreamPolicy(Context context,
             Bitstream bitstream) throws AuthorizeException, SQLException
     {
-        Bundle bundle = bitstream.getBundle();
+        Bundle bundle = bitstream.getBundles().iterator().next();
         authorizeManageBundlePolicy(context, bundle);
     }
 
@@ -71,7 +73,7 @@ public class AuthorizeUtil
     public static void authorizeManageBundlePolicy(Context context,
             Bundle bundle) throws AuthorizeException, SQLException
     {
-        Item item = bundle.getItem();
+        Item item = bundle.getItems().iterator().next();
         authorizeManageItemPolicy(context, item);
     }
 
@@ -228,11 +230,11 @@ public class AuthorizeUtil
             }
             else if (AuthorizeConfiguration.canCollectionAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(context, item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(item), Constants.ADMIN);
             }
             else if (AuthorizeConfiguration.canCommunityAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(context, item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(item), Constants.ADMIN);
             }
             else
             {
@@ -469,7 +471,7 @@ public class AuthorizeUtil
     public static void authorizeRemoveAdminGroup(Context context,
             Community community) throws SQLException, AuthorizeException
     {
-        Community parentCommunity = community.getParentCommunity();
+        Community parentCommunity = (Community) COMMUNITY_SERVICE.getParentObject(community);
         if (AuthorizeConfiguration.canCommunityAdminManageAdminGroup()
                 && parentCommunity != null)
         {

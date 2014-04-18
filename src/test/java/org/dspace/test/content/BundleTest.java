@@ -295,8 +295,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testGetItems() throws SQLException
     {
         //by default this bundle belong to no item
-        assertThat("testGetItems 0", b.getItem(), notNullValue());
-        assertThat("testGetItems 1", b.getItem(), equalTo(it));
+        assertThat("testGetItems 0", bundleService.getParentObject(b), notNullValue());
+        assertThat("testGetItems 1", (Item) bundleService.getParentObject(b), equalTo(it));
     }
 
     /**
@@ -647,7 +647,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testGetParentObject() throws SQLException
     {
         //default bundle has no parent
-        assertEquals("testGetParentObject 0", bundleService.getParentObject(context, b), it);
+        assertEquals("testGetParentObject 0", bundleService.getParentObject(b), it);
     }
 
 }

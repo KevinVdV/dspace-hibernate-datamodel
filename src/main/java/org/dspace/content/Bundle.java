@@ -60,7 +60,7 @@ public class Bundle extends DSpaceObject{
     @OrderBy("sequence_id asc")
     private List<Bitstream> bitstreams = new ArrayList<Bitstream>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "item2bundle",
             joinColumns = {@JoinColumn(name = "bundle_id") },
@@ -72,7 +72,7 @@ public class Bundle extends DSpaceObject{
             generator = "item2bundle_seq"
     )
     @SequenceGenerator(name="item2bundle_seq", sequenceName="item2bundle_seq", allocationSize = 1)
-    private Item item = null;
+    private List<Item> items = null;
 
     /**
      * Get the internal identifier of this bundle
@@ -171,8 +171,8 @@ public class Bundle extends DSpaceObject{
      *
      * @return array of <code>Item</code> s this bundle appears in
      */
-    public Item getItem() {
-        return item;
+    public List<Item> getItems() {
+        return items;
     }
 
     void removeBitstream(Bitstream b) {
@@ -184,8 +184,8 @@ public class Bundle extends DSpaceObject{
      *
      * @return array of <code>Item</code> s this bundle appears in
      */
-    void setItem(Item item) {
-        this.item = item;
+    void setItems(List<Item> items) {
+        this.items = items;
     }
 
     @Override

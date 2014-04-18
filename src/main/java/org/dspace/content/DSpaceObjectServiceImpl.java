@@ -59,7 +59,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
      *         the hierarchy
      * @throws SQLException
      */
-    public DSpaceObject getParentObject(Context context, T dso) throws SQLException
+    public DSpaceObject getParentObject(T dso) throws SQLException
     {
         return null;
     }

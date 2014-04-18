@@ -64,6 +64,4 @@ public interface CommunityService extends DSpaceObjectService<Community> {
     public void canEdit(Context context, Community community) throws AuthorizeException, SQLException;
 
     public DSpaceObject getAdminObject(Community community, int action) throws SQLException;
-
-    public DSpaceObject getParentObject(Context context, Community community) throws SQLException;
 }

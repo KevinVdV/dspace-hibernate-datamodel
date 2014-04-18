@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.MissingResourceException;
 
@@ -384,12 +385,12 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     public List<Community> getAllParents(Community community) throws SQLException
     {
         List<Community> parentList = new ArrayList<Community>();
-        Community parent = community.getParentCommunity();
+        Community parent = (Community) getParentObject(community);
 
         while (parent != null)
         {
             parentList.add(parent);
-            parent = parent.getParentCommunity();
+            parent = (Community) getParentObject(community);
         }
 
         // Put them in an array
@@ -505,7 +506,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         if(!parentCommunity.getSubCommunities().contains(childCommunity))
         {
             parentCommunity.addSubCommunity(childCommunity);
-            childCommunity.setParentCommunity(parentCommunity);
+            childCommunity.setParentCommunities(Arrays.asList(parentCommunity));
         }
         context.addEvent(new Event(Event.ADD, Constants.COMMUNITY, parentCommunity.getID(), Constants.COMMUNITY, childCommunity.getID(), childCommunity.getHandle(context)));
     }
@@ -549,7 +550,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         AuthorizeManager.authorizeAction(context, parentCommunity, Constants.REMOVE);
 
         parentCommunity.removeSubCommunity(childCommunity);
-        childCommunity.setParentCommunity(null);
+        childCommunity.setParentCommunities(null);
         log.info(LogManager.getHeader(context, "remove_subcommunity",
                 "parent_comm_id=" + parentCommunity.getID() + ",child_comm_id=" + childCommunity.getID()));
         
@@ -569,14 +570,14 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         // But since this is also the case for top-level communities, we would
         // give everyone rights to remove the top-level communities.
         // The same problem occurs in removing the logo
-        if (!AuthorizeManager.authorizeActionBoolean(context, community.getParentCommunity(), Constants.REMOVE))
+        if (!AuthorizeManager.authorizeActionBoolean(context, getParentObject(community), Constants.REMOVE))
         {
             AuthorizeManager.authorizeAction(context, community, Constants.DELETE);
         }
 
         // If not a top-level community, have parent remove me; this
         // will call rawDelete() before removing the linkage
-        Community parent = community.getParentCommunity();
+        Community parent = (Community) getParentObject(community);
 
         if (parent != null)
         {
@@ -735,7 +736,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         case Constants.DELETE:
             if (AuthorizeConfiguration.canCommunityAdminPerformSubelementDeletion())
             {
-                adminObject = community.getParentCommunity();
+                adminObject = getParentObject(community);
             }
             break;
         case Constants.ADD:
@@ -751,12 +752,12 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         return adminObject;
     }
     
-    public DSpaceObject getParentObject(Context context, Community community) throws SQLException
+    public DSpaceObject getParentObject(Community community) throws SQLException
     {
-        Community pCommunity = community.getParentCommunity();
-        if (pCommunity != null)
+        List<Community> parentCommunities = community.getParentCommunities();
+        if (CollectionUtils.isNotEmpty(parentCommunities))
         {
-            return pCommunity;
+            return parentCommunities.iterator().next();
         }
         else
         {

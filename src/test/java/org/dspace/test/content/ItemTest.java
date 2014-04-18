@@ -1631,14 +1631,14 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         try
         {
             //default has collection parent
-            assertThat("testGetParentObject 0", itemService.getParentObject(context, it), notNullValue());
+            assertThat("testGetParentObject 0", itemService.getParentObject(it), notNullValue());
 
             context.turnOffAuthorisationSystem();
             Collection parent = createCollection();
             it.setOwningCollection(parent);
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", itemService.getParentObject(context, it), notNullValue());
-            assertThat("testGetParentObject 2", (Collection) itemService.getParentObject(context, it), equalTo(parent));
+            assertThat("testGetParentObject 1", itemService.getParentObject(it), notNullValue());
+            assertThat("testGetParentObject 2", (Collection) itemService.getParentObject(it), equalTo(parent));
         }
         catch(AuthorizeException ex)
         {

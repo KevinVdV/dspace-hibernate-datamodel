@@ -1899,8 +1899,8 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             communityService.addCollection(context, parent, collection);
             context.commit();
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", collectionService.getParentObject(context, collection), notNullValue());
-            assertThat("testGetParentObject 2", (Community) collectionService.getParentObject(context, collection), equalTo(parent));
+            assertThat("testGetParentObject 1", collectionService.getParentObject(collection), notNullValue());
+            assertThat("testGetParentObject 2", (Community) collectionService.getParentObject(collection), equalTo(parent));
         }
         catch(AuthorizeException ex)
         {

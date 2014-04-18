@@ -772,7 +772,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         // Add the bundle to in-memory list
         item.addBundle(b);
-        b.setItem(item);
+        b.setItems(Arrays.asList(item));
 
         // Insert the mapping
         context.addEvent(new Event(Event.ADD, Constants.ITEM, item.getID(), Constants.BUNDLE, b.getID(), b.getName()));
@@ -1475,7 +1475,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     {
         DSpaceObject adminObject = null;
         //Items are always owned by collections
-        Collection collection = (Collection) getParentObject(context, item);
+        Collection collection = (Collection) getParentObject(item);
         Community community = null;
         if (collection != null)
         {
@@ -1566,7 +1566,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         return adminObject;
     }
     
-    public DSpaceObject getParentObject(Context context, Item item) throws SQLException
+    public DSpaceObject getParentObject(Item item) throws SQLException
     {
         Collection ownCollection = item.getOwningCollection();
         if (ownCollection != null)

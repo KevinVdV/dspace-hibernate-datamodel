@@ -12,12 +12,14 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
+import org.dspace.content.service.BundleService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -46,6 +48,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     @Autowired(required = true)
     protected BitstreamFormatService bitstreamFormatService;
+    @Autowired(required = true)
+    protected BundleService bundleService;
 
     public BitstreamServiceImpl()
     {
@@ -281,7 +285,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @throws SQLException
      */
     public void delete(Context context, Bitstream bitstream) throws SQLException, AuthorizeException {
-        bitstream.setBundle(null);
+        bitstream.setBundles(null);
         // changed to a check on remove
         // Check authorisation
         //AuthorizeManager.authorizeAction(bContext, this, Constants.DELETE);
@@ -333,13 +337,13 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @return this bitstream's parent.
      * @throws SQLException
      */    
-    public DSpaceObject getParentObject(Context context, Bitstream bitstream) throws SQLException
+    public DSpaceObject getParentObject(Bitstream bitstream) throws SQLException
     {
-        Bundle bundles = bitstream.getBundle();
-        if (bundles != null)
+        List<Bundle> bundles = bitstream.getBundles();
+        if (CollectionUtils.isNotEmpty(bundles))
         {
             // the ADMIN action is not allowed on Bundle object so skip to the item
-            Item item = bundles.getItem();
+            Item item = (Item) bundleService.getParentObject(bundles.iterator().next());
             if (item != null)
             {
                 return item;

@@ -32,13 +32,13 @@ public class Community extends DSpaceObject{
     @SequenceGenerator(name="community_seq", sequenceName="community_seq")
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "community2community",
             joinColumns = {@JoinColumn(name = "parent_comm_id") },
             inverseJoinColumns = {@JoinColumn(name = "child_comm_id") }
     )
-    private Community parentCommunity;
+    private List<Community> parentCommunities;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentCommunity")
     private List<Community> subCommunities = new ArrayList<Community>();
@@ -206,13 +206,13 @@ public class Community extends DSpaceObject{
      *
      * @return the immediate parent community, or null if top-level
      */
-    public Community getParentCommunity() {
-        return parentCommunity;
+    public List<Community> getParentCommunities() {
+        return parentCommunities;
     }
 
 
-    void setParentCommunity(Community parentCommunity) {
-        this.parentCommunity = parentCommunity;
+    void setParentCommunities(List<Community> parentCommunities) {
+        this.parentCommunities = parentCommunities;
     }
 
     boolean isModified() {
@@ -327,5 +327,9 @@ public class Community extends DSpaceObject{
     public final String getName()
     {
         return communityService.getName(this);
+    }
+
+    public final Community getParentCommunity() throws SQLException {
+        return (Community) communityService.getParentObject(this);
     }
 }

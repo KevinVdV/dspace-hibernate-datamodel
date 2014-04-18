@@ -1390,13 +1390,13 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         try
         {
             //default has no parent
-            assertThat("testGetParentObject 0", communityService.getParentObject(context, community), nullValue());
+            assertThat("testGetParentObject 0", communityService.getParentObject(community), nullValue());
 
             context.turnOffAuthorisationSystem();
             Community son = communityService.createSubcommunity(context, community);
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", communityService.getParentObject(context, son), notNullValue());
-            assertThat("testGetParentObject 2", (Community) communityService.getParentObject(context, son), equalTo(community));
+            assertThat("testGetParentObject 1", communityService.getParentObject(son), notNullValue());
+            assertThat("testGetParentObject 2", (Community) communityService.getParentObject(son), equalTo(community));
         }
         catch(AuthorizeException ex)
         {

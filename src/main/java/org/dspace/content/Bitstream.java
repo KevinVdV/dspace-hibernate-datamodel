@@ -11,6 +11,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -65,7 +66,7 @@ public class Bitstream extends DSpaceObject{
     @JoinColumn(name = "bitstream_format_id")
     private BitstreamFormat bitstreamFormat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     /** The bitstreams in this bundle */
     @JoinTable(
             name = "bundle2bitstream",
@@ -79,8 +80,7 @@ public class Bitstream extends DSpaceObject{
     )
     @SequenceGenerator(name="bundle2bitstream_seq", sequenceName="bundle2bitstream_seq", allocationSize = 1)
     @OrderBy("sequence_id asc")
-    //TODO: link to multiple bundles
-    private Bundle bundle = null;
+    private List<Bundle> bundles = null;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy="logo")
     private Community community;
@@ -306,12 +306,12 @@ public class Bitstream extends DSpaceObject{
      * @return array of <code>Bundle</code> s this bitstream appears in
      * @throws SQLException
      */
-    public Bundle getBundle() {
-        return bundle;
+    public List<Bundle> getBundles() {
+        return bundles;
     }
 
-    public void setBundle(Bundle bundle) {
-        this.bundle = bundle;
+    void setBundles(List<Bundle> bundles) {
+        this.bundles = bundles;
     }
 
     public Collection getCollection() {

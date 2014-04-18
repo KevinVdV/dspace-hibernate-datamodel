@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
@@ -252,7 +253,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         }
 
         //The order of the bitstreams has changed, ensure that we update the last modified of our item
-        Item owningItem = (Item) getParentObject(context, bundle);
+        Item owningItem = (Item) getParentObject(bundle);
         if(owningItem != null)
         {
             itemService.updateLastModified(context, owningItem);
@@ -299,7 +300,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, bundle.getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
 
         //Ensure that the last modified from the item is triggered !
-        Item owningItem = (Item) getParentObject(context, bundle);
+        Item owningItem = (Item) getParentObject(bundle);
         if(owningItem != null)
         {
             itemService.updateLastModified(context, owningItem);
@@ -457,7 +458,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     public DSpaceObject getAdminObject(Context context, Bundle bundle, int action) throws SQLException
     {
         DSpaceObject adminObject = null;
-        Item item = bundle.getItem();
+        Item item = (Item) getParentObject(bundle);
         Collection collection = null;
         Community community = null;
         if (item != null)
@@ -509,8 +510,14 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         return adminObject;
     }
     
-    public DSpaceObject getParentObject(Context context, Bundle bundle) throws SQLException
+    public DSpaceObject getParentObject(Bundle bundle) throws SQLException
     {
-        return bundle.getItem();
+        List<Item> items = bundle.getItems();
+        if(CollectionUtils.isNotEmpty(items))
+        {
+            return items.iterator().next();
+        }else{
+            return null;
+        }
     }
 }

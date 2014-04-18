@@ -1180,7 +1180,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
     @Override
-    public DSpaceObject getParentObject(Context context, Collection collection) throws SQLException
+    public DSpaceObject getParentObject(Collection collection) throws SQLException
     {
         List<Community> communities = collection.getCommunities();
         if(CollectionUtils.isNotEmpty(communities)){

@@ -702,6 +702,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     }
 
     //TODO: HIBERNATE IMPLEMENT
+
 /*
     public DSpaceObject getParentObject() throws SQLException
     {
