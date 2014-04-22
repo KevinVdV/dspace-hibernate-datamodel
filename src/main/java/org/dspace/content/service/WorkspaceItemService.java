@@ -30,5 +30,5 @@ public interface WorkspaceItemService extends InProgressSubmissionService<Worksp
 
     public List<WorkspaceItem> findAll(Context context) throws SQLException;
 
-    public void deleteAll(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException, IOException;
+    public void deleteByCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException;
 }

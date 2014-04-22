@@ -6,6 +6,7 @@ import org.dspace.dao.AbstractHibernateDAO;
 import org.dspace.xmlworkflow.storedcomponents.CollectionRole;
 import org.dspace.xmlworkflow.storedcomponents.dao.CollectionRoleDAO;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
@@ -37,5 +38,13 @@ public class CollectionRoleDAOImpl extends AbstractHibernateDAO<CollectionRole> 
 
         return uniqueResult(criteria);
 
+    }
+
+    @Override
+    public void deleteByCollection(Context context, Collection collection) throws SQLException {
+        String hql = "delete from CollectionRole WHERE collection=:collection";
+        Query query = createQuery(context, hql);
+        query.setParameter("collection", collection);
+        query.executeUpdate();
     }
 }

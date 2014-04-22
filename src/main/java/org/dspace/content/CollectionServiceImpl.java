@@ -13,17 +13,15 @@ import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
 import org.dspace.content.dao.CollectionDAO;
-import org.dspace.content.service.BitstreamService;
-import org.dspace.content.service.CollectionService;
-import org.dspace.content.service.CommunityService;
-import org.dspace.content.service.ItemService;
+import org.dspace.content.service.*;
 import org.dspace.core.*;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.handle.HandleServiceImpl;
 import org.dspace.handle.service.HandleService;
+import org.dspace.workflow.service.WorkflowItemService;
+import org.dspace.xmlworkflow.storedcomponents.service.CollectionRoleService;
+import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -63,6 +61,16 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     protected BitstreamService bitstreamService;
     @Autowired(required = true)
     protected HandleService handleService;
+    @Autowired(required = true)
+    protected SubscriptionService subscriptionService;
+    @Autowired(required = true)
+    protected CollectionRoleService collectionRoleService;
+    @Autowired(required = true)
+    protected WorkspaceItemService workspaceItemService;
+    @Autowired(required = true)
+    protected XmlWorkflowItemService xmlWorkflowItemService;
+    @Autowired(required = true)
+    protected WorkflowItemService workflowItemService;
 
 
     /**
@@ -795,11 +803,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
         context.addEvent(new Event(Event.DELETE, Constants.COLLECTION, collection.getID(), collection.getHandle(context)));
 
-        // remove subscriptions - hmm, should this be in Subscription.java?
-        //TODO: HIBERNATE DESCRIPTION
-//        DatabaseManager.updateQuery(context,
-//                "DELETE FROM subscription WHERE collection_id= ? ",
-//                getID());
+        subscriptionService.deleteByCollection(context, collection);
 
         // Remove Template Item
         removeTemplateItem(context, collection);
@@ -836,74 +840,24 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         // Remove all authorization policies
         AuthorizeManager.removeAllPolicies(context, collection);
 
-        /*
-        TODO: HIBERNATE, IMPLEMENT WHEN WORKFLOW BECOMES AVAILABLE
         if(ConfigurationManager.getProperty("workflow","workflow.framework").equals("xmlworkflow")){
             // Remove any xml_WorkflowItems
-            XmlWorkflowItem[] xmlWfarray = XmlWorkflowItem
-                    .findByCollection(ourContext, this);
-
-            for (XmlWorkflowItem aXmlWfarray : xmlWfarray) {
-                // remove the workflowitem first, then the item
-                Item myItem = aXmlWfarray.getItem();
-                aXmlWfarray.deleteWrapper();
-                myItem.delete();
-            }
+            xmlWorkflowItemService.deleteByCollection(context, collection);
         }else{
             // Remove any WorkflowItems
-            WorkflowItem[] wfarray = WorkflowItem
-                    .findByCollection(ourContext, this);
-
-            for (WorkflowItem aWfarray : wfarray) {
-                // remove the workflowitem first, then the item
-                Item myItem = aWfarray.getItem();
-                aWfarray.deleteWrapper();
-                myItem.delete();
-            }
+            workflowItemService.deleteByCollection(context, collection);
         }
-
-
 
         // Remove any WorkspaceItems
-        WorkspaceItem[] wsarray = WorkspaceItem.findByCollection(ourContext,
-                this);
+        workspaceItemService.deleteByCollection(context, collection);
 
-        for (WorkspaceItem aWsarray : wsarray) {
-            aWsarray.deleteAll();
-        }
-        */
-
-        //  get rid of the content count cache if it exists
-        //TODO: HIBERNATE IMPLEMENT ITEM COUNTER
-        /*
-        try
-        {
-        	ItemCounter ic = new ItemCounter(ourContext);
-        	ic.remove(this);
-        }
-        catch (ItemCountException e)
-        {
-        	// FIXME: upside down exception handling due to lack of good
-        	// exception framework
-        	throw new IllegalStateException(e.getMessage(), e);
-        }
-         */
         // Remove any Handle
         handleService.unbindHandle(context, collection);
 
-                /*
-        TODO: HIBERNATE, IMPLEMENT WHEN WORKFLOW BECOMES AVAILABLE
-
         if(ConfigurationManager.getProperty("workflow","workflow.framework").equals("xmlworkflow")){
-            // delete all CollectionRoles for this Collection
-            for (CollectionRole collectionRole : CollectionRole.findByCollection(context, collection.getID())) {
-                collectionRole.delete();
-            }
+            collectionRoleService.deleteByCollection(context, collection);
         }
 
-        // Delete collection row
-        DatabaseManager.delete(ourContext, collectionRow);
-*/
         // Remove any workflow groups - must happen after deleting collection
         Group g = null;
 
@@ -987,54 +941,6 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
 	/**
-     * counts items in this collection
-     *
-     * @return  total items
-     */
-    //TODO: HIBERNATE ITEM COUNT
-    /*
-    public int countItems()
-        throws SQLException
-     {
-         int itemcount = 0;
-         PreparedStatement statement = null;
-         ResultSet rs = null;
-
-         try
-         {
-             String query = "SELECT count(*) FROM collection2item, item WHERE "
-                    + "collection2item.collection_id =  ? "
-                    + "AND collection2item.item_id = item.item_id "
-                    + "AND in_archive ='1' AND item.withdrawn='0' ";
-
-            statement = ourContext.getDBConnection().prepareStatement(query);
-            statement.setInt(1,getID());
-
-            rs = statement.executeQuery();
-            if (rs != null)
-            {
-                rs.next();
-                itemcount = rs.getInt(1);
-            }
-         }
-         finally
-         {
-             if (rs != null)
-             {
-                 try { rs.close(); } catch (SQLException sqle) { }
-             }
-
-             if (statement != null)
-             {
-                 try { statement.close(); } catch (SQLException sqle) { }
-             }
-         }
-
-        return itemcount;
-     }
-     */
-
-    /**
      * Get the collections this item is not in.
      *
      * @return the collections this item is not in, if any.

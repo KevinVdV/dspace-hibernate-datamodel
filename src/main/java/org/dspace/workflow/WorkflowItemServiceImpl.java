@@ -13,7 +13,9 @@ import org.dspace.workflow.service.TaskListItemService;
 import org.dspace.workflow.service.WorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -161,6 +163,17 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
         return workflowItemDAO.findByItem(context, i);
     }
 
+    @Override
+    public void deleteByCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException {
+        List<WorkflowItem> workflowItems = findByCollection(context, collection);
+        Iterator<WorkflowItem> iterator = workflowItems.iterator();
+        while (iterator.hasNext()) {
+            WorkflowItem workflowItem = iterator.next();
+            iterator.remove();
+            delete(context, workflowItem);
+        }
+    }
+
     /**
      * Update the workflow item, including the unarchived item.
      */
@@ -188,6 +201,13 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
 
         // FIXME - auth?
         workflowItemDAO.delete(context, workflowItem);
+    }
+
+    @Override
+    public void delete(Context context, WorkflowItem workflowItem) throws SQLException, AuthorizeException, IOException {
+        Item item = workflowItem.getItem();
+        deleteWrapper(context, workflowItem);
+        itemService.delete(context, item);
     }
 
     public EPerson getSubmitter(WorkflowItem workflowItem) throws SQLException

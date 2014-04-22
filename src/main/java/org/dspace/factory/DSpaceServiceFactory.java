@@ -52,6 +52,8 @@ public abstract class DSpaceServiceFactory {
 
     public abstract HandleService getHandleService();
 
+    public abstract SubscriptionService getSubscriptionService();
+
     public InProgressSubmissionService getInProgressSubmissionService(InProgressSubmission inProgressSubmission)
     {
         if(inProgressSubmission instanceof WorkspaceItem)

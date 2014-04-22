@@ -23,28 +23,39 @@ public class CollectionRoleServiceImpl implements CollectionRoleService
     {
     }
 
+    @Override
     public CollectionRole find(Context context, int id) throws SQLException
     {
         return collectionRoleDAO.findByID(context, CollectionRole.class, id);
     }
 
+    @Override
     public CollectionRole findByCollectionAndRole(Context context, Collection collection, String role) throws SQLException {
         return collectionRoleDAO.findByCollectionAndRole(context, collection, role);
     }
 
+    @Override
     public List<CollectionRole> findByCollection(Context context, Collection collection) throws SQLException {
         return collectionRoleDAO.findByCollection(context, collection);
     }
 
+    @Override
+    public void deleteByCollection(Context context, Collection collection) throws SQLException {
+        collectionRoleDAO.deleteByCollection(context, collection);
+    }
+
+    @Override
     public CollectionRole create(Context context) throws SQLException {
         return collectionRoleDAO.create(context, new CollectionRole());
     }
 
+    @Override
     public void delete(Context context, CollectionRole collectionRole) throws SQLException
     {
         collectionRoleDAO.delete(context, collectionRole);
     }
 
+    @Override
     public void update(Context context, CollectionRole collectionRole) throws SQLException, SQLException {
         collectionRoleDAO.save(context, collectionRole);
     }

@@ -15,6 +15,7 @@ import org.dspace.xmlworkflow.storedcomponents.service.WorkflowItemRoleService;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -181,6 +182,17 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
         return xmlWorkflowItemDAO.findByItem(context, item);
     }
 
+    @Override
+    public void deleteByCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException {
+        List<XmlWorkflowItem> xmlWorkflowItems = findByCollection(context, collection);
+        Iterator<XmlWorkflowItem> iterator = xmlWorkflowItems.iterator();
+        while (iterator.hasNext()) {
+            XmlWorkflowItem workflowItem = iterator.next();
+            iterator.remove();
+            delete(context, workflowItem);
+        }
+    }
+
     /**
      * Update the workflow item, including the unarchived item.
      */
@@ -208,6 +220,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
         while (workflowItemRoleIterator.hasNext())
         {
             WorkflowItemRole workflowItemRole = workflowItemRoleIterator.next();
+            workflowItemRoleIterator.remove();
             workflowItemRoleService.delete(context, workflowItemRole);
         }
 
@@ -216,5 +229,16 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
 
         // FIXME - auth?
         xmlWorkflowItemDAO.delete(context, workflowItem);
+    }
+
+    @Override
+    public void delete(Context context, XmlWorkflowItem workflowItem) throws SQLException, AuthorizeException, IOException {
+        Item item = workflowItem.getItem();
+        // Need to delete the workspaceitem row first since it refers
+        // to item ID
+        deleteWrapper(context, workflowItem);
+
+        // Delete item
+        itemService.delete(context, item);
     }
 }

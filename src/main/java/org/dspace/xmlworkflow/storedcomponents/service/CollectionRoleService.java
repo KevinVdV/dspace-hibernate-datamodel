@@ -20,4 +20,6 @@ public interface CollectionRoleService extends DSpaceCRUDService<CollectionRole>
     public CollectionRole findByCollectionAndRole(Context context, Collection collection, String role) throws SQLException;
 
     public List<CollectionRole> findByCollection(Context context, Collection collection) throws SQLException;
+
+    public void deleteByCollection(Context context, Collection collection) throws SQLException;
 }

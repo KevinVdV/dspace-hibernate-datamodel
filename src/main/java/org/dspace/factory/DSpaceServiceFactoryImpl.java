@@ -53,6 +53,8 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     private TaskListItemService taskListItemService;
     @Autowired(required = true)
     private HandleService handleService;
+    @Autowired(required = true)
+    private SubscriptionService subscriptionService;
 
 
     public BitstreamFormatService getBitstreamFormatService()
@@ -129,5 +131,10 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
 
     public HandleService getHandleService() {
         return handleService;
+    }
+
+    @Override
+    public SubscriptionService getSubscriptionService() {
+        return subscriptionService;
     }
 }

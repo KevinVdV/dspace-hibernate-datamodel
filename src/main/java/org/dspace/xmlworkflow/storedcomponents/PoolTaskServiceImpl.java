@@ -105,6 +105,7 @@ public class PoolTaskServiceImpl implements PoolTaskService {
         Iterator<PoolTask> iterator = tasks.iterator();
         while (iterator.hasNext()) {
             PoolTask poolTask = iterator.next();
+            iterator.remove();
             delete(context, poolTask);
         }
     }

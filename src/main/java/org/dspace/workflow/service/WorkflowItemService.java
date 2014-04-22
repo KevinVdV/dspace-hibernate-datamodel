@@ -8,6 +8,7 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.workflow.WorkflowItem;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -31,4 +32,6 @@ public interface WorkflowItemService extends InProgressSubmissionService<Workflo
     public List<WorkflowItem> findByCollection(Context context, Collection c) throws SQLException;
 
     public WorkflowItem findByItem(Context context, Item i) throws SQLException;
+
+    public void deleteByCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException;
 }

@@ -2,6 +2,7 @@ package org.dspace.content.service;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.InProgressSubmission;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 
@@ -20,16 +21,17 @@ public interface InProgressSubmissionService<T extends InProgressSubmission> {
      *
      * @return the submitting e-person
      */
-    EPerson getSubmitter(T inProgressSubmission) throws SQLException;
+    public EPerson getSubmitter(T inProgressSubmission) throws SQLException;
 
     /**
      * Deletes submission wrapper, doesn't delete item contents
      */
-    void deleteWrapper(Context context, T inProgressSubmission) throws SQLException, IOException, AuthorizeException;
+    public void deleteWrapper(Context context, T inProgressSubmission) throws SQLException, IOException, AuthorizeException;
+
+    public void delete(Context context, T inProgressSubmission) throws SQLException, AuthorizeException, IOException;
 
     /**
      * Update the submission, including the unarchived item.
      */
-    void update(Context context, T inProgressSubmission) throws SQLException, AuthorizeException;
-
+    public void update(Context context, T inProgressSubmission) throws SQLException, AuthorizeException;
 }

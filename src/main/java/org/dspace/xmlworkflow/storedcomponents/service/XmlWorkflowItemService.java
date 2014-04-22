@@ -8,6 +8,7 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -39,4 +40,6 @@ public interface XmlWorkflowItemService extends InProgressSubmissionService<XmlW
     public List<XmlWorkflowItem> findByCollection(Context context, Collection collection) throws SQLException;
 
     public XmlWorkflowItem findByItem(Context context, Item item) throws SQLException;
+
+    public void deleteByCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException;
 }

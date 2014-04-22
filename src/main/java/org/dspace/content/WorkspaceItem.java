@@ -1,6 +1,7 @@
 package org.dspace.content;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.dspace.core.Context;
 
 import javax.persistence.*;
 

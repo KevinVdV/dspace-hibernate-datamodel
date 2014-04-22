@@ -627,30 +627,15 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         // Remove all authorization policies
         AuthorizeManager.removeAllPolicies(context, community);
 
-        //TODO: Implement once item counter becomes available
-        /*
-        // get rid of the content count cache if it exists
-        try
-        {
-            ItemCounter ic = new ItemCounter(ourContext);
-            ic.remove(this);
-        }
-        catch (ItemCountException e)
-        {
-            // FIXME: upside down exception handling due to lack of good
-            // exception framework
-            throw new IllegalStateException(e.getMessage(),e);
-        }
-        */
-
         // Remove any Handle
         handleService.unbindHandle(context, community);
+
+        Group g = community.getAdministrators();
 
         // Delete community row
         communityDAO.delete(context, community);
 
         // Remove administrators group - must happen after deleting community
-        Group g = community.getAdministrators();
 
         if (g != null)
         {
@@ -696,32 +681,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         AuthorizeManager.authorizeAction(context, community, Constants.WRITE);
     }
 
-	/**
-     * counts items in this community
-     *
-     * @return  total items
-     */
-        //TODO: Hibernate implement when collection is available
-    /*
-    public int countItems() throws SQLException
-    {       
-    	int total = 0;
-    	// add collection counts
-        Collection[] cols = getCollections();
-        for ( int i = 0; i < cols.length; i++)
-        {
-        	total += cols[i].countItems();
-        }
-        // add sub-community counts
-        Community[] comms = getSubcommunities();
-        for ( int j = 0; j < comms.length; j++ )
-        {
-        	total += comms[j].countItems();
-        }
-        return total;
-    }
-    */
-    public DSpaceObject getAdminObject(Community community, int action) throws SQLException
+	public DSpaceObject getAdminObject(Community community, int action) throws SQLException
     {
         DSpaceObject adminObject = null;
         switch (action)

@@ -9,6 +9,7 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -336,7 +337,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      * item and its contents are all removed (multiple inclusion
      * notwithstanding.)
      */
-    public void deleteAll(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException,
+    public void delete(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException,
             IOException
     {
         /*
@@ -359,9 +360,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
                 "workspace_item_id=" + workspaceItem.getID() + "item_id=" + workspaceItem.getItem().getID()
                         + "collection_id=" + workspaceItem.getCollection().getID()));
 
-        //deleteSubmitPermissions();
-
-        // Need to delete the epersongroup2workspaceitem row first since it refers
+       // Need to delete the epersongroup2workspaceitem row first since it refers
         // to workspaceitem ID
 //        TODO: HIBERNATE: Implement when supervisor comes into play
 //        deleteEpersonGroup2WorkspaceItem();
@@ -373,6 +372,18 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
 
         // Delete item
         itemService.delete(context, item);
+    }
+
+    @Override
+    public void deleteByCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException {
+        List<WorkspaceItem> workspaceItems = findByCollection(context, collection);
+        Iterator<WorkspaceItem> iterator = workspaceItems.iterator();
+        while (iterator.hasNext()) {
+            WorkspaceItem workspaceItem = iterator.next();
+            //Remove it before deleting our object to avoid exceptions
+            iterator.remove();
+            delete(context, workspaceItem);
+        }
     }
 
     /*

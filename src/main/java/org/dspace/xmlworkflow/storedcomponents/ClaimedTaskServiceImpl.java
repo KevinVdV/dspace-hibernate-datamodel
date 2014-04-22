@@ -85,6 +85,7 @@ public class ClaimedTaskServiceImpl implements ClaimedTaskService {
         Iterator<ClaimedTask> iterator = claimedTasks.iterator();
         while (iterator.hasNext()) {
             ClaimedTask claimedTask = iterator.next();
+            iterator.remove();
             delete(context, claimedTask);
         }
 
