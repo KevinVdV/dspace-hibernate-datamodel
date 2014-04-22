@@ -23,23 +23,23 @@ public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements 
     public EPerson findByEmail(Context context, String email) throws SQLException
     {
         // All email addresses are stored as lowercase, so ensure that the email address is lowercased for the lookup
-        Criteria criteria = context.getDBConnection().createCriteria(EPerson.class);
+        Criteria criteria = createCriteria(context, EPerson.class);
         criteria.add(Restrictions.eq("email", email.toLowerCase()));
-        return (EPerson) criteria.uniqueResult();
+        return uniqueResult(criteria);
     }
 
 
     public EPerson findByNetid(Context context, String netid) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(EPerson.class);
+        Criteria criteria = createCriteria(context, EPerson.class);
         criteria.add(Restrictions.eq("netid", netid));
-        return (EPerson) criteria.uniqueResult();
+        return uniqueResult(criteria);
     }
 
     public List<EPerson> search(Context context, String query, int offset, int limit) throws SQLException
     {
         String queryParam = "%"+query.toLowerCase()+"%";
-        Criteria criteria = context.getDBConnection().createCriteria(EPerson.class);
+        Criteria criteria = createCriteria(context, EPerson.class);
         Disjunction disjunction = addSearchCriteria(queryParam);
         criteria.add(disjunction);
         criteria.addOrder(Order.asc("lastname"));
@@ -53,24 +53,23 @@ public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements 
         {
             criteria.setMaxResults(limit);
         }
-        return criteria.list();
+        return list(criteria);
     }
 
     public int searchResultCount(Context context, String query) throws SQLException
     {
         String queryParam = "%"+query.toLowerCase()+"%";
-        Criteria criteria = context.getDBConnection().createCriteria(EPerson.class);
+        Criteria criteria = createCriteria(context, EPerson.class);
         Disjunction disjunction = addSearchCriteria(queryParam);
         criteria.add(disjunction);
 
-        return ((Long) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
+        return count(criteria);
     }
 
     public List<EPerson> findAll(Context context, String sortField) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(EPerson.class);
+        Criteria criteria = createCriteria(context, EPerson.class);
         criteria.addOrder(Order.asc(sortField));
-        List result = criteria.list();
-        return result;
+        return list(criteria);
 
     }
 

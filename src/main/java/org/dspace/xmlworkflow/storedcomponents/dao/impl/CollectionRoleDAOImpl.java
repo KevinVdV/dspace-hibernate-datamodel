@@ -21,25 +21,21 @@ import java.util.List;
 public class CollectionRoleDAOImpl extends AbstractHibernateDAO<CollectionRole> implements CollectionRoleDAO {
 
     public List<CollectionRole> findByCollection(Context context, Collection collection) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(CollectionRole.class);
+        Criteria criteria = createCriteria(context, CollectionRole.class);
         criteria.add(Restrictions.eq("collection", collection));
 
-        @SuppressWarnings("unchecked")
-        List<CollectionRole> result = (List<CollectionRole>) criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public CollectionRole findByCollectionAndRole(Context context, Collection collection, String role) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(CollectionRole.class);
+        Criteria criteria = createCriteria(context, CollectionRole.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("collection", collection),
                 Restrictions.eq("role", role)
             )
         );
 
-        @SuppressWarnings("unchecked")
-        CollectionRole result = (CollectionRole) criteria.list();
-        return result;
+        return uniqueResult(criteria);
 
     }
 }

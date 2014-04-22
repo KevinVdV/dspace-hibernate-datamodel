@@ -31,19 +31,17 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
     public MetadataSchema findByNamespace(Context context, String namespace) throws SQLException
     {
         // Grab rows from DB
-        Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
+        Criteria criteria = createCriteria(context, MetadataSchema.class);
         criteria.add(Restrictions.eq("namespace", namespace));
-        return (MetadataSchema) criteria.uniqueResult();
+        return uniqueResult(criteria);
     }
 
     @Override
     public List<MetadataSchema> findAll(Context context, Class clazz) throws SQLException {
         // Get all the metadataschema rows
-        Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
+        Criteria criteria = createCriteria(context, MetadataSchema.class);
         criteria.addOrder(Order.asc("id"));
-        @SuppressWarnings("unchecked")
-        List<MetadataSchema> schemas = criteria.list();
-        return schemas;
+        return list(criteria);
     }
 
     /**
@@ -55,14 +53,15 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
      * @return true of false
      * @throws SQLException
      */
+    //TODO: Bussiness logic, add find & move to service layer
     public boolean uniqueNamespace(Context context, int metadataSchemaId, String namespace) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
+        Criteria criteria = createCriteria(context, MetadataSchema.class);
         criteria.add(Restrictions.and(
                 Restrictions.not(Restrictions.eq("id", metadataSchemaId)),
                 Restrictions.eq("namespace", namespace)
         ));
-        return criteria.uniqueResult() == null;
+        return uniqueResult(criteria) == null;
     }
 
     /**
@@ -73,15 +72,16 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
      * @return true of false
      * @throws SQLException
      */
+    //TODO: Bussiness logic, add find & move to service layer
     public boolean uniqueShortName(Context context, int metadataSchemaId, String name) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
+        Criteria criteria = createCriteria(context, MetadataSchema.class);
         criteria.add(Restrictions.and(
                 Restrictions.not(Restrictions.eq("id", metadataSchemaId)),
                 Restrictions.eq("name", name)
         ));
 
-        return criteria.uniqueResult() == null;
+        return uniqueResult(criteria) == null;
     }
 
     /**
@@ -96,11 +96,11 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
      */
     public MetadataSchema find(Context context, String shortName) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(MetadataSchema.class);
+        Criteria criteria = createCriteria(context, MetadataSchema.class);
         criteria.add(
                 Restrictions.eq("name", shortName)
         );
 
-        return (MetadataSchema) criteria.uniqueResult();
+        return uniqueResult(criteria);
     }
 }

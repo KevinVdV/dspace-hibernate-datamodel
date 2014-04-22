@@ -18,25 +18,21 @@ import java.util.List;
 public class BitstreamDAOImpl extends AbstractHibernateDAO<Bitstream> implements BitstreamDAO {
 
     public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(Bitstream.class);
+        Criteria criteria = createCriteria(context, Bitstream.class);
         criteria.add(Restrictions.eq("deleted", true));
 
-        @SuppressWarnings("unchecked")
-        List<Bitstream> result = criteria.list();
-        return result;
+        return list(criteria);
 
     }
 
     public List<Bitstream> findDuplicateInternalIdentifier(Context context, Bitstream bitstream) throws SQLException {
-        Criteria duplicateBitRowCriteria = context.getDBConnection().createCriteria(Bitstream.class);
-        duplicateBitRowCriteria.add(Restrictions.and(
+        Criteria criteria = createCriteria(context, Bitstream.class);
+        criteria.add(Restrictions.and(
                 Restrictions.eq("internalId", bitstream.getInternalId()),
                 Restrictions.not(Restrictions.eq("id", bitstream.getID()))
         ));
 
-        @SuppressWarnings("unchecked")
-        List<Bitstream> result = duplicateBitRowCriteria.list();
-        return result;
+        return list(criteria);
     }
 
 

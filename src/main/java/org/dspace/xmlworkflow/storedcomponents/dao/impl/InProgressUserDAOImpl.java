@@ -22,39 +22,32 @@ import java.util.List;
 public class InProgressUserDAOImpl extends AbstractHibernateDAO<InProgressUser> implements InProgressUserDAO {
 
     public InProgressUser findByWorkflowItemAndEPerson(Context context, XmlWorkflowItem workflowItem, EPerson ePerson) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(InProgressUser.class);
+        Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(
                 Restrictions.and(
                         Restrictions.eq("workflowItem", workflowItem),
                         Restrictions.eq("ePerson", ePerson)
                 )
         );
-
-        @SuppressWarnings("unchecked")
-        InProgressUser inProgressUser = (InProgressUser) criteria.uniqueResult();
-        return inProgressUser;
+        return uniqueResult(criteria);
     }
 
     public List<InProgressUser> findByEperson(Context context, EPerson ePerson) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(InProgressUser.class);
+        Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(Restrictions.eq("ePerson", ePerson));
 
-        @SuppressWarnings("unchecked")
-        List<InProgressUser> inProgressUsers = (List<InProgressUser>) criteria.list();
-        return inProgressUsers;
+        return list(criteria);
     }
 
     public List<InProgressUser> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(InProgressUser.class);
+        Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(Restrictions.eq("workflowItem", workflowItem));
 
-        @SuppressWarnings("unchecked")
-        List<InProgressUser> inProgressUsers = (List<InProgressUser>) criteria.list();
-        return inProgressUsers;
+        return list(criteria);
     }
 
     public int countInProgressUsers(Context context, XmlWorkflowItem workflowItem) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(InProgressUser.class);
+        Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(
                 Restrictions.and(
                         Restrictions.eq("workflowItem", workflowItem),
@@ -62,17 +55,17 @@ public class InProgressUserDAOImpl extends AbstractHibernateDAO<InProgressUser> 
                 )
         );
 
-        return ((Long) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
+        return count(criteria);
     }
 
     public int countFinishedUsers(Context context, XmlWorkflowItem workflowItem) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(InProgressUser.class);
+        Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(
                 Restrictions.and(
                         Restrictions.eq("workflowItem", workflowItem),
                         Restrictions.eq("finished", true)
                 )
         );
-        return ((Long) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
+        return count(criteria);
     }
 }

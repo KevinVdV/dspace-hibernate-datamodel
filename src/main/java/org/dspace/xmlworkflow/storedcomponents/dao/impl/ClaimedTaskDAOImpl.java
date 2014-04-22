@@ -23,54 +23,46 @@ public class ClaimedTaskDAOImpl extends AbstractHibernateDAO<ClaimedTask>  imple
 
     @Override
     public List<ClaimedTask> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ClaimedTask.class);
+        Criteria criteria = createCriteria(context, ClaimedTask.class);
         criteria.add(Restrictions.eq("workflowItem", workflowItem));
 
-        @SuppressWarnings("unchecked")
-        List<ClaimedTask> result = (List<ClaimedTask>)criteria.list();
-        return result;
+        return list(criteria);
 
     }
 
     @Override
     public ClaimedTask findByWorkflowItemAndEPerson(Context context, XmlWorkflowItem workflowItem, EPerson ePerson) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ClaimedTask.class);
+        Criteria criteria = createCriteria(context, ClaimedTask.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("workflowItem", workflowItem),
                 Restrictions.eq("owner", ePerson)
         ));
 
-        @SuppressWarnings("unchecked")
-        ClaimedTask claimedTask = (ClaimedTask) criteria.uniqueResult();
-        return claimedTask;
+        return uniqueResult(criteria);
     }
 
     @Override
     public List<ClaimedTask> findByEperson(Context context, EPerson ePerson) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ClaimedTask.class);
+        Criteria criteria = createCriteria(context, ClaimedTask.class);
         criteria.add(Restrictions.eq("owner", ePerson));
 
-        @SuppressWarnings("unchecked")
-        List<ClaimedTask> result = (List<ClaimedTask>)criteria.list();
-        return result;
+        return list(criteria);
     }
 
     @Override
     public List<ClaimedTask> findByWorkflowItemAndStepId(Context context, XmlWorkflowItem workflowItem, String stepID) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ClaimedTask.class);
+        Criteria criteria = createCriteria(context, ClaimedTask.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("workflowItem", workflowItem),
                 Restrictions.eq("stepId", stepID)
         ));
 
-        @SuppressWarnings("unchecked")
-        List<ClaimedTask> result = (List<ClaimedTask>)criteria.list();
-        return result;
+        return list(criteria);
     }
 
     @Override
     public ClaimedTask findByEPersonAndWorkflowItemAndStepIdAndActionId(Context context, EPerson ePerson, XmlWorkflowItem workflowItem, String stepID, String actionID) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ClaimedTask.class);
+        Criteria criteria = createCriteria(context, ClaimedTask.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("workflowItem", workflowItem),
                 Restrictions.eq("owner", ePerson),
@@ -78,32 +70,26 @@ public class ClaimedTaskDAOImpl extends AbstractHibernateDAO<ClaimedTask>  imple
                 Restrictions.eq("actionId", actionID)
         ));
 
-        @SuppressWarnings("unchecked")
-        ClaimedTask claimedTask = (ClaimedTask) criteria.uniqueResult();
-        return claimedTask;
+        return uniqueResult(criteria);
     }
 
     @Override
     public List<ClaimedTask> findByWorkflowItemAndStepIdAndActionId(Context context, XmlWorkflowItem workflowItem, String stepID, String actionID) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ClaimedTask.class);
+        Criteria criteria = createCriteria(context, ClaimedTask.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("workflowItem", workflowItem),
                 Restrictions.eq("stepId", stepID),
                 Restrictions.eq("actionId", actionID)
         ));
 
-        @SuppressWarnings("unchecked")
-        List<ClaimedTask> result = (List<ClaimedTask>)criteria.list();
-        return result;
+        return list(criteria);
     }
 
     @Override
     public List<ClaimedTask> findByStep(Context context, String stepID) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ClaimedTask.class);
+        Criteria criteria = createCriteria(context, ClaimedTask.class);
         criteria.add(Restrictions.eq("stepId", stepID));
 
-        @SuppressWarnings("unchecked")
-        List<ClaimedTask> result = (List<ClaimedTask>)criteria.list();
-        return result;
+        return list(criteria);
     }
 }

@@ -20,13 +20,11 @@ public class MetadataValueDAOImpl extends AbstractHibernateDAO<MetadataValue> im
 
     public List<MetadataValue> findByField(Context context, int fieldId) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(MetadataValue.class);
+        Criteria criteria = createCriteria(context, MetadataValue.class);
         criteria.add(
                 Restrictions.eq("metadataField.id", fieldId)
         );
-        @SuppressWarnings("unchecked")
-        List<MetadataValue> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
 

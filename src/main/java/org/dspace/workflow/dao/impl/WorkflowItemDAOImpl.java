@@ -23,29 +23,25 @@ public class WorkflowItemDAOImpl extends AbstractHibernateDAO<WorkflowItem> impl
 
 
     public WorkflowItem findByItem(Context context, Item i) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(WorkflowItem.class);
+        Criteria criteria = createCriteria(context, WorkflowItem.class);
         criteria.add(Restrictions.eq("item", i));
         // Look for the unique WorkflowItem entry where 'item_id' references this item
-        return (WorkflowItem) criteria.uniqueResult();
+        return uniqueResult(criteria);
     }
 
     public List<WorkflowItem> findByEPerson(Context context, EPerson ep) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(WorkflowItem.class);
+        Criteria criteria = createCriteria(context, WorkflowItem.class);
         criteria.add(Restrictions.eq("item.submitter", ep));
-        @SuppressWarnings("unchecked")
-        List<WorkflowItem> result = criteria.list();
-        return result;
+        return list(criteria);
 
     }
 
     public List<WorkflowItem> findByCollection(Context context, Collection c) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(WorkflowItem.class);
+        Criteria criteria = createCriteria(context, WorkflowItem.class);
         criteria.add(Restrictions.eq("collection", c));
-        @SuppressWarnings("unchecked")
-        List<WorkflowItem> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public List<WorkflowItem> findByPooledTasks(Context context, EPerson ePerson) throws SQLException
@@ -53,9 +49,7 @@ public class WorkflowItemDAOImpl extends AbstractHibernateDAO<WorkflowItem> impl
         String queryString = "select WorkflowItem from WorkflowItem as wf join TaskListItem.eperson tli where tli.eperson = :eperson";
         Query query = context.getDBConnection().createQuery(queryString);
         query.setParameter("eperson", ePerson);
-        @SuppressWarnings("unchecked")
-        List<WorkflowItem> result = query.list();
-        return result;
+        return list(query);
     }
 
 

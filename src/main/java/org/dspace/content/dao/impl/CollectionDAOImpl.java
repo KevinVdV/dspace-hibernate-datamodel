@@ -47,11 +47,10 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
         if(offset != null){
             criteria.setMaxResults(offset);
         }
-        @SuppressWarnings("unchecked")
-        List<Collection> collections = criteria.list();
-        return collections;
+        return list(criteria);
     }
 
+    //TODO: MOVE THESE METHODS TO THE ITEM SERVICE !
     public Iterator<Item> getItems(Context context, Collection collection, boolean inArchive) throws SQLException
     {
         return getItems(context, collection, inArchive, null, null);
@@ -85,14 +84,14 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
     }
 
     public Collection findByTemplateItem(Context context, Item item) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(Collection.class);
+        Criteria criteria = createCriteria(context, Collection.class);
         criteria.add(Restrictions.eq("template_item", item));
-        return (Collection) criteria.uniqueResult();
+        return uniqueResult(criteria);
     }
 
 
     protected Criteria getCriteria(Context context) throws SQLException {
-        return context.getDBConnection().createCriteria(Collection.class);
+        return createCriteria(context, Collection.class);
     }
 
 }

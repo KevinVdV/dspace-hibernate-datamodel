@@ -23,52 +23,44 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 {
 
     public List<ResourcePolicy> findByDso(Context context, DSpaceObject dso) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ResourcePolicy.class);
+        Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", dso.getType()),
                 Restrictions.eq("resource_id", dso.getID())
         ));
-        @SuppressWarnings("unchecked")
-        List<ResourcePolicy> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public List<ResourcePolicy> findByDsoAndType(Context context, DSpaceObject dso, String type) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(ResourcePolicy.class);
+        Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", dso.getType()),
                 Restrictions.eq("resource_id", dso.getID()),
                 Restrictions.eq("rptype", type)
         ));
-        @SuppressWarnings("unchecked")
-        List<ResourcePolicy> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public List<ResourcePolicy> findByGroup(Context context, Group group) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ResourcePolicy.class);
+        Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.eq("epersonGroup", group));
-        @SuppressWarnings("unchecked")
-        List<ResourcePolicy> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public List<ResourcePolicy> findByDSoAndAction(Context context, DSpaceObject dso, int actionId) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(ResourcePolicy.class);
+        Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", dso.getType()),
                 Restrictions.eq("resource_id", dso.getID()),
                 Restrictions.eq("action_id", actionId)
         ));
-        @SuppressWarnings("unchecked")
-        List<ResourcePolicy> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public List<ResourcePolicy> findByTypeIdGroupAction(Context context, int dsoType, int dsoID, Group group, int action, int notPolicyID) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(ResourcePolicy.class);
+        Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", dsoType),
                 Restrictions.eq("resource_id", dsoID),
@@ -83,9 +75,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
             criteria.add(Restrictions.and(Restrictions.not(Restrictions.eq("id", action))));
         }
 
-        @SuppressWarnings("unchecked")
-        List<ResourcePolicy> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public void deleteByDso(Context context, DSpaceObject dso) throws SQLException
@@ -141,16 +131,18 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
     }
 
-    public void deleteByDSOAndTypeNotEqualsTo(Context c, DSpaceObject o, String type) throws SQLException {
+    public void deleteByDSOAndTypeNotEqualsTo(Context context, DSpaceObject o, String type) throws SQLException {
 
-        Criteria criteria = c.getDBConnection().createCriteria(ResourcePolicy.class);
-        List<ResourcePolicy> list = criteria.add(Restrictions.and(
+        Criteria criteria = createCriteria(context, ResourcePolicy.class);
+        criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", o.getType()),
                 Restrictions.eq("resource_id", o.getID()),
                 Restrictions.not(Restrictions.eq("rptype", type))
-        )).list();
+        ));
+        //TODO: test this, prob doesn't work !
+        List<ResourcePolicy> list = list(criteria);
         for (ResourcePolicy resourcePolicy : list) {
-            c.getDBConnection().delete(resourcePolicy);
+            context.getDBConnection().delete(resourcePolicy);
         }
     }
 }

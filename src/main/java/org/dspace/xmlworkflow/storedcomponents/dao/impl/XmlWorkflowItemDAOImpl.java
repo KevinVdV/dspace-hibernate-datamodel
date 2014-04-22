@@ -25,7 +25,7 @@ public class XmlWorkflowItemDAOImpl extends AbstractHibernateDAO<XmlWorkflowItem
 
     @Override
     public List<XmlWorkflowItem> findAllInCollection(Context context, Integer offset, Integer limit, Collection collection) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(XmlWorkflowItem.class);
+        Criteria criteria = createCriteria(context, XmlWorkflowItem.class);
         if(collection != null)
         {
             criteria.add(Restrictions.eq("collection", collection));
@@ -40,9 +40,7 @@ public class XmlWorkflowItemDAOImpl extends AbstractHibernateDAO<XmlWorkflowItem
             criteria.setMaxResults(limit);
         }
 
-        @SuppressWarnings("unchecked")
-        List<XmlWorkflowItem> results = (List<XmlWorkflowItem>) criteria.list();
-        return results;
+        return list(criteria);
     }
 
     @Override
@@ -52,41 +50,35 @@ public class XmlWorkflowItemDAOImpl extends AbstractHibernateDAO<XmlWorkflowItem
 
     @Override
     public int countAllInCollection(Context context, Collection collection) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(XmlWorkflowItem.class);
+        Criteria criteria = createCriteria(context, XmlWorkflowItem.class);
         if(collection != null)
         {
             criteria.add(Restrictions.eq("collection", collection));
         }
-        return ((Long) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
+        return count(criteria);
     }
 
     @Override
     public List<XmlWorkflowItem> findBySubmitter(Context context, EPerson ep) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(XmlWorkflowItem.class);
+        Criteria criteria = createCriteria(context, XmlWorkflowItem.class);
         criteria.add(Restrictions.eq("item.submitter", ep));
 
-        @SuppressWarnings("unchecked")
-        List<XmlWorkflowItem> results = (List<XmlWorkflowItem>) criteria.list();
-        return results;
+        return list(criteria);
     }
 
     @Override
     public List<XmlWorkflowItem> findByCollection(Context context, Collection collection) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(XmlWorkflowItem.class);
+        Criteria criteria = createCriteria(context, XmlWorkflowItem.class);
         criteria.add(Restrictions.eq("collection", collection));
 
-        @SuppressWarnings("unchecked")
-        List<XmlWorkflowItem> results = (List<XmlWorkflowItem>) criteria.list();
-        return results;
+        return list(criteria);
     }
 
     @Override
     public XmlWorkflowItem findByItem(Context context, Item item) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(XmlWorkflowItem.class);
+        Criteria criteria = createCriteria(context, XmlWorkflowItem.class);
         criteria.add(Restrictions.eq("item", item));
 
-        @SuppressWarnings("unchecked")
-        XmlWorkflowItem result = (XmlWorkflowItem) criteria.uniqueResult();
-        return result;
+        return uniqueResult(criteria);
     }
 }

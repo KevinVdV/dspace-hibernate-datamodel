@@ -19,27 +19,22 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class WorkflowItemRoleDAOImpl extends AbstractHibernateDAO<WorkflowItemRole> implements WorkflowItemRoleDAO {
-    @Override
+
     public WorkflowItemRole findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(WorkflowItemRoleDAO.class);
+        Criteria criteria = createCriteria(context, WorkflowItemRole.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("workflowItem", workflowItem),
                 Restrictions.eq("role", role)
             )
         );
 
-        @SuppressWarnings("unchecked")
-        WorkflowItemRole result = (WorkflowItemRole) criteria.uniqueResult();
-        return result;
+        return uniqueResult(criteria);
     }
 
-    @Override
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(WorkflowItemRoleDAO.class);
+        Criteria criteria = createCriteria(context, WorkflowItemRole.class);
         criteria.add(Restrictions.eq("workflowItem", workflowItem));
 
-        @SuppressWarnings("unchecked")
-        List<WorkflowItemRole> result = (List<WorkflowItemRole>) criteria.list();
-        return result;
+        return list(criteria);
     }
 }

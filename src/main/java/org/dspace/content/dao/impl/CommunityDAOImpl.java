@@ -30,11 +30,9 @@ public class CommunityDAOImpl extends AbstractHibernateDAO<Community> implements
      */
     public List<Community> findAll(Context context, String order) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(Community.class);
+        Criteria criteria = createCriteria(context, Community.class);
         criteria.addOrder(Order.asc(order));
-        @SuppressWarnings("unchecked")
-        List<Community> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
 

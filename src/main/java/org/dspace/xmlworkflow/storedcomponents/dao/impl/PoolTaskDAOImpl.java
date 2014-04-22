@@ -22,39 +22,34 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class PoolTaskDAOImpl extends AbstractHibernateDAO<PoolTask> implements PoolTaskDAO {
+
     @Override
     public List<PoolTask> findByEPerson(Context context, EPerson ePerson) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(PoolTask.class);
+        Criteria criteria = createCriteria(context, PoolTask.class);
         criteria.add(Restrictions.eq("ePerson", ePerson));
 
-        @SuppressWarnings("unchecked")
-        List<PoolTask> result = (List<PoolTask>) criteria.list();
-        return result;
+        return list(criteria);
     }
 
     @Override
     public List<PoolTask> findByGroup(Context context, Group group) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(PoolTask.class);
+        Criteria criteria = createCriteria(context, PoolTask.class);
         criteria.add(Restrictions.eq("group", group));
 
-        @SuppressWarnings("unchecked")
-        List<PoolTask> result = (List<PoolTask>) criteria.list();
-        return result;
+        return list(criteria);
     }
 
     @Override
     public List<PoolTask> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(PoolTask.class);
+        Criteria criteria = createCriteria(context, PoolTask.class);
         criteria.add(Restrictions.eq("workflowItem", workflowItem));
 
-        @SuppressWarnings("unchecked")
-        List<PoolTask> result = (List<PoolTask>) criteria.list();
-        return result;
+        return list(criteria);
     }
 
     @Override
     public PoolTask findByWorkflowItemAndEPerson(Context context, XmlWorkflowItem workflowItem, EPerson ePerson) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(PoolTask.class);
+        Criteria criteria = createCriteria(context, PoolTask.class);
         criteria.add(
                 Restrictions.and(
                         Restrictions.eq("workflowItem", workflowItem),
@@ -62,14 +57,12 @@ public class PoolTaskDAOImpl extends AbstractHibernateDAO<PoolTask> implements P
                 )
         );
 
-        @SuppressWarnings("unchecked")
-        PoolTask result = (PoolTask) criteria.uniqueResult();
-        return result;
+        return uniqueResult(criteria);
     }
 
     @Override
     public PoolTask findByWorkflowItemAndGroup(Context context, Group group, XmlWorkflowItem workflowItem) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(PoolTask.class);
+        Criteria criteria = createCriteria(context, PoolTask.class);
         criteria.add(
                 Restrictions.and(
                         Restrictions.eq("workflowItem", workflowItem),
@@ -77,8 +70,6 @@ public class PoolTaskDAOImpl extends AbstractHibernateDAO<PoolTask> implements P
                 )
         );
 
-        @SuppressWarnings("unchecked")
-        PoolTask result = (PoolTask) criteria.uniqueResult();
-        return result;
+        return uniqueResult(criteria);
     }
 }

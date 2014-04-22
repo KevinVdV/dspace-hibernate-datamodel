@@ -20,31 +20,23 @@ import java.util.List;
 public class HandleDAOImpl extends AbstractHibernateDAO<Handle> implements HandleDAO {
 
     public List<Handle> getHandlesByTypeAndId(Context context, int type, int id) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(Handle.class);
+        Criteria criteria = createCriteria(context, Handle.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("resource_type_id", type),
                 Restrictions.eq("resource_id", id)
         ));
-
-        @SuppressWarnings("unchecked")
-        List<Handle> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public Handle findByHandle(Context context, String handle) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(Handle.class);
+        Criteria criteria = createCriteria(context, Handle.class);
         criteria.add(Restrictions.eq("handle", handle));
-        @SuppressWarnings("unchecked")
-        Handle result = (Handle) criteria.uniqueResult();
-        return result;
+        return uniqueResult(criteria);
     }
 
     public List<Handle> findByPrefix(Context context, String prefix) throws SQLException {
-        Criteria criteria = context.getDBConnection().createCriteria(Handle.class);
+        Criteria criteria = createCriteria(context, Handle.class);
         criteria.add(Restrictions.like("handle", prefix + "%"));
-
-        @SuppressWarnings("unchecked")
-        List<Handle> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 }

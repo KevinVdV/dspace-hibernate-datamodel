@@ -1,10 +1,13 @@
 package org.dspace.dao;
 
 import org.dspace.core.Context;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Projections;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -28,9 +31,7 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
     }
 
     public List<T> findAll(Context context, Class clazz) throws SQLException {
-        @SuppressWarnings("unchecked")
-        List<T> result = (List<T>) context.getDBConnection().createCriteria(clazz).list();
-        return result;
+        return list(createCriteria(context, clazz));
     }
 
     public T findUnique(Context context, String query) throws SQLException {
@@ -49,5 +50,42 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
         @SuppressWarnings("unchecked")
         List<T> result = (List<T>) context.getDBConnection().createQuery(query).uniqueResult();
         return result;
+    }
+
+    public Criteria createCriteria(Context context, Class<T> persistentClass) throws SQLException {
+        return context.getDBConnection().createCriteria(persistentClass);
+    }
+
+    public List<T> list(Criteria criteria)
+    {
+        @SuppressWarnings("unchecked")
+        List<T> result = (List<T>) criteria.list();
+        return result;
+    }
+
+    public List<T> list(Query query)
+    {
+        @SuppressWarnings("unchecked")
+        List<T> result = (List<T>) query.list();
+        return result;
+    }
+
+    public T uniqueResult(Criteria criteria)
+    {
+        @SuppressWarnings("unchecked")
+        T result = (T) criteria.uniqueResult();
+        return result;
+    }
+
+    public Iterator<T> iterate(Query query)
+    {
+        @SuppressWarnings("unchecked")
+        Iterator<T> result = (Iterator<T>) query.iterate();
+        return result;
+    }
+
+    public int count(Criteria criteria)
+    {
+        return ((Long) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
     }
 }

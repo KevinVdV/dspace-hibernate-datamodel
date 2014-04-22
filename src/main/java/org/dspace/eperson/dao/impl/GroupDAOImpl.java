@@ -24,33 +24,29 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
 
     public Group findByName(Context context, String name) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(Group.class);
+        Criteria criteria = createCriteria(context, Group.class);
         criteria.add(Restrictions.eq("name", name));
 
-        return (Group) criteria.list();
+        return uniqueResult(criteria);
     }
 
     public List<Group> findAll(Context context, String sortColumn) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(Group.class);
+        Criteria criteria = createCriteria(context, Group.class);
         criteria.addOrder(Order.asc(sortColumn));
 
-        @SuppressWarnings("unchecked")
-        List result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public List<Group> findByEPerson(Context context, EPerson ePerson) throws SQLException {
         Query query = context.getDBConnection().createQuery("from Group where (from EPerson e where e.id = :eperson_id) in elements(epeople)");
         query.setParameter("eperson_id", ePerson.getID());
-        @SuppressWarnings("unchecked")
-        List result = query.list();
-        return result;
+        return list(query);
     }
 
     public List<Group> search(Context context, String query, int offset, int limit) throws SQLException {
         String queryParam = "%"+query.toLowerCase()+"%";
-        Criteria criteria = context.getDBConnection().createCriteria(Group.class);
+        Criteria criteria = createCriteria(context, Group.class);
         Disjunction disjunction = addSearchCriteria(queryParam);
         criteria.add(disjunction);
 
@@ -62,18 +58,16 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
         {
             criteria.setMaxResults(limit);
         }
-        @SuppressWarnings("unchecked")
-        List result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public int searchResultCount(Context context, String query) throws SQLException {
         String queryParam = "%"+query.toLowerCase()+"%";
-        Criteria criteria = context.getDBConnection().createCriteria(Group.class);
+        Criteria criteria = createCriteria(context, Group.class);
         Disjunction disjunction = addSearchCriteria(queryParam);
         criteria.add(disjunction);
 
-        return ((Long) criteria.setProjection(Projections.rowCount()).uniqueResult()).intValue();
+        return count(criteria);
     }
 
     protected Disjunction addSearchCriteria(String queryParam) {

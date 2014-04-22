@@ -27,35 +27,29 @@ public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> im
     {
         Query query = context.getDBConnection().createQuery("from WorkspaceItem ws where ws.item.submitter = :submitter order by workspaceItemId");
         query.setParameter("submitter", ep);
-        @SuppressWarnings("unchecked")
-        List<WorkspaceItem> result = query.list();
-        return result;
+        return list(query);
     }
 
     public List<WorkspaceItem> findByCollection(Context context, Collection c) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(WorkspaceItem.class);
+        Criteria criteria = createCriteria(context, WorkspaceItem.class);
         criteria.add(Restrictions.eq("collection", c));
-        @SuppressWarnings("unchecked")
-        List<WorkspaceItem> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
     public WorkspaceItem findByItem(Context context, Item i) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(WorkspaceItem.class);
+        Criteria criteria = createCriteria(context, WorkspaceItem.class);
         criteria.add(Restrictions.eq("item", i));
         // Look for the unique workspaceitem entry where 'item_id' references this item
-        return (WorkspaceItem) criteria.uniqueResult();
+        return uniqueResult(criteria);
     }
 
     public List<WorkspaceItem> findAll(Context context) throws SQLException
     {
-        Criteria criteria = context.getDBConnection().createCriteria(WorkspaceItem.class);
+        Criteria criteria = createCriteria(context, WorkspaceItem.class);
         criteria.addOrder(Order.asc("item"));
-        @SuppressWarnings("unchecked")
-        List<WorkspaceItem> result = criteria.list();
-        return result;
+        return list(criteria);
     }
 
 }
