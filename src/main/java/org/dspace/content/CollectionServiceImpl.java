@@ -16,6 +16,7 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.*;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;

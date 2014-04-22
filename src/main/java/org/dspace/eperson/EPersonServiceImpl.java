@@ -79,7 +79,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
     public EPerson find(Context context, int id) throws SQLException
     {
         // First check the cache
-        return (EPerson) ePersonDAO.findByID(context, EPerson.class, id);
+        return ePersonDAO.findByID(context, EPerson.class, id);
     }
 
     public String getName(EPerson dso) {

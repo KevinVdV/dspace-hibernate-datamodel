@@ -1,8 +1,8 @@
-package org.dspace.content;
+package org.dspace.content.service;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
-import org.dspace.content.service.DSpaceObjectService;
+import org.dspace.content.*;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;

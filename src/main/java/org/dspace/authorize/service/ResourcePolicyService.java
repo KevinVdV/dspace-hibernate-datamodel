@@ -6,6 +6,7 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.service.DSpaceCRUDService;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -15,11 +16,7 @@ import java.util.List;
  * Date: 31/03/14
  * Time: 13:32
  */
-public interface ResourcePolicyService {
-
-    public ResourcePolicy find(Context context, int id) throws SQLException;
-
-    public ResourcePolicy create(Context context) throws SQLException, AuthorizeException;
+public interface ResourcePolicyService extends DSpaceCRUDService<ResourcePolicy> {
 
     public List<ResourcePolicy> find(Context c, DSpaceObject o) throws SQLException;
 
@@ -28,8 +25,6 @@ public interface ResourcePolicyService {
     public List<ResourcePolicy> find(Context c, DSpaceObject o, int actionId) throws SQLException;
 
     public List<ResourcePolicy> find(Context c, int dsoType, int dsoID, Group group, int action, int notPolicyID) throws SQLException;
-
-    public void delete(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException;
 
     public void setResource(ResourcePolicy resourcePolicy, DSpaceObject o);
 
@@ -50,6 +45,4 @@ public interface ResourcePolicyService {
     public void removeGroupPolicies(Context c, Group group) throws SQLException;
 
     public void removeDsoAndTypeNotEqualsToPolicies(Context c, DSpaceObject o, String type) throws SQLException, AuthorizeException;
-
-    public void update(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException;
 }

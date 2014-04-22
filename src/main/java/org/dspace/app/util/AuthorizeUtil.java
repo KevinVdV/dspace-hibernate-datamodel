@@ -17,6 +17,7 @@ import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.*;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.factory.DSpaceServiceFactory;

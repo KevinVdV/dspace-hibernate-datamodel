@@ -23,6 +23,7 @@ public interface BundleService extends DSpaceObjectService<Bundle> {
 
     public Bundle find(Context context, int id) throws SQLException;
 
+    //TODO: add item here ?
     public Bundle create(Context context) throws SQLException;
 
     public Bitstream getBitstreamByName(Bundle bundle, String name);

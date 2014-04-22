@@ -3,6 +3,7 @@ package org.dspace.content.service;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.core.Context;
+import org.dspace.service.DSpaceCRUDService;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  * Date: 31/03/14
  * Time: 10:37
  */
-public interface BitstreamFormatService {
+public interface BitstreamFormatService extends DSpaceCRUDService<BitstreamFormat>{
 
     /**
      * The "unknown" support level - for bitstream formats that are unknown to
@@ -40,8 +41,6 @@ public interface BitstreamFormatService {
         { "UNKNOWN", "KNOWN", "SUPPORTED" };
 
 
-    public BitstreamFormat find(Context context, int id) throws SQLException;
-
     public BitstreamFormat findByMIMEType(Context context, String mimeType) throws SQLException;
 
     public BitstreamFormat findByShortDescription(Context context, String desc) throws SQLException;
@@ -52,17 +51,11 @@ public interface BitstreamFormatService {
 
     public List<BitstreamFormat> findNonInternal(Context context) throws SQLException;
 
-    public BitstreamFormat create(Context context) throws SQLException, AuthorizeException;
-
     public void setShortDescription(Context context, BitstreamFormat bitstreamFormat, String s) throws SQLException;
 
     public String getSupportLevelText(BitstreamFormat bitstreamFormat);
 
     public void setSupportLevel(BitstreamFormat bitstreamFormat, int sl);
-
-    public void update(Context context, BitstreamFormat bitstreamFormat) throws SQLException, AuthorizeException;
-
-    public void delete(Context context, BitstreamFormat bitstreamFormat) throws SQLException, AuthorizeException;
 
     public int getSupportLevelID(String slevel);
 }

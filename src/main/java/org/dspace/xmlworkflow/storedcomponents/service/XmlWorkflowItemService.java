@@ -20,7 +20,7 @@ import java.util.List;
  */
 public interface XmlWorkflowItemService extends InProgressSubmissionService<XmlWorkflowItem> {
 
-    public XmlWorkflowItem create(Context context) throws SQLException;
+    public XmlWorkflowItem create(Context context, Item item, Collection collection) throws SQLException;
 
     public XmlWorkflowItem find(Context context, int id) throws SQLException;
 

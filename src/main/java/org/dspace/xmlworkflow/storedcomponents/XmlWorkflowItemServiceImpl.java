@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
-import org.dspace.content.ItemService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
@@ -49,8 +49,11 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     public XmlWorkflowItemServiceImpl() {
     }
 
-    public XmlWorkflowItem create(Context context) throws SQLException {
-        return xmlWorkflowItemDAO.create(context, new XmlWorkflowItem());
+    public XmlWorkflowItem create(Context context, Item item, Collection collection) throws SQLException {
+        XmlWorkflowItem xmlWorkflowItem = xmlWorkflowItemDAO.create(context, new XmlWorkflowItem());
+        xmlWorkflowItem.setItem(item);
+        xmlWorkflowItem.setCollection(collection);
+        return xmlWorkflowItem;
     }
 
     /**
@@ -199,8 +202,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     /**
      * delete the WorkflowItem, retaining the Item
      */
-    public void deleteWrapper(Context context, XmlWorkflowItem workflowItem) throws SQLException
-    {
+    public void deleteWrapper(Context context, XmlWorkflowItem workflowItem) throws SQLException, AuthorizeException {
         List<WorkflowItemRole> roles = workflowItemRoleService.findByWorkflowItem(context, workflowItem);
         Iterator<WorkflowItemRole> workflowItemRoleIterator = roles.iterator();
         while (workflowItemRoleIterator.hasNext())

@@ -1,6 +1,7 @@
 package org.dspace.xmlworkflow.storedcomponents.service;
 
 import org.dspace.core.Context;
+import org.dspace.service.DSpaceCRUDService;
 import org.dspace.xmlworkflow.storedcomponents.WorkflowItemRole;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 
@@ -14,17 +15,9 @@ import java.util.List;
  * Time: 10:51
  * To change this template use File | Settings | File Templates.
  */
-public interface WorkflowItemRoleService {
-
-    public WorkflowItemRole find(Context context, int id) throws SQLException;
-
+public interface WorkflowItemRoleService extends DSpaceCRUDService<WorkflowItemRole>
+{
     public WorkflowItemRole findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException;
 
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException;
-
-    public WorkflowItemRole create(Context context) throws SQLException;
-
-    public void delete(Context context, WorkflowItemRole workflowItemRole) throws SQLException;
-
-    public void update(Context context, WorkflowItemRole workflowItemRole) throws SQLException;
 }

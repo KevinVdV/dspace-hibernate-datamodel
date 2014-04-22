@@ -1,5 +1,6 @@
 package org.dspace.content;
 
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;

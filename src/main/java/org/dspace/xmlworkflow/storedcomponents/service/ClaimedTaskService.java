@@ -2,6 +2,7 @@ package org.dspace.xmlworkflow.storedcomponents.service;
 
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
+import org.dspace.service.DSpaceCRUDService;
 import org.dspace.xmlworkflow.storedcomponents.ClaimedTask;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 
@@ -15,9 +16,7 @@ import java.util.List;
  * Time: 09:46
  * To change this template use File | Settings | File Templates.
  */
-public interface ClaimedTaskService {
-
-    public ClaimedTask find(Context context, int id) throws SQLException;
+public interface ClaimedTaskService extends DSpaceCRUDService<ClaimedTask>{
 
     public List<ClaimedTask> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException;
 
@@ -33,11 +32,5 @@ public interface ClaimedTaskService {
 
     public List<ClaimedTask> findByStep(Context context, String stepID) throws SQLException;
 
-    public ClaimedTask create(Context context) throws SQLException;
-
-    public void delete(Context context, ClaimedTask claimedTask) throws SQLException;
-
     public void deleteByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException;
-
-    public void update(Context context, ClaimedTask claimedTask) throws SQLException;
 }
