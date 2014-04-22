@@ -32,7 +32,7 @@ public class WorkspaceItem implements InProgressSubmission{
     private Collection collection;
 
     @Column(name = "multiple_titles")
-    private Boolean multipleTitles;
+    private Boolean multipleTitles = false;
 
     @Column(name = "published_before")
     private Boolean publishedBefore = false;
@@ -92,7 +92,7 @@ public class WorkspaceItem implements InProgressSubmission{
         return item;
     }
 
-    public void setItem(Item item) {
+    void setItem(Item item) {
         this.item = item;
     }
 
@@ -100,7 +100,7 @@ public class WorkspaceItem implements InProgressSubmission{
         return collection;
     }
 
-    public void setCollection(Collection collection) {
+    void setCollection(Collection collection) {
         this.collection = collection;
     }
 
