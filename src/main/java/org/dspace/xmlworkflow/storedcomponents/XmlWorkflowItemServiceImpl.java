@@ -10,6 +10,7 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.dao.XmlWorkflowItemDAO;
 import org.dspace.xmlworkflow.storedcomponents.service.ClaimedTaskService;
+import org.dspace.xmlworkflow.storedcomponents.service.PoolTaskService;
 import org.dspace.xmlworkflow.storedcomponents.service.WorkflowItemRoleService;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,7 +192,6 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
         xmlWorkflowItemDAO.save(context, workflowItem);
     }
 
-    @Override
     public EPerson getSubmitter(XmlWorkflowItem inProgressSubmission) throws SQLException {
         return inProgressSubmission.getItem().getSubmitter();
     }
@@ -209,7 +209,8 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
             workflowItemRoleService.delete(context, workflowItemRole);
         }
 
-        XmlWorkflowManager.deleteAllTasks(context, this);
+        poolTaskService.deleteByWorkflowItem(context, workflowItem);
+        claimedTaskService.deleteByWorkflowItem(context, workflowItem);
 
         // FIXME - auth?
         xmlWorkflowItemDAO.delete(context, workflowItem);

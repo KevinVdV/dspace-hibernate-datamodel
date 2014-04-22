@@ -14,7 +14,7 @@ import org.dspace.xmlworkflow.storedcomponents.service.ClaimedTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -79,6 +79,16 @@ public class ClaimedTaskServiceImpl implements ClaimedTaskService {
         claimedTaskDAO.delete(context, claimedTask);
     }
 
+    public void deleteByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
+        List<ClaimedTask> claimedTasks = findByWorkflowItem(context, workflowItem);
+        //Use an iterator to remove the tasks !
+        Iterator<ClaimedTask> iterator = claimedTasks.iterator();
+        while (iterator.hasNext()) {
+            ClaimedTask claimedTask = iterator.next();
+            delete(context, claimedTask);
+        }
+
+    }
 
     public void update(Context context, ClaimedTask claimedTask) throws SQLException
     {

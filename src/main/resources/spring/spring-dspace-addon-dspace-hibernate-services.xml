@@ -30,6 +30,14 @@
 
     <bean class="org.dspace.handle.HandleServiceImpl"/>
 
+
+    <bean class="org.dspace.xmlworkflow.storedcomponents.ClaimedTaskServiceImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.CollectionRoleServiceImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.InProgressUserServiceImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.PoolTaskServiceImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.WorkflowItemRoleServiceImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItemServiceImpl"/>
+
     <!-- **************** -->
     <!-- DAO declarations -->
     <!-- **************** -->
@@ -53,6 +61,14 @@
     <bean class="org.dspace.handle.dao.impl.HandleDAOImpl"/>
 
     <bean class="org.dspace.authorize.dao.impl.ResourcePolicyDAOImpl"/>
+
+    <bean class="org.dspace.xmlworkflow.storedcomponents.dao.impl.ClaimedTaskDAOImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.dao.impl.CollectionRoleDAOImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.dao.impl.InProgressUserDAOImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.dao.impl.PoolTaskDAOImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.dao.impl.WorkflowItemRoleDAOImpl"/>
+    <bean class="org.dspace.xmlworkflow.storedcomponents.dao.impl.XmlWorkflowItemDAOImpl"/>
+
 
 
 

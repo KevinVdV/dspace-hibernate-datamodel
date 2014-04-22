@@ -37,5 +37,7 @@ public interface ClaimedTaskService {
 
     public void delete(Context context, ClaimedTask claimedTask) throws SQLException;
 
+    public void deleteByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException;
+
     public void update(Context context, ClaimedTask claimedTask) throws SQLException;
 }
