@@ -6,6 +6,7 @@ import org.dspace.content.service.*;
 import org.dspace.core.Constants;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.eperson.service.RegistrationDataService;
 import org.dspace.handle.service.HandleService;
 import org.dspace.utils.DSpace;
 import org.dspace.workflow.WorkflowItem;
@@ -53,6 +54,8 @@ public abstract class DSpaceServiceFactory {
     public abstract HandleService getHandleService();
 
     public abstract SubscriptionService getSubscriptionService();
+
+    public abstract RegistrationDataService getRegistrationDataService();
 
     public InProgressSubmissionService getInProgressSubmissionService(InProgressSubmission inProgressSubmission)
     {

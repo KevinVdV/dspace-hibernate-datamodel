@@ -19,6 +19,7 @@
     <bean class="org.dspace.content.CommunityServiceImpl"/>
     <bean class="org.dspace.eperson.EPersonServiceImpl"/>
     <bean class="org.dspace.eperson.GroupServiceImpl"/>
+    <bean class="org.dspace.eperson.RegistrationDataServiceImpl"/>
     <bean class="org.dspace.authorize.ResourcePolicyServiceImpl"/>
     <bean class="org.dspace.content.MetadataFieldServiceImpl"/>
     <bean class="org.dspace.content.MetadataSchemaServiceImpl"/>
@@ -59,6 +60,7 @@
 
     <bean class="org.dspace.eperson.dao.impl.EPersonDAOImpl"/>
     <bean class="org.dspace.eperson.dao.impl.GroupDAOImpl"/>
+    <bean class="org.dspace.eperson.dao.impl.RegistrationDataDAOImpl"/>
 
     <bean class="org.dspace.handle.dao.impl.HandleDAOImpl"/>
 

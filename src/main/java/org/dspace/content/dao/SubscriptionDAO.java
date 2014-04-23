@@ -7,6 +7,7 @@ import org.dspace.dao.GenericDAO;
 import org.dspace.eperson.EPerson;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -16,4 +17,12 @@ import java.sql.SQLException;
 public interface SubscriptionDAO extends GenericDAO<Subscription> {
 
     public void deleteByCollection(Context context, Collection collection) throws SQLException;
+
+    public List<Subscription> findByEPerson(Context context, EPerson eperson) throws SQLException;
+
+    public Subscription findByCollectionAndEPerson(Context context, EPerson eperson, Collection collection) throws SQLException;
+
+    public void deleteByEPerson(Context context, EPerson eperson) throws SQLException;
+
+    public void deleteByCollectionAndEPerson(Context context, Collection collection, EPerson eperson) throws SQLException;
 }

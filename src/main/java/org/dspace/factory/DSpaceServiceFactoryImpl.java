@@ -5,6 +5,7 @@ import org.dspace.content.*;
 import org.dspace.content.service.*;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.eperson.service.RegistrationDataService;
 import org.dspace.handle.service.HandleService;
 import org.dspace.workflow.service.TaskListItemService;
 import org.dspace.workflow.service.WorkflowItemService;
@@ -55,6 +56,8 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     private HandleService handleService;
     @Autowired(required = true)
     private SubscriptionService subscriptionService;
+    @Autowired(required = true)
+    private RegistrationDataService registrationDataService;
 
 
     public BitstreamFormatService getBitstreamFormatService()
@@ -136,5 +139,10 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Override
     public SubscriptionService getSubscriptionService() {
         return subscriptionService;
+    }
+
+    @Override
+    public RegistrationDataService getRegistrationDataService() {
+        return registrationDataService;
     }
 }
