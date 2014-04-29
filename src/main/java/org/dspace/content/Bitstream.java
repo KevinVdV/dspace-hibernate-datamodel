@@ -1,5 +1,6 @@
 package org.dspace.content;
 
+import org.dspace.checker.MostRecentChecksum;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -19,7 +20,7 @@ import java.util.List;
  * Time: 09:25
  */
 @Entity
-@Table(name="bitstream")
+@Table(name="bitstream", schema = "public")
 public class Bitstream extends DSpaceObject{
 
 

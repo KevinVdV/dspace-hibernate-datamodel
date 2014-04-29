@@ -10,6 +10,7 @@ package org.dspace.content;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -176,6 +177,24 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         return bitstreamDAO.findDuplicateInternalIdentifier(context, bitstream);
     }
 
+    @Override
+    public Iterator<Bitstream> findAllInCommunity(Context context, Community community) {
+        //TODO: IMPLEMENT THIS ONCE BUNDLE HAS BEEN REFACTORED
+        return null;
+    }
+
+    @Override
+    public Iterator<Bitstream> findAllInCollection(Context context, Collection collection) {
+        //TODO: IMPLEMENT THIS ONCE BUNDLE HAS BEEN REFACTORED
+        return null;
+    }
+
+    @Override
+    public Iterator<Bitstream> findAllInItem(Context context, Item item) {
+        //TODO: IMPLEMENT THIS ONCE BUNDLE HAS BEEN REFACTORED
+        return null;
+    }
+
     /**
      * Set the user's format description. This implies that the format of the
      * bitstream is uncertain, and the format is set to "unknown."
@@ -292,6 +311,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         log.info(LogManager.getHeader(context, "delete_bitstream",
                 "bitstream_id=" + bitstream.getID()));
 
+        //TODO: remove from bundle ?
         context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, bitstream.getID(), String.valueOf(bitstream.getSequenceID())));
 
         // Remove policies

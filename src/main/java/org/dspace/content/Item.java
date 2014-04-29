@@ -26,6 +26,7 @@ public class Item extends DSpaceObject{
     /**
      * Wild card for Dublin Core metadata qualifiers/languages
      */
+    //TODO: move to item service ?
     public static final String ANY = "*";
 
     @Id
@@ -67,7 +68,7 @@ public class Item extends DSpaceObject{
     @SequenceGenerator(name="collection2item_seq", sequenceName="collection2item_seq", allocationSize = 1)
     private List<Collection> collections = new ArrayList<Collection>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "items")
     private List<Bundle> bundles = new ArrayList<Bundle>();
 
 
