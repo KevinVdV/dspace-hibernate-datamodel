@@ -1,6 +1,9 @@
 package org.dspace.factory;
 
 import org.dspace.authorize.service.ResourcePolicyService;
+import org.dspace.checker.service.ChecksumHistoryService;
+import org.dspace.checker.service.ChecksumResultService;
+import org.dspace.checker.service.MostRecentChecksumService;
 import org.dspace.content.*;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
@@ -56,6 +59,12 @@ public abstract class DSpaceServiceFactory {
     public abstract SubscriptionService getSubscriptionService();
 
     public abstract RegistrationDataService getRegistrationDataService();
+
+    public abstract MostRecentChecksumService getMostRecentChecksumService();
+
+    public abstract ChecksumHistoryService getChecksumHistoryService();
+
+    public abstract ChecksumResultService getChecksumResultService();
 
     public InProgressSubmissionService getInProgressSubmissionService(InProgressSubmission inProgressSubmission)
     {

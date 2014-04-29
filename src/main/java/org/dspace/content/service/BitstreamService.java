@@ -1,13 +1,13 @@
 package org.dspace.content.service;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.Bitstream;
-import org.dspace.content.BitstreamFormat;
+import org.dspace.content.*;
 import org.dspace.core.Context;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -28,6 +28,12 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream> {
     public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException;
 
     public List<Bitstream> findDuplicateInternalIdentifier(Context context, Bitstream bitstream) throws SQLException;
+
+    public Iterator<Bitstream> findAllInCommunity(Context context, Community community);
+
+    public Iterator<Bitstream> findAllInCollection(Context context, Collection collection);
+
+    public Iterator<Bitstream> findAllInItem(Context context, Item item);
 
     public void setUserFormatDescription(Context context, Bitstream bitstream, String desc) throws SQLException;
 

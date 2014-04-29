@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.checker.service.ChecksumHistoryService;
 import org.dspace.content.Bitstream;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.ConfigurationManager;
@@ -68,6 +69,7 @@ public class BitstreamStorageManager
     private static Logger log = Logger.getLogger(BitstreamStorageManager.class);
 
     private static final BitstreamService BITSTREAM_SERVICE = DSpaceServiceFactory.getInstance().getBitstreamService();
+    private static final ChecksumHistoryService CHECKSUM_HISTORY_SERVICE = DSpaceServiceFactory.getInstance().getChecksumHistoryService();
 
 	/**
 	 * The asset store locations. The information for each GeneralFile in the
@@ -565,8 +567,7 @@ public class BitstreamStorageManager
                         {
                             System.out.println(" - Deleting bitstream information (ID: " + bid + ")");
                         }
-                                //TODO: HIBERNATE IMPLEMENT BitstreamInfoDAO
-//                        bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
+                        CHECKSUM_HISTORY_SERVICE.deleteByBitstream(context, bitstream);
                         if (verbose)
                         {
                             System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
@@ -591,12 +592,12 @@ public class BitstreamStorageManager
                     {
                         System.out.println(" - Deleting bitstream information (ID: " + bid + ")");
                     }
-                            //TODO: HIBERNATE IMPLEMENT BitstreamInfoDAO
-//                    bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
+                    CHECKSUM_HISTORY_SERVICE.deleteByBitstream(context, bitstream);
                     if (verbose)
                     {
                         System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
                     }
+                    //TODO: HIBERNATE: DOESN't DELETE ACTUAL ROW IN DB !
                     BITSTREAM_SERVICE.delete(context, bitstream);
                 }
 

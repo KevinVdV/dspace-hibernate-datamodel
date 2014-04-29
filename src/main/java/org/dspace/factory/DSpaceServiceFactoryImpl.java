@@ -1,6 +1,9 @@
 package org.dspace.factory;
 
 import org.dspace.authorize.service.ResourcePolicyService;
+import org.dspace.checker.service.ChecksumHistoryService;
+import org.dspace.checker.service.ChecksumResultService;
+import org.dspace.checker.service.MostRecentChecksumService;
 import org.dspace.content.*;
 import org.dspace.content.service.*;
 import org.dspace.eperson.service.EPersonService;
@@ -58,6 +61,12 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     private SubscriptionService subscriptionService;
     @Autowired(required = true)
     private RegistrationDataService registrationDataService;
+    @Autowired(required = true)
+    private MostRecentChecksumService mostRecentChecksumService;
+    @Autowired(required = true)
+    private ChecksumHistoryService checksumHistoryService;
+    @Autowired(required = true)
+    private ChecksumResultService checksumResultService;
 
 
     public BitstreamFormatService getBitstreamFormatService()
@@ -144,5 +153,20 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Override
     public RegistrationDataService getRegistrationDataService() {
         return registrationDataService;
+    }
+
+    @Override
+    public MostRecentChecksumService getMostRecentChecksumService() {
+        return mostRecentChecksumService;
+    }
+
+    @Override
+    public ChecksumHistoryService getChecksumHistoryService() {
+        return checksumHistoryService;
+    }
+
+    @Override
+    public ChecksumResultService getChecksumResultService() {
+        return checksumResultService;
     }
 }
