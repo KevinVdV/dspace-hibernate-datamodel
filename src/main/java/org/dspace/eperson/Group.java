@@ -23,10 +23,13 @@ import java.util.List;
 @Table(name = "epersongroup", schema = "public" )
 public class Group extends DSpaceObject {
 
+    /**
+     * Initial value is set to 2 since 0 & 1 are reserved for anonymous & administrative uses
+     */
     @Id
     @Column(name="eperson_group_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="epersongroup_seq")
-    @SequenceGenerator(name="epersongroup_seq", sequenceName="epersongroup_seq")
+    @SequenceGenerator(name="epersongroup_seq", sequenceName="epersongroup_seq", initialValue = 2)
     private Integer id;
 
     @Column(name="name")

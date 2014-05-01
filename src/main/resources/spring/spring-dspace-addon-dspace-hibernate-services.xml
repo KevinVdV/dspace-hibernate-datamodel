@@ -8,8 +8,10 @@
 
     <bean id="serviceFactory" class="org.dspace.factory.DSpaceServiceFactoryImpl"/>
 
+
+
     <!-- ******************** -->
-    <!-- Manager declarations -->
+    <!-- Service declarations -->
     <!-- ******************** -->
     <bean class="org.dspace.content.BitstreamFormatServiceImpl"/>
     <bean class="org.dspace.content.BitstreamServiceImpl"/>
@@ -26,6 +28,8 @@
     <bean class="org.dspace.content.MetadataValueServiceImpl"/>
     <bean class="org.dspace.content.SubscriptionServiceImpl"/>
     <bean class="org.dspace.content.WorkspaceItemServiceImpl"/>
+    <bean class="org.dspace.content.InstallItemServiceImpl"/>
+    <bean class="org.dspace.content.SupervisedItemServiceImpl"/>
 
     <bean class="org.dspace.workflow.WorkflowItemServiceImpl"/>
     <bean class="org.dspace.workflow.TaskListItemServiceImpl"/>
@@ -47,6 +51,8 @@
     <bean class="org.dspace.checker.MostRecentChecksumServiceImpl"/>
     <bean class="org.dspace.checker.ChecksumHistoryServiceImpl"/>
 
+    <bean class="org.dspace.app.util.WebAppServiceImpl"/>
+
 
     <!-- **************** -->
     <!-- DAO declarations -->
@@ -62,6 +68,7 @@
     <bean class="org.dspace.content.dao.impl.MetadataValueDAOImpl"/>
     <bean class="org.dspace.content.dao.impl.SubscriptionDAOImpl"/>
     <bean class="org.dspace.content.dao.impl.WorkspaceItemDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.SupervisedItemDAOImpl"/>
 
     <bean class="org.dspace.workflow.dao.impl.WorkflowItemDAOImpl"/>
     <bean class="org.dspace.workflow.dao.impl.TaskListItemDAOImpl"/>
@@ -88,9 +95,6 @@
     <bean class="org.dspace.checker.dao.impl.MostRecentChecksumDAOImpl"/>
     <bean class="org.dspace.checker.dao.impl.ChecksumHistoryDAOImpl"/>
 
-
-
-
-
+    <bean class="org.dspace.app.util.dao.impl.WebAppDAOImpl"/>
 
 </beans>

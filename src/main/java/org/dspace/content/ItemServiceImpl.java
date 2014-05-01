@@ -29,7 +29,6 @@ import org.dspace.content.authority.MetadataAuthorityManager;
 import org.dspace.event.Event;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.handle.HandleServiceImpl;
 import org.dspace.handle.service.HandleService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -73,6 +72,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected BitstreamService bitstreamService;
     @Autowired(required = true)
     protected HandleService handleService;
+    @Autowired(required = true)
+    protected InstallItemService installItemService;
 
     public ItemServiceImpl()
     {
@@ -1070,7 +1071,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         // in_archive flag is now false
         item.setInArchive(false);
 
-        prov.append(InstallItem.getBitstreamProvenanceMessage(item));
+        prov.append(installItemService.getBitstreamProvenanceMessage(item));
 
         addMetadata(context, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", prov.toString());
 
@@ -1125,7 +1126,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         // Add suitable provenance - includes user, date, collections +
         // bitstream checksums
-        prov.append(InstallItem.getBitstreamProvenanceMessage(item));
+        prov.append(installItemService.getBitstreamProvenanceMessage(item));
 
         addMetadata(context, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", prov.toString());
 

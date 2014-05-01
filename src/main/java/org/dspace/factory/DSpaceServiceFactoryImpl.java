@@ -1,5 +1,6 @@
 package org.dspace.factory;
 
+import org.dspace.app.util.service.WebAppService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.checker.service.ChecksumHistoryService;
 import org.dspace.checker.service.ChecksumResultService;
@@ -67,6 +68,12 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     private ChecksumHistoryService checksumHistoryService;
     @Autowired(required = true)
     private ChecksumResultService checksumResultService;
+    @Autowired(required = true)
+    private InstallItemService installItemService;
+    @Autowired(required = true)
+    private WebAppService webAppService;
+    @Autowired(required = true)
+    private SupervisedItemService supervisedItemService;
 
 
     public BitstreamFormatService getBitstreamFormatService()
@@ -168,5 +175,20 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Override
     public ChecksumResultService getChecksumResultService() {
         return checksumResultService;
+    }
+
+    @Override
+    public InstallItemService getInstallItemService() {
+        return installItemService;
+    }
+
+    @Override
+    public WebAppService getWebAppService() {
+        return webAppService;
+    }
+
+    @Override
+    public SupervisedItemService getSupervisedItemService() {
+        return supervisedItemService;
     }
 }

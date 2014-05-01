@@ -87,6 +87,8 @@ public class AbstractUnitTest
     protected EPersonService ePersonService = serviceFactory.getEPersonService();
     protected GroupService groupService = serviceFactory.getGroupService();
     protected BitstreamFormatService bitstreamFormatService = serviceFactory.getBitstreamFormatService();
+    protected InstallItemService installItemService = serviceFactory.getInstallItemService();
+    protected SupervisedItemService supervisedItemService = serviceFactory.getSupervisedItemService();
 
 
     protected static DSpaceKernelImpl kernelImpl;
@@ -124,7 +126,6 @@ public class AbstractUnitTest
             ConfigurationManager.loadConfig(null);
 
             // Initialise the service manager kernel
-//            TODO: HIBERNATE dspace kernel init
             kernelImpl = DSpaceKernelInit.getKernel(null);
             if (!kernelImpl.isRunning())
             {
@@ -153,7 +154,19 @@ public class AbstractUnitTest
                 ctx.commit();
             }
 
-                //create eperson if required
+            GroupService groupService = DSpaceServiceFactory.getInstance().getGroupService();
+            Group group = groupService.create(ctx);
+            group.setName("Anonymous");
+            groupService.update(ctx, group);
+
+            group = groupService.create(ctx);
+            group.setName("Administrator");
+            groupService.update(ctx, group);
+
+
+
+
+            //create eperson if required
             EPersonService ePersonService = DSpaceServiceFactory.getInstance().getEPersonService();
             eperson = ePersonService.find(ctx, 1);
                 if(eperson == null)

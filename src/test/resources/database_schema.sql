@@ -621,8 +621,9 @@ CREATE TABLE community_item_count (
 --  and administrators
 -------------------------------------------------------
 -- We don't use getnextid() for 'anonymous' since the sequences start at '1'
-INSERT INTO epersongroup VALUES(0, 'Anonymous');
-INSERT INTO epersongroup VALUES(1, 'Administrator');
+-- TODO: Not required for our tests since the test db ignores the sequence start number
+--INSERT INTO epersongroup VALUES(0, 'Anonymous');
+--INSERT INTO epersongroup VALUES(1, 'Administrator');
 
 
 -------------------------------------------------------

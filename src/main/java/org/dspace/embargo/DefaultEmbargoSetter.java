@@ -56,7 +56,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
      * @return parsed date in DCDate format
      */
     public DCDate parseTerms(Context context, Item item, String terms)
-        throws SQLException, AuthorizeException, IOException
+        throws SQLException, AuthorizeException
     {
     	if (terms != null && terms.length() > 0)
     	{
@@ -80,7 +80,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
      * @param item the item to embargo
      */
     public void setEmbargo(Context context, Item item)
-        throws SQLException, AuthorizeException, IOException
+        throws SQLException, AuthorizeException
     {
         DCDate liftDate = EmbargoManager.getEmbargoTermsAsDate(context, item);
         for (Bundle bn : item.getBundles())
@@ -146,7 +146,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
      * @param item the item to embargo
      */
     public void checkEmbargo(Context context, Item item)
-        throws SQLException, AuthorizeException, IOException
+        throws SQLException, AuthorizeException
     {
         for (Bundle bn : item.getBundles())
         {

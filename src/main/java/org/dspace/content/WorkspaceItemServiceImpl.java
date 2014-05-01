@@ -396,8 +396,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
 
     }*/
 
-    public void deleteWrapper(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException,
-            IOException
+    public void deleteWrapper(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException
     {
         // Check authorisation. We check permissions on the enclosed item.
         AuthorizeManager.authorizeAction(context, workspaceItem.getItem(), Constants.WRITE);

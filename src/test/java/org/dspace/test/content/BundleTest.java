@@ -68,7 +68,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
             this.owningCommunity = communityService.create(null, context);
             this.collection = collectionService.create(context, owningCommunity);
             WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, false);
-            it = InstallItem.installItem(context, workspaceItem);
+            it = installItemService.installItem(context, workspaceItem);
             this.b = itemService.createBundle(context, it, bundleName);
             this.dspaceObject = b;
 

@@ -87,7 +87,7 @@ public class EmbargoManager
      * @param item the item to embargo
      */
     public static void setEmbargo(Context context, Item item)
-        throws SQLException, AuthorizeException, IOException
+        throws SQLException, AuthorizeException
     {
         init();
         // if lift is null, we might be restoring an item from an AIP
@@ -134,7 +134,7 @@ public class EmbargoManager
      * @return lift date on which the embargo is to be lifted, or null if none
      */
     public static DCDate getEmbargoTermsAsDate(Context context, Item item)
-        throws SQLException, AuthorizeException, IOException
+        throws SQLException, AuthorizeException
     {
         init();
         List<MetadataValue> terms = ITEM_SERVICE.getMetadata(item, terms_schema, terms_element,

@@ -36,7 +36,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.handle.HandleServiceImpl;
 import org.dspace.handle.service.HandleService;
 import org.dspace.usage.UsageWorkflowEvent;
 import org.dspace.utils.DSpace;
@@ -121,6 +120,7 @@ public class WorkflowManager
     protected static final GroupService GROUP_SERVICE = DSpaceServiceFactory.getInstance().getGroupService();
     protected static final TaskListItemService TASK_LIST_ITEM_SERVICE = DSpaceServiceFactory.getInstance().getTaskListItemService();
     protected static final HandleService HANDLE_SERVICE = DSpaceServiceFactory.getInstance().getHandleService();
+    protected static final InstallItemService INSTALL_ITEM_SERVICE = DSpaceServiceFactory.getInstance().getInstallItemService();
 
     /**
      * Translate symbolic name of workflow state into number.
@@ -662,7 +662,7 @@ public class WorkflowManager
                 + wfi.getID() + "item_id=" + item.getID() + "collection_id="
                 + collection.getID()));
 
-        InstallItem.installItem(c, wfi);
+        INSTALL_ITEM_SERVICE.installItem(c, wfi);
 
         // Log the event
         log.info(LogManager.getHeader(c, "install_item", "workflow_id="
@@ -1019,7 +1019,7 @@ public class WorkflowManager
                 + usersName + " on " + now + " (GMT) ";
 
         // add bitstream descriptions (name, size, checksums)
-        provDescription += InstallItem.getBitstreamProvenanceMessage(item);
+        provDescription += INSTALL_ITEM_SERVICE.getBitstreamProvenanceMessage(item);
 
         // Add to item as a DC field
         ITEM_SERVICE.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provDescription);
@@ -1050,7 +1050,7 @@ public class WorkflowManager
         }
 
         // add sizes and checksums of bitstreams
-        provmessage += InstallItem.getBitstreamProvenanceMessage(myitem);
+        provmessage += INSTALL_ITEM_SERVICE.getBitstreamProvenanceMessage(myitem);
 
         // Add message to the DC
         ITEM_SERVICE.addMetadata(c, myitem, MetadataSchema.DC_SCHEMA, "description", "provenance", "en", provmessage);

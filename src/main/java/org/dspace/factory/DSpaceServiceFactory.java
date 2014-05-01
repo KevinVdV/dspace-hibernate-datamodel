@@ -1,5 +1,6 @@
 package org.dspace.factory;
 
+import org.dspace.app.util.service.WebAppService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.checker.service.ChecksumHistoryService;
 import org.dspace.checker.service.ChecksumResultService;
@@ -65,6 +66,13 @@ public abstract class DSpaceServiceFactory {
     public abstract ChecksumHistoryService getChecksumHistoryService();
 
     public abstract ChecksumResultService getChecksumResultService();
+
+    public abstract InstallItemService getInstallItemService();
+
+    public abstract WebAppService getWebAppService();
+
+    public abstract SupervisedItemService getSupervisedItemService();
+
 
     public InProgressSubmissionService getInProgressSubmissionService(InProgressSubmission inProgressSubmission)
     {

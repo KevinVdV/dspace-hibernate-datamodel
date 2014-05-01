@@ -26,7 +26,7 @@ public interface InProgressSubmissionService<T extends InProgressSubmission> {
     /**
      * Deletes submission wrapper, doesn't delete item contents
      */
-    public void deleteWrapper(Context context, T inProgressSubmission) throws SQLException, IOException, AuthorizeException;
+    public void deleteWrapper(Context context, T inProgressSubmission) throws SQLException, AuthorizeException;
 
     public void delete(Context context, T inProgressSubmission) throws SQLException, AuthorizeException, IOException;
 

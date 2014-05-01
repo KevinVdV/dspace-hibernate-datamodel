@@ -1687,7 +1687,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
     protected Item createItem() throws SQLException, IOException, AuthorizeException, IllegalAccessException {
         WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, false);
-        return InstallItem.installItem(context, workspaceItem);
+        return installItemService.installItem(context, workspaceItem);
     }
 
 }
