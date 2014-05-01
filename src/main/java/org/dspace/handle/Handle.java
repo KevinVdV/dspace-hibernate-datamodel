@@ -21,10 +21,10 @@ public class Handle {
     private String handle;
 
     @Column(name = "resource_type_id")
-    private Integer resource_type_id;
+    private Integer resourceTypeId;
 
     @Column(name = "resource_id")
-    private Integer resource_id;
+    private Integer resourceId;
 
     public Integer getId() {
         return id;
@@ -38,19 +38,19 @@ public class Handle {
         this.handle = handle;
     }
 
-    public Integer getResource_type_id() {
-        return resource_type_id;
+    public Integer getResourceTypeId() {
+        return resourceTypeId;
     }
 
-    public void setResource_type_id(Integer resource_type_id) {
-        this.resource_type_id = resource_type_id;
+    public void setResourceTypeId(Integer resource_type_id) {
+        this.resourceTypeId = resource_type_id;
     }
 
-    public Integer getResource_id() {
-        return resource_id;
+    public Integer getResourceId() {
+        return resourceId;
     }
 
-    public void setResource_id(Integer resource_id) {
-        this.resource_id = resource_id;
+    public void setResourceId(Integer resource_id) {
+        this.resourceId = resource_id;
     }
 }

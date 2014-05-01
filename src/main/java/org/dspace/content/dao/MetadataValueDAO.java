@@ -4,7 +4,6 @@ import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
 import org.dspace.dao.GenericDAO;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
