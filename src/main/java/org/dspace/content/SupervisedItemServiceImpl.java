@@ -1,9 +1,12 @@
 package org.dspace.content;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.dao.SupervisedItemDAO;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.SupervisedItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -29,6 +32,9 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
     @Autowired(required = true)
     protected GroupService groupService;
 
+    @Autowired(required = true)
+    protected ResourcePolicyService resourcePolicyService;
+
     /**
      * Get all workspace items which are being supervised
      *
@@ -36,9 +42,9 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      *
      * @return array of SupervisedItems
      */
-    public List<SupervisedItem> getAll(Context context) throws SQLException
+    public List<WorkspaceItem> getAll(Context context) throws SQLException
     {
-        return supervisedItemDAO.findAll(context, SupervisedItem.class);
+        return supervisedItemDAO.findAll(context, WorkspaceItem.class);
     }
 
 
@@ -80,7 +86,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      *
      * @return the items eperson is supervising in an array
      */
-    public List<SupervisedItem> findByEPerson(Context context, EPerson ep) throws SQLException
+    public List<WorkspaceItem> findByEPerson(Context context, EPerson ep) throws SQLException
     {
         return supervisedItemDAO.findByEPerson(context, ep);
 
@@ -111,18 +117,18 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      * @param workspaceItem  the workspace item
      * @param group  the group to be removed from the item
      */
-    public void remove(Context context, SupervisedItem supervisedItem, Group group) throws SQLException, AuthorizeException
+    public void remove(Context context, WorkspaceItem workspaceItem, Group group) throws SQLException, AuthorizeException
     {
         // get the workspace item and the group from the request values
-        supervisedItem.removeGroup(group);
-        update(context, supervisedItem);
+        workspaceItem.removeSupervisorGroup(group);
+        update(context, workspaceItem);
 
         // get the item and have it remove the policies for the group
-        Item item = supervisedItem.getItem();
+        Item item = workspaceItem.getItem();
         itemService.removeGroupPolicies(context, item, group);
     }
 
-    public void update(Context context, SupervisedItem supervisedItem) throws SQLException {
+    public void update(Context context, WorkspaceItem supervisedItem) throws SQLException {
         supervisedItemDAO.save(context, supervisedItem);
     }
 
@@ -157,62 +163,52 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      * adds a supervision order to the database
      *
      * @param context   the context this object exists in
-     * @param group   the ID of the group which will supervise
-     * @param wsItemID  the ID of the workspace item to be supervised
+     * @param group   the group which will supervise
+     * @param workspaceItem  the workspace item to be supervised
      * @param policy    String containing the policy type to be used
      */
     public void add(Context context, Group group, WorkspaceItem workspaceItem, int policy)
         throws SQLException, AuthorizeException
     {
-        // make a table row in the database table, and update with the relevant
-        // details
-        supervisedItemDAO.findByID(context, SupervisedItem.class ,workspaceItem.getID());
-        /*
-        TableRow row = DatabaseManager.row("epersongroup2workspaceitem");
-        row.setColumn("workspace_item_id", wsItemID);
-        row.setColumn("eperson_group_id", groupID);
-        DatabaseManager.insert(context,row);
+        workspaceItem.addSupervisorGroup(group);
 
         // If a default policy type has been requested, apply the policies using
         // the DSpace API for doing so
         if (policy != POLICY_NONE)
         {
-            Item item = wsItem.getItem();
-            Group group = Group.find(context, groupID);
-
+            Item item = workspaceItem.getItem();
             // "Editor" implies READ, WRITE, ADD permissions
             // "Observer" implies READ permissions
             if (policy == POLICY_EDITOR)
             {
-                ResourcePolicy r = ResourcePolicy.create(context);
-                r.setResource(item);
+                ResourcePolicy r = resourcePolicyService.create(context);
+                resourcePolicyService.setResource(r, item);
                 r.setGroup(group);
                 r.setAction(Constants.READ);
-                r.update();
+                resourcePolicyService.update(context, r);
 
-                r = ResourcePolicy.create(context);
-                r.setResource(item);
+                r = resourcePolicyService.create(context);
+                resourcePolicyService.setResource(r, item);
                 r.setGroup(group);
                 r.setAction(Constants.WRITE);
-                r.update();
+                resourcePolicyService.update(context, r);
 
-                r = ResourcePolicy.create(context);
-                r.setResource(item);
+                r = resourcePolicyService.create(context);
+                resourcePolicyService.setResource(r, item);
                 r.setGroup(group);
                 r.setAction(Constants.ADD);
-                r.update();
+                resourcePolicyService.update(context, r);
 
             }
             else if (policy == POLICY_OBSERVER)
             {
-                ResourcePolicy r = ResourcePolicy.create(context);
-                r.setResource(item);
+                ResourcePolicy r = resourcePolicyService.create(context);
+                resourcePolicyService.setResource(r, item);
                 r.setGroup(group);
                 r.setAction(Constants.READ);
-                r.update();
+                resourcePolicyService.update(context, r);
             }
         }
-        */
     }
 
 }

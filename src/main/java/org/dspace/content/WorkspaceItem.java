@@ -2,8 +2,11 @@ package org.dspace.content;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.dspace.core.Context;
+import org.dspace.eperson.Group;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -46,6 +49,15 @@ public class WorkspaceItem implements InProgressSubmission{
 
     @Column(name = "page_reached")
     private Integer pageReached;
+
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "epersongroup2workspaceitem",
+            joinColumns = {@JoinColumn(name = "workspace_item_id") },
+            inverseJoinColumns = {@JoinColumn(name = "eperson_group_id") }
+    )
+    private List<Group> supervisorGroups = new ArrayList<Group>();
 
     public WorkspaceItem() {
     }
@@ -169,5 +181,19 @@ public class WorkspaceItem implements InProgressSubmission{
      */
     public void setPageReached(Integer pageReached) {
         this.pageReached = pageReached;
+    }
+
+    public List<Group> getSupervisorGroups() {
+        return supervisorGroups;
+    }
+
+    void removeSupervisorGroup(Group group)
+    {
+        supervisorGroups.remove(group);
+    }
+
+    void addSupervisorGroup(Group group)
+    {
+        supervisorGroups.add(group);
     }
 }

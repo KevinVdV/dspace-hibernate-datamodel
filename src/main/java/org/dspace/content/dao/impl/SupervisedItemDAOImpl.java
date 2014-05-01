@@ -38,4 +38,11 @@ public class SupervisedItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> i
 
         return uniqueResult(criteria);
     }
+
+    @Override
+    public List<WorkspaceItem> findAll(Context context, Class clazz) throws SQLException {
+        Criteria criteria = createCriteria(context, WorkspaceItem.class);
+        criteria.add(Restrictions.isNotEmpty("groups"));
+        return list(criteria);
+    }
 }

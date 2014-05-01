@@ -9,7 +9,6 @@ package org.dspace.test.content;
 
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.SupervisedItem;
 import org.dspace.content.WorkspaceItem;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -37,7 +36,7 @@ public class SupervisedItemTest extends AbstractUnitTest
     /**
      * SupervisedItem instance for the tests
      */
-    private SupervisedItem si;
+    private WorkspaceItem si;
 
     /**
      * Group instance for the tests
@@ -75,8 +74,8 @@ public class SupervisedItemTest extends AbstractUnitTest
             //set a supervisor as editor
             supervisedItemService.add(context, gr, wi, 1);
 
-            List<SupervisedItem> found = supervisedItemService.getAll(context);
-            for(SupervisedItem sia: found)
+            List<WorkspaceItem> found = supervisedItemService.getAll(context);
+            for(WorkspaceItem sia: found)
             {
                 if(sia.getID() == wi.getID())
                 {
@@ -129,12 +128,12 @@ public class SupervisedItemTest extends AbstractUnitTest
     @Test
     public void testGetAll() throws Exception
     {
-        List<SupervisedItem> found = supervisedItemService.getAll(context);
+        List<WorkspaceItem> found = supervisedItemService.getAll(context);
         assertThat("testGetAll 0", found, notNullValue());
         assertTrue("testGetAll 1", found.size() >= 1);
 
         boolean added = false;
-        for(SupervisedItem sia: found)
+        for(WorkspaceItem sia: found)
         {
             if(sia.equals(si))
             {
@@ -184,7 +183,7 @@ public class SupervisedItemTest extends AbstractUnitTest
     public void testFindbyEPerson() throws Exception
     {
         context.turnOffAuthorisationSystem();
-        List<SupervisedItem> found = supervisedItemService.findByEPerson(context, ePersonService.create(context));
+        List<WorkspaceItem> found = supervisedItemService.findByEPerson(context, ePersonService.create(context));
         assertThat("testFindbyEPerson 0", found, notNullValue());
         assertTrue("testFindbyEPerson 1", found.size() == 0);
 
@@ -193,7 +192,7 @@ public class SupervisedItemTest extends AbstractUnitTest
         assertTrue("testFindbyEPerson 3", found.size() >= 1);
 
         boolean added = false;
-        for(SupervisedItem sia: found)
+        for(WorkspaceItem sia: found)
         {
             if(sia.equals(si))
             {
