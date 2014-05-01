@@ -22,8 +22,8 @@ public class HandleDAOImpl extends AbstractHibernateDAO<Handle> implements Handl
     public List<Handle> getHandlesByTypeAndId(Context context, int type, int id) throws SQLException {
         Criteria criteria = createCriteria(context, Handle.class);
         criteria.add(Restrictions.and(
-                Restrictions.eq("resource_type_id", type),
-                Restrictions.eq("resource_id", id)
+                Restrictions.eq("resourceTypeId", type),
+                Restrictions.eq("resourceId", id)
         ));
         return list(criteria);
     }

@@ -1,10 +1,8 @@
 package org.dspace.content.dao;
 
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractDSpaceObjectDao;
 import org.dspace.dao.GenericDAO;
 import org.dspace.eperson.EPerson;
 

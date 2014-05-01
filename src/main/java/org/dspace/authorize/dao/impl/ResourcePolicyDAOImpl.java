@@ -25,8 +25,8 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     public List<ResourcePolicy> findByDso(Context context, DSpaceObject dso) throws SQLException {
         Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
-                Restrictions.eq("resource_type_id", dso.getType()),
-                Restrictions.eq("resource_id", dso.getID())
+                Restrictions.eq("resourceTypeId", dso.getType()),
+                Restrictions.eq("resourceId", dso.getID())
         ));
         return list(criteria);
     }
@@ -35,8 +35,8 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     {
         Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
-                Restrictions.eq("resource_type_id", dso.getType()),
-                Restrictions.eq("resource_id", dso.getID()),
+                Restrictions.eq("resourceTypeId", dso.getType()),
+                Restrictions.eq("resourceId", dso.getID()),
                 Restrictions.eq("rptype", type)
         ));
         return list(criteria);
@@ -52,9 +52,9 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     {
         Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
-                Restrictions.eq("resource_type_id", dso.getType()),
-                Restrictions.eq("resource_id", dso.getID()),
-                Restrictions.eq("action_id", actionId)
+                Restrictions.eq("resourceTypeId", dso.getType()),
+                Restrictions.eq("resourceId", dso.getID()),
+                Restrictions.eq("actionId", actionId)
         ));
         return list(criteria);
     }
@@ -62,10 +62,10 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     public List<ResourcePolicy> findByTypeIdGroupAction(Context context, int dsoType, int dsoID, Group group, int action, int notPolicyID) throws SQLException {
         Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
-                Restrictions.eq("resource_type_id", dsoType),
-                Restrictions.eq("resource_id", dsoID),
+                Restrictions.eq("resourceTypeId", dsoType),
+                Restrictions.eq("resourceId", dsoID),
                 Restrictions.eq("epersonGroup", group),
-                Restrictions.eq("action_id", action)
+                Restrictions.eq("actionId", action)
         ));
         criteria.setMaxResults(1);
 
@@ -80,7 +80,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
     public void deleteByDso(Context context, DSpaceObject dso) throws SQLException
     {
-        String queryString = "delete from ResourcePolicy where resource_type_id= :resourceTypeId AND resource_id = :resourceId";
+        String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId";
         Query query = context.getDBConnection().createQuery(queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setInteger("resourceId", dso.getID());
@@ -88,7 +88,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     }
 
     public void deleteByDsoAndAction(Context context, DSpaceObject dso, int actionId) throws SQLException {
-        String queryString = "delete from ResourcePolicy where resource_type_id= :resourceTypeId AND resource_id = :resourceId AND action_id= :actionId";
+        String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId AND actionId= :actionId";
         Query query = context.getDBConnection().createQuery(queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setInteger("resourceId", dso.getID());
@@ -97,7 +97,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     }
 
     public void deleteByDsoAndType(Context context, DSpaceObject dso, String type) throws SQLException {
-        String queryString = "delete from ResourcePolicy where resource_type_id= :resourceTypeId AND rptype = :rptype";
+        String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND rptype = :rptype";
         Query query = context.getDBConnection().createQuery(queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setString("rptype", type);
@@ -112,7 +112,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     }
 
     public void deleteByDsoGroupPolicies(Context context, DSpaceObject dso, Group group) throws SQLException {
-        String queryString = "delete from ResourcePolicy where resource_type_id= :resourceTypeId AND resource_id = :resourceId AND epersonGroup= :epersonGroup";
+        String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId AND epersonGroup= :epersonGroup";
         Query query = context.getDBConnection().createQuery(queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setInteger("resourceId", dso.getID());
@@ -122,7 +122,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     }
 
     public void deleteByDsoEPersonPolicies(Context context, DSpaceObject dso, EPerson ePerson) throws SQLException {
-        String queryString = "delete from ResourcePolicy where resource_type_id= :resourceTypeId AND resource_id = :resourceId AND eperson= :eperson";
+        String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId AND eperson= :eperson";
         Query query = context.getDBConnection().createQuery(queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setInteger("resourceId", dso.getID());
@@ -135,8 +135,8 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
         Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(
-                Restrictions.eq("resource_type_id", o.getType()),
-                Restrictions.eq("resource_id", o.getID()),
+                Restrictions.eq("resourceTypeId", o.getType()),
+                Restrictions.eq("resourceId", o.getID()),
                 Restrictions.not(Restrictions.eq("rptype", type))
         ));
         //TODO: test this, prob doesn't work !

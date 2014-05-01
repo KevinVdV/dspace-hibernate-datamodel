@@ -5,7 +5,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
 import javax.persistence.*;
-import java.sql.SQLException;
 import java.util.Date;
 
 /**
@@ -16,7 +15,7 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
-@Table(name="resourcepolicy")
+@Table(name="resourcepolicy", schema = "public")
 //TODO: HIBERNATE, MAKE FUTURE PARENT OBJECT CONABLE
 public class ResourcePolicy implements Cloneable{
     public static String TYPE_SUBMISSION = "TYPE_SUBMISSION";
@@ -31,13 +30,13 @@ public class ResourcePolicy implements Cloneable{
     private Integer id;
 
     @Column(name="resource_type_id")
-    private int resource_type_id;
+    private int resourceTypeId;
 
     @Column(name="resource_id")
-    private int resource_id;
+    private int resourceId;
 
     @Column(name="action_id")
-    private int action_id;
+    private int actionId;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,10 +48,10 @@ public class ResourcePolicy implements Cloneable{
     private Group epersonGroup;
 
     @Column(name="start_date")
-    private Date start_date;
+    private Date startDate;
 
     @Column(name="end_date")
-    private Date end_date;
+    private Date endDate;
 
     @Column(name="rpname")
     private String rpname;
@@ -157,7 +156,7 @@ public class ResourcePolicy implements Cloneable{
      * @return type of object/resource
      */
     public int getResourceType() {
-        return resource_type_id;
+        return resourceTypeId;
     }
 
     /**
@@ -168,7 +167,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public void setResourceType(int mytype)
     {
-        this.resource_type_id = mytype;
+        this.resourceTypeId = mytype;
     }
 
     /**
@@ -179,7 +178,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public void setResourceID(int myid)
     {
-        this.resource_id = myid;
+        this.resourceId = myid;
     }
 
     /**
@@ -190,7 +189,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public int getResourceID()
     {
-        return resource_id;
+        return resourceId;
     }
 
     /**
@@ -200,7 +199,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public void setAction(int myid)
     {
-        this.action_id = myid;
+        this.actionId = myid;
     }
 
     /**
@@ -208,7 +207,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public int getAction()
     {
-        return action_id;
+        return actionId;
     }
 
     /**
@@ -255,7 +254,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public java.util.Date getStartDate()
     {
-        return start_date;
+        return startDate;
     }
 
     /**
@@ -266,7 +265,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public void setStartDate(java.util.Date d)
     {
-        start_date = d;
+        startDate = d;
     }
 
     /**
@@ -276,7 +275,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public java.util.Date getEndDate()
     {
-        return end_date;
+        return endDate;
     }
 
     /**
@@ -287,7 +286,7 @@ public class ResourcePolicy implements Cloneable{
      */
     public void setEndDate(java.util.Date d)
     {
-        this.end_date = d;
+        this.endDate = d;
     }
 
     public String getRpName(){

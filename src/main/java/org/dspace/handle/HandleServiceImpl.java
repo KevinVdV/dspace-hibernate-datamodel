@@ -187,8 +187,8 @@ public class HandleServiceImpl implements HandleService
         String handleId = createId(handle.getId());
 
         handle.setHandle(handleId);
-        handle.setResource_type_id(dso.getType());
-        handle.setResource_id(dso.getID());
+        handle.setResourceTypeId(dso.getType());
+        handle.setResourceId(dso.getID());
         handleDAO.save(context, handle);
 
         if (log.isDebugEnabled())
@@ -218,11 +218,11 @@ public class HandleServiceImpl implements HandleService
     {
         //Check if the supplied handle is already in use -- cannot use the same handle twice
         Handle handle = findHandleInternal(context, suppliedHandle);
-        if(handle!=null && handle.getResource_id() != null)
+        if(handle!=null && handle.getResourceId() != null)
         {
             //Check if this handle is already linked up to this specified DSpace Object
-            if(handle.getResource_id()==dso.getID() &&
-               handle.getResource_type_id()==dso.getType())
+            if(handle.getResourceId()==dso.getID() &&
+               handle.getResourceTypeId()==dso.getType())
             {
                 //This handle already links to this DSpace Object -- so, there's nothing else we need to do
                 return suppliedHandle;
@@ -233,11 +233,11 @@ public class HandleServiceImpl implements HandleService
                 throw new IllegalStateException("Attempted to create a handle which is already in use: " + suppliedHandle);
             }
         }
-        else if(handle!=null && handle.getResource_type_id() != null)
+        else if(handle!=null && handle.getResourceTypeId() != null)
         {
             //If there is a 'resource_type_id' (but 'resource_id' is empty), then the object using
             // this handle was previously unbound (see unbindHandle() method) -- likely because object was deleted
-            int previousType = handle.getResource_type_id();
+            int previousType = handle.getResourceTypeId();
 
             //Since we are restoring an object to a pre-existing handle, double check we are restoring the same *type* of object
             // (e.g. we will not allow an Item to be restored to a handle previously used by a Collection)
@@ -255,8 +255,8 @@ public class HandleServiceImpl implements HandleService
             handle.setHandle(suppliedHandle);
         }
 
-        handle.setResource_type_id(dso.getType());
-        handle.setResource_id(dso.getID());
+        handle.setResourceTypeId(dso.getType());
+        handle.setResourceId(dso.getID());
         handleDAO.save(context, handle);
 
         if (log.isDebugEnabled())
@@ -288,7 +288,7 @@ public class HandleServiceImpl implements HandleService
                 // We want to keep around the "resource_type_id" value, so that we
                 // can verify during a restore whether the same *type* of resource
                 // is reusing this handle!
-                handle.setResource_id(null);
+                handle.setResourceId(null);
                 handleDAO.save(context, handle);
 
                 if(log.isDebugEnabled())
@@ -337,16 +337,16 @@ public class HandleServiceImpl implements HandleService
         // check if handle was allocated previously, but is currently not
         // associated with a DSpaceObject
         // (this may occur when 'unbindHandle()' is called for an obj that was removed)
-        if ((dbhandle.getResource_type_id() == null)
-                || (dbhandle.getResource_id() == null))
+        if ((dbhandle.getResourceTypeId() == null)
+                || (dbhandle.getResourceId() == null))
         {
             //if handle has been unbound, just return null (as this will result in a PageNotFound)
             return null;
         }
 
         // What are we looking at here?
-        int handletypeid = dbhandle.getResource_type_id();
-        int resourceID = dbhandle.getResource_id();
+        int handletypeid = dbhandle.getResourceTypeId();
+        int resourceID = dbhandle.getResourceId();
 
         DSpaceObject dso = DSpaceServiceFactory.getInstance().getDSpaceObjectService(handletypeid).find(context, resourceID);
         if(log.isDebugEnabled())
