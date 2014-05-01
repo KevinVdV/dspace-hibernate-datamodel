@@ -26,10 +26,10 @@ import org.dspace.factory.DSpaceServiceFactory;
  * @author dstuve
  * @version $Revision$
  */
-public class InstallItem
+public class InstallItemServiceImpl implements InstallItem
 {
-    private static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
-    private static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
+    protected static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
+    protected static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
 
     /**
      * Take an InProgressSubmission and turn it into a fully-archived Item,
@@ -42,7 +42,7 @@ public class InstallItem
      * 
      * @return the fully archived Item
      */
-    public static Item installItem(Context c, InProgressSubmission is)
+    public Item installItem(Context c, InProgressSubmission is)
             throws SQLException, IOException, AuthorizeException
     {
         return installItem(c, is, null);
@@ -59,9 +59,7 @@ public class InstallItem
      * 
      * @return the fully archived Item
      */
-    public static Item installItem(Context c, InProgressSubmission is,
-            String suppliedHandle) throws SQLException,
-            IOException, AuthorizeException
+    public Item installItem(Context c, InProgressSubmission is, String suppliedHandle) throws SQLException, AuthorizeException
     {
         Item item = is.getItem();
         //TODO HIBERNATE: Implement once identifier services framework comes into play
@@ -100,9 +98,7 @@ public class InstallItem
      *
      * @return the fully archived Item
      */
-    public static Item restoreItem(Context c, InProgressSubmission is,
-            String suppliedHandle)
-        throws SQLException, IOException, AuthorizeException
+    public Item restoreItem(Context c, InProgressSubmission is, String suppliedHandle) throws SQLException, AuthorizeException
     {
         Item item = is.getItem();
 
@@ -159,8 +155,7 @@ public class InstallItem
     }
 
 
-    private static void populateMetadata(Context c, Item item)
-        throws SQLException, IOException, AuthorizeException
+    protected void populateMetadata(Context c, Item item) throws SQLException, AuthorizeException
     {
         // create accession date
         DCDate now = DCDate.getCurrent();
@@ -217,8 +212,7 @@ public class InstallItem
 
     // final housekeeping when adding new Item to archive
     // common between installing and "restoring" items.
-    private static Item finishItem(Context c, Item item, InProgressSubmission is)
-        throws SQLException, IOException, AuthorizeException
+    protected Item finishItem(Context c, Item item, InProgressSubmission is) throws SQLException, AuthorizeException
     {
         // create collection2item mapping
         COLLECTION_SERVICE.addItem(c, is.getCollection(), item);
@@ -258,8 +252,7 @@ public class InstallItem
      * 
      * @return provenance description
      */
-    public static String getBitstreamProvenanceMessage(Item myitem)
-    						throws SQLException
+    public String getBitstreamProvenanceMessage(Item myitem) throws SQLException
     {
         // Get non-internal format bitstreams
         List<Bitstream> bitstreams = ITEM_SERVICE.getNonInternalBitstreams(myitem);
