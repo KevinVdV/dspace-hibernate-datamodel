@@ -65,7 +65,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         try
         {
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityService.create(null, context);
+            this.owningCommunity = communityService.create(context, null);
             this.collection = collectionService.create(context, owningCommunity);
             WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, false);
             it = installItemService.installItem(context, workspaceItem);

@@ -64,7 +64,7 @@ public class SupervisedItemTest extends AbstractUnitTest
         {
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            Community owningCommunity = communityService.create(null, context);
+            Community owningCommunity = communityService.create(context, null);
             Collection col = collectionService.create(context, owningCommunity);
             wi = workspaceItemService.create(context, col, false);
             gr = groupService.create(context);

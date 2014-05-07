@@ -288,7 +288,7 @@ public class AuthorizeManager
 
             // perform isAdmin check to see
             // if user is an Admin on this object
-            DSpaceObject adminObject = useInheritance ? SERVICE_FACTORY.getDSpaceObjectManager(o).getAdminObject(c, o, action) : null;
+            DSpaceObject adminObject = useInheritance ? SERVICE_FACTORY.getDSpaceObjectService(o).getAdminObject(c, o, action) : null;
 //
             if (isAdmin(c, adminObject))
             {
@@ -389,7 +389,7 @@ public class AuthorizeManager
         // check the *parent* objects of this object.  This allows Admin
         // permissions to be inherited automatically (e.g. Admin on Community
         // is also an Admin of all Collections/Items in that Community)
-        DSpaceObject parent = SERVICE_FACTORY.getDSpaceObjectManager(o).getParentObject(o);
+        DSpaceObject parent = SERVICE_FACTORY.getDSpaceObjectService(o).getParentObject(o);
         if (parent != null)
         {
             return isAdmin(c, parent);
@@ -481,7 +481,7 @@ public class AuthorizeManager
 
         RESOURCE_POLICY_SERVICE.update(context, rp);
 
-        SERVICE_FACTORY.getDSpaceObjectManager(o).updateLastModified(context, o);
+        SERVICE_FACTORY.getDSpaceObjectService(o).updateLastModified(context, o);
     }
 
     /**
@@ -536,7 +536,7 @@ public class AuthorizeManager
 
         RESOURCE_POLICY_SERVICE.update(c, rp);
 
-        SERVICE_FACTORY.getDSpaceObjectManager(o).updateLastModified(c, o);
+        SERVICE_FACTORY.getDSpaceObjectService(o).updateLastModified(c, o);
     }
 
     /**
@@ -670,7 +670,7 @@ public class AuthorizeManager
             RESOURCE_POLICY_SERVICE.update(c, rp);
         }
 
-        SERVICE_FACTORY.getDSpaceObjectManager(dest).updateLastModified(c, dest);
+        SERVICE_FACTORY.getDSpaceObjectService(dest).updateLastModified(c, dest);
     }
 
     /**

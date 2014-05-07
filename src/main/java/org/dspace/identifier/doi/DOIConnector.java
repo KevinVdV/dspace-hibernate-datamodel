@@ -11,6 +11,8 @@ package org.dspace.identifier.doi;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 
+import java.sql.SQLException;
+
 /**
  * A DOIConnector handles all calls to the API of your DOI registry.
  *
@@ -25,10 +27,10 @@ import org.dspace.core.Context;
  */
 public interface DOIConnector {
     public boolean isDOIReserved(Context context, String doi)
-            throws DOIIdentifierException;
+            throws DOIIdentifierException, SQLException;
 
     public boolean isDOIReserved(Context context, DSpaceObject dso, String doi)
-            throws DOIIdentifierException;
+            throws DOIIdentifierException, SQLException;
 
     public boolean isDOIRegistered(Context context, String doi)
             throws DOIIdentifierException;
@@ -50,7 +52,7 @@ public interface DOIConnector {
      * @throws DOIIdentifierException
      */
     public void deleteDOI(Context context, String doi)
-            throws DOIIdentifierException;
+            throws DOIIdentifierException, SQLException;
 
     /**
      * Sends a request to the DOI registry to reserve a DOI.
@@ -67,7 +69,7 @@ public interface DOIConnector {
      * @throws DOIIdentifierException
      */
     public void reserveDOI(Context context, DSpaceObject dso, String doi)
-            throws DOIIdentifierException;
+            throws DOIIdentifierException, SQLException;
     /**
      * Sends a request to the DOI registry to register a DOI.
      *
@@ -84,7 +86,7 @@ public interface DOIConnector {
      * @throws DOIIdentifierException
      */
     public void registerDOI(Context context, DSpaceObject dso, String doi)
-            throws DOIIdentifierException;
+            throws DOIIdentifierException, SQLException;
 
     /**
      * Sends a request to the DOI registry to update metadata for a DOI.
@@ -99,5 +101,5 @@ public interface DOIConnector {
      * @throws IdentifierException
      */
     public void updateMetadata(Context context, DSpaceObject dso, String doi)
-            throws DOIIdentifierException;
+            throws DOIIdentifierException, SQLException;
 }

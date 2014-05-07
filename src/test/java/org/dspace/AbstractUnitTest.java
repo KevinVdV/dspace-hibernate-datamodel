@@ -33,6 +33,7 @@ import org.dspace.eperson.*;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.identifier.DOIService;
 import org.dspace.servicemanager.DSpaceKernelImpl;
 import org.dspace.servicemanager.DSpaceKernelInit;
 import org.junit.After;
@@ -89,6 +90,7 @@ public class AbstractUnitTest
     protected BitstreamFormatService bitstreamFormatService = serviceFactory.getBitstreamFormatService();
     protected InstallItemService installItemService = serviceFactory.getInstallItemService();
     protected SupervisedItemService supervisedItemService = serviceFactory.getSupervisedItemService();
+    protected DOIService doiService = serviceFactory.getDOIService();
 
 
     protected static DSpaceKernelImpl kernelImpl;

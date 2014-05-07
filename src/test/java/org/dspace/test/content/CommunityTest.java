@@ -57,7 +57,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         {   
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            this.community = communityService.create(null, context);
+            this.community = communityService.create(context, null);
             this.dspaceObject = community;
             //we need to commit the changes so we don't block the table for testing
             context.restoreAuthSystemState();
@@ -122,7 +122,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         // test that a Community Admin can create a Community with parent (Sub-Community)
-        Community son = communityService.create(community, context);
+        Community son = communityService.create(context, community);
         //the item created by default has no name set
         assertThat("testCreate 2", son, notNullValue());        
         assertThat("testCreate 3", son.getName(), equalTo(""));        
@@ -149,13 +149,13 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         //Test that a full Admin can create a Community without a parent (Top-Level Community)
-        Community created = communityService.create(null, context);
+        Community created = communityService.create(context, null);
         //the item created by default has no name set
         assertThat("testCreate 0", created, notNullValue());
         assertThat("testCreate 1", created.getName(), equalTo(""));
 
         //Test that a full Admin can also create a Community with a parent (Sub-Community)
-        Community son = communityService.create(created, context);
+        Community son = communityService.create(context, created);
         //the item created by default has no name set
         assertThat("testCreate 2", son, notNullValue());
         assertThat("testCreate 3", son.getName(), equalTo(""));
@@ -182,7 +182,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         // test creating community with no parent (as a non-admin & non-Community Admin)
         // this should throw an exception
-        Community created = communityService.create(null, context);
+        Community created = communityService.create(context, null);
         fail("Exception expected");
     }
 
@@ -205,7 +205,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         // test creating community with a specified handle which is NOT already in use
         // (this handle should not already be used by system, as it doesn't start with "1234567689" prefix)
-        Community created = communityService.create(null, context, "987654321/100");
+        Community created = communityService.create(context, null, "987654321/100");
 
         // check that community was created, and that its handle was set to proper value
         assertThat("testCreateWithValidHandle 0", created, notNullValue());
@@ -235,7 +235,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         // test creating community with a specified handle which IS already in use
         // This should throw an exception
-        Community created = communityService.create(null, context, inUseHandle);
+        Community created = communityService.create(context, null, inUseHandle);
         fail("Exception expected");
     }
 
@@ -258,7 +258,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         // test creating community with no parent (as a non-admin, but with Community Admin rights)
         // this should throw an exception, as only admins can create Top Level communities
-        Community created = communityService.create(null, context);
+        Community created = communityService.create(context, null);
         fail("Exception expected");
     }
 
@@ -708,7 +708,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         assertTrue("testGetSubcommunities 1", community.getSubCommunities().size() == 0);
 
         //community with  parent
-        Community son = communityService.create(community, context);
+        Community son = communityService.create(context, community);
         assertThat("testGetSubcommunities 2", community.getSubCommunities(), notNullValue());
         assertTrue("testGetSubcommunities 3", community.getSubCommunities().size() == 1);
         assertThat("testGetSubcommunities 4", community.getSubCommunities().iterator().next(), equalTo(son));
@@ -735,7 +735,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         assertThat("testGetParentCommunity 0", community.getParentCommunity(), nullValue());
 
         //community with  parent
-        Community son = communityService.create(community, context);
+        Community son = communityService.create(context, community);
         assertThat("testGetParentCommunity 1",son.getParentCommunity(), notNullValue());
         assertThat("testGetParentCommunity 2", son.getParentCommunity(), equalTo(community));
     }
@@ -762,7 +762,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         assertTrue("testGetAllParents 1", communityService.getAllParents(community).size() == 0);
 
         //community with  parent
-        Community son = communityService.create(community, context);
+        Community son = communityService.create(context, community);
         assertThat("testGetAllParents 2", communityService.getAllParents(son), notNullValue());
         assertTrue("testGetAllParents 3", communityService.getAllParents(son).size() == 1);
         assertThat("testGetAllParents 4", communityService.getAllParents(son).get(0), equalTo(community));
@@ -791,7 +791,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
 
         //community has a collection and a subcommunity, subcommunity has a collection
         Collection collOfC = collectionService.create(context, community);
-        Community sub = communityService.create(community, context);
+        Community sub = communityService.create(context, community);
         Collection collOfSub = collectionService.create(context, sub);
         assertThat("testGetAllCollections 2", communityService.getAllCollections(community), notNullValue());
         assertTrue("testGetAllCollections 3", communityService.getAllCollections(community).size() == 2);
@@ -941,7 +941,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Community result = communityService.create(null, context);
+        Community result = communityService.create(context, null);
         communityService.addSubcommunity(context, community, result);
         assertThat("testAddSubcommunityAuth 0", community.getSubCommunities(), notNullValue());
         assertTrue("testAddSubcommunityAuth 1", community.getSubCommunities().size() == 1);
@@ -965,7 +965,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Community result = communityService.create(null, context);
+        Community result = communityService.create(context, null);
         communityService.addSubcommunity(context, community, result);
         fail("Exception expected");
     }
@@ -1047,7 +1047,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        Community com = communityService.create(null,context);
+        Community com = communityService.create(context, null);
         communityService.addSubcommunity(context, community, com);
         assertThat("testRemoveSubcommunityAuth 0", community.getSubCommunities(), notNullValue());
         assertTrue("testRemoveSubcommunityAuth 1", community.getSubCommunities().size() == 1);
@@ -1142,7 +1142,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         assertFalse("testEquals 0", community.equals(null));
-        assertFalse("testEquals 1", community.equals(communityService.create(null, context)));
+        assertFalse("testEquals 1", community.equals(communityService.create(context, null)));
         assertTrue("testEquals 2", community.equals(community));
     }
 

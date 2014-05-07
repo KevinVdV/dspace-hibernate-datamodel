@@ -28,6 +28,8 @@ public interface DSpaceObjectService<T extends DSpaceObject> {
 
     public DSpaceObject getParentObject(T dso) throws SQLException;
 
+    public String getTypeText(DSpaceObject dso);
+
     public void updateLastModified(Context context, T dso) throws SQLException, AuthorizeException;
 
     public void update(Context context, T dso) throws SQLException, AuthorizeException;

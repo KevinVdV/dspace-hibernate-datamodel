@@ -36,9 +36,9 @@ public interface ItemService extends DSpaceObjectService<Item> {
 
     public List<MetadataValue> getMetadata(Item item, String mdString);
 
-    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, String[] values) throws SQLException;
+    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, List<String> values) throws SQLException;
 
-    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, String[] values, String authorities[], int confidences[]) throws SQLException;
+    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, List<String> values, List<String> authorities, List<Integer> confidences) throws SQLException;
 
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang,
                             String value) throws SQLException;

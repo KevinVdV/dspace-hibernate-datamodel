@@ -546,17 +546,16 @@ public class CreativeCommons
     		if (value != null)
     		{
     			 List<MetadataValue> dcvalues  = ITEM_SERVICE.getMetadata(item, params[0], params[1], params[2], params[3]);
-                 ArrayList<String> arrayList = new ArrayList<String>();
+                 ArrayList<String> valuesToRemove = new ArrayList<String>();
                  for (MetadataValue dcvalue : dcvalues)
                  {
                      if (! dcvalue.getValue().equals(value))
                      {
-                         arrayList.add(dcvalue.getValue());
+                         valuesToRemove.add(dcvalue.getValue());
                      }
                   }
-                  String[] values = arrayList.toArray(new String[arrayList.size()]);
                 ITEM_SERVICE.clearMetadata(context, item, params[0], params[1], params[2], params[3]);
-                ITEM_SERVICE.addMetadata(context, item, params[0], params[1], params[2], params[3], values);
+                ITEM_SERVICE.addMetadata(context, item, params[0], params[1], params[2], params[3], valuesToRemove);
     		}
     	}
 

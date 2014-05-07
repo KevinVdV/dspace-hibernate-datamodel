@@ -7,6 +7,7 @@
  */
 package org.dspace.identifier;
 
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.services.ConfigurationService;
@@ -60,7 +61,7 @@ public abstract class IdentifierProvider {
      * @return existing identifier of {@code item} if it has one, else a new identifier.
      * @throws IdentifierException
      */
-    public abstract String register(Context context, DSpaceObject item) throws IdentifierException;
+    public abstract String register(Context context, DSpaceObject item) throws IdentifierException, AuthorizeException;
 
     /**
      * Create an identifier for a DSpaceObject.
@@ -70,7 +71,7 @@ public abstract class IdentifierProvider {
      * @return existing identifier of {@code dso} if it has one, else a new identifier.
      * @throws IdentifierException
      */
-    public abstract String mint(Context context, DSpaceObject dso) throws IdentifierException;
+    public abstract String mint(Context context, DSpaceObject dso) throws IdentifierException, AuthorizeException;
 
     /**
      * Find the object named by a given identifier.
@@ -102,7 +103,7 @@ public abstract class IdentifierProvider {
      * @param dso object to lose its identity.
      * @throws IdentifierException
      */
-    public abstract void delete(Context context, DSpaceObject dso) throws IdentifierException;
+    public abstract void delete(Context context, DSpaceObject dso) throws IdentifierException, AuthorizeException;
 
     /**
      * Unbind the given identifier from an object.
@@ -112,7 +113,7 @@ public abstract class IdentifierProvider {
      * @param identifier to be removed.
      * @throws IdentifierException
      */
-    public abstract void delete(Context context, DSpaceObject dso, String identifier) throws IdentifierException;
+    public abstract void delete(Context context, DSpaceObject dso, String identifier) throws IdentifierException, AuthorizeException;
 
     /**
      * Set an object's identifier.
@@ -122,7 +123,7 @@ public abstract class IdentifierProvider {
      * @param identifier to be set on the object.
      * @throws IdentifierException
      */
-    public abstract void reserve(Context context, DSpaceObject dso, String identifier) throws IdentifierException;
+    public abstract void reserve(Context context, DSpaceObject dso, String identifier) throws IdentifierException, AuthorizeException;
 
     /**
      * Create a specific identifier and apply it to an object.
@@ -132,5 +133,5 @@ public abstract class IdentifierProvider {
      * @param identifier to be created.
      */
     public abstract void register(Context context, DSpaceObject object, String identifier)
-            throws IdentifierException;
+            throws IdentifierException, AuthorizeException;
 }

@@ -11,6 +11,7 @@ import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.RegistrationDataService;
 import org.dspace.handle.service.HandleService;
+import org.dspace.identifier.DOIService;
 import org.dspace.workflow.service.TaskListItemService;
 import org.dspace.workflow.service.WorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,8 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     private WebAppService webAppService;
     @Autowired(required = true)
     private SupervisedItemService supervisedItemService;
+    @Autowired(required = true)
+    private DOIService doiService;
 
 
     public BitstreamFormatService getBitstreamFormatService()
@@ -190,5 +193,10 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Override
     public SupervisedItemService getSupervisedItemService() {
         return supervisedItemService;
+    }
+
+    @Override
+    public DOIService getDOIService() {
+        return doiService;
     }
 }

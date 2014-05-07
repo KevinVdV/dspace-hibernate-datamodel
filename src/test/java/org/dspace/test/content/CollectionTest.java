@@ -62,7 +62,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         {
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityService.create(null, context);
+            this.owningCommunity = communityService.create(context, null);
             this.collection = collectionService.create(context, owningCommunity);
             this.dspaceObject = collection;
             //we need to commit the changes so we don't block the table for testing
@@ -1832,7 +1832,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testFindAuthorized() throws Exception
     {
         context.turnOffAuthorisationSystem();
-        Community com = communityService.create(null, context);
+        Community com = communityService.create(context, null);
         context.restoreAuthSystemState();
 
         List<Collection> found = collectionService.findAuthorized(context, com, Constants.WRITE);
@@ -1895,7 +1895,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         try
         {
             context.turnOffAuthorisationSystem();
-            Community parent = communityService.create(null, context);
+            Community parent = communityService.create(context, null);
             communityService.addCollection(context, parent, collection);
             context.commit();
             context.restoreAuthSystemState();

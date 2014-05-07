@@ -112,10 +112,10 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return the newly created community
      */
-    public Community create(Community parent, Context context)
+    public Community create(Context context, Community parent)
             throws SQLException, AuthorizeException
     {
-        return create(parent, context, null);
+        return create(context, parent, null);
     }
 
     /**
@@ -127,7 +127,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      *
      * @return the newly created community
      */
-    public Community create(Community parent, Context context, String handle)
+    public Community create(Context context, Community parent, String handle)
             throws SQLException, AuthorizeException
     {
         if (!(AuthorizeManager.isAdmin(context) ||
@@ -482,7 +482,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         // Check authorisation
         AuthorizeManager.authorizeAction(context, parentCommunity, Constants.ADD);
 
-        Community c = create(parentCommunity, context, handle);
+        Community c = create(context, parentCommunity, handle);
         addSubcommunity(context, parentCommunity, c);
 
         return c;

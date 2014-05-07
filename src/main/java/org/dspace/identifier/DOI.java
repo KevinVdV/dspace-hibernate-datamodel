@@ -7,7 +7,27 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "Doi", schema = "public" )
-public class DOI {
+public class DOI implements Identifier{
+
+    @Transient
+    public static final Integer TO_BE_REGISTERED = 1;
+    @Transient
+    public static final Integer TO_BE_RESERVERED = 2;
+    @Transient
+    public static final Integer IS_REGISTERED = 3;
+    @Transient
+    public static final Integer IS_RESERVED = 4;
+    @Transient
+    public static final Integer UPDATE_RESERVERED = 5;
+    @Transient
+    public static final Integer UPDATE_REGISTERED = 6;
+    @Transient
+    public static final Integer UPDATE_BEFORE_REGISTERATION = 7;
+    @Transient
+    public static final Integer TO_BE_DELETED = 8;
+    @Transient
+    public static final Integer DELETED = 9;
+
     @Id
     @Column(name="doi_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="doi_seq")

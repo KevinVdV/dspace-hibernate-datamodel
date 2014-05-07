@@ -15,13 +15,12 @@ import java.sql.SQLException;
 import org.apache.commons.lang.time.DateUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.apache.log4j.Logger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.*;
 
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.*;
+import org.dspace.content.Collection;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -66,7 +65,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         {
             //we have to create a new community in the database
             context.turnOffAuthorisationSystem();
-            this.owningCommunity = communityService.create(null, context);
+            this.owningCommunity = communityService.create(context, null);
             this.collection = collectionService.create(context, owningCommunity);
 
             this.it = createItem();
@@ -332,7 +331,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String element = "contributor";
         String qualifier = "author";
         String lang = Item.ANY;
-        String[] values = {"value0","value1"};
+        List<String> values = Arrays.asList("value0","value1");
         itemService.addMetadata(context, it, schema, element, qualifier, lang, values);
 
         List<MetadataValue> dc = itemService.getMetadata(it, schema, element, qualifier, lang);
@@ -342,12 +341,12 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertThat("testAddMetadata_5args_1 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
         assertThat("testAddMetadata_5args_1 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
         assertThat("testAddMetadata_5args_1 5",dc.get(0).getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_5args_1 6",dc.get(0).getValue(),equalTo(values[0]));
+        assertThat("testAddMetadata_5args_1 6",dc.get(0).getValue(),equalTo(values.get(0)));
         assertThat("testAddMetadata_5args_1 7",dc.get(1).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
         assertThat("testAddMetadata_5args_1 8",dc.get(1).getMetadataField().getElement(),equalTo(element));
         assertThat("testAddMetadata_5args_1 9",dc.get(1).getMetadataField().getQualifier(),equalTo(qualifier));
         assertThat("testAddMetadata_5args_1 10",dc.get(1).getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_5args_1 11",dc.get(1).getValue(),equalTo(values[1]));
+        assertThat("testAddMetadata_5args_1 11",dc.get(1).getValue(),equalTo(values.get(1)));
     }
 
     /**
@@ -363,9 +362,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String element = "language";
         String qualifier = "iso";
         String lang = Item.ANY;
-        String[] values = {"en_US","en"};
-        String[] authorities = {"accepted","uncertain"};
-        int[] confidences = {0,0};
+        List<String> values = Arrays.asList("en_US","en");
+        List<String> authorities = Arrays.asList("accepted","uncertain");
+        List<Integer> confidences = Arrays.asList(0,0);
         itemService.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
         List<MetadataValue> dc = itemService.getMetadata(it, schema, element, qualifier, lang);
@@ -375,16 +374,16 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertThat("testAddMetadata_7args_1 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
         assertThat("testAddMetadata_7args_1 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
         assertThat("testAddMetadata_7args_1 5",dc.get(0).getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_1 6",dc.get(0).getValue(),equalTo(values[0]));
-        assertThat("testAddMetadata_7args_1 7",dc.get(0).getAuthority(),equalTo(authorities[0]));
-        assertThat("testAddMetadata_7args_1 8",dc.get(0).getConfidence(),equalTo(confidences[0]));
+        assertThat("testAddMetadata_7args_1 6",dc.get(0).getValue(),equalTo(values.get(0)));
+        assertThat("testAddMetadata_7args_1 7",dc.get(0).getAuthority(),equalTo(authorities.get(0)));
+        assertThat("testAddMetadata_7args_1 8",dc.get(0).getConfidence(),equalTo(confidences.get(0)));
         assertThat("testAddMetadata_7args_1 9",dc.get(1).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
         assertThat("testAddMetadata_7args_1 10",dc.get(1).getMetadataField().getElement(),equalTo(element));
         assertThat("testAddMetadata_7args_1 11",dc.get(1).getMetadataField().getQualifier(),equalTo(qualifier));
         assertThat("testAddMetadata_7args_1 12",dc.get(1).getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_1 13",dc.get(1).getValue(),equalTo(values[1]));
-        assertThat("testAddMetadata_7args_1 14",dc.get(1).getAuthority(),equalTo(authorities[1]));
-        assertThat("testAddMetadata_7args_1 15",dc.get(1).getConfidence(),equalTo(confidences[1]));
+        assertThat("testAddMetadata_7args_1 13",dc.get(1).getValue(),equalTo(values.get(1)));
+        assertThat("testAddMetadata_7args_1 14",dc.get(1).getAuthority(),equalTo(authorities.get(1)));
+        assertThat("testAddMetadata_7args_1 15",dc.get(1).getConfidence(),equalTo(confidences.get(1)));
     }
 
     /**
@@ -399,9 +398,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String element = "contributor";
         String qualifier = "author";
         String lang = Item.ANY;
-        String[] values = {"value0","value1"};
-        String[] authorities = {"auth0","auth2"};
-        int[] confidences = {0,0};
+        List<String> values = Arrays.asList("value0","value1");
+        List<String> authorities = Arrays.asList("auth0","auth2");
+        List<Integer> confidences = Arrays.asList(0,0);
         itemService.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
 
         List<MetadataValue> dc = itemService.getMetadata(it, schema, element, qualifier, lang);
@@ -411,14 +410,14 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertThat("testAddMetadata_7args_1 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
         assertThat("testAddMetadata_7args_1 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
         assertThat("testAddMetadata_7args_1 5",dc.get(0).getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_1 6",dc.get(0).getValue(),equalTo(values[0]));
+        assertThat("testAddMetadata_7args_1 6",dc.get(0).getValue(),equalTo(values.get(0)));
         assertThat("testAddMetadata_7args_1 7",dc.get(0).getAuthority(),nullValue());
         assertThat("testAddMetadata_7args_1 8",dc.get(0).getConfidence(),equalTo(-1));
         assertThat("testAddMetadata_7args_1 9",dc.get(1).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
         assertThat("testAddMetadata_7args_1 10",dc.get(1).getMetadataField().getElement(),equalTo(element));
         assertThat("testAddMetadata_7args_1 11",dc.get(1).getMetadataField().getQualifier(),equalTo(qualifier));
         assertThat("testAddMetadata_7args_1 12",dc.get(1).getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_7args_1 13",dc.get(1).getValue(),equalTo(values[1]));
+        assertThat("testAddMetadata_7args_1 13",dc.get(1).getValue(),equalTo(values.get(1)));
         assertThat("testAddMetadata_7args_1 14",dc.get(1).getAuthority(),nullValue());
         assertThat("testAddMetadata_7args_1 15",dc.get(1).getConfidence(),equalTo(-1));
     }
@@ -433,7 +432,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         String element = "contributor";
         String qualifier = "author";
         String lang = Item.ANY;
-        String[] values = {"value0","value1"};
+        List<String> values = Arrays.asList("value0","value1");
         itemService.addMetadata(context, it, schema, element, qualifier, lang, values);
 
         List<MetadataValue> dc = itemService.getMetadata(it, schema, element, qualifier, lang);
@@ -443,12 +442,12 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertThat("testAddMetadata_5args_2 3",dc.get(0).getMetadataField().getElement(),equalTo(element));
         assertThat("testAddMetadata_5args_2 4",dc.get(0).getMetadataField().getQualifier(),equalTo(qualifier));
         assertThat("testAddMetadata_5args_2 5",dc.get(0).getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_5args_2 6",dc.get(0).getValue(),equalTo(values[0]));
+        assertThat("testAddMetadata_5args_2 6",dc.get(0).getValue(),equalTo(values.get(0)));
         assertThat("testAddMetadata_5args_2 7",dc.get(1).getMetadataField().getMetadataSchema().getName(),equalTo(schema));
         assertThat("testAddMetadata_5args_2 8",dc.get(1).getMetadataField().getElement(),equalTo(element));
         assertThat("testAddMetadata_5args_2 9",dc.get(1).getMetadataField().getQualifier(),equalTo(qualifier));
         assertThat("testAddMetadata_5args_2 10",dc.get(1).getLanguage(),equalTo(lang));
-        assertThat("testAddMetadata_5args_2 11",dc.get(1).getValue(),equalTo(values[1]));
+        assertThat("testAddMetadata_5args_2 11",dc.get(1).getValue(),equalTo(values.get(1)));
     }
 
     /**

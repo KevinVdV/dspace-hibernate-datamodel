@@ -28,7 +28,12 @@
         <mapping class="org.dspace.content.MetadataValue"/>
         <mapping class="org.dspace.content.MetadataSchema"/>
         <mapping class="org.dspace.content.MetadataField"/>
-        <mapping class="org.dspace.content.SupervisedItem"/>
+
+        <mapping class="org.dspace.identifier.DOI"/>
+
+        <mapping class="org.dspace.workflow.WorkflowItem"/>
+        <mapping class="org.dspace.workflow.TaskListItem"/>
+
         <mapping class="org.dspace.handle.Handle"/>
         <mapping class="org.dspace.authorize.ResourcePolicy"/>
     </session-factory>

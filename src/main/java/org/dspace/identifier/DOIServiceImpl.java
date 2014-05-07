@@ -1,20 +1,23 @@
 package org.dspace.identifier;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
-import org.dspace.identifier.dao.DoiDAO;
+import org.dspace.identifier.dao.DOIDAO;
 import org.dspace.identifier.doi.DOIIdentifierException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by kevin on 01/05/14.
  */
-public class DoiServiceImpl implements DoiService {
+public class DOIServiceImpl implements DOIService {
 
     @Autowired(required = true)
-    protected DoiDAO doiDAO;
+    protected DOIDAO doiDAO;
 
     @Override
     public DOI create(Context context) throws SQLException, AuthorizeException {
@@ -49,17 +52,17 @@ public class DoiServiceImpl implements DoiService {
         if (null == identifier) {
             throw new IllegalArgumentException("Identifier is null.", new NullPointerException());
         }
-        if (identifier.startsWith(DoiService.SCHEME)) {
+        if (identifier.startsWith(DOIService.SCHEME)) {
             return identifier;
         }
         if (identifier.isEmpty()) {
             throw new IllegalArgumentException("Cannot format an empty identifier.");
         }
         if (identifier.startsWith("10.") && identifier.contains("/")) {
-            return DoiService.SCHEME + identifier;
+            return DOIService.SCHEME + identifier;
         }
         if (identifier.startsWith(RESOLVER + "/10.")) {
-            return DoiService.SCHEME + identifier.substring(18);
+            return DOIService.SCHEME + identifier.substring(18);
         }
         throw new DOIIdentifierException(identifier + "does not seem to be a DOI.",
                 DOIIdentifierException.UNRECOGNIZED);
@@ -69,4 +72,38 @@ public class DoiServiceImpl implements DoiService {
     public DOI findByDoi(Context context, String doi) throws SQLException {
         return doiDAO.findByDoi(context, doi);
     }
+
+    @Override
+    public DOI findDOIByDSpaceObject(Context context, DSpaceObject dso) throws SQLException {
+        return doiDAO.findDOIByDSpaceObject(context, dso);
+    }
+
+    @Override
+    public String DOIFromExternalFormat(String identifier) throws DOIIdentifierException {
+        Pattern pattern = Pattern.compile("^" + RESOLVER + "/+(10\\..*)$");
+        Matcher matcher = pattern.matcher(identifier);
+        if (matcher.find())
+        {
+            return SCHEME + matcher.group(1);
+        }
+
+        throw new DOIIdentifierException("Cannot recognize DOI!", DOIIdentifierException.UNRECOGNIZED);
+    }
+
+    @Override
+    public String DOIToExternalForm(String identifier) throws IdentifierException {
+        if (null == identifier)
+            throw new IllegalArgumentException("Identifier is null.", new NullPointerException());
+        if (identifier.isEmpty())
+            throw new IllegalArgumentException("Cannot format an empty identifier.");
+        if (identifier.startsWith(SCHEME))
+            return RESOLVER + "/" + identifier.substring(SCHEME.length());
+        if (identifier.startsWith("10.") && identifier.contains("/"))
+            return RESOLVER + "/" + identifier;
+        if (identifier.startsWith(RESOLVER + "/10."))
+            return identifier;
+
+        throw new IdentifierException(identifier + "does not seem to be a DOI.");
+    }
+
 }

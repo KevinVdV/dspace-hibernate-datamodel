@@ -20,9 +20,9 @@ public interface CommunityService extends DSpaceObjectService<Community> {
 
     public Community find(Context context, int id) throws SQLException;
 
-    public Community create(Community parent, Context context) throws SQLException, AuthorizeException;
+    public Community create(Context context, Community parent) throws SQLException, AuthorizeException;
 
-    public Community create(Community parent, Context context, String handle) throws SQLException, AuthorizeException;
+    public Community create(Context context, Community parent, String handle) throws SQLException, AuthorizeException;
 
     public List<Community> findAll(Context context) throws SQLException;
 

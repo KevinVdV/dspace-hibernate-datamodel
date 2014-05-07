@@ -154,6 +154,11 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     public Collection create(Context context, Community community, String handle) throws SQLException,
             AuthorizeException
     {
+        if(community == null)
+        {
+            throw new IllegalArgumentException("Community cannot be null when creating a new collection.");
+        }
+
         Collection newCollection = collectionDAO.create(context, new Collection());
         //Add our newly created collection to our community, authorization checks occur in THIS method
         communityService.addCollection(context, community, newCollection);

@@ -416,7 +416,7 @@ public class Collection extends DSpaceObject {
     }
 
 
-    public void setName(Collection collection, String value) throws MissingResourceException
+    public void setName(String value) throws MissingResourceException
     {
         collectionService.setName(this, value);
     }

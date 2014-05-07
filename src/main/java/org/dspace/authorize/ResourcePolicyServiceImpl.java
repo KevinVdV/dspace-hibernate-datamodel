@@ -115,7 +115,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
             DSpaceObject dso = serviceFactory.getDSpaceObjectService(resourcePolicy.getResourceType()).find(context, resourcePolicy.getResourceID());
             if(dso != null)
             {
-                serviceFactory.getDSpaceObjectManager(dso).updateLastModified(context, dso);
+                serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
             }
         }
 
@@ -190,22 +190,22 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
 
     public void removeAllPolicies(Context c, DSpaceObject o) throws SQLException, AuthorizeException {
         // FIXME: authorization check?
-        serviceFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+        serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
         resourcePolicyDAO.deleteByDso(c, o);
     }
 
     public void removePolicies(Context c, DSpaceObject o, String type) throws SQLException, AuthorizeException {
-        serviceFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+        serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
         resourcePolicyDAO.deleteByDsoAndType(c, o, type);
     }
 
     public void removeDsoGroupPolicies(Context context, DSpaceObject dso, Group group) throws SQLException, AuthorizeException {
-        serviceFactory.getDSpaceObjectManager(dso).updateLastModified(context, dso);
+        serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
         resourcePolicyDAO.deleteByDsoGroupPolicies(context, dso, group);
     }
 
     public void removeDsoEPersonPolicies(Context context, DSpaceObject dso, EPerson ePerson) throws SQLException, AuthorizeException {
-        serviceFactory.getDSpaceObjectManager(dso).updateLastModified(context, dso);
+        serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
         resourcePolicyDAO.deleteByDsoEPersonPolicies(context, dso, ePerson);
 
     }
@@ -219,13 +219,13 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
         {
             removeAllPolicies(c, o);
         }else{
-            serviceFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+            serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
             resourcePolicyDAO.deleteByDsoAndAction(c, o, actionId);
         }
     }
 
     public void removeDsoAndTypeNotEqualsToPolicies(Context c, DSpaceObject o, String type) throws SQLException, AuthorizeException {
-        serviceFactory.getDSpaceObjectManager(o).updateLastModified(c, o);
+        serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
         resourcePolicyDAO.deleteByDSOAndTypeNotEqualsTo(c, o, type);
     }
 
@@ -239,7 +239,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
             DSpaceObjectService dsoService = serviceFactory.getDSpaceObjectService(resourcePolicy.getResourceType());
             DSpaceObject dso = dsoService.find(context, resourcePolicy.getResourceID());
             if(dso != null){
-                serviceFactory.getDSpaceObjectManager(dso).updateLastModified(context, dso);
+                serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
             }
         }
 

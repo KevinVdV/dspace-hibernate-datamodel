@@ -346,14 +346,14 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @param values
      *            the values to add.
      */
-    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, String[] values) throws SQLException {
+    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, List<String> values) throws SQLException {
         MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
         String fieldKey = MetadataAuthorityManager.makeFieldKey(schema, element, qualifier);
         if (mam.isAuthorityControlled(fieldKey))
         {
-            String authorities[] = new String[values.length];
-            int confidences[] = new int[values.length];
-            for (int i = 0; i < values.length; ++i)
+            List<String> authorities = new ArrayList<String>();
+            List<Integer> confidences = new ArrayList<Integer>();
+            for (int i = 0; i < values.size(); ++i)
             {
                 Collection owningCollection = item.getOwningCollection();
                 int collectionId = -1;
@@ -361,9 +361,9 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                 {
                     collectionId = owningCollection.getID();
                 }
-                Choices c = ChoiceAuthorityManager.getManager().getBestMatch(fieldKey, values[i], collectionId, null);
-                authorities[i] = c.values.length > 0 ? c.values[0].authority : null;
-                confidences[i] = c.confidence;
+                Choices c = ChoiceAuthorityManager.getManager().getBestMatch(fieldKey, values.get(i), collectionId, null);
+                authorities.add(c.values.length > 0 ? c.values[0].authority : null);
+                confidences.add(c.confidence);
             }
             addMetadata(context, item, schema, element, qualifier, lang, values, authorities, confidences);
         }
@@ -397,14 +397,14 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *            the authority confidence (default 0)
      */
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang,
-            String[] values, String authorities[], int confidences[]) throws SQLException {
+            List<String> values, List<String> authorities, List<Integer> confidences) throws SQLException {
         MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
         boolean authorityControlled = mam.isAuthorityControlled(schema, element, qualifier);
         boolean authorityRequired = mam.isAuthorityRequired(schema, element, qualifier);
 
         // We will not verify that they are valid entries in the registry
         // until update() is called.
-        for (int i = 0; i < values.length; i++)
+        for (int i = 0; i < values.size(); i++)
         {
             //TODO: HIBERNATE? THROW EXCEPTION IF SCHEMA OR FIELD CANNOT BE FOUND
             MetadataSchema metadataSchema = metadataSchemaService.find(context, schema);
@@ -426,15 +426,15 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             //  - it's possible to have empty authority & CF_ACCEPTED if e.g. user deletes authority key
             if (authorityControlled)
             {
-                if (authorities != null && authorities[i] != null && authorities[i].length() > 0)
+                if (authorities != null && authorities.get(i) != null && authorities.get(i).length() > 0)
                 {
-                    metadataValue.setAuthority(authorities[i]);
-                    metadataValue.setConfidence(confidences == null ? Choices.CF_NOVALUE : confidences[i]);;
+                    metadataValue.setAuthority(authorities.get(i));
+                    metadataValue.setConfidence(confidences == null ? Choices.CF_NOVALUE : confidences.get(i));;
                 }
                 else
                 {
                     metadataValue.setAuthority(null);
-                    metadataValue.setConfidence(confidences == null ? Choices.CF_UNSET : confidences[i]);
+                    metadataValue.setConfidence(confidences == null ? Choices.CF_UNSET : confidences.get(i));
                 }
                 // authority sanity check: if authority is required, was it supplied?
                 // XXX FIXME? can't throw a "real" exception here without changing all the callers to expect it, so use a runtime exception
@@ -443,10 +443,10 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                     throw new IllegalArgumentException("The metadata field \"" + metadataValue.getMetadataField().toString() + "\" requires an authority key but none was provided. Vaue=\"" + metadataValue.getValue() + "\"");
                 }
             }
-            if (values[i] != null)
+            if (values.get(i) != null)
             {
                 // remove control unicode char
-                String temp = values[i].trim();
+                String temp = values.get(i).trim();
                 char[] dcvalue = temp.toCharArray();
                 for (int charPos = 0; charPos < dcvalue.length; charPos++)
                 {
@@ -492,10 +492,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      */
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier,
             String lang, String value) throws SQLException {
-        String[] valArray = new String[1];
-        valArray[0] = value;
-
-        addMetadata(context, item, schema, element, qualifier, lang, valArray);
+        addMetadata(context, item, schema, element, qualifier, lang, Arrays.asList(value));
     }
 
     /**
@@ -523,14 +520,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      */
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier,
             String lang, String value, String authority, int confidence) throws SQLException {
-        String[] valArray = new String[1];
-        String[] authArray = new String[1];
-        int[] confArray = new int[1];
-        valArray[0] = value;
-        authArray[0] = authority;
-        confArray[0] = confidence;
-
-        addMetadata(context, item, schema, element, qualifier, lang, valArray, authArray, confArray);
+        addMetadata(context, item, schema, element, qualifier, lang, Arrays.asList(value), Arrays.asList(authority), Arrays.asList(confidence));
     }
 
     /**

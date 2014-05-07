@@ -385,16 +385,6 @@ public class Item extends DSpaceObject{
         return itemService.getCommunities(item);
     }
 
-    public final List<MetadataValue> getMetadata(Item item, String schema, String element, String qualifier, String lang)
-    {
-        return itemService.getMetadata(item, schema, element, qualifier, lang);
-    }
-
-    public final List<MetadataValue> getMetadata(Item item, String mdString)
-    {
-        return itemService.getMetadata(item, mdString);
-    }
-
     public final List<Bitstream> getNonInternalBitstreams(Item item) throws SQLException
     {
         return itemService.getNonInternalBitstreams(item);

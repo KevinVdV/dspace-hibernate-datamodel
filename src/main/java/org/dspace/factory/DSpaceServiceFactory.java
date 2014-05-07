@@ -12,6 +12,7 @@ import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.RegistrationDataService;
 import org.dspace.handle.service.HandleService;
+import org.dspace.identifier.DOIService;
 import org.dspace.utils.DSpace;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.service.TaskListItemService;
@@ -25,6 +26,7 @@ import org.dspace.workflow.service.WorkflowItemService;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class DSpaceServiceFactory {
+
     public abstract BitstreamFormatService getBitstreamFormatService();
 
     public abstract BitstreamService getBitstreamService();
@@ -73,6 +75,7 @@ public abstract class DSpaceServiceFactory {
 
     public abstract SupervisedItemService getSupervisedItemService();
 
+    public abstract DOIService getDOIService();
 
     public InProgressSubmissionService getInProgressSubmissionService(InProgressSubmission inProgressSubmission)
     {
@@ -88,7 +91,7 @@ public abstract class DSpaceServiceFactory {
         //TODO: Implement workflowItem checks
         throw new UnsupportedOperationException();
     }
-    public DSpaceObjectService<DSpaceObject> getDSpaceObjectManager(DSpaceObject dso)
+    public DSpaceObjectService<DSpaceObject> getDSpaceObjectService(DSpaceObject dso)
     {
         // No need to worry when supressing, as long as our "getDSpaceObjectManager" method is properly implemented
         // no casting issues should occur
