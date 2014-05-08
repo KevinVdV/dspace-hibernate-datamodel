@@ -121,7 +121,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     public Bitstream create(Context context, InputStream is)
             throws IOException, SQLException, AuthorizeException {
         // Store the bits
-        int bitstreamID = BitstreamStorageManager.store(context, is);
+        int bitstreamID = BitstreamStorageManager.store(context, bitstreamDAO.create(context, new Bitstream()), is);
 
         log.info(LogManager.getHeader(context, "create_bitstream",
                 "bitstream_id=" + bitstreamID));

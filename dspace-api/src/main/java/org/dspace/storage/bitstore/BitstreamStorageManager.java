@@ -63,6 +63,7 @@ import org.dspace.factory.DSpaceServiceFactory;
  * @author Peter Breton, Robert Tansley, David Little, Nathan Sarr
  * @version $Revision$
  */
+//TODO: Make a service out of this one !
 public class BitstreamStorageManager
 {
     /** log4j log */
@@ -250,43 +251,22 @@ public class BitstreamStorageManager
      * 
      * @return The ID of the stored bitstream
      */
-    public static int store(Context context, InputStream is)
+    public static int store(Context context, Bitstream bitstream, InputStream is)
             throws SQLException, IOException, AuthorizeException {
         // Create internal ID
         String id = Utils.generateKey();
 
-        // Create a deleted bitstream row, using a separate DB connection
-        Context tempContext = null;
+        bitstream.setDeleted(true);
+        bitstream.setInternalId(id);
 
-        Bitstream bitstream = null;
-        try
-        {
-            tempContext = new Context();
+        /*
+         * Set the store number of the new bitstream If you want to use some
+         * other method of working out where to put a new bitstream, here's
+         * where it should go
+         */
+        bitstream.setStoreNumber(incoming);
 
-            bitstream = BITSTREAM_SERVICE.create(context, is);
-            bitstream.setDeleted(true);
-            bitstream.setInternalId(id);
-
-            /*
-             * Set the store number of the new bitstream If you want to use some
-             * other method of working out where to put a new bitstream, here's
-             * where it should go
-             */
-            bitstream.setStoreNumber(incoming);
-
-            BITSTREAM_SERVICE.update(context, bitstream);
-
-            tempContext.complete();
-        }
-        catch (SQLException sqle)
-        {
-            if (tempContext != null)
-            {
-                tempContext.abort();
-            }
-
-            throw sqle;
-        }
+        BITSTREAM_SERVICE.update(context, bitstream);
 
         // Where on the file system will this new bitstream go?
 		GeneralFile file = getFile(bitstream);

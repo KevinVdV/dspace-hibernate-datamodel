@@ -31,7 +31,7 @@ public class Bitstream extends DSpaceObject{
     private Integer id;
 
     @Column(name = "sequence_id")
-    private Integer sequenceId;
+    private Integer sequenceId = -1;
 
     @Column(name = "name")
     private String name;
@@ -60,8 +60,8 @@ public class Bitstream extends DSpaceObject{
     @Column(name = "store_number")
     private int storeNumber;
 
-    @Column(name = "bitstream_order")
-    private int bitstreamOrder;
+//    @Column(name = "bitstream_order")
+//    private int bitstreamOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bitstream_format_id")
@@ -323,13 +323,13 @@ public class Bitstream extends DSpaceObject{
         return community;
     }
 
-    public int getBitstreamOrder() {
-        return bitstreamOrder;
-    }
+//    public int getBitstreamOrder() {
+//        return bitstreamOrder;
+//    }
 
-    public void setBitstreamOrder(int bitstreamOrder) {
-        this.bitstreamOrder = bitstreamOrder;
-    }
+//    public void setBitstreamOrder(int bitstreamOrder) {
+//        this.bitstreamOrder = bitstreamOrder;
+//    }
 
     /**
      * Get the user's format description. Returns null if the format is known by

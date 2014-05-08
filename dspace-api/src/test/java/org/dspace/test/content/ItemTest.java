@@ -788,7 +788,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
      * Test of createSingleBitstream method, of class Item.
      */
     @Test
-    public void ritestCreateSingleBitstream_InputStream_StringAuth() throws Exception
+    public void testCreateSingleBitstream_InputStream_StringAuth() throws Exception
     {
         new NonStrictExpectations()
         {
@@ -1332,9 +1332,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         newpolicies.add(pol1);
         pol1.setGroup(g);
         itemService.replaceAllItemPolicies(context, it, newpolicies);
-        context.restoreAuthSystemState();
 
         itemService.removeGroupPolicies(context, it, g);
+        context.restoreAuthSystemState();
 
         List<ResourcePolicy> retrieved = AuthorizeManager.getPolicies(context, it);
         assertThat("testRemoveGroupPolicies 0",retrieved, notNullValue());

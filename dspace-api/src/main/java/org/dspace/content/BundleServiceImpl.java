@@ -208,6 +208,8 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
 
         List<Bitstream> bitstreams = bundle.getBitstreams();
         int topOrder = 0;
+        //TODO: HIBERNATE FIX THIS ORDER !
+        /*
         // First check that the bitstream isn't already in the list
         for (Bitstream existingBitstream : bitstreams) {
             if (b.getID() == existingBitstream.getID()) {
@@ -220,6 +222,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
 
 
         b.setBitstreamOrder(topOrder++);
+        */
         // Add the bitstream object
         bundle.addBitstream(b);
 
@@ -249,7 +252,8 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
                 log.warn(LogManager.getHeader(context, "Invalid bitstream id while changing bitstream order", "Bundle: " + bundle.getID() + ", bitstream id: " + bitstreamId));
                 continue;
             }
-            bitstream.setBitstreamOrder(i);
+                    //TODO: HIBERNATE FIX THIS ORDER !
+//            bitstream.setBitstreamOrder(i);
             bitstreamService.update(context, bitstream);
         }
 
@@ -287,6 +291,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         // Remove from internal list of bitstreams
         ListIterator li = bundle.getBitstreams().listIterator();
 
+        //TODO: replace by remove ?
         while (li.hasNext())
         {
             Bitstream existing = (Bitstream) li.next();
@@ -364,7 +369,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         context.addEvent(new Event(Event.DELETE, Constants.BUNDLE, bundle.getID(), bundle.getName()));
 
         // Remove bitstreams
-        List<Bitstream> bs = bundle.getBitstreams();
+        List<Bitstream> bs = new ArrayList<Bitstream>(bundle.getBitstreams());
 
         for (Bitstream b : bs) {
             removeBitstream(context, bundle, b);

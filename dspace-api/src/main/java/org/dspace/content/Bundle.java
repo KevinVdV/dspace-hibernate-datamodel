@@ -66,12 +66,6 @@ public class Bundle extends DSpaceObject{
             joinColumns = {@JoinColumn(name = "bundle_id") },
             inverseJoinColumns = {@JoinColumn(name = "item_id") }
     )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="integer"),
-            generator = "item2bundle_seq"
-    )
-    @SequenceGenerator(name="item2bundle_seq", sequenceName="item2bundle_seq", allocationSize = 1)
     private List<Item> items = null;
 
     /**
