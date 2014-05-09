@@ -24,8 +24,6 @@ public interface MostRecentChecksumService {
 
     public List<MostRecentChecksum> findBitstreamResultTypeReport(Context context, Date startDate, Date endDate, ChecksumResultCode resultCode) throws SQLException;
 
-    public List<Bitstream> findUnknownBitstreams(Context context) throws SQLException;
-
     public void updateMissingBitstreams(Context context) throws SQLException;
 
     public void deleteByBitstream(Context context, Bitstream bitstream) throws SQLException;

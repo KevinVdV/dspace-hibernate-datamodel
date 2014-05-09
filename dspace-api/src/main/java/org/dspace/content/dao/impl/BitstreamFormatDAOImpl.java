@@ -71,7 +71,7 @@ public class BitstreamFormatDAOImpl extends AbstractHibernateDAO<BitstreamFormat
 
     public int updateRemovedBitstreamFormat(Context context, BitstreamFormat deletedBitstreamFormat, BitstreamFormat newBitstreamFormat) throws SQLException {
         // Set bitstreams with this format to "unknown"
-        Query query = context.getDBConnection().createQuery("update Bitstream set bitstreamFormat = :unknown_format where bitstreamFormat = :deleted_format");
+        Query query = createQuery(context, "update Bitstream set bitstreamFormat = :unknown_format where bitstreamFormat = :deleted_format");
         query.setParameter("unknown_format", newBitstreamFormat);
         query.setParameter("deleted_format", deletedBitstreamFormat);
 

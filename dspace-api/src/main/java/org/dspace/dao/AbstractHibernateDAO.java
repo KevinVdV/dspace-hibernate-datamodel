@@ -36,7 +36,7 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
 
     public T findUnique(Context context, String query) throws SQLException {
         @SuppressWarnings("unchecked")
-        T result = (T) context.getDBConnection().createQuery(query).uniqueResult();
+        T result = (T) createQuery(context, query).uniqueResult();
         return result;
     }
 
@@ -48,7 +48,7 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
 
     public List<T> findMany(Context context, String query) throws SQLException {
         @SuppressWarnings("unchecked")
-        List<T> result = (List<T>) context.getDBConnection().createQuery(query).uniqueResult();
+        List<T> result = (List<T>) createQuery(context, query).uniqueResult();
         return result;
     }
 
@@ -58,7 +58,7 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
 
     //TODO: MAKE SURE EVERYBODY USES THIS METHOD !
     public Query createQuery(Context context, String query) throws SQLException {
-        return context.getDBConnection().createQuery(query);
+        return createQuery(context, query);
     }
 
     public List<T> list(Criteria criteria)

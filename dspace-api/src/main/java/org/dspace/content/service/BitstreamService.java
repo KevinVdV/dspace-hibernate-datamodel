@@ -46,4 +46,12 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream> {
     public InputStream retrieve(Context context, Bitstream bitstream) throws IOException, SQLException, AuthorizeException;
 
     public boolean isRegisteredBitstream(Bitstream bitstream);
+
+    /**
+     * Find all bitstreams that the checksum checker is currently not aware of
+     *
+     * @return a List of DSpaceBitstreamInfo objects
+     */
+    public List<Bitstream> findBitstreamsWithNoRecentChecksum(Context context) throws SQLException;
+
 }

@@ -4,6 +4,7 @@ import org.dspace.checker.dao.MostRecentChecksumDAO;
 import org.dspace.checker.service.ChecksumResultService;
 import org.dspace.checker.service.MostRecentChecksumService;
 import org.dspace.content.Bitstream;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,6 +24,9 @@ public class MostRecentChecksumServiceImpl implements MostRecentChecksumService
 
     @Autowired(required = true)
     protected ChecksumResultService checksumResultService;
+
+    @Autowired(required = true)
+    protected BitstreamService bitstreamService;
 
     public MostRecentChecksum getNonPersistedObject()
     {
@@ -66,16 +70,6 @@ public class MostRecentChecksumServiceImpl implements MostRecentChecksumService
     }
 
     /**
-     * Find all bitstreams that the checksum checker is currently not aware of
-     *
-     * @return a List of DSpaceBitstreamInfo objects
-     */
-    public List<Bitstream> findUnknownBitstreams(Context context) throws SQLException
-    {
-        return mostRecentChecksumDAO.findNotLinkedBitstreams(context);
-    }
-
-    /**
      * Queries the bitstream table for bitstream IDs that are not yet in the
      * most_recent_checksum table, and inserts them into the
      * most_recent_checksum and checksum_history tables.
@@ -96,7 +90,7 @@ public class MostRecentChecksumServiceImpl implements MostRecentChecksumService
 //                + "select 'x' from most_recent_checksum "
 //                + "where most_recent_checksum.bitstream_id = bitstream.bitstream_id )";
 
-        List<Bitstream> unknownBitstreams = findUnknownBitstreams(context);
+        List<Bitstream> unknownBitstreams = bitstreamService.findBitstreamsWithNoRecentChecksum(context);
         for (Bitstream bitstream : unknownBitstreams)
         {
             MostRecentChecksum mostRecentChecksum = mostRecentChecksumDAO.create(context, new MostRecentChecksum());

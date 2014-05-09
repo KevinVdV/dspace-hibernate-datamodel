@@ -47,7 +47,7 @@ public class WorkflowItemDAOImpl extends AbstractHibernateDAO<WorkflowItem> impl
     public List<WorkflowItem> findByPooledTasks(Context context, EPerson ePerson) throws SQLException
     {
         String queryString = "select WorkflowItem from WorkflowItem as wf join TaskListItem.eperson tli where tli.eperson = :eperson";
-        Query query = context.getDBConnection().createQuery(queryString);
+        Query query = createQuery(context, queryString);
         query.setParameter("eperson", ePerson);
         return list(query);
     }

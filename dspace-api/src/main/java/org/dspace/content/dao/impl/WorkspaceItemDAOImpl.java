@@ -25,7 +25,7 @@ public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> im
 
     public List<WorkspaceItem> findByEPerson(Context context, EPerson ep) throws SQLException
     {
-        Query query = context.getDBConnection().createQuery("from WorkspaceItem ws where ws.item.submitter = :submitter order by workspaceItemId");
+        Query query = createQuery(context, "from WorkspaceItem ws where ws.item.submitter = :submitter order by workspaceItemId");
         query.setParameter("submitter", ep);
         return list(query);
     }

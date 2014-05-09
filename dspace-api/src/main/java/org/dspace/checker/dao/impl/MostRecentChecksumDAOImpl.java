@@ -80,25 +80,6 @@ public class MostRecentChecksumDAOImpl extends AbstractHibernateDAO<MostRecentCh
     }
 
     @Override
-    public List<Bitstream> findNotLinkedBitstreams(Context context) throws SQLException {
-//        "select bitstream.deleted, bitstream.store_number, bitstream.size_bytes, "
-//                    + "bitstreamformatregistry.short_description, bitstream.bitstream_id,  "
-//                    + "bitstream.user_format_description, bitstream.internal_id, "
-//                    + "bitstream.source, bitstream.checksum_algorithm, bitstream.checksum, "
-//                    + "bitstream.name, bitstream.description "
-//                    + "from bitstream left outer join bitstreamformatregistry on "
-//                    + "bitstream.bitstream_format_id = bitstreamformatregistry.bitstream_format_id "
-//                    + "where not exists( select 'x' from most_recent_checksum "
-//                    + "where most_recent_checksum.bitstream_id = bitstream.bitstream_id )"
-        Criteria criteria = context.getDBConnection().createCriteria(Bitstream.class)
-            .add(Subqueries.propertyNotIn("id", DetachedCriteria.forClass(MostRecentChecksum.class)));
-
-        @SuppressWarnings("unchecked")
-        List<Bitstream> result = (List<Bitstream>) criteria.list();
-        return result;
-    }
-
-    @Override
     public void deleteByBitstream(Context context, Bitstream bitstream) throws SQLException
     {
         String hql = "delete from MostRecentChecksum WHERE bitstream=:bitstream";

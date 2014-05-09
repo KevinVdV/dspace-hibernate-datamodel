@@ -12,6 +12,7 @@ import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -81,7 +82,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
     public void deleteByDso(Context context, DSpaceObject dso) throws SQLException
     {
         String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId";
-        Query query = context.getDBConnection().createQuery(queryString);
+        Query query = createQuery(context, queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setInteger("resourceId", dso.getID());
         query.executeUpdate();
@@ -89,7 +90,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
     public void deleteByDsoAndAction(Context context, DSpaceObject dso, int actionId) throws SQLException {
         String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId AND actionId= :actionId";
-        Query query = context.getDBConnection().createQuery(queryString);
+        Query query = createQuery(context, queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setInteger("resourceId", dso.getID());
         query.setInteger("actionId", actionId);
@@ -98,7 +99,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
     public void deleteByDsoAndType(Context context, DSpaceObject dso, String type) throws SQLException {
         String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND rptype = :rptype";
-        Query query = context.getDBConnection().createQuery(queryString);
+        Query query = createQuery(context, queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setString("rptype", type);
         query.executeUpdate();
@@ -106,14 +107,14 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
     public void deleteByGroup(Context context, Group group) throws SQLException {
         String queryString = "delete from ResourcePolicy where epersonGroup= :epersonGroup";
-        Query query = context.getDBConnection().createQuery(queryString);
+        Query query = createQuery(context, queryString);
         query.setParameter("epersonGroup", group);
         query.executeUpdate();
     }
 
     public void deleteByDsoGroupPolicies(Context context, DSpaceObject dso, Group group) throws SQLException {
         String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId AND epersonGroup= :epersonGroup";
-        Query query = context.getDBConnection().createQuery(queryString);
+        Query query = createQuery(context, queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setInteger("resourceId", dso.getID());
         query.setParameter("epersonGroup", group);
@@ -123,7 +124,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
     public void deleteByDsoEPersonPolicies(Context context, DSpaceObject dso, EPerson ePerson) throws SQLException {
         String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId AND eperson= :eperson";
-        Query query = context.getDBConnection().createQuery(queryString);
+        Query query = createQuery(context, queryString);
         query.setInteger("resourceTypeId", dso.getType());
         query.setInteger("resourceId", dso.getID());
         query.setParameter("eperson", ePerson);
@@ -139,10 +140,11 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
                 Restrictions.eq("resourceId", o.getID()),
                 Restrictions.not(Restrictions.eq("rptype", type))
         ));
-        //TODO: test this, prob doesn't work !
-        List<ResourcePolicy> list = list(criteria);
-        for (ResourcePolicy resourcePolicy : list) {
-            context.getDBConnection().delete(resourcePolicy);
+        Iterator<ResourcePolicy> iterator = list(criteria).iterator();
+        while (iterator.hasNext()) {
+            ResourcePolicy resourcePolicy = iterator.next();
+            iterator.remove();
+            delete(context, resourcePolicy);
         }
     }
 }

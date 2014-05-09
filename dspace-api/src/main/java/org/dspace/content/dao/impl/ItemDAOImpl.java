@@ -22,21 +22,21 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
 
     public Iterator<Item> findAll(Context context, boolean archived) throws SQLException
     {
-        Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive");
+        Query query = createQuery(context, "FROM Item WHERE inArchive= :in_archive");
         query.setParameter("in_archive", archived);
         return iterate(query);
     }
 
     public Iterator<Item> findAll(Context context, boolean archived, boolean withdrawn) throws SQLException
     {
-        Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive or withdrawn = :withdrawn");
+        Query query = createQuery(context, "FROM Item WHERE inArchive= :in_archive or withdrawn = :withdrawn");
         query.setParameter("in_archive", archived);
         query.setParameter("withdrawn", withdrawn);
         return iterate(query);
     }
 
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException {
-        Query query = context.getDBConnection().createQuery("FROM Item WHERE inArchive= :in_archive and submitter= :submitter");
+        Query query = createQuery(context, "FROM Item WHERE inArchive= :in_archive and submitter= :submitter");
         query.setParameter("in_archive", true);
         query.setParameter("submitter", eperson);
         return iterate(query);
@@ -48,7 +48,7 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
         {
             hqlQueryString += " AND metadataValue.value = :text_value";
         }
-        Query query = context.getDBConnection().createQuery(hqlQueryString);
+        Query query = createQuery(context, hqlQueryString);
 
         query.setParameter("in_archive", inArchive);
         query.setParameter("metadata_field", metadataField);
@@ -60,7 +60,7 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
     }
 
     public Iterator<Item> findByAuthorityValue(Context context, MetadataField metadataField, String authority, boolean inArchive) throws SQLException {
-        Query query = context.getDBConnection().createQuery("SELECT item FROM Item as item join item.metadata metadatavalue WHERE item.inArchive=:in_archive AND metadatavalue.metadataField = :metadata_field AND metadatavalue.authority = :authority");
+        Query query = createQuery(context, "SELECT item FROM Item as item join item.metadata metadatavalue WHERE item.inArchive=:in_archive AND metadatavalue.metadataField = :metadata_field AND metadatavalue.authority = :authority");
         query.setParameter("in_archive", inArchive);
         query.setParameter("metadata_field", metadataField);
         query.setParameter("authority", authority);

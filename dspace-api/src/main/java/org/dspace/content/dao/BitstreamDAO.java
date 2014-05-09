@@ -17,4 +17,7 @@ public interface BitstreamDAO extends GenericDAO<Bitstream> {
     public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException;
 
     public List<Bitstream> findDuplicateInternalIdentifier(Context context, Bitstream bitstream) throws SQLException;
+
+    public List<Bitstream> findBitstreamsWithNoRecentChecksum(Context context) throws SQLException;
+
 }

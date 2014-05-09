@@ -57,8 +57,7 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
     }
 
     public Iterator<Item> getItems(Context context, Collection collection, boolean inArchive, Integer limit, Integer offset) throws SQLException{
-        Query query = context.getDBConnection()
-                .createQuery("select i from Item i join i.collections c WHERE :collection IN c AND i.inArchive=:in_archive");
+        Query query = createQuery(context, "select i from Item i join i.collections c WHERE :collection IN c AND i.inArchive=:in_archive");
         query.setParameter("collection", collection);
         query.setParameter("in_archive", true);
         if(offset != null)
@@ -75,7 +74,7 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
     }
 
     public Iterator<Item> getAllItems(Context context, Collection collection) throws SQLException {
-        Query query = context.getDBConnection().createQuery("select i from Item i join i.collections c WHERE :collection IN c");
+        Query query = createQuery(context, "select i from Item i join i.collections c WHERE :collection IN c");
         query.setParameter("collection", collection);
 
         @SuppressWarnings("unchecked")

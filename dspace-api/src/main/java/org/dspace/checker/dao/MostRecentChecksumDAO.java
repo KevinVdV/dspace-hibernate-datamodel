@@ -22,8 +22,6 @@ public interface MostRecentChecksumDAO extends GenericDAO<MostRecentChecksum>
 
     public List<MostRecentChecksum> findByResultTypeInDateRange(Context context, Date startDate, Date endDate, ChecksumResultCode resultCode) throws SQLException;
 
-    public List<Bitstream> findNotLinkedBitstreams(Context context) throws SQLException;
-
     public void deleteByBitstream(Context context, Bitstream bitstream) throws SQLException;
 
     public MostRecentChecksum getOldestRecord(Context context) throws SQLException;

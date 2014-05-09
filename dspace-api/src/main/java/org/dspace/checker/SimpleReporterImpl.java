@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.dspace.checker.service.MostRecentChecksumService;
 import org.dspace.content.Bitstream;
+import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.factory.DSpaceServiceFactory;
@@ -35,6 +36,7 @@ public class SimpleReporterImpl implements SimpleReporter
     /** The reporter access object to be used. */
 //    private ReporterDAO reporter = null;
     private MostRecentChecksumService mostRecentChecksumService = null;
+    private BitstreamService bitstreamService = null;
 
     private String msg(String key)
     {
@@ -47,6 +49,7 @@ public class SimpleReporterImpl implements SimpleReporter
     public SimpleReporterImpl()
     {
         this.mostRecentChecksumService = DSpaceServiceFactory.getInstance().getMostRecentChecksumService();
+        this.bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
     }
 
     /**
@@ -244,7 +247,7 @@ public class SimpleReporterImpl implements SimpleReporter
     public int getUncheckedBitstreamsReport(Context context, OutputStreamWriter osw)
             throws IOException, SQLException {
         // get all the bitstreams marked deleted for today
-        List<Bitstream> bitstreams = mostRecentChecksumService.findUnknownBitstreams(context);
+        List<Bitstream> bitstreams = bitstreamService.findBitstreamsWithNoRecentChecksum(context);
 
         osw.write("\n");
         osw.write(msg("unchecked-bitstream-report"));

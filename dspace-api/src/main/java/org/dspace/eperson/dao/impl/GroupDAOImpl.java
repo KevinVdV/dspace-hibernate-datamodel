@@ -38,7 +38,7 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
     }
 
     public List<Group> findByEPerson(Context context, EPerson ePerson) throws SQLException {
-        Query query = context.getDBConnection().createQuery("from Group where (from EPerson e where e.id = :eperson_id) in elements(epeople)");
+        Query query = createQuery(context, "from Group where (from EPerson e where e.id = :eperson_id) in elements(epeople)");
         query.setParameter("eperson_id", ePerson.getID());
         return list(query);
     }

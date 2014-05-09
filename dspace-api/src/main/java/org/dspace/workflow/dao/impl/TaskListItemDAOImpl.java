@@ -19,7 +19,7 @@ public class TaskListItemDAOImpl extends AbstractHibernateDAO<TaskListItem> impl
 
     public void deleteByWorkflowItem(Context context, WorkflowItem workflowItem) throws SQLException {
         String queryString = "delete from TaskListItem where workflowItem = :workflowItem";
-        Query query = context.getDBConnection().createQuery(queryString);
+        Query query = createQuery(context, queryString);
         query.setParameter("workflowItem", workflowItem);
         query.executeUpdate();
     }

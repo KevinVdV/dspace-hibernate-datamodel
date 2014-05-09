@@ -348,7 +348,12 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         return BitstreamStorageManager
 				.isRegisteredBitstream(bitstream.getInternalId());
     }
-    
+
+    @Override
+    public List<Bitstream> findBitstreamsWithNoRecentChecksum(Context context) throws SQLException {
+        return bitstreamDAO.findBitstreamsWithNoRecentChecksum(context);
+    }
+
     /**
      * Get the parent object of a bitstream. The parent can be an item if this
      * is a normal bitstream, or it could be a collection or a community if the

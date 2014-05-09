@@ -29,7 +29,6 @@ import javax.persistence.*;
  * @see org.dspace.content.MetadataSchema
  * @see org.dspace.content.MetadataField
  */
-//TODO: ADD toHashSet & equals methods
 @Entity
 @Table(name="metadatavalue")
 public class MetadataValue
