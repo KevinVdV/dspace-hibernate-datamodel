@@ -16,6 +16,7 @@ import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 
+import org.dspace.content.MetadataField;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.factory.DSpaceServiceFactory;
@@ -154,6 +155,11 @@ public class MetadataAuthorityManager
 
 
     /** Predicate - is field authority-controlled? */
+    public boolean isAuthorityControlled(MetadataField metadataField)
+    {
+        return isAuthorityControlled(metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier());
+    }
+
     public boolean isAuthorityControlled(String schema, String element, String qualifier)
     {
         return isAuthorityControlled(makeFieldKey(schema, element, qualifier));
@@ -165,6 +171,10 @@ public class MetadataAuthorityManager
         return controlled.containsKey(fieldKey) && controlled.get(fieldKey).booleanValue();
     }
 
+    public boolean isAuthorityRequired(MetadataField metadataField)
+    {
+        return isAuthorityRequired(metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier());
+    }
 
     /** Predicate - is authority value required for field? */
     public boolean isAuthorityRequired(String schema, String element, String qualifier)

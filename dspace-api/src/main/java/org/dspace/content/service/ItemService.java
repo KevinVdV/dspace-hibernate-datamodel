@@ -32,16 +32,21 @@ public interface ItemService extends DSpaceObjectService<Item> {
 
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException;
 
+    public List<MetadataValue> getMetadata(Item item, MetadataField metadataField, String lang);
+
     public List<MetadataValue> getMetadata(Item item, String schema, String element, String qualifier, String lang);
 
     public List<MetadataValue> getMetadata(Item item, String mdString);
+
+    public void addMetadata(Context context, Item item, MetadataField metadataField, String lang, String value) throws SQLException;
+
+    public void addMetadata(Context context, Item item, MetadataField metadataField, String lang, List<String> values, List<String> authorities, List<Integer> confidences) throws SQLException;
 
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, List<String> values) throws SQLException;
 
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, List<String> values, List<String> authorities, List<Integer> confidences) throws SQLException;
 
-    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang,
-                            String value) throws SQLException;
+    public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, String value) throws SQLException;
 
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, String value, String authority, int confidence) throws SQLException;
 

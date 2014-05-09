@@ -105,7 +105,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      * @return the newly created workspace item
      */
     public WorkspaceItem create(Context c, Collection coll, boolean template) throws AuthorizeException, SQLException,
-            IOException, IllegalAccessException {
+            IOException {
         // Check the user has permission to ADD to the collection
         AuthorizeManager.authorizeAction(c, coll, Constants.ADD);
 

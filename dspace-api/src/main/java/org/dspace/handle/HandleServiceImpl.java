@@ -9,6 +9,7 @@ package org.dspace.handle;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -84,6 +85,17 @@ public class HandleServiceImpl implements HandleService
         }
 
         return url;
+    }
+
+    public void modifyHandleDSpaceObject(Context context, String handle, DSpaceObject newOwner) throws SQLException {
+        Handle dbHandle = findHandleInternal(context, handle);
+        if(dbHandle != null)
+        {
+            dbHandle.setResourceId(newOwner.getID());
+            dbHandle.setResourceTypeId(newOwner.getType());
+            handleDAO.save(context, dbHandle);
+        }
+
     }
     
     /**
@@ -213,11 +225,31 @@ public class HandleServiceImpl implements HandleService
      * @return the Handle
      * @throws IllegalStateException if specified handle is already in use by another object
      */
-    public String createHandle(Context context, DSpaceObject dso,
-            String suppliedHandle) throws SQLException, IllegalStateException
+    public String createHandle(Context context, DSpaceObject dso, String suppliedHandle) throws SQLException, IllegalStateException
+    {
+        return createHandle(context, dso, suppliedHandle, false);
+    }
+    /**
+     * Creates a handle entry, but with a handle supplied by the caller (new
+     * Handle not generated)
+     *
+     * @param context
+     *            DSpace context
+     * @param dso
+     *            DSpaceObject
+     * @param suppliedHandle
+     *            existing handle value
+     * @return the Handle
+     * @throws IllegalStateException if specified handle is already in use by another object
+     */
+    public String createHandle(Context context, DSpaceObject dso, String suppliedHandle, boolean force) throws SQLException, IllegalStateException
     {
         //Check if the supplied handle is already in use -- cannot use the same handle twice
-        Handle handle = findHandleInternal(context, suppliedHandle);
+        Handle handle = null;
+        if(!force)
+        {
+            handle = findHandleInternal(context, suppliedHandle);
+        }
         if(handle!=null && handle.getResourceId() != null)
         {
             //Check if this handle is already linked up to this specified DSpace Object
@@ -251,7 +283,7 @@ public class HandleServiceImpl implements HandleService
         else if(handle==null) //if handle not found, create it
         {
             //handle not found in DB table -- create a new table entry
-            handle = new Handle();
+            handle = handleDAO.create(context, new Handle());
             handle.setHandle(suppliedHandle);
         }
 
@@ -388,9 +420,10 @@ public class HandleServiceImpl implements HandleService
         {
             //TODO: Move this code away from the HandleManager & into the Identifier provider
             //Attempt to retrieve a handle that does NOT look like {handle.part}/{handle.part}.{version}
-            String result = handles.get(0).getHandle();
-            for (Handle handle: handles)
-            {
+            Iterator<Handle> handleIt = handles.iterator();
+            String result = handleIt.next().getHandle();
+            while (handleIt.hasNext()) {
+                Handle handle = handleIt.next();
                 //Ensure that the handle doesn't look like this 12346/213.{version}
                 //If we find a match that indicates that we have a proper handle
                 if(!handle.getHandle().matches(".*/.*\\.\\d+"))

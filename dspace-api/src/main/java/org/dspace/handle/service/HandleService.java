@@ -1,6 +1,7 @@
 package org.dspace.handle.service;
 
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
 import org.dspace.core.Context;
 
 import java.sql.SQLException;
@@ -23,6 +24,10 @@ public interface HandleService {
 
     public String createHandle(Context context, DSpaceObject dso,
             String suppliedHandle) throws SQLException, IllegalStateException;
+
+    public String createHandle(Context context, DSpaceObject dso, String suppliedHandle, boolean force) throws SQLException, IllegalStateException;
+
+    public void modifyHandleDSpaceObject(Context context, String handle, DSpaceObject newOwner) throws SQLException;
 
     public void unbindHandle(Context context, DSpaceObject dso) throws SQLException;
 

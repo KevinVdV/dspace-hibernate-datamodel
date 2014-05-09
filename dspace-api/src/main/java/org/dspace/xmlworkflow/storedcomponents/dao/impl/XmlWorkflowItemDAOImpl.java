@@ -8,7 +8,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.dao.XmlWorkflowItemDAO;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;

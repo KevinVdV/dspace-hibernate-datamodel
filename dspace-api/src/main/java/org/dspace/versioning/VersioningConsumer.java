@@ -8,11 +8,16 @@
 package org.dspace.versioning;
 
 import org.dspace.content.Item;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
+import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.versioning.factory.DSpaceVersionServiceFactory;
+import org.dspace.versioning.service.VersionHistoryService;
 
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,14 +31,16 @@ import java.util.Set;
 //TODO: HIBERNATE, IMPLEMENT ONCE VERSIONING BECOMES AVAILABLE
 public class VersioningConsumer implements Consumer {
 
-    private static Set<Item> itemsToProcess;
+    private Set<Item> itemsToProcess;
+
+    private VersionHistoryService versionHistoryService = DSpaceVersionServiceFactory.getInstance().getVersionHistoryService();
+    private ItemService itemService = DSpaceServiceFactory.getInstance().getItemService();
 
     public void initialize() throws Exception {}
 
     public void finish(Context ctx) throws Exception {}
 
     public void consume(Context ctx, Event event) throws Exception {
-        /*
         if(itemsToProcess == null){
             itemsToProcess = new HashSet<Item>();
         }
@@ -46,12 +53,12 @@ public class VersioningConsumer implements Consumer {
             if (item != null && item.isArchived()) {
                 VersionHistory history = retrieveVersionHistory(ctx, item);
                 if (history != null) {
-                    Version latest = history.getLatestVersion();
-                    Version previous = history.getPrevious(latest);
+                    Version latest = versionHistoryService.getLatestVersion(history);
+                    Version previous = versionHistoryService.getPrevious(history, latest);
                     if(previous != null){
                         Item previousItem = previous.getItem();
                         if(previousItem != null){
-                            previousItem.setArchived(false);
+                            previousItem.setInArchive(false);
                             itemsToProcess.add(previousItem);
                             //Fire a new modify event for our previous item
                             //Due to the need to reindex the item in the search & browse index we need to fire a new event
@@ -61,30 +68,25 @@ public class VersioningConsumer implements Consumer {
                 }
             }
         }
-        */
     }
 
     public void end(Context ctx) throws Exception {
-        /*
         if(itemsToProcess != null){
             for(Item item : itemsToProcess){
                 ctx.turnOffAuthorisationSystem();
                 try {
-                    item.update();
+                    itemService.update(ctx, item);
                 } finally {
                     ctx.restoreAuthSystemState();
                 }
             }
-            ctx.getDBConnection().commit();
+            ctx.commitNoEventDispatching();
         }
 
         itemsToProcess = null;
-        */
     }
 
-                    /*
-    private static org.dspace.versioning.VersionHistory retrieveVersionHistory(Context c, Item item) {
-        VersioningService versioningService = new DSpace().getSingletonService(VersioningService.class);
-        return versioningService.findVersionHistory(c, item.getID());
-    }                 */
+    private org.dspace.versioning.VersionHistory retrieveVersionHistory(Context c, Item item) throws SQLException {
+        return versionHistoryService.findByItem(c, item);
+    }
 }

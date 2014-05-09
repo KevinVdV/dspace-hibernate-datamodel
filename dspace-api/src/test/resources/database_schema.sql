@@ -795,8 +795,8 @@ CREATE TABLE versionitem
   versionhistory_id INTEGER REFERENCES VersionHistory(versionhistory_id)
 );
 
-CREATE SEQUENCE versionitem_seq;
-CREATE SEQUENCE versionhistory_seq;
+--CREATE SEQUENCE versionitem_seq;
+--CREATE SEQUENCE versionhistory_seq;
 
 CREATE TABLE Webapp
 (

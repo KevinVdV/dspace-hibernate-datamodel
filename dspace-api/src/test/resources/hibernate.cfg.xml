@@ -16,10 +16,12 @@
         <property name="hibernate.hbm2ddl.import_files_sql_extractor">org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor</property>
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL9Dialect</property>
 
-        <mapping class="org.dspace.content.WorkspaceItem"/>
+
+
         <mapping class="org.dspace.eperson.EPerson"/>
         <mapping class="org.dspace.eperson.Group"/>
         <mapping class="org.dspace.content.Community"/>
+        <mapping class="org.dspace.content.WorkspaceItem"/>
         <mapping class="org.dspace.content.Collection"/>
         <mapping class="org.dspace.content.Bitstream"/>
         <mapping class="org.dspace.content.Item"/>
@@ -36,5 +38,8 @@
 
         <mapping class="org.dspace.handle.Handle"/>
         <mapping class="org.dspace.authorize.ResourcePolicy"/>
+
+        <mapping class="org.dspace.versioning.VersionHistory"/>
+        <mapping class="org.dspace.versioning.Version"/>
     </session-factory>
 </hibernate-configuration>

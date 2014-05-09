@@ -14,6 +14,8 @@ import org.dspace.services.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.sql.SQLException;
+
 /**
  *
  *
@@ -71,7 +73,7 @@ public abstract class IdentifierProvider {
      * @return existing identifier of {@code dso} if it has one, else a new identifier.
      * @throws IdentifierException
      */
-    public abstract String mint(Context context, DSpaceObject dso) throws IdentifierException, AuthorizeException;
+    public abstract String mint(Context context, DSpaceObject dso) throws IdentifierException, AuthorizeException, SQLException;
 
     /**
      * Find the object named by a given identifier.

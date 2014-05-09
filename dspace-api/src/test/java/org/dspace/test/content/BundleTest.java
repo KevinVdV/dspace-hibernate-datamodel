@@ -83,8 +83,6 @@ public class BundleTest extends AbstractDSpaceObjectTest
             fail("SQL Error in init: " + ex.getMessage());
         } catch (AuthorizeException e) {
             e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

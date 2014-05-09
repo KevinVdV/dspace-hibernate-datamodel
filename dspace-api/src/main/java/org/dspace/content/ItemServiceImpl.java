@@ -30,6 +30,11 @@ import org.dspace.event.Event;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.handle.service.HandleService;
+import org.dspace.identifier.IdentifierException;
+import org.dspace.identifier.IdentifierService;
+import org.dspace.utils.DSpace;
+import org.dspace.versioning.factory.DSpaceVersionServiceFactory;
+import org.dspace.versioning.service.VersionService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -221,6 +226,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         return itemDAO.findBySubmitter(context, eperson);
     }
 
+    public List<MetadataValue> getMetadata(Item item, MetadataField metadataField, String lang)
+    {
+        return getMetadata(item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), lang);
+    }
+
     /**
      * Get metadata for the item in a chosen schema.
      * See <code>MetadataSchema</code> for more information about schemas.
@@ -398,21 +408,41 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      */
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang,
             List<String> values, List<String> authorities, List<Integer> confidences) throws SQLException {
-        MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
-        boolean authorityControlled = mam.isAuthorityControlled(schema, element, qualifier);
-        boolean authorityRequired = mam.isAuthorityRequired(schema, element, qualifier);
 
         // We will not verify that they are valid entries in the registry
         // until update() is called.
+        MetadataSchema metadataSchema = metadataSchemaService.find(context, schema);
+        MetadataField metadataField = metadataFieldService.findByElement(context, metadataSchema, element, qualifier);
+        if (metadataSchema == null || metadataField == null) {
+            throw new SQLException("bad_dublin_core schema=" + schema + "." + element + "." + qualifier);
+        }
+        addMetadata(context, item, metadataField, lang, values, authorities, confidences);
+    }
+
+    @Override
+    public void addMetadata(Context context, Item item, MetadataField metadataField, String lang, String value) throws SQLException
+    {
+        addMetadata(context, item, metadataField, lang, Arrays.asList(value), null, null);
+    }
+
+    @Override
+    public void addMetadata(Context context, Item item, MetadataField metadataField, String lang, List<String> values, List<String> authorities, List<Integer> confidences) throws SQLException
+    {
         for (int i = 0; i < values.size(); i++)
         {
-            //TODO: HIBERNATE? THROW EXCEPTION IF SCHEMA OR FIELD CANNOT BE FOUND
-            MetadataSchema metadataSchema = metadataSchemaService.find(context, schema);
-            MetadataField metadataField = metadataFieldService.findByElement(context, metadataSchema, element, qualifier);
+            String value = values.get(i);
             if(metadataField == null)
             {
-                throw new SQLException("bad_dublin_core schema="+ metadataField.toString());
+                throw new SQLException("Metadata field cannot be null");
             }
+            if (value == null) {
+                //Do not allow "null" values in our metadata
+                return;
+            }
+            MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
+            boolean authorityControlled = mam.isAuthorityControlled(metadataField);
+            boolean authorityRequired = mam.isAuthorityRequired(metadataField);
+
             MetadataValue metadataValue = metadataValueService.create(context, item, metadataField);
 
 
@@ -424,52 +454,39 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             //  - otherwise, preserve confidence if meaningful value was given since it may document a failed authority lookup
             //  - CF_UNSET signifies no authority nor meaningful confidence.
             //  - it's possible to have empty authority & CF_ACCEPTED if e.g. user deletes authority key
-            if (authorityControlled)
-            {
-                if (authorities != null && authorities.get(i) != null && authorities.get(i).length() > 0)
-                {
+            if (authorityControlled) {
+                if (authorities != null && authorities.get(i) != null && authorities.get(i).length() > 0) {
                     metadataValue.setAuthority(authorities.get(i));
-                    metadataValue.setConfidence(confidences == null ? Choices.CF_NOVALUE : confidences.get(i));;
-                }
-                else
-                {
+                    metadataValue.setConfidence(confidences == null ? Choices.CF_NOVALUE : confidences.get(i));
+                } else {
                     metadataValue.setAuthority(null);
                     metadataValue.setConfidence(confidences == null ? Choices.CF_UNSET : confidences.get(i));
                 }
                 // authority sanity check: if authority is required, was it supplied?
                 // XXX FIXME? can't throw a "real" exception here without changing all the callers to expect it, so use a runtime exception
-                if (authorityRequired && (metadataValue.getAuthority() == null || metadataValue.getAuthority().length() == 0))
-                {
+                if (authorityRequired && (metadataValue.getAuthority() == null || metadataValue.getAuthority().length() == 0)) {
                     throw new IllegalArgumentException("The metadata field \"" + metadataValue.getMetadataField().toString() + "\" requires an authority key but none was provided. Vaue=\"" + metadataValue.getValue() + "\"");
                 }
             }
-            if (values.get(i) != null)
-            {
-                // remove control unicode char
-                String temp = values.get(i).trim();
-                char[] dcvalue = temp.toCharArray();
-                for (int charPos = 0; charPos < dcvalue.length; charPos++)
-                {
-                    if (Character.isISOControl(dcvalue[charPos]) &&
+            // remove control unicode char
+            String temp = value.trim();
+            char[] dcvalue = temp.toCharArray();
+            for (int charPos = 0; charPos < dcvalue.length; charPos++) {
+                if (Character.isISOControl(dcvalue[charPos]) &&
                         !String.valueOf(dcvalue[charPos]).equals("\u0009") &&
                         !String.valueOf(dcvalue[charPos]).equals("\n") &&
-                        !String.valueOf(dcvalue[charPos]).equals("\r"))
-                    {
-                        dcvalue[charPos] = ' ';
-                    }
+                        !String.valueOf(dcvalue[charPos]).equals("\r")) {
+                    dcvalue[charPos] = ' ';
                 }
-                metadataValue.setValue(String.valueOf(dcvalue));
             }
-            else
-            {
-                metadataValue.setValue(null);
-            }
+            metadataValue.setValue(String.valueOf(dcvalue));
             //Set the place to be the next place in the line
-            metadataValue.setPlace(getMetadata(item, schema, element, qualifier, Item.ANY).size() + 1);
+            metadataValue.setPlace(getMetadata(item, metadataField, Item.ANY).size() + 1);
             item.addMetadata(metadataValue);
             metadataValueService.update(context, metadataValue);
         }
     }
+
 
     /**
      * Add a single metadata field. This is appended to existing
@@ -549,19 +566,14 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      */
     public void clearMetadata(Context context, Item item, String schema, String element, String qualifier,
             String lang) throws SQLException {
-        List<MetadataValue> metadataFieldsToRemove = new ArrayList<MetadataValue>();
-        for (MetadataValue dcv : item.getMetadata())
-        {
-            if (match(schema, element, qualifier, lang, dcv))
+        Iterator<MetadataValue> metadata = item.getMetadata().iterator();
+        while (metadata.hasNext()) {
+            MetadataValue metadataValue = metadata.next();
+            if (match(schema, element, qualifier, lang, metadataValue))
             {
-                metadataFieldsToRemove.add(dcv);
+                metadata.remove();
+                metadataValueService.delete(context, metadataValue);
             }
-        }
-        //Remove all metadata fields flagged as "remove"
-        for (MetadataValue metadataValue : metadataFieldsToRemove) {
-            item.removeMetadata(metadataValue);
-            //We need to explicitly clear our item reference to ensure the metadata value is deleted
-            metadataValueService.delete(context, metadataValue);
         }
     }
 
@@ -1184,32 +1196,28 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         handleService.unbindHandle(context, item);
         
         // remove version attached to the item
-              /*TODO: HIBERNATE IMPLEMENT WHEN VERSIONING BECOMES AVAILABLE
-        removeVersion();
-*/
+        removeVersion(context, item);
+
 
         // Finally remove item row
         itemDAO.delete(context, item);
     }
-      /*TODO: HIBERNATE IMPLEMENT WHEN VERSIONING BECOMES AVAILABLE
-    private void removeVersion() throws AuthorizeException, SQLException
+
+    protected void removeVersion(Context context, Item item) throws AuthorizeException, SQLException
     {
-        VersioningService versioningService = new DSpace().getSingletonService(VersioningService.class);
-        if(versioningService.getVersion(ourContext, this)!=null)
+        VersionService versionService = DSpaceVersionServiceFactory.getInstance().getVersionService();
+        if(versionService.findByItem(context, item)!=null)
         {
-            versioningService.removeVersion(ourContext, this);
+            versionService.removeVersion(context, item);
         }else{
             IdentifierService identifierService = new DSpace().getSingletonService(IdentifierService.class);
             try {
-                identifierService.delete(ourContext, this);
+                identifierService.delete(context, item);
             } catch (IdentifierException e) {
                 throw new RuntimeException(e);
             }
         }
     }
-    */
-
-
 
     /**
      * Return true if this Collection 'owns' this item

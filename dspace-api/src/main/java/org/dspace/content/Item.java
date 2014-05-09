@@ -205,7 +205,7 @@ public class Item extends DSpaceObject{
      * @param isArchived
      *            new value for the flag
      */
-    void setInArchive(boolean isArchived) {
+    public void setInArchive(boolean isArchived) {
         this.inArchive = isArchived;
         modified = true;
 

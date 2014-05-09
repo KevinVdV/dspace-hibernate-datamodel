@@ -18,7 +18,7 @@ public interface WorkspaceItemService extends InProgressSubmissionService<Worksp
 
     public WorkspaceItem find(Context context, int id) throws SQLException;
 
-    public WorkspaceItem create(Context c, Collection coll, boolean template) throws AuthorizeException, SQLException, IOException, IllegalAccessException;
+    public WorkspaceItem create(Context c, Collection coll, boolean template) throws AuthorizeException, SQLException, IOException;
 
     public WorkspaceItem create(Context c, Collection coll, InProgressSubmission workflowItem) throws AuthorizeException, SQLException, IOException;
 

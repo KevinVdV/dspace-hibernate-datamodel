@@ -100,9 +100,6 @@ public class SupervisedItemTest extends AbstractUnitTest
         {
             log.error("SQL Error in init", ex);
             fail("SQL Error in init");
-        } catch (IllegalAccessException ex) {
-            log.error("IllegalAccessException in init", ex);
-            fail("IllegalAccessException in init");
         }
     }
 

@@ -19,6 +19,9 @@ import org.dspace.core.Context;
 import org.dspace.embargo.EmbargoManager;
 import org.dspace.event.Event;
 import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.identifier.IdentifierException;
+import org.dspace.identifier.IdentifierService;
+import org.dspace.utils.DSpace;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -66,8 +69,6 @@ public class InstallItemServiceImpl implements InstallItemService
     public Item installItem(Context c, InProgressSubmission is, String suppliedHandle) throws SQLException, AuthorizeException
     {
         Item item = is.getItem();
-        //TODO HIBERNATE: Implement once identifier services framework comes into play
-        /*
         IdentifierService identifierService = new DSpace().getSingletonService(IdentifierService.class);
         try {
             if(suppliedHandle == null)
@@ -79,7 +80,6 @@ public class InstallItemServiceImpl implements InstallItemService
         } catch (IdentifierException e) {
             throw new RuntimeException("Can't create an Identifier!", e);
         }
-        */
         populateMetadata(c, item);
 
         return finishItem(c, item, is);

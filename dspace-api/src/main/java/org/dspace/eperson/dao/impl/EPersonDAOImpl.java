@@ -7,7 +7,6 @@ import org.dspace.eperson.dao.EPersonDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;

@@ -8,6 +8,7 @@
 
     <bean id="serviceFactory" class="org.dspace.factory.DSpaceServiceFactoryImpl"/>
 
+    <bean id="versionServiceFactory" class="org.dspace.versioning.factory.DSpaceVersionServiceFactoryImpl"/>
 
 
     <!-- ******************** -->
@@ -55,6 +56,25 @@
 
     <bean class="org.dspace.app.util.WebAppServiceImpl"/>
 
+    <!--TODO: Comment this out, shouldn't always be enabled-->
+    <bean id="org.dspace.versioning.VersioningService" class="org.dspace.versioning.VersionServiceImpl">
+        <property name="provider">
+            <!-- Default Item Versioning Provider, defines behavior for replicating
+                 Item, Metadata, Budles and Bitstreams. Autowired at this time. -->
+            <bean class="org.dspace.versioning.DefaultItemVersionProvider">
+                <property name="ignoredMetadataFields">
+                    <set>
+                        <value>dc.date.accessioned</value>
+                        <value>dc.description.provenance</value>
+                    </set>
+                </property>
+
+            </bean>
+        </property>
+    </bean>
+
+    <bean class="org.dspace.versioning.VersionHistoryServiceImpl"/>
+
 
     <!-- **************** -->
     <!-- DAO declarations -->
@@ -100,5 +120,9 @@
     <bean class="org.dspace.identifier.dao.impl.DOIDAOImpl"/>
 
     <bean class="org.dspace.app.util.dao.impl.WebAppDAOImpl"/>
+
+
+    <bean class="org.dspace.versioning.dao.impl.VersionHistoryDAOImpl"/>
+    <bean class="org.dspace.versioning.dao.impl.VersionDAOImpl"/>
 
 </beans>

@@ -33,9 +33,13 @@ import org.dspace.eperson.*;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.service.HandleService;
 import org.dspace.identifier.DOIService;
 import org.dspace.servicemanager.DSpaceKernelImpl;
 import org.dspace.servicemanager.DSpaceKernelInit;
+import org.dspace.versioning.factory.DSpaceVersionServiceFactory;
+import org.dspace.versioning.service.VersionHistoryService;
+import org.dspace.versioning.service.VersionService;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -91,6 +95,9 @@ public class AbstractUnitTest
     protected InstallItemService installItemService = serviceFactory.getInstallItemService();
     protected SupervisedItemService supervisedItemService = serviceFactory.getSupervisedItemService();
     protected DOIService doiService = serviceFactory.getDOIService();
+    protected VersionService versionService = DSpaceVersionServiceFactory.getInstance().getVersionService();
+    protected VersionHistoryService versionHistoryService = DSpaceVersionServiceFactory.getInstance().getVersionHistoryService();
+    protected HandleService handleService = serviceFactory.getHandleService();
 
 
     protected static DSpaceKernelImpl kernelImpl;

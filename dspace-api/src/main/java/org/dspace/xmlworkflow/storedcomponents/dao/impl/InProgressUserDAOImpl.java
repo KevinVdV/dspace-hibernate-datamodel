@@ -7,8 +7,6 @@ import org.dspace.xmlworkflow.storedcomponents.InProgressUser;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.dao.InProgressUserDAO;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Projection;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;

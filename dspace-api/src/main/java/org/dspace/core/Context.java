@@ -382,7 +382,18 @@ public class Context
                 EventManager.returnDispatcher(dispName, dispatcher);
             }
         }
+    }
 
+    public void commitNoEventDispatching() throws SQLException {
+        /*
+         * invalid condition if in read-only mode: no valid
+         * transactions can be committed: no recourse but to bail
+         */
+        if (isReadOnly())
+        {
+            throw new IllegalStateException("Attempt to commit transaction in read-only context");
+        }
+        HibernateUtil.commitTransaction();
     }
 
     /**

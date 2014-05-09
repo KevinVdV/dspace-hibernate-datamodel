@@ -42,7 +42,7 @@ public class Handle {
         return resourceTypeId;
     }
 
-    public void setResourceTypeId(Integer resource_type_id) {
+    void setResourceTypeId(Integer resource_type_id) {
         this.resourceTypeId = resource_type_id;
     }
 
@@ -50,7 +50,7 @@ public class Handle {
         return resourceId;
     }
 
-    public void setResourceId(Integer resource_id) {
+    void setResourceId(Integer resource_id) {
         this.resourceId = resource_id;
     }
 }
