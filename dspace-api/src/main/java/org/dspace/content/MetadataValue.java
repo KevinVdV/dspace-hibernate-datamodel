@@ -30,7 +30,7 @@ import javax.persistence.*;
  * @see org.dspace.content.MetadataField
  */
 @Entity
-@Table(name="metadatavalue")
+@Table(name="metadatavalue", schema = "public")
 public class MetadataValue
 {
     /** The reference to the metadata field */

@@ -17,7 +17,7 @@ import java.util.List;
  * Time: 16:02
  */
 @Entity
-@Table(name="bundle")
+@Table(name="bundle", schema = "public")
 public class Bundle extends DSpaceObject{
 
     @Id

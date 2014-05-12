@@ -8,7 +8,7 @@ import javax.persistence.*;
  * Time: 13:38
  */
 @Entity
-@Table(name="metadataschemaregistry")
+@Table(name="metadataschemaregistry", schema = "public")
 public class MetadataSchema {
 
     /** Short Name of built-in Dublin Core schema. */

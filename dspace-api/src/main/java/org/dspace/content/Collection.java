@@ -20,7 +20,7 @@ import java.util.*;
  * Time: 13:59
  */
 @Entity
-@Table(name="collection")
+@Table(name="collection", schema = "public")
 public class Collection extends DSpaceObject {
 
     @Id

@@ -18,7 +18,7 @@ import java.util.Set;
  * Time: 14:19
  */
 @Entity
-@Table(name="bitstreamformatregistry")
+@Table(name="bitstreamformatregistry", schema = "public")
 public class BitstreamFormat {
 
     @Id

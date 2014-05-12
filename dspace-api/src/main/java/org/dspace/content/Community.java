@@ -22,7 +22,7 @@ import java.util.MissingResourceException;
  * Time: 09:59
  */
 @Entity
-@Table(name="community")
+@Table(name="community", schema = "public")
 public class Community extends DSpaceObject{
 
     @Id

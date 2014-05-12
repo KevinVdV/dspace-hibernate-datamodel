@@ -14,7 +14,7 @@ import java.util.Date;
  * Created by kevin on 08/02/14.
  */
 @Entity
-@Table(name="eperson")
+@Table(name="eperson", schema = "public")
 public class EPerson extends DSpaceObject {
 
     @Id
