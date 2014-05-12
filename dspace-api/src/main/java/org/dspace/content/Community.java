@@ -6,7 +6,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.handle.HandleServiceImpl;
 import org.dspace.handle.service.HandleService;
 
 import javax.persistence.*;
@@ -312,14 +311,6 @@ public class Community extends DSpaceObject{
     /*
         Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
      */
-
-
-    public final Bitstream setLogo(Context context, InputStream is) throws AuthorizeException,
-                IOException, SQLException
-    {
-        return communityService.setLogo(context, this, is);
-    }
-
     public final void setName(String value)throws MissingResourceException{
         communityService.setName(this, value);
     }

@@ -71,6 +71,11 @@ public class WorkflowItem implements InProgressSubmission {
         return collection;
     }
 
+    @Override
+    public EPerson getSubmitter() {
+        return getItem().getSubmitter();
+    }
+
     void setCollection(Collection collection) {
         this.collection = collection;
     }

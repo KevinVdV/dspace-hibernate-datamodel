@@ -6,7 +6,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.handle.HandleServiceImpl;
 import org.dspace.handle.service.HandleService;
 
 import javax.persistence.*;
@@ -403,11 +402,6 @@ public class Collection extends DSpaceObject {
     public Group getWorkflowGroup(int step) throws IllegalStateException
     {
         return collectionService.getWorkflowGroup(this, step);
-    }
-
-    public Bitstream setLogo(Context context, InputStream is) throws AuthorizeException,IOException, SQLException
-    {
-        return collectionService.setLogo(context, this, is);
     }
 
     public String getName()

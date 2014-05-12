@@ -3,6 +3,7 @@ package org.dspace.xmlworkflow.storedcomponents;
 import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
+import org.dspace.eperson.EPerson;
 
 import javax.persistence.*;
 
@@ -54,6 +55,11 @@ public class XmlWorkflowItem implements InProgressSubmission{
 
     public Collection getCollection() {
         return collection;
+    }
+
+    @Override
+    public EPerson getSubmitter() {
+        return item.getSubmitter();
     }
 
     void setCollection(Collection collection) {

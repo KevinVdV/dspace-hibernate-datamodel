@@ -2,6 +2,7 @@ package org.dspace.content;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
 import javax.persistence.*;
@@ -111,6 +112,11 @@ public class WorkspaceItem implements InProgressSubmission{
 
     public Collection getCollection() {
         return collection;
+    }
+
+    @Override
+    public EPerson getSubmitter() {
+        return item.getSubmitter();
     }
 
     void setCollection(Collection collection) {

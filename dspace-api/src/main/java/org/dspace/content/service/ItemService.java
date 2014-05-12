@@ -32,6 +32,32 @@ public interface ItemService extends DSpaceObjectService<Item> {
 
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException;
 
+    /**
+     * Get the in_archive items in this collection. The order is indeterminate.
+     *
+     * @return an iterator over the items in the collection.
+     * @throws SQLException
+     */
+    public Iterator<Item> findArchivedItemsByCollection(Context context, Collection collection) throws SQLException;
+
+    /**
+     * Get the in_archive items in this collection. The order is indeterminate.
+     * Provides the ability to use limit and offset, for efficient paging.
+     * @param limit Max number of results in set
+     * @param offset Number of results to jump ahead by. 100 = 100th result is first, not 100th page.
+     * @return an iterator over the items in the collection.
+     * @throws SQLException
+     */
+    public Iterator<Item> findArchivedItemsByCollection(Context context, Collection collection, Integer limit, Integer offset) throws SQLException;
+
+    /**
+     * Get all the items in this collection. The order is indeterminate.
+     *
+     * @return an iterator over the items in the collection.
+     * @throws SQLException
+     */
+    public Iterator<Item> findByCollection(Context context, Collection collection) throws SQLException;
+
     public List<MetadataValue> getMetadata(Item item, MetadataField metadataField, String lang);
 
     public List<MetadataValue> getMetadata(Item item, String schema, String element, String qualifier, String lang);
@@ -57,8 +83,6 @@ public interface ItemService extends DSpaceObjectService<Item> {
     public List<Community> getCommunities(Item item) throws SQLException;
 
     public List<Bundle> getBundles(Item item, String name) throws SQLException;
-
-    public Bundle createBundle(Context context, Item item, String name) throws SQLException, AuthorizeException;
 
     public void addBundle(Context context, Item item, Bundle b) throws SQLException, AuthorizeException;
 

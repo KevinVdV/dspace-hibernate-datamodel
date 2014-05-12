@@ -29,15 +29,9 @@ public interface CollectionService extends DSpaceObjectService<Collection> {
 
     public List<Collection> findAll(Context context, Integer limit, Integer offset) throws SQLException;
 
-    public Iterator<Item> getItems(Context context, Collection collection) throws SQLException;
-
-    public Iterator<Item> getItems(Context context, Collection collection, Integer limit, Integer offset) throws SQLException;
-
-    public Iterator<Item> getAllItems(Context context, Collection collection) throws SQLException;
-
     public void setName(Collection collection, String value) throws MissingResourceException;
 
-    public Bitstream setLogo(Context context, Collection collection, InputStream is) throws AuthorizeException,IOException, SQLException;
+    public Bitstream createLogo(Context context, Collection collection, InputStream is) throws AuthorizeException,IOException, SQLException;
 
     public Group createWorkflowGroup(Context context, Collection collection, int step) throws SQLException, AuthorizeException, IllegalAccessException;
 

@@ -30,7 +30,7 @@ public interface CommunityService extends DSpaceObjectService<Community> {
 
     public void setName(Community community, String value)throws MissingResourceException;
 
-    public Bitstream setLogo(Context context, Community community, InputStream is) throws AuthorizeException, IOException, SQLException;
+    public Bitstream createLogo(Context context, Community community, InputStream is) throws AuthorizeException, IOException, SQLException;
 
     public Group createAdministrators(Context context, Community community) throws SQLException, AuthorizeException;
 

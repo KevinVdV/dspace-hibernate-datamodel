@@ -55,7 +55,7 @@ public abstract class AbstractVersionProvider {
         BundleService bundleService = DSpaceServiceFactory.getInstance().getBundleService();
         for(Bundle nativeBundle : nativeItem.getBundles())
         {
-            Bundle bundleNew = itemService.createBundle(c, itemNew, nativeBundle.getName());
+            Bundle bundleNew = bundleService.create(c, itemNew, nativeBundle.getName());
 
             for(Bitstream nativeBitstream : nativeBundle.getBitstreams())
             {

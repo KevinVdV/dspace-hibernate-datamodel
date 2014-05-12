@@ -108,7 +108,7 @@ public class CreativeCommons
         {
             ITEM_SERVICE.removeBundle(context, item, bundles.get(0));
         }
-        return ITEM_SERVICE.createBundle(context, item, CC_BUNDLE_NAME);
+        return BUNDLE_SERVICE.create(context, item, CC_BUNDLE_NAME);
     }
 
 
@@ -194,7 +194,7 @@ public class CreativeCommons
         	bs_format = BITSTREAM_FORMAT_SERVICE.findByShortDescription(context, "License");
         }
 
-        Bitstream bs = BUNDLE_SERVICE.createBitstream(context, bundle, licenseStm);
+        Bitstream bs = BITSTREAM_SERVICE.create(context, bundle, licenseStm);
         bs.setSource(CC_BS_SOURCE);
         bs.setName((mimeType != null &&
                 (mimeType.equalsIgnoreCase("text/xml") ||
@@ -349,7 +349,7 @@ public class CreativeCommons
             throws SQLException, IOException, AuthorizeException
     {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        Bitstream bs = BUNDLE_SERVICE.createBitstream(context, bundle, bais);
+        Bitstream bs = BITSTREAM_SERVICE.create(context, bundle, bais);
 
         bs.setName(bitstream_name);
         bs.setSource(CC_BS_SOURCE);

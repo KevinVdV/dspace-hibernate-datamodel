@@ -56,7 +56,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      *
      * @return the supervising groups in an array
      */
-    public Group[] getSupervisorGroups(Context c, int wi) throws SQLException
+    public List<Group> getSupervisorGroups(Context c, int wi) throws SQLException
     {
         //TODO: IMPLEMENT
         return null;
@@ -71,7 +71,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      */
     // FIXME: We should arrange this code to use the above getSupervisorGroups
     // method by building the relevant info before passing the request.
-    public Group[] getSupervisorGroups() throws SQLException
+    public List<Group> getSupervisorGroups() throws SQLException
     {
         //TODO: IMPLEMENT
         return null;

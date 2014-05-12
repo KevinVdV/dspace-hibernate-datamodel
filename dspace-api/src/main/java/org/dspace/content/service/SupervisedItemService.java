@@ -27,9 +27,9 @@ public interface SupervisedItemService {
 
     public List<WorkspaceItem> getAll(Context context) throws SQLException;
 
-    public Group[] getSupervisorGroups(Context c, int wi) throws SQLException;
+    public List<Group> getSupervisorGroups(Context c, int wi) throws SQLException;
 
-    public Group[] getSupervisorGroups() throws SQLException;
+    public List<Group> getSupervisorGroups() throws SQLException;
 
     public List<WorkspaceItem> findByEPerson(Context context, EPerson ep) throws SQLException;
 

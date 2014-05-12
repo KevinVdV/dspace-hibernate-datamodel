@@ -5,6 +5,7 @@ import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
+import org.dspace.content.Item;
 import org.dspace.core.Context;
 
 import java.io.IOException;
@@ -23,16 +24,9 @@ public interface BundleService extends DSpaceObjectService<Bundle> {
 
     public Bundle find(Context context, int id) throws SQLException;
 
-    //TODO: add item here ?
-    public Bundle create(Context context) throws SQLException;
+    public Bundle create(Context context, Item item, String name) throws SQLException, AuthorizeException;
 
     public Bitstream getBitstreamByName(Bundle bundle, String name);
-
-    public Bitstream createBitstream(Context context, Bundle bundle, InputStream is) throws AuthorizeException,
-                                    IOException, SQLException;
-
-    public Bitstream registerBitstream(Context context, Bundle bundle, int assetstore, String bitstreamPath)
-        throws AuthorizeException, IOException, SQLException;
 
     public void addBitstream(Context context, Bundle bundle, Bitstream b) throws SQLException, AuthorizeException;
 

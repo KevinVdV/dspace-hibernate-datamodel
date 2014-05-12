@@ -146,10 +146,10 @@ public class SupervisedItemTest extends AbstractUnitTest
     @Test
     public void testGetSupervisorGroups_Context_int() throws Exception
     {
-        Group[] found = supervisedItemService.getSupervisorGroups(context, wi.getID());
+        List<Group> found = supervisedItemService.getSupervisorGroups(context, wi.getID());
         assertThat("testGetSupervisorGroups_Context_int 0", found, notNullValue());
-        assertTrue("testGetSupervisorGroups_Context_int 1", found.length == 1);
-        assertThat("testGetSupervisorGroups_Context_int 2", found[0].getID(), equalTo(gr.getID()));
+        assertTrue("testGetSupervisorGroups_Context_int 1", found.size() == 1);
+        assertThat("testGetSupervisorGroups_Context_int 2", found.iterator().next().getID(), equalTo(gr.getID()));
     }
 
     /**
@@ -158,9 +158,9 @@ public class SupervisedItemTest extends AbstractUnitTest
     @Test
     public void testGetSupervisorGroups_0args() throws Exception 
     {
-        Group[] found = supervisedItemService.getSupervisorGroups();
+        List<Group> found = supervisedItemService.getSupervisorGroups();
         assertThat("testGetSupervisorGroups_0args 0", found, notNullValue());
-        assertTrue("testGetSupervisorGroups_0args 1", found.length == 1);
+        assertTrue("testGetSupervisorGroups_0args 1", found.size() == 1);
 
         boolean added = false;
         for(Group g: found)

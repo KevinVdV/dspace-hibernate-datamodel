@@ -17,13 +17,6 @@ import java.sql.SQLException;
 public interface InProgressSubmissionService<T extends InProgressSubmission> {
 
     /**
-     * Get the submitter
-     *
-     * @return the submitting e-person
-     */
-    public EPerson getSubmitter(T inProgressSubmission) throws SQLException;
-
-    /**
      * Deletes submission wrapper, doesn't delete item contents
      */
     public void deleteWrapper(Context context, T inProgressSubmission) throws SQLException, AuthorizeException;

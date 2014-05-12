@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
@@ -152,16 +151,36 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         return item;
     }
 
+    /**
+     * Create an empty template item for this collection. If one already exists,
+     * no action is taken. Caution: Make sure you call <code>update</code> on
+     * the collection after doing this, or the item will have been created but
+     * the collection record will not refer to it.
+     *
+     * @throws SQLException
+     * @throws AuthorizeException
+     */
     public Item createTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         if(collection == null || collection.getTemplateItem() != null)
         {
             throw new IllegalArgumentException("Collection is null or already contains template item.");
         }
-        Item template = createItem(context);
-        collection.setTemplate(template);
-        template.setTemplateItemOf(collection);
-        return template;
+        AuthorizeUtil.authorizeManageTemplateItem(context, collection);
+
+        if (collection.getTemplateItem() == null) {
+            Item template = createItem(context);
+            collection.setTemplate(template);
+            template.setTemplateItemOf(collection);
+
+            log.info(LogManager.getHeader(context, "create_template_item",
+                    "collection_id=" + collection.getID() + ",template_item_id="
+                            + template.getID()));
+
+            return template;
+        }else{
+            return collection.getTemplateItem();
+        }
     }
 
     protected Item createItem(Context context) throws SQLException, AuthorizeException {
@@ -224,6 +243,21 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException
     {
         return itemDAO.findBySubmitter(context, eperson);
+    }
+
+    @Override
+    public Iterator<Item> findArchivedItemsByCollection(Context context, Collection collection) throws SQLException {
+        return findArchivedItemsByCollection(context, collection, null, null);
+    }
+
+    @Override
+    public Iterator<Item> findArchivedItemsByCollection(Context context, Collection collection, Integer limit, Integer offset) throws SQLException {
+        return itemDAO.findArchivedByCollection(context, collection, limit, offset);
+    }
+
+    @Override
+    public Iterator<Item> findByCollection(Context context, Collection collection) throws SQLException {
+        return itemDAO.findAllByCollection(context, collection);
     }
 
     public List<MetadataValue> getMetadata(Item item, MetadataField metadataField, String lang)
@@ -719,35 +753,6 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     /**
-     * Create a bundle in this item, with immediate effect
-     *
-     * @param name
-     *            bundle name (ORIGINAL/TEXT/THUMBNAIL)
-     * @return the newly created bundle
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public Bundle createBundle(Context context, Item item, String name) throws SQLException,
-            AuthorizeException
-    {
-        if (StringUtils.isBlank(name))
-        {
-            throw new SQLException("Bundle must be created with non-null name");
-        }
-
-        // Check authorisation
-        AuthorizeManager.authorizeAction(context, item, Constants.ADD);
-
-        Bundle b = bundleService.create(context);
-        b.setName(name);
-        bundleService.update(context, b);
-
-        addBundle(context, item, b);
-
-        return b;
-    }
-
-    /**
      * Add an existing bundle to this item. This has immediate effect.
      *
      * @param b
@@ -816,6 +821,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     /**
+     * TODO: MOVE TO BITSTREAMSERVICE ?
      * Create a single bitstream in a new bundle. Provided as a convenience
      * method for the most common use.
      *
@@ -833,8 +839,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     {
         // Authorisation is checked by methods below
         // Create a bundle
-        Bundle bnd = createBundle(context, item, name);
-        Bitstream bitstream = bundleService.createBitstream(context, bnd, is);
+        Bundle bnd = bundleService.create(context, item, name);
+        Bitstream bitstream = bitstreamService.create(context, bnd, is);
         addBundle(context, item, bnd);
 
         // FIXME: Create permissions for new bundle + bitstream
@@ -842,6 +848,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     /**
+     * TODO: MOVE TO BITSTREAMSERVICE ?
      * Convenience method, calls createSingleBitstream() with name "ORIGINAL"
      *
      * @param is

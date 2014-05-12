@@ -207,10 +207,6 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
         xmlWorkflowItemDAO.save(context, workflowItem);
     }
 
-    public EPerson getSubmitter(XmlWorkflowItem inProgressSubmission) throws SQLException {
-        return inProgressSubmission.getItem().getSubmitter();
-    }
-
     /**
      * delete the WorkflowItem, retaining the Item
      */

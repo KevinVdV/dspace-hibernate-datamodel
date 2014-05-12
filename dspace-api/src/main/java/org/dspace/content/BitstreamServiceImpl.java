@@ -18,9 +18,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.dao.BitstreamDAO;
-import org.dspace.content.service.BitstreamFormatService;
-import org.dspace.content.service.BitstreamService;
-import org.dspace.content.service.BundleService;
+import org.dspace.content.service.*;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -133,6 +131,46 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID, null));
 
         return bitstream;
+    }
+
+    /**
+     * Create a new bitstream in this bundle.
+     *
+     * @param is
+     *            the stream to read the new bitstream from
+     *
+     * @return the newly created bitstream
+     */
+    public Bitstream create(Context context, Bundle bundle, InputStream is) throws AuthorizeException,
+            IOException, SQLException
+    {
+        // Check authorisation
+        AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
+
+        Bitstream b = create(context, is);
+        bundleService.addBitstream(context, bundle, b);
+        return b;
+    }
+
+    /**
+     * Create a new bitstream in this bundle. This method is for registering
+     * bitstreams.
+     *
+     * @param assetstore corresponds to an assetstore in dspace.cfg
+     * @param bitstreamPath the path and filename relative to the assetstore
+     * @return  the newly created bitstream
+     * @throws IOException
+     * @throws SQLException
+     */
+    public Bitstream register(Context context, Bundle bundle, int assetstore, String bitstreamPath)
+        throws AuthorizeException, IOException, SQLException
+    {
+        // check authorisation
+        AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
+
+        Bitstream b = register(context, assetstore, bitstreamPath);
+        bundleService.addBitstream(context, bundle, b);
+        return b;
     }
 
     /**

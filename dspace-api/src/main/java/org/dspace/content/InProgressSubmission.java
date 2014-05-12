@@ -44,6 +44,14 @@ public interface InProgressSubmission
     Collection getCollection();
 
     /**
+     * Get the submitter
+     *
+     * @return the submitting e-person
+     */
+    EPerson getSubmitter();
+
+
+    /**
      * Find out if the submission has (or is intended to have) more than one
      * associated bitstream.
      * 

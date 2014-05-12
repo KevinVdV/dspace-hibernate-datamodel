@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
@@ -112,11 +113,22 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * 
      * @return the newly created bundle
      */
-    //TODO: Implement properly so item doesn't needt to access this
-    public Bundle create(Context context) throws SQLException
-    {
+    public Bundle create(Context context, Item item, String name) throws SQLException, AuthorizeException {
+        if (StringUtils.isBlank(name))
+        {
+            throw new SQLException("Bundle must be created with non-null name");
+        }
+        // Check authorisation
+        AuthorizeManager.authorizeAction(context, item, Constants.ADD);
+
+
         // Create a table row
         Bundle bundle = bundleDAO.create(context, new Bundle());
+        bundle.setName(name);
+
+        itemService.addBundle(context, item, bundle);
+        update(context, bundle);
+
         log.info(LogManager.getHeader(context, "create_bundle", "bundle_id="
                 + bundle.getID()));
 
@@ -125,10 +137,11 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         return bundle;
     }
 
+
     /**
      * @param name
      *            name of the bitstream you're looking for
-     * 
+     *
      * @return the bitstream or null if not found
      */
     public Bitstream getBitstreamByName(Bundle bundle, String name)
@@ -143,52 +156,6 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         }
 
         return target;
-    }
-
-    /**
-     * Create a new bitstream in this bundle.
-     * 
-     * @param is
-     *            the stream to read the new bitstream from
-     * 
-     * @return the newly created bitstream
-     */
-    public Bitstream createBitstream(Context context, Bundle bundle, InputStream is) throws AuthorizeException,
-            IOException, SQLException
-    {
-        // Check authorisation
-        AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
-
-        Bitstream b = bitstreamService.create(context, is);
-
-        // FIXME: Set permissions for bitstream
-        addBitstream(context, bundle, b);
-
-        return b;
-    }
-
-    /**
-     * Create a new bitstream in this bundle. This method is for registering
-     * bitstreams.
-     *
-     * @param assetstore corresponds to an assetstore in dspace.cfg
-     * @param bitstreamPath the path and filename relative to the assetstore 
-     * @return  the newly created bitstream
-     * @throws IOException
-     * @throws SQLException
-     */
-    public Bitstream registerBitstream(Context context, Bundle bundle, int assetstore, String bitstreamPath)
-        throws AuthorizeException, IOException, SQLException
-    {
-        // check authorisation
-        AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
-
-        Bitstream b = bitstreamService.register(context, assetstore, bitstreamPath);
-
-        // FIXME: Set permissions for bitstream
-
-        addBitstream(context, bundle, b);
-        return b;
     }
 
     /**

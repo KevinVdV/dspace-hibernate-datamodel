@@ -1,5 +1,6 @@
 package org.dspace.content.dao.impl;
 
+import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.dao.ItemDAO;
@@ -67,4 +68,29 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
         return iterate(query);
     }
 
+    public Iterator<Item> findArchivedByCollection(Context context, Collection collection, Integer limit, Integer offset) throws SQLException{
+        Query query = createQuery(context, "select i from Item i join i.collections c WHERE :collection IN c AND i.inArchive=:in_archive");
+        query.setParameter("collection", collection);
+        query.setParameter("in_archive", true);
+        if(offset != null)
+        {
+            query.setFirstResult(offset);
+        }
+        if(limit != null)
+        {
+            query.setMaxResults(limit);
+        }
+        @SuppressWarnings("unchecked")
+        Iterator<Item> iterator = iterate(query);
+        return iterator;
+    }
+
+    public Iterator<Item> findAllByCollection(Context context, Collection collection) throws SQLException {
+        Query query = createQuery(context, "select i from Item i join i.collections c WHERE :collection IN c");
+        query.setParameter("collection", collection);
+
+        @SuppressWarnings("unchecked")
+        Iterator<Item> iterator = iterate(query);
+        return iterator;
+    }
 }

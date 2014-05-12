@@ -17,6 +17,7 @@ import org.dspace.content.*;
 import org.dspace.content.Collection;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
@@ -64,9 +65,9 @@ public class Curator
     private TaskResolver resolver = new TaskResolver();
     private TxScope txScope = TxScope.OPEN;
 
-    protected static final CommunityService COMMUNITY_SERVICE = DSpaceServiceFactory.getInstance().getCommunityService();
-    protected static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
-    protected static final HandleService HANDLE_SERVICE = DSpaceServiceFactory.getInstance().getHandleService();
+    protected final CommunityService communityService = DSpaceServiceFactory.getInstance().getCommunityService();
+    protected final ItemService itemService = DSpaceServiceFactory.getInstance().getItemService();
+    protected final HandleService handleService = DSpaceServiceFactory.getInstance().getHandleService();
 
 
     /**
@@ -191,7 +192,7 @@ public class Curator
             //Save the context on current execution thread
             curationCtx.set(c);
            
-            DSpaceObject dso = HANDLE_SERVICE.resolveToObject(c, id);
+            DSpaceObject dso = handleService.resolveToObject(c, id);
             if (dso != null)
             {
                 curate(dso);
@@ -419,7 +420,7 @@ public class Curator
             
             //Then, perform this task for all Top-Level Communities in the Site
             // (this will recursively perform task for all objects in DSpace)
-            for (Community subcomm : COMMUNITY_SERVICE.findAllTop(ctx))
+            for (Community subcomm : communityService.findAllTop(ctx))
             {
                 if (! doCommunity(tr, subcomm))
                 {
@@ -487,7 +488,7 @@ public class Curator
             {
                 return false;
             }
-            Iterator<Item> iter = COLLECTION_SERVICE.getItems(curationContext(), coll);
+            Iterator<Item> iter = itemService.findArchivedItemsByCollection(curationContext(), coll);
             while (iter.hasNext())
             {
                 if (! tr.run(curationContext(), iter.next()))

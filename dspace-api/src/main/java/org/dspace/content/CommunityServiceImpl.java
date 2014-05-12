@@ -23,7 +23,6 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Event;
-import org.dspace.handle.HandleServiceImpl;
 import org.dspace.handle.service.HandleService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -252,7 +251,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @return   the new logo bitstream, or <code>null</code> if there is no
      *           logo (<code>null</code> was passed in)
      */
-    public Bitstream setLogo(Context context, Community community, InputStream is) throws AuthorizeException,
+    public Bitstream createLogo(Context context, Community community, InputStream is) throws AuthorizeException,
             IOException, SQLException
     {
         // Check authorisation
@@ -622,7 +621,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         }
 
         // Remove the logo
-        setLogo(context, community, null);
+        createLogo(context, community, null);
 
         // Remove all authorization policies
         AuthorizeManager.removeAllPolicies(context, community);

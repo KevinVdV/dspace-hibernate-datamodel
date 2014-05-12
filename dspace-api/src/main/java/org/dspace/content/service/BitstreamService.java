@@ -21,7 +21,12 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream> {
 
     public List<Bitstream> findAll(Context context) throws SQLException;
 
+    //TODO: add collecton, community here ?
     public Bitstream create(Context context, InputStream is) throws IOException, SQLException, AuthorizeException;
+
+    public Bitstream create(Context context, Bundle bundle, InputStream is) throws AuthorizeException, IOException, SQLException;
+
+    public Bitstream register(Context context, Bundle bundle, int assetstore, String bitstreamPath) throws AuthorizeException, IOException, SQLException;
 
     public Bitstream register(Context context, int assetstore, String bitstreamPath) throws IOException, SQLException, AuthorizeException;
 

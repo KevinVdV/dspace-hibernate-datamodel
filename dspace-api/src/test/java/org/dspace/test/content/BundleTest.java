@@ -69,7 +69,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
             this.collection = collectionService.create(context, owningCommunity);
             WorkspaceItem workspaceItem = workspaceItemService.create(context, collection, false);
             it = installItemService.installItem(context, workspaceItem);
-            this.b = itemService.createBundle(context, it, bundleName);
+            this.b = bundleService.create(context, it, bundleName);
             this.dspaceObject = b;
 
             //we need to commit the changes so we don't block the table for testing
@@ -134,7 +134,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
                         Constants.ADD, true); result = null;
             }
         };
-        Bundle created = itemService.createBundle(context, it, "test");
+        Bundle created = bundleService.create(context, it, "test");
         //the item created by default has no name nor type set
         assertThat("testCreate 0", created, notNullValue());
         assertTrue("testCreate 1", created.getID() >= 0);
@@ -314,7 +314,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         String name = "name";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleService.createBitstream(context, b, new FileInputStream(f));
+        Bitstream bs = bitstreamService.create(context, b, new FileInputStream(f));
         fail("Exception should be thrown");
     }
 
@@ -335,7 +335,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         String name = "name";
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleService.createBitstream(context, b, new FileInputStream(f));
+        Bitstream bs = bitstreamService.create(context, b, new FileInputStream(f));
         bs.setName(name);
         assertThat("testCreateBitstreamAuth 0", bundleService.getBitstreamByName(b, name), notNullValue());
         assertThat("testCreateBitstreamAuth 1", bundleService.getBitstreamByName(b, name), equalTo(bs));
@@ -360,7 +360,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         int assetstore = 0;
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleService.registerBitstream(context, b, assetstore, f.getAbsolutePath());
+        Bitstream bs = bitstreamService.register(context, b, assetstore, f.getAbsolutePath());
         fail("Exception should be thrown");
     }
 
@@ -383,7 +383,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         int assetstore = 0;
         String name = "name bitstream";
         File f = new File(testProps.get("test.bitstream").toString());        
-        Bitstream bs = bundleService.registerBitstream(context, b, assetstore, f.getName());
+        Bitstream bs = bitstreamService.register(context, b, assetstore, f.getName());
         bs.setName(name);
         assertThat("testRegisterBitstream 0", bundleService.getBitstreamByName(b, name), notNullValue());
         assertThat("testRegisterBitstream 1", bundleService.getBitstreamByName(b, name), equalTo(bs));
@@ -428,7 +428,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleService.createBitstream(context, b, new FileInputStream(f));
+        Bitstream bs = bitstreamService.create(context, b, new FileInputStream(f));
         bs.setName("name");
         assertThat("testAddBitstreamAuth 0", bundleService.getBitstreamByName(b, bs.getName()), notNullValue());
         assertThat("testAddBitstreamAuth 1", bundleService.getBitstreamByName(b, bs.getName()), equalTo(bs));
@@ -451,7 +451,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream bs = bundleService.createBitstream(context, b, new FileInputStream(f));
+        Bitstream bs = bitstreamService.create(context, b, new FileInputStream(f));
         bs.setName("name");
         bundleService.removeBitstream(context, b, bs);
         fail("Exception should have been thrown");

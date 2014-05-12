@@ -617,7 +617,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         assertThat("testCreateBundleAuth 0",created, notNullValue());
         assertThat("testCreateBundleAuth 1",created.getName(), equalTo(name));
         assertThat("testCreateBundleAuth 2", itemService.getBundles(it, name), notNullValue());
@@ -640,7 +640,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         fail("Exception expected");
     }
 
@@ -660,7 +660,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = null;
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         fail("Exception expected");
     }
 
@@ -681,7 +681,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         fail("Exception expected");
     }
 
@@ -701,7 +701,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         assertThat("testAddBundleAuth 0", itemService.getBundles(it, name), notNullValue());
@@ -725,7 +725,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         itemService.addBundle(context, it, created);
@@ -750,7 +750,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
         itemService.addBundle(context, it, created);
 
@@ -777,7 +777,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "bundle";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         itemService.removeBundle(context, it, created);
@@ -894,7 +894,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "LICENSE";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         itemService.removeDSpaceLicense(context, it);
@@ -920,7 +920,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "LICENSE";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         itemService.removeDSpaceLicense(context, it);
@@ -945,7 +945,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "LICENSE";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         String bsname = "License";
@@ -978,7 +978,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         String name = "LICENSE";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         String bsname = "License";
@@ -1166,7 +1166,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         };
 
         boolean added = false;
-        Iterator<Item> items = collectionService.getItems(context, collection);
+        Iterator<Item> items = itemService.findByCollection(context, collection);
         while(items.hasNext())
         {
             Item tmp = items.next();
@@ -1184,7 +1184,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertThat("testDeleteAuth 1", found, nullValue());
 
         added = false;
-        items = collectionService.getItems(context, collection);
+        items = itemService.findByCollection(context, collection);
         while(items.hasNext())
         {
             Item tmp = items.next();
@@ -1282,7 +1282,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         context.turnOffAuthorisationSystem();
         //we add some bundles for the test
         String name = "LICENSE";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         String bsname = "License";
@@ -1363,7 +1363,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         //we add some bundles for the test
         String name = "LICENSE";
-        Bundle created = itemService.createBundle(context, it, name);
+        Bundle created = bundleService.create(context, it, name);
         created.setName(name);
 
         String bsname = "License";
@@ -1446,7 +1446,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         boolean isin = false;
         for(Collection c: result)
         {
-            Iterator<Item> iit = collectionService.getAllItems(context, collection);
+            Iterator<Item> iit = itemService.findByCollection(context, collection);
             while(iit.hasNext())
             {
                 if(iit.next().getID() == it.getID())

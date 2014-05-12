@@ -360,7 +360,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         community.setIntroductoryText(itext);
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityService.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityService.createLogo(context, community, new FileInputStream(f));
         community.setCopyrightText(copy);
         community.setSideBarText(sidebar);
 
@@ -413,10 +413,10 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityService.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityService.createLogo(context, community, new FileInputStream(f));
         assertThat("testSetLogoAuth 0", community.getLogo(), equalTo(logo));
 
-        communityService.setLogo(context, community, null);
+        communityService.createLogo(context, community, null);
         assertThat("testSetLogoAuth 1", community.getLogo(), nullValue());
     }
 
@@ -440,10 +440,10 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityService.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityService.createLogo(context, community, new FileInputStream(f));
         assertThat("testSetLogoAuth2 0", community.getLogo(), equalTo(logo));
 
-        communityService.setLogo(context, community, null);
+        communityService.createLogo(context, community, null);
         assertThat("testSetLogoAuth2 1", community.getLogo(), nullValue());
     }
 
@@ -467,10 +467,10 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityService.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityService.createLogo(context, community, new FileInputStream(f));
         assertThat("testSetLogoAuth3 0", community.getLogo(), equalTo(logo));
 
-        communityService.setLogo(context, community, null);
+        communityService.createLogo(context, community, null);
         assertThat("testSetLogoAuth3 1", community.getLogo(), nullValue());
     }
 
@@ -494,10 +494,10 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityService.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityService.createLogo(context, community, new FileInputStream(f));
         assertThat("testSetLogoAuth4 0", community.getLogo(), equalTo(logo));
 
-        communityService.setLogo(context, community, null);
+        communityService.createLogo(context, community, null);
         assertThat("testSetLogoAuth4 1", community.getLogo(), nullValue());
     }
 
@@ -521,7 +521,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = communityService.setLogo(context, community, new FileInputStream(f));
+        Bitstream logo = communityService.createLogo(context, community, new FileInputStream(f));
         fail("EXception expected");
     }
 

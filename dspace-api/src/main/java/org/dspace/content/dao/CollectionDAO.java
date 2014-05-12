@@ -21,11 +21,5 @@ public interface CollectionDAO extends GenericDAO<Collection> {
 
     public List<Collection> findAll(Context context, String order, Integer limit, Integer offset) throws SQLException;
 
-    public Iterator<Item> getItems(Context context, Collection collection, boolean inArchive) throws SQLException;
-
-    public Iterator<Item> getItems(Context context, Collection collection, boolean inArchive, Integer limit, Integer offset) throws SQLException;
-
-    public Iterator<Item> getAllItems(Context context, Collection collection) throws SQLException;
-
     public Collection findByTemplateItem(Context context, Item item) throws SQLException;
 }

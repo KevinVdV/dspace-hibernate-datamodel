@@ -262,7 +262,7 @@ public class Item extends DSpaceObject{
      *
      * @return the submitter
      */
-    public EPerson getSubmitter() throws SQLException
+    public EPerson getSubmitter()
     {
         return submitter;
     }

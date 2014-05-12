@@ -55,11 +55,11 @@ public class TestStuff {
         //Lookup collection items to test query
         CollectionServiceImpl collectionDAO = new CollectionServiceImpl();
         Collection collection = (Collection) DSpaceServiceFactory.getInstance().getHandleService().resolveToObject(context, "10986/2117");
-        Iterator<Item> allItems = collectionDAO.getAllItems(context, collection);
-        while (allItems.hasNext()) {
-            Item item = allItems.next();
-            System.out.println("Found item: " + item.getID());
-        }
+//        Iterator<Item> allItems = collectionDAO.getAllItems(context, collection);
+//        while (allItems.hasNext()) {
+//            Item item = allItems.next();
+//            System.out.println("Found item: " + item.getID());
+//        }
 
 
         context.commit();

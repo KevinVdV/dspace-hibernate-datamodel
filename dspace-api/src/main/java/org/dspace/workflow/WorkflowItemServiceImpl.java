@@ -209,9 +209,4 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
         deleteWrapper(context, workflowItem);
         itemService.delete(context, item);
     }
-
-    public EPerson getSubmitter(WorkflowItem workflowItem) throws SQLException
-    {
-        return workflowItem.getItem().getSubmitter();
-    }
 }

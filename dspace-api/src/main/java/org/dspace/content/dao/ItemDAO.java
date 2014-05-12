@@ -1,5 +1,6 @@
 package org.dspace.content.dao;
 
+import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
@@ -27,4 +28,9 @@ public interface ItemDAO extends GenericDAO<Item> {
     public Iterator<Item> findByMetadataField(Context context, MetadataField metadataField, String value, boolean inArchive) throws SQLException;
 
     public Iterator<Item> findByAuthorityValue(Context context, MetadataField metadataField, String authority, boolean inArchive) throws SQLException;
+
+    public Iterator<Item> findArchivedByCollection(Context context, Collection collection, Integer limit, Integer offset) throws SQLException;
+
+    public Iterator<Item> findAllByCollection(Context context, Collection collection) throws SQLException;
+
 }

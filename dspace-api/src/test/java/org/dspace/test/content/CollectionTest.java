@@ -201,7 +201,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetItems() throws Exception
     {
-        Iterator<Item> items = collectionService.getItems(context, collection);
+        Iterator<Item> items = itemService.findByCollection(context, collection);
         assertThat("testGetItems 0", items, notNullValue());
         //by default is empty
         assertFalse("testGetItems 1", items.hasNext());
@@ -213,7 +213,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetAllItems() throws Exception
     {
-        Iterator<Item> items = collectionService.getAllItems(context, collection);
+        Iterator<Item> items = itemService.findByCollection(context, collection);
         assertThat("testGetAllItems 0", items, notNullValue());
         //by default is empty
         assertFalse("testGetAllItems 1", items.hasNext());
@@ -276,7 +276,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         collection.setShortDescription(sdesc);
         collection.setIntroductoryText(itext);
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.createLogo(context, collection, new FileInputStream(f));
         collection.setCopyrightText(copy);
         collection.setSideBarText(sidebar);
         Item templateItem = collectionService.createTemplateItem(context, collection);
@@ -335,10 +335,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.createLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth 0", collection.getLogo(), equalTo(logo));
 
-        collectionService.setLogo(context, collection, null);
+        collectionService.createLogo(context, collection, null);
         assertThat("testSetLogoAuth 1", collection.getLogo(), nullValue());
     }
 
@@ -362,10 +362,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.createLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth2 0", collection.getLogo(), equalTo(logo));
 
-        collectionService.setLogo(context, collection, null);
+        collectionService.createLogo(context, collection, null);
         assertThat("testSetLogoAuth2 1", collection.getLogo(), nullValue());
     }
 
@@ -389,10 +389,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.createLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth3 0", collection.getLogo(), equalTo(logo));
 
-        collectionService.setLogo(context, collection, null);
+        collectionService.createLogo(context, collection, null);
         assertThat("testSetLogoAuth3 1", collection.getLogo(), nullValue());
     }
 
@@ -416,10 +416,10 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.createLogo(context, collection, new FileInputStream(f));
         assertThat("testSetLogoAuth4 0", collection.getLogo(), equalTo(logo));
 
-        collectionService.setLogo(context, collection, null);
+        collectionService.createLogo(context, collection, null);
         assertThat("testSetLogoAuth4 1", collection.getLogo(), nullValue());
     }
 
@@ -443,7 +443,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         };
 
         File f = new File(testProps.get("test.bitstream").toString());
-        Bitstream logo = collectionService.setLogo(context, collection, new FileInputStream(f));
+        Bitstream logo = collectionService.createLogo(context, collection, new FileInputStream(f));
         fail("EXception expected");
     }
 

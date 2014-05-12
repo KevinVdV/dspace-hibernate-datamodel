@@ -952,7 +952,7 @@ public class WorkflowManager
             Locale supportedLocale = I18nUtil.getEPersonLocale(e);
             Email email = Email.getEmail(I18nUtil.getEmailFilename(supportedLocale,"submit_reject"));
 
-            email.addRecipient(WORKFLOW_ITEM_SERVICE.getSubmitter(wi).getEmail());
+            email.addRecipient(wi.getSubmitter().getEmail());
             email.addArgument(title);
             email.addArgument(coll.getName());
             email.addArgument(rejector);
@@ -988,7 +988,7 @@ public class WorkflowManager
      */
     public static String getSubmitterName(WorkflowItem wi) throws SQLException
     {
-        EPerson e = WORKFLOW_ITEM_SERVICE.getSubmitter(wi);
+        EPerson e = wi.getSubmitter();
 
         return getEPersonName(e);
     }

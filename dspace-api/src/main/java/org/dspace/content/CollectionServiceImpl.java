@@ -219,42 +219,6 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
     }
 
-
-    /**
-     * Get the in_archive items in this collection. The order is indeterminate.
-     *
-     * @return an iterator over the items in the collection.
-     * @throws SQLException
-     */
-    public Iterator<Item> getItems(Context context, Collection collection) throws SQLException
-    {
-        return collectionDAO.getItems(context, collection, true);
-    }
-
-    /**
-     * Get the in_archive items in this collection. The order is indeterminate.
-     * Provides the ability to use limit and offset, for efficient paging.
-     * @param limit Max number of results in set
-     * @param offset Number of results to jump ahead by. 100 = 100th result is first, not 100th page.
-     * @return an iterator over the items in the collection.
-     * @throws SQLException
-     */
-    public Iterator<Item> getItems(Context context, Collection collection, Integer limit, Integer offset) throws SQLException
-    {
-        return collectionDAO.getItems(context, collection, true, limit, offset);
-    }
-
-    /**
-     * Get all the items in this collection. The order is indeterminate.
-     *
-     * @return an iterator over the items in the collection.
-     * @throws SQLException
-     */
-    public Iterator<Item> getAllItems(Context context, Collection collection) throws SQLException
-    {
-        return collectionDAO.getAllItems(context, collection);
-    }
-
     /**
      * Set a metadata value
      *
@@ -297,7 +261,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws IOException
      * @throws SQLException
      */
-    public Bitstream setLogo(Context context, Collection collection, InputStream is) throws AuthorizeException,
+    public Bitstream createLogo(Context context, Collection collection, InputStream is) throws AuthorizeException,
             IOException, SQLException
     {
         // Check authorisation
@@ -814,7 +778,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         removeTemplateItem(context, collection);
 
         // Remove items
-        Iterator<Item> items = getAllItems(context, collection);
+        Iterator<Item> items = itemService.findByCollection(context, collection);
 
         while (items.hasNext())
         {
@@ -823,13 +787,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             {
                 // the collection to be deleted is the owning collection, thus remove
                 // the item from all collections it belongs to
-                List<Collection> collections = item.getCollections();
-                for (Collection coll : collections)
-                {
-                    // Browse.itemRemoved(ourContext, itemId);
-                    removeItem(context, coll, item);
-                }
-
+                itemService.delete(context, item);
             }
             // the item was only mapped to this collection, so just remove it
             else
@@ -840,7 +798,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
 
         // Delete bitstream logo
-        setLogo(context, collection, null);
+        createLogo(context, collection, null);
 
         // Remove all authorization policies
         AuthorizeManager.removeAllPolicies(context, collection);
