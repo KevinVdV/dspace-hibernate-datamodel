@@ -40,5 +40,5 @@ public interface ResourcePolicyDAO extends GenericDAO<ResourcePolicy>{
 
     public void deleteByDsoEPersonPolicies(Context context, DSpaceObject dso, EPerson ePerson) throws SQLException;
 
-    public void deleteByDSOAndTypeNotEqualsTo(Context c, DSpaceObject o, String type) throws SQLException;
+    public void deleteByDsoAndTypeNotEqualsTo(Context c, DSpaceObject o, String type) throws SQLException;
 }

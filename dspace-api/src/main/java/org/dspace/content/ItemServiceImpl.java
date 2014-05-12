@@ -1083,7 +1083,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(), "WITHDRAW"));
 
         // remove all authorization policies, saving the custom ones
-        AuthorizeManager.removeAllPoliciesByDSOAndTypeNotEqualsTo(context, item, ResourcePolicy.TYPE_CUSTOM);
+        AuthorizeManager.removeAllPoliciesByDsoAndTypeNotEqualsTo(context, item, ResourcePolicy.TYPE_CUSTOM);
 
         // Write log
         log.info(LogManager.getHeader(context, "withdraw_item", "user="
@@ -1344,16 +1344,16 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         List<Bundle> bunds = item.getBundles();
         for (Bundle mybundle : bunds) {
             // if come from InstallItem: remove all submission/workflow policies
-            AuthorizeManager.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
-            AuthorizeManager.removeAllPoliciesByDSOAndType(context, mybundle, ResourcePolicy.TYPE_WORKFLOW);
+            AuthorizeManager.removeAllPoliciesByDsoAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
+            AuthorizeManager.removeAllPoliciesByDsoAndType(context, mybundle, ResourcePolicy.TYPE_WORKFLOW);
 
             List<ResourcePolicy> policiesBundleToAdd = filterPoliciesToAdd(context, defaultCollectionPolicies, mybundle);
             AuthorizeManager.addPolicies(context, policiesBundleToAdd, mybundle);
 
             for (Bitstream bitstream : mybundle.getBitstreams()) {
                 // if come from InstallItem: remove all submission/workflow policies
-                AuthorizeManager.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
-                AuthorizeManager.removeAllPoliciesByDSOAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
+                AuthorizeManager.removeAllPoliciesByDsoAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
+                AuthorizeManager.removeAllPoliciesByDsoAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
 
                 List<ResourcePolicy> policiesBitstreamToAdd = filterPoliciesToAdd(context, defaultCollectionPolicies, bitstream);
                 AuthorizeManager.addPolicies(context, policiesBitstreamToAdd, bitstream);
@@ -1374,8 +1374,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         }
 
         // if come from InstallItem: remove all submission/workflow policies
-        AuthorizeManager.removeAllPoliciesByDSOAndType(context, item, ResourcePolicy.TYPE_SUBMISSION);
-        AuthorizeManager.removeAllPoliciesByDSOAndType(context, item, ResourcePolicy.TYPE_WORKFLOW);
+        AuthorizeManager.removeAllPoliciesByDsoAndType(context, item, ResourcePolicy.TYPE_SUBMISSION);
+        AuthorizeManager.removeAllPoliciesByDsoAndType(context, item, ResourcePolicy.TYPE_WORKFLOW);
 
         // add default policies only if not already in place
         List<ResourcePolicy> policiesToAdd = filterPoliciesToAdd(context, defaultCollectionPolicies, item);

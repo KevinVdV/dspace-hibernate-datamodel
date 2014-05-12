@@ -564,7 +564,7 @@ public class AuthorizeManager
      *         object to retrieve policies for
      * @return List of <code>ResourcePolicy</code> objects
      */
-    public static List<ResourcePolicy> findPoliciesByDSOAndType(Context c, DSpaceObject o, String type)
+    public static List<ResourcePolicy> findPoliciesByDsoAndType(Context c, DSpaceObject o, String type)
             throws SQLException
     {
         return RESOURCE_POLICY_SERVICE.find(c, o, type);
@@ -698,7 +698,7 @@ public class AuthorizeManager
      * @throws SQLException
      *         if there's a database problem
      */
-    public static void removeAllPoliciesByDSOAndTypeNotEqualsTo(Context c, DSpaceObject o, String type)
+    public static void removeAllPoliciesByDsoAndTypeNotEqualsTo(Context c, DSpaceObject o, String type)
             throws SQLException, AuthorizeException {
         RESOURCE_POLICY_SERVICE.removeDsoAndTypeNotEqualsToPolicies(c, o, type);
     }
@@ -716,7 +716,7 @@ public class AuthorizeManager
      * @throws SQLException
      *         if there's a database problem
      */
-    public static void removeAllPoliciesByDSOAndType(Context c, DSpaceObject o, String type)
+    public static void removeAllPoliciesByDsoAndType(Context c, DSpaceObject o, String type)
             throws SQLException, AuthorizeException {
         RESOURCE_POLICY_SERVICE.removePolicies(c, o, type);
     }
@@ -875,7 +875,7 @@ public class AuthorizeManager
 
             List<Group> authorizedGroups = AuthorizeManager.getAuthorizedGroups(context, owningCollection, Constants.DEFAULT_ITEM_READ);
 
-            AuthorizeManager.removeAllPoliciesByDSOAndType(context, dso, ResourcePolicy.TYPE_CUSTOM);
+            AuthorizeManager.removeAllPoliciesByDsoAndType(context, dso, ResourcePolicy.TYPE_CUSTOM);
 
             // look for anonymous
             boolean isAnonymousInPlace = false;

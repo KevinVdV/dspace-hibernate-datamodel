@@ -132,7 +132,7 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
     }
 
-    public void deleteByDSOAndTypeNotEqualsTo(Context context, DSpaceObject o, String type) throws SQLException {
+    public void deleteByDsoAndTypeNotEqualsTo(Context context, DSpaceObject o, String type) throws SQLException {
 
         Criteria criteria = createCriteria(context, ResourcePolicy.class);
         criteria.add(Restrictions.and(

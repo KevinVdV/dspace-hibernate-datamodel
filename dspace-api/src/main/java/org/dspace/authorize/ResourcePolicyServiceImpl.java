@@ -226,7 +226,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
 
     public void removeDsoAndTypeNotEqualsToPolicies(Context c, DSpaceObject o, String type) throws SQLException, AuthorizeException {
         serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
-        resourcePolicyDAO.deleteByDSOAndTypeNotEqualsTo(c, o, type);
+        resourcePolicyDAO.deleteByDsoAndTypeNotEqualsTo(c, o, type);
     }
 
 
