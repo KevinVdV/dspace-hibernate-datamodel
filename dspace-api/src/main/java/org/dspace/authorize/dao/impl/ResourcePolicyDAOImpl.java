@@ -132,19 +132,13 @@ public class ResourcePolicyDAOImpl extends AbstractHibernateDAO<ResourcePolicy> 
 
     }
 
-    public void deleteByDsoAndTypeNotEqualsTo(Context context, DSpaceObject o, String type) throws SQLException {
+    public void deleteByDsoAndTypeNotEqualsTo(Context context, DSpaceObject dso, String type) throws SQLException {
 
-        Criteria criteria = createCriteria(context, ResourcePolicy.class);
-        criteria.add(Restrictions.and(
-                Restrictions.eq("resourceTypeId", o.getType()),
-                Restrictions.eq("resourceId", o.getID()),
-                Restrictions.not(Restrictions.eq("rptype", type))
-        ));
-        Iterator<ResourcePolicy> iterator = list(criteria).iterator();
-        while (iterator.hasNext()) {
-            ResourcePolicy resourcePolicy = iterator.next();
-            iterator.remove();
-            delete(context, resourcePolicy);
-        }
+        String queryString = "delete from ResourcePolicy where resourceTypeId= :resourceTypeId AND resourceId = :resourceId AND rptype <> :rptype";
+        Query query = createQuery(context, queryString);
+        query.setInteger("resourceTypeId", dso.getType());
+        query.setInteger("resourceId", dso.getID());
+        query.setParameter("rptype", type);
+        query.executeUpdate();
     }
 }
