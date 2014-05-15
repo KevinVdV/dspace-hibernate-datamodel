@@ -400,13 +400,13 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @return this bitstream's parent.
      * @throws SQLException
      */    
-    public DSpaceObject getParentObject(Bitstream bitstream) throws SQLException
+    public DSpaceObject getParentObject(Context context, Bitstream bitstream) throws SQLException
     {
         List<Bundle> bundles = bitstream.getBundles();
         if (CollectionUtils.isNotEmpty(bundles))
         {
             // the ADMIN action is not allowed on Bundle object so skip to the item
-            Item item = (Item) bundleService.getParentObject(bundles.iterator().next());
+            Item item = (Item) bundleService.getParentObject(context, bundles.iterator().next());
             if (item != null)
             {
                 return item;

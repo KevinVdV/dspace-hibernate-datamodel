@@ -51,7 +51,7 @@ public interface GroupService extends DSpaceObjectService<Group> {
 
     public int searchResultCount(Context context, String query) throws SQLException;
 
-    public void delete(Context context, Group groupEntity) throws SQLException;
+    public void delete(Context context, Group groupEntity) throws SQLException, AuthorizeException;
 
     public boolean isEmpty(Group groupEntity);
 

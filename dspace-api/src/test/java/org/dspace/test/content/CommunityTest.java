@@ -126,8 +126,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         //the item created by default has no name set
         assertThat("testCreate 2", son, notNullValue());        
         assertThat("testCreate 3", son.getName(), equalTo(""));        
-        assertTrue("testCreate 4", communityService.getAllParents(son).size() == 1);
-        assertThat("testCreate 5", communityService.getAllParents(son).get(0), equalTo(community));
+        assertTrue("testCreate 4", communityService.getAllParents(context, son).size() == 1);
+        assertThat("testCreate 5", communityService.getAllParents(context, son).get(0), equalTo(community));
     }
 
 
@@ -159,8 +159,8 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         //the item created by default has no name set
         assertThat("testCreate 2", son, notNullValue());
         assertThat("testCreate 3", son.getName(), equalTo(""));
-        assertTrue("testCreate 4", communityService.getAllParents(son).size() == 1);
-        assertThat("testCreate 5", communityService.getAllParents(son).get(0), equalTo(created));
+        assertTrue("testCreate 4", communityService.getAllParents(context, son).size() == 1);
+        assertThat("testCreate 5", communityService.getAllParents(context, son).get(0), equalTo(created));
     }
 
     /**
@@ -294,7 +294,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         assertTrue("testFindAllTop 1", all.size() >= 1);
         for(Community cm: all)
         {
-            assertThat("testFindAllTop for", communityService.getAllParents(cm).size(), equalTo(0));
+            assertThat("testFindAllTop for", communityService.getAllParents(context, cm).size(), equalTo(0));
         }
 
         boolean added = false;
@@ -732,12 +732,12 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         //null by default
-        assertThat("testGetParentCommunity 0", community.getParentCommunity(), nullValue());
+        assertThat("testGetParentCommunity 0", communityService.getParentObject(context, community), nullValue());
 
         //community with  parent
         Community son = communityService.create(context, community);
-        assertThat("testGetParentCommunity 1",son.getParentCommunity(), notNullValue());
-        assertThat("testGetParentCommunity 2", son.getParentCommunity(), equalTo(community));
+        assertThat("testGetParentCommunity 1",communityService.getParentObject(context, son), notNullValue());
+        assertThat("testGetParentCommunity 2", (Community) communityService.getParentObject(context, son), equalTo(community));
     }
 
     /**
@@ -758,14 +758,14 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         };
 
         //empty by default
-        assertThat("testGetAllParents 0", communityService.getAllParents(community), notNullValue());
-        assertTrue("testGetAllParents 1", communityService.getAllParents(community).size() == 0);
+        assertThat("testGetAllParents 0", communityService.getAllParents(context, community), notNullValue());
+        assertTrue("testGetAllParents 1", communityService.getAllParents(context, community).size() == 0);
 
         //community with  parent
         Community son = communityService.create(context, community);
-        assertThat("testGetAllParents 2", communityService.getAllParents(son), notNullValue());
-        assertTrue("testGetAllParents 3", communityService.getAllParents(son).size() == 1);
-        assertThat("testGetAllParents 4", communityService.getAllParents(son).get(0), equalTo(community));
+        assertThat("testGetAllParents 2", communityService.getAllParents(context, son), notNullValue());
+        assertTrue("testGetAllParents 3", communityService.getAllParents(context, son).size() == 1);
+        assertThat("testGetAllParents 4", communityService.getAllParents(context, son).get(0), equalTo(community));
     }
 
     /**
@@ -1374,10 +1374,10 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     public void testGetAdminObject() throws SQLException
     {
         //default community has no admin object
-        assertThat("testGetAdminObject 0", (Community) communityService.getAdminObject(community, Constants.REMOVE), equalTo(community));
-        assertThat("testGetAdminObject 1", (Community) communityService.getAdminObject(community, Constants.ADD), equalTo(community));
-        assertThat("testGetAdminObject 2", communityService.getAdminObject(community, Constants.DELETE), nullValue());
-        assertThat("testGetAdminObject 3", (Community) communityService.getAdminObject(community, Constants.ADMIN), equalTo(community));
+        assertThat("testGetAdminObject 0", (Community) communityService.getAdminObject(context, community, Constants.REMOVE), equalTo(community));
+        assertThat("testGetAdminObject 1", (Community) communityService.getAdminObject(context, community, Constants.ADD), equalTo(community));
+        assertThat("testGetAdminObject 2", communityService.getAdminObject(context, community, Constants.DELETE), nullValue());
+        assertThat("testGetAdminObject 3", (Community) communityService.getAdminObject(context, community, Constants.ADMIN), equalTo(community));
     }
 
     /**
@@ -1390,13 +1390,13 @@ public class CommunityTest extends AbstractDSpaceObjectTest
         try
         {
             //default has no parent
-            assertThat("testGetParentObject 0", communityService.getParentObject(community), nullValue());
+            assertThat("testGetParentObject 0", communityService.getParentObject(context, community), nullValue());
 
             context.turnOffAuthorisationSystem();
             Community son = communityService.createSubcommunity(context, community);
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", communityService.getParentObject(son), notNullValue());
-            assertThat("testGetParentObject 2", (Community) communityService.getParentObject(son), equalTo(community));
+            assertThat("testGetParentObject 1", communityService.getParentObject(context, son), notNullValue());
+            assertThat("testGetParentObject 2", (Community) communityService.getParentObject(context, son), equalTo(community));
         }
         catch(AuthorizeException ex)
         {

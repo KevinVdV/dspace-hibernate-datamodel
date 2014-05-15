@@ -5,6 +5,7 @@ import org.dspace.content.Item;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.core.Context;
 import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.eperson.Group;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Order;
@@ -52,6 +53,21 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
     public Collection findByTemplateItem(Context context, Item item) throws SQLException {
         Criteria criteria = createCriteria(context, Collection.class);
         criteria.add(Restrictions.eq("template_item", item));
+        return uniqueResult(criteria);
+    }
+
+    @Override
+    public Collection findByGroup(Context context, Group group) throws SQLException {
+        Criteria criteria = createCriteria(context, Collection.class);
+        criteria.add(
+                Restrictions.or(
+                        Restrictions.eq("workflowStep1", group),
+                        Restrictions.eq("workflowStep2", group),
+                        Restrictions.eq("workflowStep3", group),
+                        Restrictions.eq("submitters", group),
+                        Restrictions.eq("admins", group)
+                )
+        );
         return uniqueResult(criteria);
     }
 

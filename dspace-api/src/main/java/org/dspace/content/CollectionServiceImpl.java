@@ -219,6 +219,11 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
     }
 
+    @Override
+    public Collection findByGroup(Context context, Group group) throws SQLException {
+        return collectionDAO.findByGroup(context, group);
+    }
+
     /**
      * Set a metadata value
      *
@@ -1050,7 +1055,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     }
 
     @Override
-    public DSpaceObject getParentObject(Collection collection) throws SQLException
+    public DSpaceObject getParentObject(Context context, Collection collection) throws SQLException
     {
         List<Community> communities = collection.getCommunities();
         if(CollectionUtils.isNotEmpty(communities)){

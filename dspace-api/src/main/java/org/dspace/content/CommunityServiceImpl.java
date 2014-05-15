@@ -212,6 +212,11 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         return communityDAO.findMany(context, "from Community where parentCommunity IS NULL ORDER BY name");
     }
 
+    @Override
+    public Community findByAdminGroup(Context context, Group group) throws SQLException {
+        return communityDAO.findByAdminGroup(context, group);
+    }
+
     /**
      * Set a metadata value
      * 
@@ -381,15 +386,16 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return an array of parent communities, empty if top-level
      */
-    public List<Community> getAllParents(Community community) throws SQLException
+    @Override
+    public List<Community> getAllParents(Context context, Community community) throws SQLException
     {
         List<Community> parentList = new ArrayList<Community>();
-        Community parent = (Community) getParentObject(community);
+        Community parent = (Community) getParentObject(context, community);
 
         while (parent != null)
         {
             parentList.add(parent);
-            parent = (Community) getParentObject(community);
+            parent = (Community) getParentObject(context, community);
         }
 
         // Put them in an array
@@ -569,14 +575,14 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         // But since this is also the case for top-level communities, we would
         // give everyone rights to remove the top-level communities.
         // The same problem occurs in removing the logo
-        if (!AuthorizeManager.authorizeActionBoolean(context, getParentObject(community), Constants.REMOVE))
+        if (!AuthorizeManager.authorizeActionBoolean(context, getParentObject(context, community), Constants.REMOVE))
         {
             AuthorizeManager.authorizeAction(context, community, Constants.DELETE);
         }
 
         // If not a top-level community, have parent remove me; this
         // will call rawDelete() before removing the linkage
-        Community parent = (Community) getParentObject(community);
+        Community parent = (Community) getParentObject(context, community);
 
         if (parent != null)
         {
@@ -663,7 +669,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
 
     public void canEdit(Context context, Community community) throws AuthorizeException, SQLException
     {
-        List<Community> parents = getAllParents(community);
+        List<Community> parents = getAllParents(context, community);
 
         for (Community parent : parents) {
             if (AuthorizeManager.authorizeActionBoolean(context, parent,
@@ -680,7 +686,8 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         AuthorizeManager.authorizeAction(context, community, Constants.WRITE);
     }
 
-	public DSpaceObject getAdminObject(Community community, int action) throws SQLException
+    @Override
+	public DSpaceObject getAdminObject(Context context, Community community, int action) throws SQLException
     {
         DSpaceObject adminObject = null;
         switch (action)
@@ -695,7 +702,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         case Constants.DELETE:
             if (AuthorizeConfiguration.canCommunityAdminPerformSubelementDeletion())
             {
-                adminObject = getParentObject(community);
+                adminObject = getParentObject(context, community);
             }
             break;
         case Constants.ADD:
@@ -710,8 +717,9 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         }
         return adminObject;
     }
-    
-    public DSpaceObject getParentObject(Community community) throws SQLException
+
+    @Override
+    public DSpaceObject getParentObject(Context context, Community community) throws SQLException
     {
         List<Community> parentCommunities = community.getParentCommunities();
         if (CollectionUtils.isNotEmpty(parentCommunities))

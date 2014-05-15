@@ -88,7 +88,7 @@ public class IndexEventConsumer implements Consumer {
                     && ((Bundle) subject).getName().equals("TEXT")) {
                 st = Constants.ITEM;
                 et = Event.MODIFY;
-                subject = bundleService.getParentObject((Bundle) subject);
+                subject = bundleService.getParentObject(ctx, (Bundle) subject);
                 if (log.isDebugEnabled())
                 {
                     log.debug("Transforming Bundle event into MODIFY of Item "

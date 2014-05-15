@@ -28,9 +28,16 @@ public class SupervisedItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> i
     }
 
     @Override
+    public List<WorkspaceItem> findByGroup(Context context, Group group) throws SQLException {
+        Criteria criteria = createCriteria(context, WorkspaceItem.class);
+        criteria.add(Restrictions.eq("supervisorGroups.groups", group));
+        return list(criteria);
+    }
+
+    @Override
     public WorkspaceItem findByWorkspaceItemAndGroup(Context context, WorkspaceItem workspaceItem, Group group) throws SQLException {
         Criteria criteria = createCriteria(context, WorkspaceItem.class);
-        criteria.createAlias("groups", "g");
+        criteria.createAlias("supervisorGroups", "g");
         criteria.add(Restrictions.and(
                 Restrictions.eq("g", group),
                 Restrictions.eq("id", workspaceItem.getID())
@@ -39,10 +46,12 @@ public class SupervisedItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> i
         return uniqueResult(criteria);
     }
 
+
+
     @Override
     public List<WorkspaceItem> findAll(Context context, Class clazz) throws SQLException {
         Criteria criteria = createCriteria(context, WorkspaceItem.class);
-        criteria.add(Restrictions.isNotEmpty("groups"));
+        criteria.add(Restrictions.isNotEmpty("supervisorGroups"));
         return list(criteria);
     }
 }

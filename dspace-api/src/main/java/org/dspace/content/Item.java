@@ -380,15 +380,8 @@ public class Item extends DSpaceObject{
         return itemService.getBundles(item, name);
     }
 
-    public final List<Community> getCommunities(Item item) throws SQLException
-    {
-        return itemService.getCommunities(item);
-    }
-
     public final List<Bitstream> getNonInternalBitstreams(Item item) throws SQLException
     {
         return itemService.getNonInternalBitstreams(item);
     }
-
 }
-

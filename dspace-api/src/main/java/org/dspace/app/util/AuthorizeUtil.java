@@ -231,11 +231,11 @@ public class AuthorizeUtil
             }
             else if (AuthorizeConfiguration.canCollectionAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(context, item), Constants.ADMIN);
             }
             else if (AuthorizeConfiguration.canCommunityAdminManageCCLicense())
             {
-                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(item), Constants.ADMIN);
+                AuthorizeManager.authorizeAction(context, ITEM_SERVICE.getParentObject(context, item), Constants.ADMIN);
             }
             else
             {
@@ -472,7 +472,7 @@ public class AuthorizeUtil
     public static void authorizeRemoveAdminGroup(Context context,
             Community community) throws SQLException, AuthorizeException
     {
-        Community parentCommunity = (Community) COMMUNITY_SERVICE.getParentObject(community);
+        Community parentCommunity = (Community) COMMUNITY_SERVICE.getParentObject(context, community);
         if (AuthorizeConfiguration.canCommunityAdminManageAdminGroup()
                 && parentCommunity != null)
         {

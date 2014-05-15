@@ -146,7 +146,7 @@ public class SupervisedItemTest extends AbstractUnitTest
     @Test
     public void testGetSupervisorGroups_Context_int() throws Exception
     {
-        List<Group> found = supervisedItemService.getSupervisorGroups(context, wi.getID());
+        List<Group> found = supervisedItemService.getSupervisorGroups(context, wi);
         assertThat("testGetSupervisorGroups_Context_int 0", found, notNullValue());
         assertTrue("testGetSupervisorGroups_Context_int 1", found.size() == 1);
         assertThat("testGetSupervisorGroups_Context_int 2", found.iterator().next().getID(), equalTo(gr.getID()));

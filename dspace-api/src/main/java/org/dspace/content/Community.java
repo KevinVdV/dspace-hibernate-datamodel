@@ -319,8 +319,4 @@ public class Community extends DSpaceObject{
     {
         return communityService.getName(this);
     }
-
-    public final Community getParentCommunity() throws SQLException {
-        return (Community) communityService.getParentObject(this);
-    }
 }

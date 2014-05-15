@@ -29,6 +29,8 @@ public interface CollectionService extends DSpaceObjectService<Collection> {
 
     public List<Collection> findAll(Context context, Integer limit, Integer offset) throws SQLException;
 
+    public Collection findByGroup(Context context, Group group) throws SQLException;
+
     public void setName(Collection collection, String value) throws MissingResourceException;
 
     public Bitstream createLogo(Context context, Collection collection, InputStream is) throws AuthorizeException,IOException, SQLException;

@@ -225,7 +225,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         }
 
         //The order of the bitstreams has changed, ensure that we update the last modified of our item
-        Item owningItem = (Item) getParentObject(bundle);
+        Item owningItem = (Item) getParentObject(context, bundle);
         if(owningItem != null)
         {
             itemService.updateLastModified(context, owningItem);
@@ -273,7 +273,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, bundle.getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
 
         //Ensure that the last modified from the item is triggered !
-        Item owningItem = (Item) getParentObject(bundle);
+        Item owningItem = (Item) getParentObject(context, bundle);
         if(owningItem != null)
         {
             itemService.updateLastModified(context, owningItem);
@@ -431,7 +431,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     public DSpaceObject getAdminObject(Context context, Bundle bundle, int action) throws SQLException
     {
         DSpaceObject adminObject = null;
-        Item item = (Item) getParentObject(bundle);
+        Item item = (Item) getParentObject(context, bundle);
         Collection collection = null;
         Community community = null;
         if (item != null)
@@ -483,7 +483,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         return adminObject;
     }
     
-    public DSpaceObject getParentObject(Bundle bundle) throws SQLException
+    public DSpaceObject getParentObject(Context context, Bundle bundle) throws SQLException
     {
         List<Item> items = bundle.getItems();
         if(CollectionUtils.isNotEmpty(items))

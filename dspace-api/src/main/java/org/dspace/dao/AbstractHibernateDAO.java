@@ -58,7 +58,7 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
 
     //TODO: MAKE SURE EVERYBODY USES THIS METHOD !
     public Query createQuery(Context context, String query) throws SQLException {
-        return createQuery(context, query);
+        return context.getDBConnection().createQuery(query);
     }
 
     public List<T> list(Criteria criteria)

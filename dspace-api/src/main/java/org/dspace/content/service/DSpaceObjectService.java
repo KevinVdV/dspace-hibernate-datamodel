@@ -26,7 +26,7 @@ public interface DSpaceObjectService<T extends DSpaceObject> {
 
     public DSpaceObject getAdminObject(Context context, T dso, int action) throws SQLException;
 
-    public DSpaceObject getParentObject(T dso) throws SQLException;
+    public DSpaceObject getParentObject(Context context, T dso) throws SQLException;
 
     public String getTypeText(DSpaceObject dso);
 

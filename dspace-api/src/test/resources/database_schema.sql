@@ -569,10 +569,9 @@ CREATE INDEX subs_collection_fk_idx ON Subscription(collection_id);
 
 CREATE TABLE epersongroup2workspaceitem
 (
-  id integer,
+  PRIMARY KEY (eperson_group_id, workspace_item_id),
   eperson_group_id integer REFERENCES EPersonGroup(eperson_group_id),
-  workspace_item_id integer REFERENCES WorkspaceItem(workspace_item_id),
-  CONSTRAINT epersongroup2item_pkey PRIMARY KEY (id)
+  workspace_item_id integer REFERENCES WorkspaceItem(workspace_item_id)
 );
 
 CREATE INDEX epg2wi_group_fk_idx ON epersongroup2workspaceitem(eperson_group_id);

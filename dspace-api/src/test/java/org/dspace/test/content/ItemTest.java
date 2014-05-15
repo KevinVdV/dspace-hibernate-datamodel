@@ -576,8 +576,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetCommunities() throws Exception
     {
-        assertThat("testGetCommunities 0", itemService.getCommunities(it), notNullValue());
-        assertTrue("testGetCommunities 1", itemService.getCommunities(it).size() == 1);
+        assertThat("testGetCommunities 0", itemService.getCommunities(context, it), notNullValue());
+        assertTrue("testGetCommunities 1", itemService.getCommunities(context, it).size() == 1);
     }
 
     /**
@@ -1630,14 +1630,14 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         try
         {
             //default has collection parent
-            assertThat("testGetParentObject 0", itemService.getParentObject(it), notNullValue());
+            assertThat("testGetParentObject 0", itemService.getParentObject(context, it), notNullValue());
 
             context.turnOffAuthorisationSystem();
             Collection parent = createCollection();
             it.setOwningCollection(parent);
             context.restoreAuthSystemState();
-            assertThat("testGetParentObject 1", itemService.getParentObject(it), notNullValue());
-            assertThat("testGetParentObject 2", (Collection) itemService.getParentObject(it), equalTo(parent));
+            assertThat("testGetParentObject 1", itemService.getParentObject(context, it), notNullValue());
+            assertThat("testGetParentObject 2", (Collection) itemService.getParentObject(context, it), equalTo(parent));
         }
         catch(AuthorizeException ex)
         {

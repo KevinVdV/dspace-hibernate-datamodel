@@ -4,8 +4,10 @@ import org.dspace.content.Community;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.core.Context;
 import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.eperson.Group;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -33,6 +35,13 @@ public class CommunityDAOImpl extends AbstractHibernateDAO<Community> implements
         Criteria criteria = createCriteria(context, Community.class);
         criteria.addOrder(Order.asc(order));
         return list(criteria);
+    }
+
+    @Override
+    public Community findByAdminGroup(Context context, Group group) throws SQLException {
+        Criteria criteria = createCriteria(context, Community.class);
+        criteria.add(Restrictions.eq("admins", group));
+        return uniqueResult(criteria);
     }
 
 

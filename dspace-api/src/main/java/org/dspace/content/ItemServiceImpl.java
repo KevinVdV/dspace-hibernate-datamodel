@@ -715,7 +715,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @return the communities this item is in.
      * @throws SQLException
      */
-    public List<Community> getCommunities(Item item) throws SQLException
+    @Override
+    public List<Community> getCommunities(Context context, Item item) throws SQLException
     {
         List<Community> result = new ArrayList<Community>();
         List<Collection> collections = item.getCollections();
@@ -724,7 +725,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             List<Community> owningCommunities = collection.getCommunities();
             for (Community community : owningCommunities) {
                 result.add(community);
-                result.addAll(communityService.getAllParents(community));
+                result.addAll(communityService.getAllParents(context, community));
             }
         }
 
@@ -1481,7 +1482,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     {
         DSpaceObject adminObject = null;
         //Items are always owned by collections
-        Collection collection = (Collection) getParentObject(item);
+        Collection collection = (Collection) getParentObject(context, item);
         Community community = null;
         if (collection != null)
         {
@@ -1571,8 +1572,9 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             }
         return adminObject;
     }
-    
-    public DSpaceObject getParentObject(Item item) throws SQLException
+
+    @Override
+    public DSpaceObject getParentObject(Context context, Item item) throws SQLException
     {
         Collection ownCollection = item.getOwningCollection();
         if (ownCollection != null)

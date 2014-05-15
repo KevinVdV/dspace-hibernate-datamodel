@@ -27,7 +27,7 @@ public interface SupervisedItemService {
 
     public List<WorkspaceItem> getAll(Context context) throws SQLException;
 
-    public List<Group> getSupervisorGroups(Context c, int wi) throws SQLException;
+    public List<Group> getSupervisorGroups(Context c, WorkspaceItem workspaceItem) throws SQLException;
 
     public List<Group> getSupervisorGroups() throws SQLException;
 
@@ -38,4 +38,6 @@ public interface SupervisedItemService {
     public void remove(Context context, WorkspaceItem supervisedItem, Group group) throws SQLException, AuthorizeException;
 
     public void add(Context context, Group group, WorkspaceItem workspaceItem, int policy) throws SQLException, AuthorizeException;
+
+    public void removeSupervisedGroup(Context context, Group group) throws SQLException, AuthorizeException;
 }

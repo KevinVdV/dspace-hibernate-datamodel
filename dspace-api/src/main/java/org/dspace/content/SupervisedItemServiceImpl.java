@@ -6,6 +6,7 @@ import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.dao.SupervisedItemDAO;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.SupervisedItemService;
+import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -35,6 +36,9 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
     @Autowired(required = true)
     protected ResourcePolicyService resourcePolicyService;
 
+    @Autowired(required = true)
+    protected WorkspaceItemService workspaceItemService;
+
     /**
      * Get all workspace items which are being supervised
      *
@@ -52,19 +56,20 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      * Gets all the groups that are supervising a particular workspace item
      *
      * @param c the context this object exists in
-     * @param wi the ID of the workspace item
+     * @param workspaceItem the workspace item
      *
      * @return the supervising groups in an array
      */
-    public List<Group> getSupervisorGroups(Context c, int wi) throws SQLException
+    public List<Group> getSupervisorGroups(Context context, WorkspaceItem workspaceItem) throws SQLException
     {
-        //TODO: IMPLEMENT
+//        return supervisedItemDAO.findByWorkspaceItem(context, WorkspaceItem.class);
+                     //TODO: IMPLEMENT
         return null;
 
     }
 
     /**
-     * Gets all the groups that are supervising a this workspace item
+     * Gets all the groups that are supervising a workspace item
      *
      *
      * @return the supervising groups in an array
@@ -208,6 +213,15 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
                 r.setAction(Constants.READ);
                 resourcePolicyService.update(context, r);
             }
+        }
+    }
+
+    @Override
+    public void removeSupervisedGroup(Context context, Group group) throws SQLException, AuthorizeException {
+        List<WorkspaceItem> supervisedItems = supervisedItemDAO.findByGroup(context, group);
+        for (WorkspaceItem supervisedItem : supervisedItems) {
+            supervisedItem.removeSupervisorGroup(group);
+            workspaceItemService.update(context, supervisedItem);
         }
     }
 

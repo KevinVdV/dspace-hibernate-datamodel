@@ -389,7 +389,7 @@ public class AuthorizeManager
         // check the *parent* objects of this object.  This allows Admin
         // permissions to be inherited automatically (e.g. Admin on Community
         // is also an Admin of all Collections/Items in that Community)
-        DSpaceObject parent = SERVICE_FACTORY.getDSpaceObjectService(o).getParentObject(o);
+        DSpaceObject parent = SERVICE_FACTORY.getDSpaceObjectService(o).getParentObject(c, o);
         if (parent != null)
         {
             return isAdmin(c, parent);

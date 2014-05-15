@@ -28,6 +28,8 @@ public interface CommunityService extends DSpaceObjectService<Community> {
 
     public List<Community> findAllTop(Context context) throws SQLException;
 
+    public Community findByAdminGroup(Context context, Group group) throws SQLException;
+
     public void setName(Community community, String value)throws MissingResourceException;
 
     public Bitstream createLogo(Context context, Community community, InputStream is) throws AuthorizeException, IOException, SQLException;
@@ -36,7 +38,7 @@ public interface CommunityService extends DSpaceObjectService<Community> {
 
     public void removeAdministrators(Context context, Community community) throws SQLException, AuthorizeException;
 
-    public List<Community> getAllParents(Community community) throws SQLException;
+    public List<Community> getAllParents(Context context, Community community) throws SQLException;
 
     public List<Collection> getAllCollections(Community community) throws SQLException;
 
@@ -62,6 +64,4 @@ public interface CommunityService extends DSpaceObjectService<Community> {
     public boolean canEditBoolean(Context context, Community community) throws java.sql.SQLException;
 
     public void canEdit(Context context, Community community) throws AuthorizeException, SQLException;
-
-    public DSpaceObject getAdminObject(Community community, int action) throws SQLException;
 }

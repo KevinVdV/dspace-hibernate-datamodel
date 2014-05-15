@@ -80,7 +80,7 @@ public interface ItemService extends DSpaceObjectService<Item> {
 
     public boolean isIn(Item item, Collection collection) throws SQLException;
 
-    public List<Community> getCommunities(Item item) throws SQLException;
+    public List<Community> getCommunities(Context context, Item item) throws SQLException;
 
     public List<Bundle> getBundles(Item item, String name) throws SQLException;
 

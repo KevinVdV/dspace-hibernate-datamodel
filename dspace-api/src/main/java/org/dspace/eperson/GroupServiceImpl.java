@@ -9,11 +9,16 @@ package org.dspace.eperson;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.DSpaceObjectServiceImpl;
+import org.dspace.content.*;
+import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.CommunityService;
+import org.dspace.content.service.SupervisedItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -40,6 +45,15 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
 
     @Autowired(required = true)
     protected GroupDAO groupDAO;
+
+    @Autowired(required = true)
+    protected CollectionService collectionService;
+
+    @Autowired(required = true)
+    protected CommunityService communityService;
+
+    @Autowired(required = true)
+    protected SupervisedItemService supervisedItemService;
 
     /**
      * Construct a Group from a given context and tablerow
@@ -581,18 +595,16 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * Delete a group
      *
      */
-    public void delete(Context context, Group groupEntity) throws SQLException
-    {
+    public void delete(Context context, Group groupEntity) throws SQLException, AuthorizeException {
         // FIXME: authorizations
 
         context.addEvent(new Event(Event.DELETE, Constants.GROUP, groupEntity.getID(), groupEntity.getName()));
 
+        //Remove the supervised group from any workspace items linked to us.
+        supervisedItemService.removeSupervisedGroup(context, groupEntity);
+
         // Remove any ResourcePolicies that reference this group
         AuthorizeManager.removeGroupPolicies(context, groupEntity);
-
-        // don't forget the new table
-        //TODO: HIBERNATE IMPLEMENT
-//        deleteEpersonGroup2WorkspaceItem();
 
         // Remove ourself
         groupDAO.delete(context, groupEntity);
@@ -601,18 +613,6 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
                 + groupEntity.getID()));
     }
 
-    /**
-     * @throws SQLException
-     */
-    //TODO: HIBERNATE IMPLEMENT
-/*
-    private void deleteEpersonGroup2WorkspaceItem() throws SQLException
-    {
-        DatabaseManager.updateQuery(myContext,
-                "DELETE FROM EPersonGroup2WorkspaceItem WHERE eperson_group_id= ? ",
-                getID());
-    }
-*/
     /**
      * Return true if group has no direct or indirect members
      */
@@ -701,11 +701,12 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
         return myChildren;
     }
 
-    //TODO: HIBERNATE IMPLEMENT
-
-/*
-    public DSpaceObject getParentObject() throws SQLException
+    public DSpaceObject getParentObject(Context context, Group group) throws SQLException
     {
+        if(group == null)
+        {
+            return null;
+        }
         // could a collection/community administrator manage related groups?
         // check before the configuration options could give a performance gain
         // if all group management are disallowed
@@ -721,24 +722,13 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
                 .canCommunityAdminManageCollectionWorkflows())
         {
             // is this a collection related group?
-            TableRow qResult = DatabaseManager
-                    .querySingle(
-                            myContext,
-                            "SELECT collection_id, workflow_step_1, workflow_step_2, " +
-                                    " workflow_step_3, submitter, admin FROM collection "
-                                    + " WHERE workflow_step_1 = ? OR "
-                                    + " workflow_step_2 = ? OR "
-                                    + " workflow_step_3 = ? OR "
-                                    + " submitter =  ? OR " + " admin = ?",
-                            getID(), getID(), getID(), getID(), getID());
-            if (qResult != null)
-            {
-                Collection collection = Collection.find(myContext, qResult
-                        .getIntColumn("collection_id"));
+            org.dspace.content.Collection collection = collectionService.findByGroup(context, group);
 
-                if ((qResult.getIntColumn("workflow_step_1") == getID() ||
-                        qResult.getIntColumn("workflow_step_2") == getID() ||
-                        qResult.getIntColumn("workflow_step_3") == getID()))
+            if (collection != null)
+            {
+                if ((group.equals(collection.getWorkflowStep1()) ||
+                        group.equals(collection.getWorkflowStep2()) ||
+                        group.equals(collection.getWorkflowStep3())))
                 {
                     if (AuthorizeConfiguration.canCollectionAdminManageWorkflows())
                     {
@@ -746,10 +736,10 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
                     }
                     else if (AuthorizeConfiguration.canCommunityAdminManageCollectionWorkflows())
                     {
-                        return collection.getParentObject();
+                        return collectionService.getParentObject(context, collection);
                     }
                 }
-                if (qResult.getIntColumn("submitter") == getID())
+                if (group.equals(collection.getSubmitters()))
                 {
                     if (AuthorizeConfiguration.canCollectionAdminManageSubmitters())
                     {
@@ -757,10 +747,10 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
                     }
                     else if (AuthorizeConfiguration.canCommunityAdminManageCollectionSubmitters())
                     {
-                        return collection.getParentObject();
+                        return collectionService.getParentObject(context, collection);
                     }
                 }
-                if (qResult.getIntColumn("admin") == getID())
+                if (group.equals(collection.getAdministrators()))
                 {
                     if (AuthorizeConfiguration.canCollectionAdminManageAdminGroup())
                     {
@@ -768,7 +758,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
                     }
                     else if (AuthorizeConfiguration.canCommunityAdminManageCollectionAdminGroup())
                     {
-                        return collection.getParentObject();
+                        return collectionService.getParentObject(context, collection);
                     }
                 }
             }
@@ -776,19 +766,9 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
             // to manage it?
             else if (AuthorizeConfiguration.canCommunityAdminManageAdminGroup())
             {
-                qResult = DatabaseManager.querySingle(myContext,
-                        "SELECT community_id FROM community "
-                                + "WHERE admin = ?", getID());
-
-                if (qResult != null)
-                {
-                    Community community = Community.find(myContext, qResult
-                            .getIntColumn("community_id"));
-                    return community;
-                }
+                return communityService.findByAdminGroup(context, group);
             }
         }
         return null;
     }
-    */
 }

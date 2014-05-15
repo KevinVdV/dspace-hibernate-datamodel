@@ -197,8 +197,7 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
         }
         else
         {
-            //TODO: HIBERNATE, IMPLEMENT THIS TEST !
-//            dspaceObject.getAdminObject(Constants.ADMIN);
+            DSpaceServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType()).getAdminObject(context, dspaceObject, Constants.ADMIN);
             fail("Exception should have been thrown");
         }
     }
@@ -209,8 +208,7 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
     @Test
     public void testGetParentObject() throws SQLException
     {
-        //TODO: HIBERNATE, IMPLEMENT THIS TEST !
-//        assertThat("testGetParentObject 0", dspaceObject.getParentObject(), nullValue());
+        assertThat("testGetParentObject 0", DSpaceServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType()).getParentObject(context, dspaceObject), nullValue());
     }
 
     /**
