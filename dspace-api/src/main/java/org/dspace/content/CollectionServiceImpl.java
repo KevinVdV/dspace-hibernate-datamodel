@@ -663,8 +663,6 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         //Remove the item from the collection
         item.removeCollection(collection);
 
-        //TODO: HIBERNATE DO WE NEED TO REFRESH COLLECTION TO REFLECT THE CHANGE ?
-
         //Check if we orphaned our poor item
         if (item.getCollections().size() == 0)
         {

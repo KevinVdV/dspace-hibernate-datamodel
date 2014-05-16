@@ -28,7 +28,6 @@ import java.util.Set;
  * @author Mark Diggory (markd at atmire dot com)
  * @author Ben Bosman (ben at atmire dot com)
  */
-//TODO: HIBERNATE, IMPLEMENT ONCE VERSIONING BECOMES AVAILABLE
 public class VersioningConsumer implements Consumer {
 
     private Set<Item> itemsToProcess;

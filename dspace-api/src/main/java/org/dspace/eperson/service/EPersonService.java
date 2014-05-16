@@ -5,10 +5,12 @@ import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.EPersonDeletionException;
+import org.dspace.eperson.Group;
 import org.dspace.eperson.PasswordHash;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -22,6 +24,13 @@ public interface EPersonService extends DSpaceObjectService<EPerson> {
     public EPerson findByEmail(Context context, String email) throws SQLException;
 
     public EPerson findByNetid(Context context, String netid) throws SQLException;
+
+    /**
+     * Retrieves a unique list of all users who are a direct member of this group
+     * @param context
+     * @return
+     */
+    public List<EPerson> findByGroups(Context context, Set<Group> groups);
 
     public List<EPerson> search(Context context, String query) throws SQLException;
 

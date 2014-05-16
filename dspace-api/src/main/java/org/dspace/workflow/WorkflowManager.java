@@ -689,21 +689,7 @@ public class WorkflowManager
             String handle = HANDLE_SERVICE.findHandle(c, i);
 
             // Get title
-            //TODO: HIBERNATE: USE ITEM GETNAME METHOD
-            List<MetadataValue> titles = ITEM_SERVICE.getMetadata(i, MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
-            String title = "";
-            try
-            {
-                title = I18nUtil.getMessage("org.dspace.workflow.WorkflowManager.untitled");
-            }
-            catch (MissingResourceException e)
-            {
-                title = "Untitled";
-            }
-            if (titles.size() > 0)
-            {
-                title = titles.get(0).getValue();
-            }
+            String title = ITEM_SERVICE.getName(i);
 
             email.addRecipient(ep.getEmail());
             email.addArgument(title);

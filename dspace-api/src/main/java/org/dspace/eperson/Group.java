@@ -39,6 +39,11 @@ public class Group extends DSpaceObject {
     @Transient
     private boolean modifiedMetadata = false;
 
+    /** Flag set when group parent or children are changed */
+    @Transient
+    private boolean groupsChanged;
+
+
     /** lists of epeople and groups in the group */
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -60,12 +65,6 @@ public class Group extends DSpaceObject {
             joinColumns = {@JoinColumn(name = "parent_id") },
             inverseJoinColumns = {@JoinColumn(name = "child_id") }
     )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="long"),
-            generator = "group2group_seq"
-    )
-    @SequenceGenerator(name="group2group_seq", sequenceName="group2group_seq", allocationSize = 1)
     private List<Group> groups = new ArrayList<Group>();
 
 
@@ -121,6 +120,7 @@ public class Group extends DSpaceObject {
     void addMember(Group g)
     {
         getGroups().add(g);
+        groupsChanged = true;
     }
 
     boolean remove(EPerson e)
@@ -130,6 +130,7 @@ public class Group extends DSpaceObject {
 
     boolean remove(Group g)
     {
+        groupsChanged = true;
         return getGroups().remove(g);
     }
 
@@ -213,4 +214,11 @@ public class Group extends DSpaceObject {
         return groupService.getName(this);
     }
 
+    public boolean isGroupsChanged() {
+        return groupsChanged;
+    }
+
+    public void clearGroupsChanged() {
+        this.groupsChanged = false;
+    }
 }

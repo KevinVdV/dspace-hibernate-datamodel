@@ -18,7 +18,7 @@ public interface GenericDAO<T>
 
     public void delete(Context context, T t) throws SQLException;
 
-    public List<T> findAll(Context context, Class clazz) throws SQLException;
+    public List<T> findAll(Context context, Class<T> clazz) throws SQLException;
 
     public T findUnique(Context context, String query) throws SQLException;
 

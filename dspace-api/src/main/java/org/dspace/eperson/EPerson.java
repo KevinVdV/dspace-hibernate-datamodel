@@ -1,5 +1,6 @@
 package org.dspace.eperson;
 
+import org.apache.commons.lang.StringUtils;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -59,7 +60,6 @@ public class EPerson extends DSpaceObject {
     @Column(name="digest_algorithm")
     private String digest_algorithm;
 
-    //TODO: Hibernate move to enum ?
     @Column(name="phone")
     private String phone;
 
@@ -189,13 +189,7 @@ public class EPerson extends DSpaceObject {
      */
     public void setEmail(String email)
     {
-        //TODO: HIBERNATE mail to lowercase
-        if (email != null)
-        {
-            email = email.toLowerCase();
-        }
-
-        this.email = email;
+        this.email = StringUtils.lowerCase(email);
         modified = true;
     }
 

@@ -37,8 +37,6 @@ public interface GroupService extends DSpaceObjectService<Group> {
 
     public List<Group> allMemberGroups(Context c, EPerson e) throws SQLException;
 
-    public Set<Integer> allMemberGroupIDs(Context c, EPerson e) throws SQLException;
-
     public List<EPerson> allMembers(Context c, Group group) throws SQLException;
 
     public Group find(Context context, int id) throws SQLException;

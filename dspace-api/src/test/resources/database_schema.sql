@@ -175,7 +175,7 @@ CREATE TABLE EPersonGroup
 ------------------------------------------------------
 CREATE TABLE Group2Group
 (
-  id        INTEGER PRIMARY KEY,
+  PRIMARY KEY(parent_id, child_id),
   parent_id INTEGER REFERENCES EPersonGroup(eperson_group_id),
   child_id  INTEGER REFERENCES EPersonGroup(eperson_group_id)
 );
@@ -194,7 +194,7 @@ CREATE INDEX g2g_child_fk_idx ON Group2Group(child_id);
 ------------------------------------------------------
 CREATE TABLE Group2GroupCache
 (
-  id        INTEGER PRIMARY KEY,
+  PRIMARY KEY(parent_id, child_id),
   parent_id INTEGER REFERENCES EPersonGroup(eperson_group_id),
   child_id  INTEGER REFERENCES EPersonGroup(eperson_group_id)
 );

@@ -71,8 +71,6 @@ public class Community extends DSpaceObject{
     @JoinColumn(name = "logo_bitstream_id")
     private Bitstream logo = null;
 
-
-    //TODO: HIBERNATE: modified get it out of here ?
     /** Flag set when data is modified, for events */
     @Transient
     private boolean modified = false;
