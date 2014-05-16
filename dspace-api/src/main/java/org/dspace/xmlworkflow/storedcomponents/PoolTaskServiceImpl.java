@@ -35,10 +35,12 @@ public class PoolTaskServiceImpl implements PoolTaskService {
     {
     }
 
+    @Override
     public PoolTask find(Context context, int id) throws SQLException {
         return poolTaskDAO.findByID(context, PoolTask.class, id);
     }
 
+    @Override
     public List<PoolTask> findByEPerson(Context context, EPerson ePerson) throws SQLException
     {
         List<PoolTask> result = poolTaskDAO.findByEPerson(context, ePerson);
@@ -48,6 +50,7 @@ public class PoolTaskServiceImpl implements PoolTaskService {
         return result;
     }
 
+    @Override
     public List<PoolTask> findByGroups(Context context, EPerson ePerson, List<Group> groups) throws SQLException {
         List<PoolTask> result = new ArrayList<PoolTask>();
         for (Group group : groups) {
@@ -62,10 +65,12 @@ public class PoolTaskServiceImpl implements PoolTaskService {
         return result;
     }
 
+    @Override
     public List<PoolTask> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         return poolTaskDAO.findByWorkflowItem(context, workflowItem);
     }
 
+    @Override
     public PoolTask findByWorkflowItemAndEPerson(Context context, XmlWorkflowItem workflowItem, EPerson ePerson) throws SQLException
     {
         PoolTask poolTask = poolTaskDAO.findByWorkflowItemAndEPerson(context, workflowItem, ePerson);
@@ -95,10 +100,12 @@ public class PoolTaskServiceImpl implements PoolTaskService {
         }
         return null;
     }
+    @Override
     public PoolTask create(Context context) throws SQLException {
         return poolTaskDAO.create(context, new PoolTask());
     }
 
+    @Override
     public void deleteByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         List<PoolTask> tasks = findByWorkflowItem(context, workflowItem);
         //Use an iterator to remove the tasks !
@@ -110,12 +117,14 @@ public class PoolTaskServiceImpl implements PoolTaskService {
         }
     }
 
+    @Override
     public void delete(Context context, PoolTask poolTask) throws SQLException
     {
         poolTaskDAO.delete(context, poolTask);
     }
 
 
+    @Override
     public void update(Context context, PoolTask poolTask) throws SQLException {
         poolTaskDAO.save(context, poolTask);
     }

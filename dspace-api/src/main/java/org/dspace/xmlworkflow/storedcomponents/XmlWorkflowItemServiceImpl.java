@@ -50,6 +50,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     public XmlWorkflowItemServiceImpl() {
     }
 
+    @Override
     public XmlWorkflowItem create(Context context, Item item, Collection collection) throws SQLException {
         XmlWorkflowItem xmlWorkflowItem = xmlWorkflowItemDAO.create(context, new XmlWorkflowItem());
         xmlWorkflowItem.setItem(item);
@@ -68,6 +69,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      *
      * @return the workflow item, or null if the ID is invalid.
      */
+    @Override
     public XmlWorkflowItem find(Context context, int id) throws SQLException {
         XmlWorkflowItem workflowItem = xmlWorkflowItemDAO.findByID(context, XmlWorkflowItem.class, id);
 
@@ -97,6 +99,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      * @param context  active context
      * @return WorkflowItem list of all workflow items in the system
      */
+    @Override
     public List<XmlWorkflowItem> findAll(Context context) throws SQLException
     {
         return xmlWorkflowItemDAO.findAll(context, XmlWorkflowItem.class);
@@ -108,6 +111,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      * @param context  active context
      * @return WorkflowItem [] of all workflows in system
      */
+    @Override
     public List<XmlWorkflowItem> findAll(Context context, int page, int pagesize) throws SQLException {
         return findAllInCollection(context, page, pagesize, null);
     }
@@ -118,6 +122,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      * @param context  active context
      * @return WorkflowItem [] of all workflows in system
      */
+    @Override
     public List<XmlWorkflowItem> findAllInCollection(Context context, int page, int pagesize, Collection collection) throws SQLException {
         return xmlWorkflowItemDAO.findAllInCollection(context, page, pagesize, collection);
     }
@@ -129,6 +134,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      * @param context  active context
      * @return WorkflowItem [] of all workflows in system
      */
+    @Override
     public int countAll(Context context) throws SQLException {
         return xmlWorkflowItemDAO.countAll(context);
     }
@@ -139,6 +145,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      * @param context  active context
      * @return WorkflowItem [] of all workflows in system
      */
+    @Override
     public int countAllInCollection(Context context, Collection collection) throws SQLException
     {
         return xmlWorkflowItemDAO.countAllInCollection(context, collection);
@@ -148,6 +155,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     /*
      * Returns all workflow items submitted by an eperson
      */
+    @Override
     public List<XmlWorkflowItem> findBySubmitter(Context context, EPerson ep) throws SQLException {
         return xmlWorkflowItemDAO.findBySubmitter(context, ep);
     }
@@ -162,6 +170,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      *
      * @return array of the corresponding workflow items
      */
+    @Override
     public List<XmlWorkflowItem> findByCollection(Context context, Collection collection) throws SQLException
     {
         return xmlWorkflowItemDAO.findByCollection(context, collection);
@@ -178,6 +187,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
      *
      * @return workflow item corresponding to the item, or null
      */
+    @Override
     public XmlWorkflowItem findByItem(Context context, Item item) throws SQLException{
         return xmlWorkflowItemDAO.findByItem(context, item);
     }
@@ -196,6 +206,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     /**
      * Update the workflow item, including the unarchived item.
      */
+    @Override
     public void update(Context context, XmlWorkflowItem workflowItem) throws SQLException, AuthorizeException {
         // FIXME check auth
         log.info(LogManager.getHeader(context, "update_workflow_item",
@@ -210,6 +221,7 @@ public class XmlWorkflowItemServiceImpl implements XmlWorkflowItemService {
     /**
      * delete the WorkflowItem, retaining the Item
      */
+    @Override
     public void deleteWrapper(Context context, XmlWorkflowItem workflowItem) throws SQLException, AuthorizeException {
         List<WorkflowItemRole> roles = workflowItemRoleService.findByWorkflowItem(context, workflowItem);
         Iterator<WorkflowItemRole> workflowItemRoleIterator = roles.iterator();

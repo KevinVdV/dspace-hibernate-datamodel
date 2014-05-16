@@ -21,7 +21,7 @@ import java.util.List;
  * Date: 23/04/14
  * Time: 12:56
  */
-public class HarvestedCollectionServiceImpl {
+public class HarvestedCollectionServiceImpl implements HarvestedCollectionService{
 
     @Autowired(required = true)
     protected HarvestedCollectionDAO harvestedCollectionDAO;
@@ -40,6 +40,7 @@ public class HarvestedCollectionServiceImpl {
      *
      * @return a HarvestInstance object corresponding to this collection's settings, null if not found.
      */
+    @Override
     public HarvestedCollection findByCollection(Context context, Collection collection) throws SQLException {
         return harvestedCollectionDAO.findByCollection(context, collection);
     }
@@ -49,6 +50,7 @@ public class HarvestedCollectionServiceImpl {
      *
      * @return a new HarvestInstance object
      */
+    @Override
     public HarvestedCollection create(Context context, Collection collection) throws SQLException {
         HarvestedCollection harvestedCollection = harvestedCollectionDAO.create(context, new HarvestedCollection());
         harvestedCollection.setCollection(collection);
@@ -62,6 +64,7 @@ public class HarvestedCollectionServiceImpl {
      * options are set up correctly. This is distinct from "ready", since this collection may
      * be in process of being harvested.
      */
+    @Override
     public boolean isHarvestable(Context c, Collection collection) throws SQLException {
         HarvestedCollection hc = findByCollection(c, collection);
         return hc != null && hc.getHarvestType() > 0 && hc.getOaiSource() != null && hc.getOaiSetId() != null &&
@@ -73,6 +76,7 @@ public class HarvestedCollectionServiceImpl {
      * options are set up correctly. This is distinct from "ready", since this collection may
      * be in process of being harvested.
      */
+    @Override
     public boolean isHarvestable(HarvestedCollection harvestedCollection) throws SQLException {
         if (harvestedCollection.getHarvestType() > 0 && harvestedCollection.getOaiSource() != null && harvestedCollection.getOaiSetId() != null &&
                 harvestedCollection.getHarvestStatus() != HarvestedCollectionService.STATUS_UNKNOWN_ERROR) {
@@ -85,11 +89,13 @@ public class HarvestedCollectionServiceImpl {
     /**
      * Returns whether the specified collection is ready for immediate harvest.
      */
+    @Override
     public boolean isReady(Context context, Collection collection) throws SQLException {
         HarvestedCollection harvestedCollection = findByCollection(context, collection);
         return isReady(harvestedCollection);
     }
 
+    @Override
     public boolean isReady(HarvestedCollection harvestedCollection) throws SQLException {
         if (isHarvestable(harvestedCollection) && (harvestedCollection.getHarvestStatus() == HarvestedCollectionService.STATUS_READY || harvestedCollection.getHarvestStatus() == HarvestedCollectionService.STATUS_OAI_ERROR)) {
             return true;
@@ -106,6 +112,7 @@ public class HarvestedCollectionServiceImpl {
      *
      * @throws SQLException
      */
+    @Override
     public List<HarvestedCollection> findAll(Context context) throws SQLException {
         return harvestedCollectionDAO.findAll(context, HarvestedCollection.class);
     }
@@ -117,6 +124,7 @@ public class HarvestedCollectionServiceImpl {
      *
      * @throws SQLException
      */
+    @Override
     public List<HarvestedCollection> findReady(Context context) throws SQLException {
         int harvestInterval = ConfigurationManager.getIntProperty("oai", "harvester.harvestFrequency");
         if (harvestInterval == 0) {
@@ -153,6 +161,7 @@ public class HarvestedCollectionServiceImpl {
      * @param status see HarvestInstance.STATUS_...
      * @throws SQLException
      */
+    @Override
     public List<HarvestedCollection> findByStatus(Context context, int status) throws SQLException {
         return harvestedCollectionDAO.findByStatus(context, status);
     }
@@ -163,6 +172,7 @@ public class HarvestedCollectionServiceImpl {
      *
      * @throws SQLException
      */
+    @Override
     public HarvestedCollection findOldestHarvest(Context context) throws SQLException {
         return harvestedCollectionDAO.findByStatusAndMinimalTypeOrderByLastHarvestedAsc(context, HarvestedCollectionService.STATUS_READY, HarvestedCollectionService.TYPE_NONE, 1);
     }
@@ -172,6 +182,7 @@ public class HarvestedCollectionServiceImpl {
      *
      * @throws SQLException
      */
+    @Override
     public HarvestedCollection findNewestHarvest(Context context) throws SQLException {
         return harvestedCollectionDAO.findByStatusAndMinimalTypeOrderByLastHarvestedDesc(context, HarvestedCollectionService.STATUS_READY, HarvestedCollectionService.TYPE_NONE, 1);
     }
@@ -180,6 +191,7 @@ public class HarvestedCollectionServiceImpl {
     /**
      * A function to set all harvesting-related parameters at once
      */
+    @Override
     public void setHarvestParams(HarvestedCollection harvestedCollection, int type, String oaiSource, String oaiSetId, String mdConfigId) {
         harvestedCollection.setHarvestType(type);
         harvestedCollection.setOaiSource(oaiSource);
@@ -187,10 +199,12 @@ public class HarvestedCollectionServiceImpl {
         harvestedCollection.setMetadataConfigId(mdConfigId);
     }
 
+    @Override
     public void delete(Context context, HarvestedCollection harvestedCollection) throws SQLException {
         harvestedCollectionDAO.delete(context, harvestedCollection);
     }
 
+    @Override
     public void update(Context context, HarvestedCollection harvestedCollection) throws SQLException {
         harvestedCollectionDAO.save(context, harvestedCollection);
 

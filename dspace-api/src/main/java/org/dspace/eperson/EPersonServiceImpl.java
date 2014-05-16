@@ -76,12 +76,14 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return the EPerson format, or null if the ID is invalid.
      */
+    @Override
     public EPerson find(Context context, int id) throws SQLException
     {
         // First check the cache
         return ePersonDAO.findByID(context, EPerson.class, id);
     }
 
+    @Override
     public String getName(EPerson dso) {
         return dso.getEmail();
     }
@@ -91,6 +93,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return EPerson, or {@code null} if none such exists.
      */
+    @Override
     public EPerson findByEmail(Context context, String email) throws SQLException
     {
         if (email == null)
@@ -112,6 +115,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return corresponding EPerson, or <code>null</code>
      */
+    @Override
     public EPerson findByNetid(Context context, String netid) throws SQLException
     {
         if (netid == null)
@@ -132,6 +136,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return array of EPerson objects
      */
+    @Override
     public List<EPerson> search(Context context, String query) throws SQLException
     {
         return search(context, query, -1, -1);
@@ -152,6 +157,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return array of EPerson objects
      */
+    @Override
     public List<EPerson> search(Context context, String query, int offset, int limit) throws SQLException
     {
         return ePersonDAO.search(context, query, offset, limit);
@@ -168,6 +174,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return the number of epeople matching the query
      */
+    @Override
     public int searchResultCount(Context context, String query) throws SQLException
     {
         return ePersonDAO.searchResultCount(context, query);
@@ -187,6 +194,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return array of EPerson objects
      */
+    @Override
     public List<EPerson> findAll(Context context, int sortField) throws SQLException
     {
         String sortColumn;
@@ -220,6 +228,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      * @param context
      *            DSpace context object
      */
+    @Override
     public EPerson create(Context context) throws SQLException, AuthorizeException
     {
         // authorized?
@@ -244,6 +253,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      * Delete an eperson
      *
      */
+    @Override
     public void delete(Context context, EPerson ePersonEntity) throws SQLException, AuthorizeException, EPersonDeletionException
     {
         // authorized?
@@ -299,6 +309,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      * @param s
      *            the new password.
      */
+    @Override
     public void setPassword(EPerson epersonEntity, String s)
     {
         PasswordHash hash = new PasswordHash(s);
@@ -313,6 +324,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      * @param password
      *          hashed password, or null to set row data to NULL.
      */
+    @Override
     public void setPasswordHash(EPerson epersonEntity, PasswordHash password)
     {
         if (null == password)
@@ -334,6 +346,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return hash of the password, or null on failure (such as no password).
      */
+    @Override
     public PasswordHash getPasswordHash(EPerson ePersonEntity)
     {
         PasswordHash hash = null;
@@ -355,6 +368,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *            the password attempt
      * @return boolean successful/unsuccessful
      */
+    @Override
     public boolean checkPassword(Context context, EPerson ePersonEntity, String attempt)
     {
         PasswordHash myHash;
@@ -391,6 +405,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
         return answer;
     }
 
+    @Override
     public void updateLastModified(Context context, EPerson ePerson) {
         // Not required for eperson
     }
@@ -398,6 +413,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
     /**
      * Update the EPerson
      */
+    @Override
     public void update(Context context, EPerson eperson) throws SQLException, AuthorizeException
     {
         // Check authorisation - if you're not the eperson

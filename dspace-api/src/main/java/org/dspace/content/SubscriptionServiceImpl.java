@@ -63,7 +63,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
      * @param eperson    EPerson to unsubscribe
      * @param collection Collection to unsubscribe from
      */
-    public void unsubscribe(Context context, EPerson eperson,
+    protected void unsubscribe(Context context, EPerson eperson,
                             Collection collection) throws SQLException, AuthorizeException {
         // Check authorisation. Must be administrator, or the eperson.
         if (AuthorizeManager.isAdmin(context)
@@ -94,7 +94,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
      * @param eperson EPerson
      * @return array of collections e-person is subscribed to
      */
-    public List<Subscription> getSubscriptions(Context context, EPerson eperson)
+    protected List<Subscription> getSubscriptions(Context context, EPerson eperson)
             throws SQLException {
 
         return subscriptionDAO.findByEPerson(context, eperson);
@@ -106,7 +106,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
      * @param context DSpace context
      * @return array of collections the currently logged in e-person can subscribe to
      */
-    public List<Collection> getAvailableSubscriptions(Context context)
+    protected List<Collection> getAvailableSubscriptions(Context context)
             throws SQLException {
         return getAvailableSubscriptions(context, null);
     }
@@ -118,7 +118,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
      * @param eperson EPerson
      * @return array of collections e-person can subscribe to
      */
-    public List<Collection> getAvailableSubscriptions(Context context, EPerson eperson)
+    protected List<Collection> getAvailableSubscriptions(Context context, EPerson eperson)
             throws SQLException {
 
         if (eperson != null) {
@@ -135,12 +135,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
      * @param collection find out if subscribed to this collection
      * @return <code>true</code> if they are subscribed
      */
-    public boolean isSubscribed(Context context, EPerson eperson,
+    protected boolean isSubscribed(Context context, EPerson eperson,
                                 Collection collection) throws SQLException {
         return findByCollectionAndEPerson(context, eperson, collection) != null;
     }
 
-    public Subscription findByCollectionAndEPerson(Context context, EPerson eperson, Collection collection) throws SQLException {
+    protected Subscription findByCollectionAndEPerson(Context context, EPerson eperson, Collection collection) throws SQLException {
         return subscriptionDAO.findByCollectionAndEPerson(context, eperson, collection);
     }
 

@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class InProgressUserDAOImpl extends AbstractHibernateDAO<InProgressUser> implements InProgressUserDAO {
 
+    @Override
     public InProgressUser findByWorkflowItemAndEPerson(Context context, XmlWorkflowItem workflowItem, EPerson ePerson) throws SQLException {
         Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(
@@ -30,6 +31,7 @@ public class InProgressUserDAOImpl extends AbstractHibernateDAO<InProgressUser> 
         return uniqueResult(criteria);
     }
 
+    @Override
     public List<InProgressUser> findByEperson(Context context, EPerson ePerson) throws SQLException {
         Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(Restrictions.eq("ePerson", ePerson));
@@ -37,6 +39,7 @@ public class InProgressUserDAOImpl extends AbstractHibernateDAO<InProgressUser> 
         return list(criteria);
     }
 
+    @Override
     public List<InProgressUser> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(Restrictions.eq("workflowItem", workflowItem));
@@ -44,6 +47,7 @@ public class InProgressUserDAOImpl extends AbstractHibernateDAO<InProgressUser> 
         return list(criteria);
     }
 
+    @Override
     public int countInProgressUsers(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(
@@ -56,6 +60,7 @@ public class InProgressUserDAOImpl extends AbstractHibernateDAO<InProgressUser> 
         return count(criteria);
     }
 
+    @Override
     public int countFinishedUsers(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         Criteria criteria = createCriteria(context, InProgressUser.class);
         criteria.add(

@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -49,6 +50,7 @@ public class InstallItemServiceImpl implements InstallItemService
      * 
      * @return the fully archived Item
      */
+    @Override
     public Item installItem(Context c, InProgressSubmission is)
             throws SQLException, IOException, AuthorizeException
     {
@@ -66,6 +68,7 @@ public class InstallItemServiceImpl implements InstallItemService
      * 
      * @return the fully archived Item
      */
+    @Override
     public Item installItem(Context c, InProgressSubmission is, String suppliedHandle) throws SQLException, AuthorizeException
     {
         Item item = is.getItem();
@@ -102,6 +105,7 @@ public class InstallItemServiceImpl implements InstallItemService
      *
      * @return the fully archived Item
      */
+    @Override
     public Item restoreItem(Context c, InProgressSubmission is, String suppliedHandle) throws SQLException, AuthorizeException
     {
         Item item = is.getItem();
@@ -256,6 +260,7 @@ public class InstallItemServiceImpl implements InstallItemService
      * 
      * @return provenance description
      */
+    @Override
     public String getBitstreamProvenanceMessage(Item myitem) throws SQLException
     {
         // Get non-internal format bitstreams

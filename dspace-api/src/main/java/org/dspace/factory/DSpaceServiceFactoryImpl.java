@@ -5,7 +5,6 @@ import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.checker.service.ChecksumHistoryService;
 import org.dspace.checker.service.ChecksumResultService;
 import org.dspace.checker.service.MostRecentChecksumService;
-import org.dspace.content.*;
 import org.dspace.content.service.*;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;

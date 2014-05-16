@@ -94,6 +94,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @return the item, or null if the internal ID is invalid.
      * @throws SQLException
      */
+    @Override
     public Item find(Context context, int id) throws SQLException
     {
         Item item = itemDAO.findByID(context, Item.class, id);
@@ -117,6 +118,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         return item;
     }
 
+    @Override
     public String getName(Item item) {
         List<MetadataValue> titles = getMetadata(item, MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
         if(CollectionUtils.isEmpty(titles))
@@ -139,6 +141,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Item create(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException
     {
         if(workspaceItem.getItem() != null)
@@ -160,6 +163,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Item createTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         if(collection == null || collection.getTemplateItem() != null)
@@ -210,6 +214,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @return an iterator over the items in the archive.
      * @throws SQLException
      */
+    @Override
     public Iterator<Item> findAll(Context context) throws SQLException
     {
         return itemDAO.findAll(context, true);
@@ -224,7 +229,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @return an iterator over the items in the archive.
      * @throws SQLException
      */
-	public Iterator<Item> findAllUnfiltered(Context context) throws SQLException
+	@Override
+    public Iterator<Item> findAllUnfiltered(Context context) throws SQLException
     {
         return itemDAO.findAll(context, true, true);
 	}
@@ -240,6 +246,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @return an iterator over the items submitted by eperson
      * @throws SQLException
      */
+    @Override
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException
     {
         return itemDAO.findBySubmitter(context, eperson);
@@ -260,6 +267,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         return itemDAO.findAllByCollection(context, collection);
     }
 
+    @Override
     public List<MetadataValue> getMetadata(Item item, MetadataField metadataField, String lang)
     {
         return getMetadata(item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), lang);
@@ -311,6 +319,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *            no country code are returned.
      * @return metadata fields that match the parameters
      */
+    @Override
     public List<MetadataValue> getMetadata(Item item, String schema, String element, String qualifier, String lang)
     {
         // Build up list of matching values
@@ -335,6 +344,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *            The metadata string of the form
      *            <schema prefix>.<element>[.<qualifier>|.*]
      */
+    @Override
     public List<MetadataValue> getMetadata(Item item, String mdString)
     {
         StringTokenizer dcf = new StringTokenizer(mdString, ".");
@@ -390,6 +400,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @param values
      *            the values to add.
      */
+    @Override
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, List<String> values) throws SQLException {
         MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
         String fieldKey = MetadataAuthorityManager.makeFieldKey(schema, element, qualifier);
@@ -440,6 +451,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @param confidences
      *            the authority confidence (default 0)
      */
+    @Override
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang,
             List<String> values, List<String> authorities, List<Integer> confidences) throws SQLException {
 
@@ -541,6 +553,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @param value
      *            the value to add.
      */
+    @Override
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier,
             String lang, String value) throws SQLException {
         addMetadata(context, item, schema, element, qualifier, lang, Arrays.asList(value));
@@ -569,6 +582,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @param confidence
      *            the authority confidence (default 0)
      */
+    @Override
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier,
             String lang, String value, String authority, int confidence) throws SQLException {
         addMetadata(context, item, schema, element, qualifier, lang, Arrays.asList(value), Arrays.asList(authority), Arrays.asList(confidence));
@@ -598,6 +612,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *            means values with any country code or no country code are
      *            removed.
      */
+    @Override
     public void clearMetadata(Context context, Item item, String schema, String element, String qualifier,
             String lang) throws SQLException {
         Iterator<MetadataValue> metadata = item.getMetadata().iterator();
@@ -701,6 +716,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @return true if {@code collection} contains this Item.
      * @throws SQLException
      */
+    @Override
     public boolean isIn(Item item, Collection collection) throws SQLException
     {
         List<Collection> collections = item.getCollections();
@@ -740,6 +756,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *
      * @return the bundles in an unordered array
      */
+    @Override
     public List<Bundle> getBundles(Item item, String name) throws SQLException
     {
         List<Bundle> matchingBundles = new ArrayList<Bundle>();
@@ -761,6 +778,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void addBundle(Context context, Item item, Bundle b) throws SQLException, AuthorizeException
     {
         // Check authorisation
@@ -787,6 +805,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         context.addEvent(new Event(Event.ADD, Constants.ITEM, item.getID(), Constants.BUNDLE, b.getID(), b.getName()));
     }
 
+    @Override
     public void removeAllBundles(Context context, Item item) throws AuthorizeException, SQLException, IOException {
         List<Bundle> bundles = item.getBundles();
         for (Bundle bundle : bundles) {
@@ -805,6 +824,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void removeBundle(Context context, Item item, Bundle b) throws SQLException, AuthorizeException, IOException {
         deleteBundle(context,  item, b);
         // We've found the bundle to remove
@@ -835,6 +855,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws IOException
      * @throws SQLException
      */
+    @Override
     public Bitstream createSingleBitstream(Context context, Item item, InputStream is, String name)
             throws AuthorizeException, IOException, SQLException
     {
@@ -859,6 +880,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws IOException
      * @throws SQLException
      */
+    @Override
     public Bitstream createSingleBitstream(Context context, Item item, InputStream is)
             throws AuthorizeException, IOException, SQLException
     {
@@ -872,6 +894,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *
      * @return non-internal bitstreams.
      */
+    @Override
     public List<Bitstream> getNonInternalBitstreams(Item item) throws SQLException
     {
         List<Bitstream> bitstreamList = new ArrayList<Bitstream>();
@@ -905,6 +928,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void removeDSpaceLicense(Context context, Item item) throws SQLException, AuthorizeException,
             IOException
     {
@@ -926,6 +950,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void removeLicenses(Context context, Item item) throws SQLException, AuthorizeException, IOException
     {
         // Find the License format
@@ -959,6 +984,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     /**
      * Method that updates the last modified date of the item
      */
+    @Override
     public void updateLastModified(Context context, Item item) throws SQLException, AuthorizeException {
         item.setLastModified(new Date());
         update(context, item);
@@ -973,6 +999,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void update(Context context, Item item) throws SQLException, AuthorizeException
     {
         // Check authorisation
@@ -1050,6 +1077,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void withdraw(Context context, Item item) throws SQLException, AuthorizeException
     {
         // Check permission. User either has to have REMOVE on owning collection
@@ -1105,6 +1133,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void reinstate(Context context, Item item) throws SQLException, AuthorizeException
     {
         // check authorization
@@ -1165,6 +1194,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @param context
      * @param item
      */
+    @Override
     public void delete(Context context, Item item) throws SQLException, IOException, AuthorizeException {
         // Check authorisation here. If we don't, it may happen that we remove the
         // collections leaving the database in an inconsistent state
@@ -1234,6 +1264,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *            Collection
      * @return true if this Collection owns this item
      */
+    @Override
     public boolean isOwningCollection(Item item, Collection c)
     {
         Collection collection = item.getOwningCollection();
@@ -1257,6 +1288,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void replaceAllItemPolicies(Context context, Item item, List<ResourcePolicy> newpolicies) throws SQLException,
             AuthorizeException
     {
@@ -1275,6 +1307,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void replaceAllBitstreamPolicies(Context context, Item item, List<ResourcePolicy> newpolicies)
             throws SQLException, AuthorizeException
     {
@@ -1295,6 +1328,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *            Group referenced by policies that needs to be removed
      * @throws SQLException
      */
+    @Override
     public void removeGroupPolicies(Context context, Item item, Group g) throws SQLException, AuthorizeException {
         // remove Group's policies from Item
         AuthorizeManager.removeGroupPolicies(context, item, g);
@@ -1327,6 +1361,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *             draconian, but default policies must be enforced.
      * @throws AuthorizeException
      */
+    @Override
     public void inheritCollectionDefaultPolicies(Context context, Item item, Collection c)
             throws java.sql.SQLException, AuthorizeException
     {
@@ -1337,6 +1372,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                                                    "item_id=" + item.getID()));
     }
 
+    @Override
     public void adjustBundleBitstreamPolicies(Context context, Item item, Collection c) throws SQLException, AuthorizeException {
 
         List<ResourcePolicy> defaultCollectionPolicies = AuthorizeManager.getPoliciesActionFilter(context, c, Constants.DEFAULT_BITSTREAM_READ);
@@ -1369,6 +1405,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         }
     }
 
+    @Override
     public void adjustItemPolicies(Context context, Item item, Collection collection) throws SQLException, AuthorizeException {
         // read collection's default READ policies
         List<ResourcePolicy> defaultCollectionPolicies = AuthorizeManager.getPoliciesActionFilter(context, collection, Constants.DEFAULT_ITEM_READ);
@@ -1418,6 +1455,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      *         bitstreams inside
      * @throws SQLException
      */
+    @Override
     public boolean hasUploadedFiles(Item item) throws SQLException
     {
         List<Bundle> bundles = getBundles(item, "ORIGINAL");
@@ -1435,6 +1473,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @return boolean true = current user can edit item
      * @throws SQLException
      */
+    @Override
     public boolean canEdit(Context context, Item item) throws java.sql.SQLException
     {
         // can this person write to the item?
@@ -1454,6 +1493,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws SQLException, AuthorizeException, IOException
      *
      */
+    @Override
     public Iterator<Item> findByMetadataField(Context context, String schema, String element, String qualifier, String value)
           throws SQLException, AuthorizeException
     {
@@ -1478,6 +1518,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         }
      }
     
+    @Override
     public DSpaceObject getAdminObject(Context context, Item item, int action) throws SQLException
     {
         DSpaceObject adminObject = null;
@@ -1600,6 +1641,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @return an iterator over the items matching that authority value
      * @throws SQLException, AuthorizeException, IOException
      */
+    @Override
     public Iterator<Item> findByAuthorityValue(Context context,
             String schema, String element, String qualifier, String value)
         throws SQLException, AuthorizeException

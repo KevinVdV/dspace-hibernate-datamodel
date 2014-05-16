@@ -50,10 +50,12 @@ public class VersionServiceImpl implements VersionService {
 
 
     /** Service Methods */
+    @Override
     public Version createVersion(Context c, Item item){
         return createVersion(c, item, null);
     }
 
+    @Override
     public Version createVersion(Context c, Item item, String summary) {
         try{
             VersionHistory vh = versionHistoryService.findByItem(c, item);
@@ -86,6 +88,7 @@ public class VersionServiceImpl implements VersionService {
         }
     }
 
+    @Override
     public void removeVersion(Context c, int versionID) throws SQLException {
         Version version = find(c, versionID);
         if(version!=null){
@@ -93,6 +96,7 @@ public class VersionServiceImpl implements VersionService {
         }
     }
 
+    @Override
     public void removeVersion(Context c, Item item) throws SQLException {
         Version version = versionDAO.findByItem(c, item);
         if(version!=null){
@@ -125,19 +129,23 @@ public class VersionServiceImpl implements VersionService {
         }
     }
 
+    @Override
     public Version find(Context c, int versionID) throws SQLException {
         return versionDAO.findByID(c, Version.class, versionID);
     }
 
 
+    @Override
     public Version restoreVersion(Context c, int versionID){
         return restoreVersion(c, versionID, null);
     }
 
+    @Override
     public Version restoreVersion(Context c, int versionID, String summary)  {
         return null;
     }
 
+    @Override
     public Version updateVersion(Context c, Item item, String summary) throws SQLException {
         Version version = versionDAO.findByItem(c, item);
         version.setSummary(summary);
@@ -145,12 +153,14 @@ public class VersionServiceImpl implements VersionService {
         return version;
     }
 
+    @Override
     public Version findByItem(Context c, Item item) throws SQLException {
         return versionDAO.findByItem(c, item);
     }
 
 // **** PROTECTED METHODS!!
 
+    @Override
     public Version createVersion(Context c, VersionHistory vh, Item item, String summary, Date date, int versionNumber) {
         try {
             Version version = versionDAO.create(c, new Version());

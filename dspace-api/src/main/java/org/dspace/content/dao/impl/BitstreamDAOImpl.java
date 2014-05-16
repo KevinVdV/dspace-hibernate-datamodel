@@ -20,6 +20,7 @@ import java.util.List;
  */
 public class BitstreamDAOImpl extends AbstractHibernateDAO<Bitstream> implements BitstreamDAO {
 
+    @Override
     public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException {
         Criteria criteria = createCriteria(context, Bitstream.class);
         criteria.add(Restrictions.eq("deleted", true));
@@ -28,6 +29,7 @@ public class BitstreamDAOImpl extends AbstractHibernateDAO<Bitstream> implements
 
     }
 
+    @Override
     public List<Bitstream> findDuplicateInternalIdentifier(Context context, Bitstream bitstream) throws SQLException {
         Criteria criteria = createCriteria(context, Bitstream.class);
         criteria.add(Restrictions.and(

@@ -46,6 +46,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
     {
     }
 
+    @Override
     public WorkflowItem create(Context context, Item item, Collection collection) throws SQLException, AuthorizeException {
         WorkflowItem workflowItem = workflowItemDAO.create(context, new WorkflowItem());
         workflowItem.setItem(item);
@@ -65,6 +66,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      *
      * @return the workflow item, or null if the ID is invalid.
      */
+    @Override
     public WorkflowItem find(Context context, int id)
             throws SQLException
     {
@@ -96,6 +98,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * @param c  active context
      * @return WorkflowItem [] of all workflows in system
      */
+    @Override
     public List<WorkflowItem> findAll(Context c) throws SQLException
     {
         return workflowItemDAO.findAll(c, WorkflowItem.class);
@@ -113,6 +116,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      *
      * @return the corresponding workflow items
      */
+    @Override
     public List<WorkflowItem> findByEPerson(Context context, EPerson ep) throws SQLException
     {
         return workflowItemDAO.findByEPerson(context, ep);
@@ -125,6 +129,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * @param e
      *            The Eperson we want to fetch the pooled tasks for.
      */
+    @Override
     public List<WorkflowItem> findByPooledTasks(Context context, EPerson ePerson) throws SQLException
     {
         return workflowItemDAO.findByPooledTasks(context, ePerson);
@@ -140,6 +145,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      *
      * @return array of the corresponding workflow items
      */
+    @Override
     public List<WorkflowItem> findByCollection(Context context, Collection c) throws SQLException
     {
         return workflowItemDAO.findByCollection(context, c);
@@ -158,6 +164,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      *
      * @return workflow item corresponding to the item, or null
      */
+    @Override
     public WorkflowItem findByItem(Context context, Item i) throws SQLException
     {
         return workflowItemDAO.findByItem(context, i);
@@ -177,6 +184,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
     /**
      * Update the workflow item, including the unarchived item.
      */
+    @Override
     public void update(Context context, WorkflowItem workflowItem) throws SQLException, AuthorizeException
     {
         // FIXME check auth
@@ -194,6 +202,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
     /**
      * delete the WorkflowItem, retaining the Item
      */
+    @Override
     public void deleteWrapper(Context context, WorkflowItem workflowItem) throws SQLException, AuthorizeException
     {
         // delete any pending tasks

@@ -60,6 +60,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
      *
      * @return the ResourcePolicy format, or null if the ID is invalid.
      */
+    @Override
     public ResourcePolicy find(Context context, int id) throws SQLException
     {
         return resourcePolicyDAO.findByID(context, ResourcePolicy.class, id);
@@ -71,6 +72,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
      * @param context
      *            DSpace context object
      */
+    @Override
     public ResourcePolicy create(Context context) throws SQLException, AuthorizeException
     {
         // FIXME: Check authorisation
@@ -80,26 +82,31 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
         return resourcePolicy;
     }
 
+    @Override
     public List<ResourcePolicy> find(Context c, DSpaceObject o) throws SQLException
     {
         return resourcePolicyDAO.findByDso(c, o);
     }
 
 
+    @Override
     public List<ResourcePolicy> find(Context c, DSpaceObject o, String type) throws SQLException
     {
         return resourcePolicyDAO.findByDsoAndType(c, o, type);
     }
 
+    @Override
     public List<ResourcePolicy> find(Context context, Group group) throws SQLException {
         return resourcePolicyDAO.findByGroup(context, group);
     }
 
+    @Override
     public List<ResourcePolicy> find(Context c, DSpaceObject o, int actionId) throws SQLException
     {
         return resourcePolicyDAO.findByDSoAndAction(c, o, actionId);
     }
 
+    @Override
     public List<ResourcePolicy> find(Context c, int dsoType, int dsoID, Group group, int action, int notPolicyID) throws SQLException {
         return resourcePolicyDAO.findByTypeIdGroupAction(c, dsoType, dsoID, group, action, notPolicyID);
     }
@@ -108,6 +115,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
      * Delete an ResourcePolicy
      *
      */
+    @Override
     public void delete(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException {
         if(resourcePolicy.getResourceID() != -1 && resourcePolicy.getResourceType() != -1)
         {
@@ -128,6 +136,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
      * set both type and id of resource referred to by policy
      *
      */
+    @Override
     public void setResource(ResourcePolicy resourcePolicy, DSpaceObject o)
     {
         resourcePolicy.setResourceType(o.getType());
@@ -137,6 +146,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
     /**
      * @return action text or 'null' if action row empty
      */
+    @Override
     public String getActionText(ResourcePolicy resourcePolicy)
     {
         int myAction = resourcePolicy.getAction();
@@ -156,6 +166,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
      * @return true if policy has begun and hasn't expired yet (or no dates are
      *         set)
      */
+    @Override
     public boolean isDateValid(ResourcePolicy resourcePolicy)
     {
         Date sd = resourcePolicy.getStartDate();
@@ -188,32 +199,38 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
         return true; // date must be okay
     }
 
+    @Override
     public void removeAllPolicies(Context c, DSpaceObject o) throws SQLException, AuthorizeException {
         // FIXME: authorization check?
         serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
         resourcePolicyDAO.deleteByDso(c, o);
     }
 
+    @Override
     public void removePolicies(Context c, DSpaceObject o, String type) throws SQLException, AuthorizeException {
         serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
         resourcePolicyDAO.deleteByDsoAndType(c, o, type);
     }
 
+    @Override
     public void removeDsoGroupPolicies(Context context, DSpaceObject dso, Group group) throws SQLException, AuthorizeException {
         serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
         resourcePolicyDAO.deleteByDsoGroupPolicies(context, dso, group);
     }
 
+    @Override
     public void removeDsoEPersonPolicies(Context context, DSpaceObject dso, EPerson ePerson) throws SQLException, AuthorizeException {
         serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
         resourcePolicyDAO.deleteByDsoEPersonPolicies(context, dso, ePerson);
 
     }
 
+    @Override
     public void removeGroupPolicies(Context c, Group group) throws SQLException {
         resourcePolicyDAO.deleteByGroup(c, group);
     }
 
+    @Override
     public void removePolicies(Context c, DSpaceObject o, int actionId) throws SQLException, AuthorizeException {
         if (actionId == -1)
         {
@@ -224,6 +241,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
         }
     }
 
+    @Override
     public void removeDsoAndTypeNotEqualsToPolicies(Context c, DSpaceObject o, String type) throws SQLException, AuthorizeException {
         serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
         resourcePolicyDAO.deleteByDsoAndTypeNotEqualsTo(c, o, type);
@@ -233,6 +251,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
     /**
      * Update the ResourcePolicy
      */
+    @Override
     public void update(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException {
         if(resourcePolicy.getResourceID() != -1 && resourcePolicy.getResourceType() != -1){
             //A policy for a DSpace Object has been modified, fire a modify event on the DSpace object

@@ -56,6 +56,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
      * @throws SQLException
      * @throws NonUniqueMetadataException
      */
+    @Override
     public MetadataField create(Context context, MetadataSchema metadataSchema, String element, String qualifier, String scopeNote) throws IOException, AuthorizeException,
             SQLException, NonUniqueMetadataException
     {
@@ -96,6 +97,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
      * @return recalled metadata field
      * @throws SQLException
      */
+    @Override
     public MetadataField findByElement(Context context, MetadataSchema metadataSchema,
             String element, String qualifier) throws SQLException
     {
@@ -109,6 +111,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
      * @return an array of all the Dublin Core types
      * @throws SQLException
      */
+    @Override
     public List<MetadataField> findAll(Context context) throws SQLException
     {
         return metadataFieldDAO.findAll(context, MetadataField.class);
@@ -122,6 +125,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
      * @return array of metadata fields
      * @throws SQLException
      */
+    @Override
     public List<MetadataField> findAllInSchema(Context context, String schema)
             throws SQLException
     {
@@ -137,6 +141,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
      * @throws NonUniqueMetadataException
      * @throws IOException
      */
+    @Override
     public void update(Context context, MetadataField metadataField) throws SQLException,
             AuthorizeException, NonUniqueMetadataException, IOException
     {
@@ -168,6 +173,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void delete(Context context, MetadataField metadataField) throws SQLException, AuthorizeException
     {
         // Check authorisation: Only admins may create DC types
@@ -208,6 +214,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
      * @param qualifier
      * @return HTML FORM key
      */
+    @Override
     public String formKey(String schema, String element, String qualifier)
     {
         if (qualifier == null)
@@ -231,6 +238,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
      * @return the metadata field object
      * @throws SQLException
      */
+    @Override
     public MetadataField find(Context context, int id) throws SQLException
     {
         return metadataFieldDAO.findByID(context, MetadataField.class, id);

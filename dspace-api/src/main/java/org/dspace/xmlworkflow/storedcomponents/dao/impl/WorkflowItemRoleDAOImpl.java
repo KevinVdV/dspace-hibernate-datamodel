@@ -20,6 +20,7 @@ import java.util.List;
  */
 public class WorkflowItemRoleDAOImpl extends AbstractHibernateDAO<WorkflowItemRole> implements WorkflowItemRoleDAO {
 
+    @Override
     public WorkflowItemRole findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException {
         Criteria criteria = createCriteria(context, WorkflowItemRole.class);
         criteria.add(Restrictions.and(
@@ -31,6 +32,7 @@ public class WorkflowItemRoleDAOImpl extends AbstractHibernateDAO<WorkflowItemRo
         return uniqueResult(criteria);
     }
 
+    @Override
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         Criteria criteria = createCriteria(context, WorkflowItemRole.class);
         criteria.add(Restrictions.eq("workflowItem", workflowItem));

@@ -79,6 +79,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param context
      *            DSpace context object
      */
+    @Override
     public Group create(Context context) throws SQLException, AuthorizeException
     {
         // FIXME - authorization?
@@ -106,6 +107,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param e
      *            eperson
      */
+    @Override
     public void addMember(Context context, Group groupEntity, EPerson e)
     {
         if (isMember(groupEntity, e))
@@ -121,6 +123,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *
      * @param groupParent the group to which we add the group
      */
+    @Override
     public void addMember(Context context, Group groupParent, Group groupChild)
     {
         // don't add if it's already a member
@@ -140,6 +143,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *
      * @param owningGroup
      */
+    @Override
     public void removeMember(Context context, Group owningGroup, EPerson childPerson)
     {
         if (owningGroup.remove(childPerson))
@@ -153,6 +157,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *
      * @param owningGroup
      */
+    @Override
     public void removeMember(Context context, Group owningGroup, Group childGroup)
     {
         if (owningGroup.remove(childGroup))
@@ -168,6 +173,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param e
      *            eperson to check membership
      */
+    @Override
     public boolean isMember(Group group, EPerson e)
     {
         // special, group 0 is anonymous
@@ -181,6 +187,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param owningGroup
      *            group to check
      */
+    @Override
     public boolean isMember(Group owningGroup, Group childGroup)
     {
         return owningGroup.contains(childGroup);
@@ -196,6 +203,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param group
      *            group to check
      */
+    @Override
     public boolean isMember(Context c, Group group) throws SQLException
     {
         if (group == null)
@@ -217,6 +225,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param groupid
      *            group ID to check
      */
+    @Override
     public boolean isMember(Context c, int groupid) throws SQLException
     {
         // special, everyone is member of group 0 (anonymous)
@@ -237,6 +246,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param e
      * @throws SQLException
      */
+    @Override
     public List<Group> allMemberGroups(Context c, EPerson e) throws SQLException
     {
         Set<Group> groups = new HashSet<Group>();
@@ -289,6 +299,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @return   Array of EPerson objects
      * @throws SQLException
      */
+    @Override
     public List<EPerson> allMembers(Context c, Group g) throws SQLException
     {
         // two queries - first to get all groups which are a member of this group
@@ -323,12 +334,14 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param context
      * @param id
      */
+    @Override
     public Group find(Context context, int id) throws SQLException
     {
         // First check the cache
         return groupDAO.findByID(context, Group.class, id);
     }
 
+    @Override
     public String getName(Group dso) {
         return dso.getNameInternal();
     }
@@ -341,6 +354,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *
      * @return the named Group, or null if not found
      */
+    @Override
     public Group findByName(Context context, String name) throws SQLException
     {
         if(name == null)
@@ -362,6 +376,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *
      * @return array of all groups in the site
      */
+    @Override
     public List<Group> findAll(Context context, int sortField) throws SQLException
     {
         String s;
@@ -398,6 +413,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *
      * @return array of Group objects
      */
+    @Override
     public List<Group> search(Context context, String query, int offset, int limit) throws SQLException
     {
         return groupDAO.search(context, query, offset, limit);
@@ -414,6 +430,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *
      * @return the number of groups matching the query
      */
+    @Override
     public int searchResultCount(Context context, String query) throws SQLException
     {
         return groupDAO.searchResultCount(context, query);
@@ -424,6 +441,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * Delete a group
      *
      */
+    @Override
     public void delete(Context context, Group groupEntity) throws SQLException, AuthorizeException {
         // FIXME: authorizations
 
@@ -445,6 +463,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     /**
      * Return true if group has no direct or indirect members
      */
+    @Override
     public boolean isEmpty(Group groupEntity)
     {
         // the only fast check available is on epeople...
@@ -467,6 +486,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
         }
     }
 
+    @Override
     public void updateLastModified(Context context, Group group) {
         //Not required for groups
     }
@@ -474,6 +494,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     /**
      * Update the group - writing out group object and EPerson list if necessary
      */
+    @Override
     public void update(Context context, Group group) throws SQLException, AuthorizeException
     {
         // FIXME: Check authorisation
@@ -531,6 +552,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
         return myChildren;
     }
 
+    @Override
     public DSpaceObject getParentObject(Context context, Group group) throws SQLException
     {
         if(group == null)

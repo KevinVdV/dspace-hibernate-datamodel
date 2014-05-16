@@ -66,6 +66,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @return the bitstream, or null if the ID is invalid.
      * @throws SQLException
      */
+    @Override
     public Bitstream find(Context context, int id) throws SQLException
     {
         // First check the cache
@@ -92,10 +93,12 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         return bitstream;
     }
 
+    @Override
     public String getName(Bitstream dso) {
         return dso.getNameInternal();
     }
 
+    @Override
     public List<Bitstream> findAll(Context context) throws SQLException
     {
         return bitstreamDAO.findAll(context, Bitstream.class);
@@ -116,6 +119,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @throws IOException
      * @throws SQLException
      */
+    @Override
     public Bitstream create(Context context, InputStream is)
             throws IOException, SQLException, AuthorizeException {
         // Store the bits
@@ -141,6 +145,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      *
      * @return the newly created bitstream
      */
+    @Override
     public Bitstream create(Context context, Bundle bundle, InputStream is) throws AuthorizeException,
             IOException, SQLException
     {
@@ -162,6 +167,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @throws IOException
      * @throws SQLException
      */
+    @Override
     public Bitstream register(Context context, Bundle bundle, int assetstore, String bitstreamPath)
         throws AuthorizeException, IOException, SQLException
     {
@@ -187,6 +193,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @throws IOException
      * @throws SQLException
      */
+    @Override
     public Bitstream register(Context context,
     		int assetstore, String bitstreamPath)
             throws IOException, SQLException, AuthorizeException {
@@ -207,10 +214,12 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         return bitstream;
     }
 
+    @Override
     public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException {
         return bitstreamDAO.findDeletedBitstreams(context);
     }
 
+    @Override
     public List<Bitstream> findDuplicateInternalIdentifier(Context context, Bitstream bitstream) throws SQLException {
         return bitstreamDAO.findDuplicateInternalIdentifier(context, bitstream);
     }
@@ -241,6 +250,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      *            the user's description of the format
      * @throws SQLException
      */
+    @Override
     public void setUserFormatDescription(Context context, Bitstream bitstream, String desc) throws SQLException
     {
         // FIXME: Would be better if this didn't throw an SQLException,
@@ -255,6 +265,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * 
      * @return a description of the format.
      */
+    @Override
     public String getFormatDescription(Bitstream bitstream)
     {
         if (bitstream.getFormat().getShortDescription().equals("Unknown"))
@@ -284,6 +295,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      *            unknown
      * @throws SQLException
      */
+    @Override
     public void setFormat(Context context, Bitstream bitstream, BitstreamFormat f) throws SQLException
     {
         // FIXME: Would be better if this didn't throw an SQLException,
@@ -301,6 +313,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         bitstream.setFormat(f);
     }
 
+    @Override
     public void updateLastModified(Context context, Bitstream bitstream) {
         //Fire a modified event since the bitstream HAS been modified
         context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, bitstream.getID(), null));
@@ -313,6 +326,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void update(Context context, Bitstream bitstream) throws SQLException, AuthorizeException
     {
         // Check authorisation
@@ -341,6 +355,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * 
      * @throws SQLException
      */
+    @Override
     public void delete(Context context, Bitstream bitstream) throws SQLException, AuthorizeException {
         bitstream.setBundles(null);
         // changed to a check on remove
@@ -368,6 +383,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public InputStream retrieve(Context context, Bitstream bitstream) throws IOException, SQLException,
             AuthorizeException
     {
@@ -382,6 +398,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * 
      * @return true if the bitstream is registered, false otherwise
      */
+    @Override
     public boolean isRegisteredBitstream(Bitstream bitstream) {
         return BitstreamStorageManager
 				.isRegisteredBitstream(bitstream.getInternalId());
@@ -400,6 +417,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @return this bitstream's parent.
      * @throws SQLException
      */    
+    @Override
     public DSpaceObject getParentObject(Context context, Bitstream bitstream) throws SQLException
     {
         List<Bundle> bundles = bitstream.getBundles();

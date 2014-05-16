@@ -57,6 +57,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
      * @throws AuthorizeException
      * @throws NonUniqueMetadataException
      */
+    @Override
     public MetadataSchema create(Context context, String name, String namespace) throws SQLException,
             AuthorizeException, NonUniqueMetadataException
     {
@@ -101,6 +102,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
      * @return metadata schema object or null if none found.
      * @throws SQLException
      */
+    @Override
     public MetadataSchema findByNamespace(Context context, String namespace) throws SQLException
     {
         return metadataSchemaDAO.findByNamespace(context, namespace);
@@ -114,6 +116,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
      * @throws AuthorizeException
      * @throws NonUniqueMetadataException
      */
+    @Override
     public void update(Context context, MetadataSchema metadataSchema) throws SQLException,
             AuthorizeException, NonUniqueMetadataException
     {
@@ -150,6 +153,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void delete(Context context, MetadataSchema metadataSchema) throws SQLException, AuthorizeException
     {
         // Check authorisation: Only admins may create DC types
@@ -172,6 +176,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
      * @return array of metadata schemas
      * @throws SQLException
      */
+    @Override
     public List<MetadataSchema> findAll(Context context) throws SQLException
     {
         return metadataSchemaDAO.findAll(context, MetadataSchema.class);
@@ -217,6 +222,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
      * @return the metadata schema object
      * @throws SQLException
      */
+    @Override
     public MetadataSchema find(Context context, int id) throws SQLException
     {
         return metadataSchemaDAO.findByID(context,  MetadataSchema.class, id);
@@ -232,6 +238,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
      * @return the metadata schema object
      * @throws SQLException
      */
+    @Override
     public MetadataSchema find(Context context, String shortName) throws SQLException
     {
                 // If we are not passed a valid schema name then return

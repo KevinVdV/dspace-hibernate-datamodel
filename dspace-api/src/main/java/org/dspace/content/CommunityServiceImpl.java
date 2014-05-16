@@ -76,6 +76,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return the community, or null if the ID is invalid.
      */
+    @Override
     public Community find(Context context, int id) throws SQLException
     {
 
@@ -99,6 +100,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         return community;
     }
 
+    @Override
     public String getName(Community community) {
         return community.getNameInternal();
     }
@@ -111,6 +113,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return the newly created community
      */
+    @Override
     public Community create(Context context, Community parent)
             throws SQLException, AuthorizeException
     {
@@ -126,6 +129,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      *
      * @return the newly created community
      */
+    @Override
     public Community create(Context context, Community parent, String handle)
             throws SQLException, AuthorizeException
     {
@@ -191,6 +195,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return the communities in the system
      */
+    @Override
     public List<Community> findAll(Context context) throws SQLException
     {
         return communityDAO.findAll(context, "name");
@@ -206,6 +211,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return the top-level communities in the system
      */
+    @Override
     public List<Community> findAllTop(Context context) throws SQLException
     {
         // get all communities that are not children
@@ -227,6 +233,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      *                if the requested metadata field doesn't exist
      * @exception MissingResourceException
      */
+    @Override
     public void setName(Community community, String value)throws MissingResourceException
     {
         if (StringUtils.isBlank(value))
@@ -256,6 +263,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @return   the new logo bitstream, or <code>null</code> if there is no
      *           logo (<code>null</code> was passed in)
      */
+    @Override
     public Bitstream createLogo(Context context, Community community, InputStream is) throws AuthorizeException,
             IOException, SQLException
     {
@@ -295,6 +303,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         return community.getLogo();
     }
 
+    @Override
     public void updateLastModified(Context context, Community community)
     {
         //Also fire a modified event since the community HAS been modified
@@ -304,6 +313,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     /**
      * Update the community metadata (including logo) to the database.
      */
+    @Override
     public void update(Context context, Community community) throws SQLException, AuthorizeException
     {
         // Check authorisation
@@ -335,6 +345,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Group createAdministrators(Context context, Community community) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin to create more Admins
@@ -365,6 +376,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * administrators group from the community so that it may be deleted 
      * without violating database constraints.
      */
+    @Override
     public void removeAdministrators(Context context, Community community) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin of the parent community (or system admin) to delete Admin group
@@ -407,6 +419,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return an array of collections
      */
+    @Override
     public List<Collection> getAllCollections(Community community) throws SQLException
     {
         List<Collection> collectionList = new ArrayList<Collection>();
@@ -448,6 +461,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @param collection
      *            collection to add
      */
+    @Override
     public void addCollection(Context context, Community community, Collection collection) throws SQLException,
             AuthorizeException
     {
@@ -469,6 +483,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return the new community
      */
+    @Override
     public Community createSubcommunity(Context context, Community parentCommunity) throws SQLException,
             AuthorizeException
     {
@@ -481,6 +496,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @param handle the pre-determined Handle to assign to the new community
      * @return the new community
      */
+    @Override
     public Community createSubcommunity(Context context, Community parentCommunity, String handle) throws SQLException,
             AuthorizeException
     {
@@ -499,6 +515,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @param childCommunity
      *            subcommunity to add
      */
+    @Override
     public void addSubcommunity(Context context, Community parentCommunity, Community childCommunity) throws SQLException,
             AuthorizeException
     {
@@ -522,6 +539,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @param c
      *            collection to remove
      */
+    @Override
     public void removeCollection(Context context, Community community, Collection c) throws SQLException,
             AuthorizeException, IOException
     {
@@ -548,6 +566,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @param childCommunity
      *            subcommunity to remove
      */
+    @Override
     public void removeSubcommunity(Context context, Community parentCommunity, Community childCommunity) throws SQLException,
             AuthorizeException, IOException
     {
@@ -566,6 +585,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * Delete the community, including the metadata and logo. Collections and
      * subcommunities that are then orphans are deleted.
      */
+    @Override
     public void delete(Context context, Community community) throws SQLException, AuthorizeException, IOException
     {
         // Check authorisation
@@ -653,6 +673,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * 
      * @return boolean true = current user can edit community
      */
+    @Override
     public boolean canEditBoolean(Context context, Community community) throws java.sql.SQLException
     {
         try
@@ -667,6 +688,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         }
     }
 
+    @Override
     public void canEdit(Context context, Community community) throws AuthorizeException, SQLException
     {
         List<Community> parents = getAllParents(context, community);

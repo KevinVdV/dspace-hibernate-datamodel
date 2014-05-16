@@ -49,6 +49,7 @@ public class IdentifierServiceImpl implements IdentifierService {
      * @param context dspace context
      * @param dso dspace object
      */
+    @Override
     public void reserve(Context context, DSpaceObject dso) throws AuthorizeException, SQLException, IdentifierException {
         for (IdentifierProvider service : providers)
         {
@@ -126,6 +127,7 @@ public class IdentifierServiceImpl implements IdentifierService {
         return null;
     }
 
+    @Override
     public DSpaceObject resolve(Context context, String identifier) throws IdentifierNotFoundException, IdentifierNotResolvableException{
         for (IdentifierProvider service : providers)
         {
@@ -146,6 +148,7 @@ public class IdentifierServiceImpl implements IdentifierService {
         return null;
     }
 
+    @Override
     public void delete(Context context, DSpaceObject dso) throws AuthorizeException, SQLException, IdentifierException {
        for (IdentifierProvider service : providers)
        {

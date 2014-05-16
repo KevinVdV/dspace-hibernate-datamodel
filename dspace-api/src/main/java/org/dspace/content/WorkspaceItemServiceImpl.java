@@ -66,6 +66,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      *
      * @return the workspace item, or null if the ID is invalid.
      */
+    @Override
     public WorkspaceItem find(Context context, int id) throws SQLException
     {
         // First check the cache
@@ -104,6 +105,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      *
      * @return the newly created workspace item
      */
+    @Override
     public WorkspaceItem create(Context c, Collection coll, boolean template) throws AuthorizeException, SQLException,
             IOException {
         // Check the user has permission to ADD to the collection
@@ -235,6 +237,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
         return workspaceItem;
     }
 
+    @Override
     public WorkspaceItem create(Context c, Collection coll, InProgressSubmission workflowItem) throws AuthorizeException, SQLException, IOException {
         if(workflowItem instanceof WorkspaceItem)
         {
@@ -259,6 +262,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      *
      * @return the corresponding workspace items
      */
+    @Override
     public List<WorkspaceItem> findByEPerson(Context context, EPerson ep) throws SQLException
     {
         return workspaceItemDAO.findByEPerson(context, ep);
@@ -275,6 +279,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      *
      * @return the corresponding workspace items
      */
+    @Override
     public List<WorkspaceItem> findByCollection(Context context, Collection c) throws SQLException
     {
         return workspaceItemDAO.findByCollection(context, c);
@@ -291,6 +296,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      *
      * @return workflow item corresponding to the item, or null
      */
+    @Override
     public WorkspaceItem findByItem(Context context, Item i)
             throws SQLException
     {
@@ -305,6 +311,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      *
      * @return      all workspace items
      */
+    @Override
     public List<WorkspaceItem> findAll(Context context) throws SQLException
     {
         return workspaceItemDAO.findAll(context);
@@ -313,6 +320,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
     /**
      * Update the workspace item, including the unarchived item.
      */
+    @Override
     public void update(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException
     {
         // Authorisation is checked by the item.update() method below
@@ -337,6 +345,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
      * item and its contents are all removed (multiple inclusion
      * notwithstanding.)
      */
+    @Override
     public void delete(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException,
             IOException
     {
@@ -396,6 +405,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
 
     }*/
 
+    @Override
     public void deleteWrapper(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException
     {
         // Check authorisation. We check permissions on the enclosed item.

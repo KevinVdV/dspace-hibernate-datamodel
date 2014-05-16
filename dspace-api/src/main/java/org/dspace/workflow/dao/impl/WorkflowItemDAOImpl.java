@@ -22,6 +22,7 @@ import java.util.List;
 public class WorkflowItemDAOImpl extends AbstractHibernateDAO<WorkflowItem> implements WorkflowItemDAO {
 
 
+    @Override
     public WorkflowItem findByItem(Context context, Item i) throws SQLException {
         Criteria criteria = createCriteria(context, WorkflowItem.class);
         criteria.add(Restrictions.eq("item", i));
@@ -29,6 +30,7 @@ public class WorkflowItemDAOImpl extends AbstractHibernateDAO<WorkflowItem> impl
         return uniqueResult(criteria);
     }
 
+    @Override
     public List<WorkflowItem> findByEPerson(Context context, EPerson ep) throws SQLException
     {
         Criteria criteria = createCriteria(context, WorkflowItem.class);
@@ -37,6 +39,7 @@ public class WorkflowItemDAOImpl extends AbstractHibernateDAO<WorkflowItem> impl
 
     }
 
+    @Override
     public List<WorkflowItem> findByCollection(Context context, Collection c) throws SQLException
     {
         Criteria criteria = createCriteria(context, WorkflowItem.class);
@@ -44,6 +47,7 @@ public class WorkflowItemDAOImpl extends AbstractHibernateDAO<WorkflowItem> impl
         return list(criteria);
     }
 
+    @Override
     public List<WorkflowItem> findByPooledTasks(Context context, EPerson ePerson) throws SQLException
     {
         String queryString = "select WorkflowItem from WorkflowItem as wf join TaskListItem.eperson tli where tli.eperson = :eperson";

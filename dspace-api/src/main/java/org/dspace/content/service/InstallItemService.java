@@ -1,6 +1,8 @@
-package org.dspace.content;
+package org.dspace.content.service;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.InProgressSubmission;
+import org.dspace.content.Item;
 import org.dspace.core.Context;
 
 import java.io.IOException;

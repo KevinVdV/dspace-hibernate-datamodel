@@ -22,6 +22,7 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
     protected VersionHistoryDAO versionHistoryDAO;
 
     // LIST order: descending
+    @Override
     public Version getPrevious(VersionHistory versionHistory, Version version) {
         List<Version> versions = versionHistory.getVersions();
         int index = versions.indexOf(version);
@@ -32,6 +33,7 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
     }
 
     // LIST order: descending
+    @Override
     public Version getNext(VersionHistory versionHistory, Version version)
     {
         List<Version> versions = versionHistory.getVersions();
@@ -43,6 +45,7 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
         return versions.get(index-1);
     }
 
+    @Override
     public Version getVersion(VersionHistory versionHistory, Item item) {
         List<Version> versions = versionHistory.getVersions();
         for(Version v : versions)
@@ -55,17 +58,20 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
         return null;
     }
 
+    @Override
     public boolean hasNext(VersionHistory versionHistory, Item item)
     {
         Version version = getVersion(versionHistory, item);
         return hasNext(versionHistory, version);
     }
 
+    @Override
     public boolean hasNext(VersionHistory versionHistory, Version version)
     {
         return getNext(versionHistory, version)!=null;
     }
 
+    @Override
     public void add(VersionHistory versionHistory, Version version)
     {
         versionHistory.addVersionAtStart(version);
@@ -92,6 +98,7 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
 
     }
 
+    @Override
     public Version getLatestVersion(VersionHistory versionHistory)
     {
         List<Version> versions = versionHistory.getVersions();
@@ -103,6 +110,7 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
         return versions.iterator().next();
     }
 
+    @Override
     public Version getFirstVersion(VersionHistory versionHistory)
     {
         List<Version> versions = versionHistory.getVersions();
@@ -115,6 +123,7 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
     }
 
 
+    @Override
     public boolean isFirstVersion(VersionHistory versionHistory, Version version)
     {
         List<Version> versions = versionHistory.getVersions();
@@ -122,6 +131,7 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
         return first.equals(version);
     }
 
+    @Override
     public boolean isLastVersion(VersionHistory versionHistory, Version version)
     {
         List<Version> versions = versionHistory.getVersions();
@@ -133,6 +143,7 @@ public class VersionHistoryServiceImpl implements VersionHistoryService {
         return last.equals(version);
     }
 
+    @Override
     public void remove(VersionHistory versionHistory, Version version)
     {
         versionHistory.removeVersion(version);

@@ -28,6 +28,7 @@ public class ChecksumHistoryServiceImpl implements ChecksumHistoryService{
     @Autowired(required = true)
     protected ChecksumResultService checksumResultService;
 
+    @Override
     public void updateMissingBitstreams(Context context) throws SQLException {
 //                "insert into checksum_history ( "
 //               + "bitstream_id, process_start_date, "
@@ -48,6 +49,7 @@ public class ChecksumHistoryServiceImpl implements ChecksumHistoryService{
         }
     }
 
+    @Override
     public void addHistory(Context context, MostRecentChecksum mostRecentChecksum) throws SQLException {
         ChecksumHistory checksumHistory = checksumHistoryDAO.create(context, new ChecksumHistory());
         checksumHistory.setBitstreamId(mostRecentChecksum.getBitstream().getID());
@@ -78,6 +80,7 @@ public class ChecksumHistoryServiceImpl implements ChecksumHistoryService{
      * @throws SQLException
      *             if database error occurs.
      */
+    @Override
     public int deleteByDateAndCode(Context context, Date retentionDate, ChecksumResultCode checksumResultCode) throws SQLException
     {
         return checksumHistoryDAO.deleteByDateAndCode(context, retentionDate, checksumResultCode);

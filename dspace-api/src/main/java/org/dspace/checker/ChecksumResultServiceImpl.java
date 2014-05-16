@@ -26,6 +26,7 @@ public class ChecksumResultServiceImpl implements ChecksumResultService {
      *            to get the description for.
      * @return the found description.
      */
+    @Override
     public ChecksumResult findByCode(Context context, ChecksumResultCode code) throws SQLException
     {
         return checksumResultDAO.findByCode(context, code);
@@ -36,6 +37,7 @@ public class ChecksumResultServiceImpl implements ChecksumResultService {
      *
      * @return a list of all the result codes
      */
+    @Override
     public List<ChecksumResult> findAll(Context context) throws SQLException {
         return checksumResultDAO.findAll(context, ChecksumResult.class);
     }

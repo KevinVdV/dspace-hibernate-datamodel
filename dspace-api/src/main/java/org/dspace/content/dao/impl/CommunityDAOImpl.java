@@ -30,6 +30,7 @@ public class CommunityDAOImpl extends AbstractHibernateDAO<Community> implements
      *
      * @return the communities in the system
      */
+    @Override
     public List<Community> findAll(Context context, String order) throws SQLException
     {
         Criteria criteria = createCriteria(context, Community.class);

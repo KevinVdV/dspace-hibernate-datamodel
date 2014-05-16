@@ -28,6 +28,7 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
      * @return metadata schema object or null if none found.
      * @throws java.sql.SQLException
      */
+    @Override
     public MetadataSchema findByNamespace(Context context, String namespace) throws SQLException
     {
         // Grab rows from DB
@@ -54,6 +55,7 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
      * @throws SQLException
      */
     //TODO: Bussiness logic, add find & move to service layer
+    @Override
     public boolean uniqueNamespace(Context context, int metadataSchemaId, String namespace) throws SQLException
     {
         Criteria criteria = createCriteria(context, MetadataSchema.class);
@@ -73,6 +75,7 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
      * @throws SQLException
      */
     //TODO: Bussiness logic, add find & move to service layer
+    @Override
     public boolean uniqueShortName(Context context, int metadataSchemaId, String name) throws SQLException
     {
         Criteria criteria = createCriteria(context, MetadataSchema.class);
@@ -94,6 +97,7 @@ public class MetadataSchemaDAOImpl extends AbstractHibernateDAO<MetadataSchema> 
      * @return the metadata schema object
      * @throws SQLException
      */
+    @Override
     public MetadataSchema find(Context context, String shortName) throws SQLException
     {
         Criteria criteria = createCriteria(context, MetadataSchema.class);

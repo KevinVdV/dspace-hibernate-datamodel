@@ -46,6 +46,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      *
      * @return array of SupervisedItems
      */
+    @Override
     public List<WorkspaceItem> getAll(Context context) throws SQLException
     {
         return supervisedItemDAO.findAll(context, WorkspaceItem.class);
@@ -60,6 +61,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      *
      * @return the supervising groups in an array
      */
+    @Override
     public List<Group> getSupervisorGroups(Context context, WorkspaceItem workspaceItem) throws SQLException
     {
 //        return supervisedItemDAO.findByWorkspaceItem(context, WorkspaceItem.class);
@@ -76,6 +78,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      */
     // FIXME: We should arrange this code to use the above getSupervisorGroups
     // method by building the relevant info before passing the request.
+    @Override
     public List<Group> getSupervisorGroups() throws SQLException
     {
         //TODO: IMPLEMENT
@@ -91,6 +94,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      *
      * @return the items eperson is supervising in an array
      */
+    @Override
     public List<WorkspaceItem> findByEPerson(Context context, EPerson ep) throws SQLException
     {
         return supervisedItemDAO.findByEPerson(context, ep);
@@ -108,6 +112,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      *
      * @return boolean  true if there is an order that matches, false if not
      */
+    @Override
     public boolean isOrder(Context context, WorkspaceItem workspaceItem, Group group) throws SQLException
     {
         return supervisedItemDAO.findByWorkspaceItemAndGroup(context, workspaceItem, group) != null;
@@ -122,6 +127,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      * @param workspaceItem  the workspace item
      * @param group  the group to be removed from the item
      */
+    @Override
     public void remove(Context context, WorkspaceItem workspaceItem, Group group) throws SQLException, AuthorizeException
     {
         // get the workspace item and the group from the request values
@@ -172,6 +178,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
      * @param workspaceItem  the workspace item to be supervised
      * @param policy    String containing the policy type to be used
      */
+    @Override
     public void add(Context context, Group group, WorkspaceItem workspaceItem, int policy)
         throws SQLException, AuthorizeException
     {

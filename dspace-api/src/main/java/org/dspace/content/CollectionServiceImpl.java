@@ -94,6 +94,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @return the collection, or null if the ID is invalid.
      * @throws SQLException
      */
+    @Override
     public Collection find(Context context, int id) throws SQLException
     {
         Collection collection = collectionDAO.findByID(context, Collection.class, id);
@@ -118,6 +119,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         return collection;
     }
 
+    @Override
     public String getName(Collection dso) {
         return dso.getNameInternal();
     }
@@ -133,6 +135,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Collection create(Context context, Community community) throws SQLException,
             AuthorizeException
     {
@@ -151,6 +154,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Collection create(Context context, Community community, String handle) throws SQLException,
             AuthorizeException
     {
@@ -200,6 +204,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @return the collections in the system
      * @throws SQLException
      */
+    @Override
     public List<Collection> findAll(Context context) throws SQLException
     {
         return collectionDAO.findAll(context, "name");
@@ -213,6 +218,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @return
      * @throws SQLException
      */
+    @Override
     public List<Collection> findAll(Context context, Integer limit, Integer offset) throws SQLException
     {
         return collectionDAO.findAll(context, "name", limit, offset);
@@ -234,6 +240,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      *                if the requested metadata field doesn't exist
      * @exception MissingResourceException
      */
+    @Override
     public void setName(Collection collection, String value) throws MissingResourceException
     {
         if (StringUtils.isBlank(value))
@@ -266,6 +273,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws IOException
      * @throws SQLException
      */
+    @Override
     public Bitstream createLogo(Context context, Collection collection, InputStream is) throws AuthorizeException,
             IOException, SQLException
     {
@@ -322,6 +330,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Group createWorkflowGroup(Context context, Collection collection, int step) throws SQLException,
             AuthorizeException, IllegalAccessException {
         // Check authorisation - Must be an Admin to create Workflow Group
@@ -354,6 +363,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @param g
      *            the new workflow group, or <code>null</code>
      */
+    @Override
     public void setWorkflowGroup(Collection collection, int step, Group g)
     {
         switch (step)
@@ -382,6 +392,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      *
      * @return the group of reviewers or <code>null</code>
      */
+    @Override
     public Group getWorkflowGroup(Collection collection, int step) throws IllegalStateException {
         switch (step)
         {
@@ -406,6 +417,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Group createSubmitters(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin to create Submitters Group
@@ -437,6 +449,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * submitters group from the collection so that it may be deleted
      * without violating database constraints.
      */
+    @Override
     public void removeSubmitters(Context context, Collection collection) throws SQLException, AuthorizeException
     {
     	// Check authorisation - Must be an Admin to delete Submitters Group
@@ -461,6 +474,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Group createAdministrators(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin to create more Admins
@@ -493,6 +507,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * administrators group from the collection so that it may be deleted
      * without violating database constraints.
      */
+    @Override
     public void removeAdministrators(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation - Must be an Admin of the parent community to delete Admin Group
@@ -516,6 +531,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      *
      * @return the license for this collection
      */
+    @Override
     public String getLicense(Collection collection)
     {
         String license = collection.getLicenseInternal();
@@ -535,6 +551,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      *
      * @return the license for this collection
      */
+    @Override
     public String getLicenseCollection(Collection collection)
     {
         return collection.getLicenseInternal();
@@ -545,6 +562,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      *
      * @return <code>true</code> if the collection has a custom license
      */
+    @Override
     public boolean hasCustomLicense(Collection collection)
     {
         String license = collection.getLicenseInternal();
@@ -561,6 +579,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public Item createTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation
@@ -588,6 +607,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void removeTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException,
             IOException
     {
@@ -612,6 +632,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, collection.getID(), "remove_template_item"));
     }
 
+    @Override
     public Collection findByTemplateItem(Context context, Item item) throws SQLException {
         return collectionDAO.findByTemplateItem(context, item);
     }
@@ -627,6 +648,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void addItem(Context context, Collection collection, Item item) throws SQLException, AuthorizeException
     {
         // Check authorisation
@@ -654,6 +676,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void removeItem(Context context, Collection collection, Item item) throws SQLException, AuthorizeException,
             IOException
     {
@@ -675,6 +698,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         context.addEvent(new Event(Event.REMOVE, Constants.COLLECTION, collection.getID(), Constants.ITEM, item.getID(), item.getHandle(context)));
     }
 
+    @Override
     public void updateLastModified(Context context, Collection collection) {
         //Also fire a modified event since the collection HAS been modified
         context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION, collection.getID(), null));
@@ -688,6 +712,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws IOException
      * @throws AuthorizeException
      */
+    @Override
     public void update(Context context, Collection collection) throws SQLException, AuthorizeException
     {
         // Check authorisation
@@ -710,11 +735,13 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
     }
 
+    @Override
     public boolean canEditBoolean(Context context, Collection collection) throws java.sql.SQLException
     {
         return canEditBoolean(context, collection, true);
     }
 
+    @Override
     public boolean canEditBoolean(Context context, Collection collection, boolean useInheritance) throws java.sql.SQLException
     {
         try
@@ -729,11 +756,13 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         }
     }
 
+    @Override
     public void canEdit(Context context, Collection collection)  throws AuthorizeException, SQLException
     {
         canEdit(context, collection, true);
     }
 
+    @Override
     public void canEdit(Context context, Collection collection, boolean useInheritance) throws AuthorizeException, SQLException
     {
         List<Community> parents = collection.getCommunities();
@@ -761,6 +790,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws IOException
      */
     //TODO: create unit test for this !
+    @Override
     public void delete(Context context, Collection collection) throws SQLException, AuthorizeException, IOException
     {
         log.info(LogManager.getHeader(context, "delete_collection",
@@ -880,6 +910,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @return Collection [] of collections with matching permissions
      * @throws SQLException
      */
+    @Override
     public List<Collection> findAuthorized(Context context, Community comm,
             int actionID) throws java.sql.SQLException
     {
@@ -912,6 +943,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @return the collections this item is not in, if any.
      * @throws SQLException
      */
+    @Override
     public List<Collection> getCollectionsNotLinked(Context context, Item item) throws SQLException
     {
         List<Collection> allCollections = findAll(context);
@@ -950,6 +982,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void move(Context context, Item item, Collection from, Collection to) throws SQLException, AuthorizeException, IOException
     {
         // Use the normal move method, and default to not inherit permissions
@@ -963,6 +996,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws AuthorizeException
      * @throws IOException
      */
+    @Override
     public void move(Context context, Item item, Collection from, Collection to, boolean inheritDefaultPolicies) throws SQLException, AuthorizeException, IOException
     {
         // Check authorisation on the item before that the move occur
@@ -1016,6 +1050,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
 
 
+    @Override
     public DSpaceObject getAdminObject(Context context, Collection collection, int action) throws SQLException
     {
         DSpaceObject adminObject = null;

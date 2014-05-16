@@ -38,6 +38,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
      *             if the ADMIN action is supplied as parameter of the method
      *             call
      */
+    @Override
     public DSpaceObject getAdminObject(Context context, T dso, int action) throws SQLException
     {
         if (action == Constants.ADMIN)
@@ -59,6 +60,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
      *         the hierarchy
      * @throws SQLException
      */
+    @Override
     public DSpaceObject getParentObject(Context context, T dso) throws SQLException
     {
         return null;
@@ -68,6 +70,7 @@ public abstract class DSpaceObjectServiceImpl<T extends DSpaceObject> implements
      * Provide the text name of the type of this DSpaceObject. It is most likely all uppercase.
      * @return Object type as text
      */
+    @Override
     public String getTypeText(DSpaceObject dso)
     {
         return Constants.typeText[dso.getType()];

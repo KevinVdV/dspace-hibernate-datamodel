@@ -34,6 +34,7 @@ public class MetadataValueServiceImpl implements MetadataValueService {
      *            DSpace context object
      * @throws SQLException
      */
+    @Override
     public MetadataValue create(Context context, Item item, MetadataField metadataField) throws SQLException {
         MetadataValue metadataValue = metadataValueDAO.create(context, new MetadataValue());
         metadataValue.setMetadataField(metadataField);
@@ -51,6 +52,7 @@ public class MetadataValueServiceImpl implements MetadataValueService {
      * @return recalled metadata value
      * @throws SQLException
      */
+    @Override
     public MetadataValue find(Context context, int valueId) throws SQLException
     {
         // Grab rows from DB
@@ -65,6 +67,7 @@ public class MetadataValueServiceImpl implements MetadataValueService {
      * @return a collection of metadata values
      * @throws SQLException
      */
+    @Override
     public List<MetadataValue> findByField(Context context, int fieldId) throws SQLException
     {
         return metadataValueDAO.findByField(context, fieldId);
@@ -76,6 +79,7 @@ public class MetadataValueServiceImpl implements MetadataValueService {
      * @param context dspace context
      * @throws SQLException
      */
+    @Override
     public void update(Context context, MetadataValue metadataValue) throws SQLException {
         metadataValueDAO.save(context, metadataValue);
 
@@ -90,6 +94,7 @@ public class MetadataValueServiceImpl implements MetadataValueService {
      * @param context dspace context
      * @throws SQLException
      */
+    @Override
     public void delete(Context context, MetadataValue metadataValue) throws SQLException {
         log.info(LogManager.getHeader(context, "delete_metadata_value",
                 " metadata_value_id=" + metadataValue.getFieldId()));

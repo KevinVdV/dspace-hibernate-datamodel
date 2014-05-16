@@ -17,6 +17,7 @@ import java.sql.SQLException;
 public class TaskListItemDAOImpl extends AbstractHibernateDAO<TaskListItem> implements TaskListItemDAO
 {
 
+    @Override
     public void deleteByWorkflowItem(Context context, WorkflowItem workflowItem) throws SQLException {
         String queryString = "delete from TaskListItem where workflowItem = :workflowItem";
         Query query = createQuery(context, queryString);

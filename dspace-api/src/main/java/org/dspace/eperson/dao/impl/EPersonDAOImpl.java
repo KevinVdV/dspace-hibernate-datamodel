@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements EPersonDAO {
 
+    @Override
     public EPerson findByEmail(Context context, String email) throws SQLException
     {
         // All email addresses are stored as lowercase, so ensure that the email address is lowercased for the lookup
@@ -28,6 +29,7 @@ public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements 
     }
 
 
+    @Override
     public EPerson findByNetid(Context context, String netid) throws SQLException
     {
         Criteria criteria = createCriteria(context, EPerson.class);
@@ -35,6 +37,7 @@ public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements 
         return uniqueResult(criteria);
     }
 
+    @Override
     public List<EPerson> search(Context context, String query, int offset, int limit) throws SQLException
     {
         String queryParam = "%"+query.toLowerCase()+"%";
@@ -55,6 +58,7 @@ public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements 
         return list(criteria);
     }
 
+    @Override
     public int searchResultCount(Context context, String query) throws SQLException
     {
         String queryParam = "%"+query.toLowerCase()+"%";
@@ -65,6 +69,7 @@ public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements 
         return count(criteria);
     }
 
+    @Override
     public List<EPerson> findAll(Context context, String sortField) throws SQLException {
         Criteria criteria = createCriteria(context, EPerson.class);
         criteria.addOrder(Order.asc(sortField));

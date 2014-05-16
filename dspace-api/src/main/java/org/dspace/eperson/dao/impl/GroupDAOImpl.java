@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements GroupDAO {
 
+    @Override
     public Group findByName(Context context, String name) throws SQLException
     {
         Criteria criteria = createCriteria(context, Group.class);
@@ -29,6 +30,7 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
         return uniqueResult(criteria);
     }
 
+    @Override
     public List<Group> findAll(Context context, String sortColumn) throws SQLException
     {
         Criteria criteria = createCriteria(context, Group.class);
@@ -37,12 +39,14 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
         return list(criteria);
     }
 
+    @Override
     public List<Group> findByEPerson(Context context, EPerson ePerson) throws SQLException {
         Query query = createQuery(context, "from Group where (from EPerson e where e.id = :eperson_id) in elements(epeople)");
         query.setParameter("eperson_id", ePerson.getID());
         return list(query);
     }
 
+    @Override
     public List<Group> search(Context context, String query, int offset, int limit) throws SQLException {
         String queryParam = "%"+query.toLowerCase()+"%";
         Criteria criteria = createCriteria(context, Group.class);
@@ -60,6 +64,7 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
         return list(criteria);
     }
 
+    @Override
     public int searchResultCount(Context context, String query) throws SQLException {
         String queryParam = "%"+query.toLowerCase()+"%";
         Criteria criteria = createCriteria(context, Group.class);

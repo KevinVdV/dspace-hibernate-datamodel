@@ -72,6 +72,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * 
      * @return the bundle, or null if the ID is invalid.
      */
+    @Override
     public Bundle find(Context context, int id) throws SQLException
     {
         // First check the cache
@@ -98,6 +99,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         }
     }
 
+    @Override
     public String getName(Bundle dso) {
         return dso.getName();
     }
@@ -113,6 +115,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * 
      * @return the newly created bundle
      */
+    @Override
     public Bundle create(Context context, Item item, String name) throws SQLException, AuthorizeException {
         if (StringUtils.isBlank(name))
         {
@@ -144,6 +147,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      *
      * @return the bitstream or null if not found
      */
+    @Override
     public Bitstream getBitstreamByName(Bundle bundle, String name)
     {
         Bitstream target = null;
@@ -164,6 +168,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * @param b
      *            the bitstream to add
      */
+    @Override
     public void addBitstream(Context context, Bundle bundle, Bitstream b) throws SQLException,
             AuthorizeException
     {
@@ -207,6 +212,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * @throws SQLException when an SQL error has occurred (querying DSpace)
      * @throws AuthorizeException If the user can't make the changes
      */
+    @Override
     public void setOrder(Context context, Bundle bundle, int bitstreamIds[]) throws AuthorizeException, SQLException {
         AuthorizeManager.authorizeAction(context, bundle, Constants.WRITE);
 
@@ -246,6 +252,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * @param b
      *            the bitstream to remove
      */
+    @Override
     public void removeBitstream(Context context, Bundle bundle, Bitstream b) throws AuthorizeException,
             SQLException, IOException
     {
@@ -295,12 +302,14 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
 
     }
 
+    @Override
     public void updateLastModified(Context context, Bundle bundle) {
     }
 
     /**
      * Update the bundle metadata
      */
+    @Override
     public void update(Context context, Bundle bundle) throws SQLException, AuthorizeException
     {
         // Check authorisation
@@ -328,6 +337,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * orphans.
      */
     //TODO: Implement properrly so item doesn't have issues with this
+    @Override
     public void delete(Context context, Bundle bundle) throws SQLException, AuthorizeException, IOException
     {
         log.info(LogManager.getHeader(context, "delete_bundle", "bundle_id="
@@ -361,6 +371,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      *             draconian, but default policies must be enforced.
      * @throws AuthorizeException
      */
+    @Override
     public void inheritCollectionDefaultPolicies(Context context, Bundle bundle, Collection c)
             throws java.sql.SQLException, AuthorizeException
     {
@@ -396,6 +407,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void replaceAllBitstreamPolicies(Context context, Bundle bundle, List<ResourcePolicy> newpolicies)
             throws SQLException, AuthorizeException
     {
@@ -414,6 +426,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         AuthorizeManager.addPolicies(context, newpolicies, bundle);
     }
 
+    @Override
     public List<ResourcePolicy> getBitstreamPolicies(Context context, Bundle bundle) throws SQLException
     {
         List<Bitstream> bitstreams = bundle.getBitstreams();
@@ -428,6 +441,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         return list;
     }
     
+    @Override
     public DSpaceObject getAdminObject(Context context, Bundle bundle, int action) throws SQLException
     {
         DSpaceObject adminObject = null;
@@ -483,6 +497,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         return adminObject;
     }
     
+    @Override
     public DSpaceObject getParentObject(Context context, Bundle bundle) throws SQLException
     {
         List<Item> items = bundle.getItems();

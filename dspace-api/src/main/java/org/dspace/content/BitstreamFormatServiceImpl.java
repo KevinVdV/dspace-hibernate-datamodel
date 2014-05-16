@@ -58,6 +58,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @return the bitstream format, or null if the ID is invalid.
      * @throws SQLException
      */
+    @Override
     public BitstreamFormat find(Context context, int id)
             throws SQLException
     {
@@ -99,6 +100,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      *         there's no bitstream format with the given MIMEtype.
      * @throws SQLException
      */
+    @Override
     public BitstreamFormat findByMIMEType(Context context, String mimeType) throws SQLException
     {
         return bitstreamFormatDAO.findByMIMEType(context, mimeType);
@@ -116,6 +118,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      *         there's no bitstream format with the given short description
      * @throws SQLException
      */
+    @Override
     public BitstreamFormat findByShortDescription(Context context, String desc) throws SQLException
     {
 
@@ -134,6 +137,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @throws IllegalStateException
      *             if the "unknown" bitstream format couldn't be found
      */
+    @Override
     public BitstreamFormat findUnknown(Context context) throws SQLException
     {
         BitstreamFormat bf = findByShortDescription(context, "Unknown");
@@ -156,6 +160,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @return the bitstream formats.
      * @throws SQLException
      */
+    @Override
     public List<BitstreamFormat> findAll(Context context) throws SQLException
     {
         return bitstreamFormatDAO.findAll(context, BitstreamFormat.class);
@@ -172,6 +177,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @return the bitstream formats.
      * @throws SQLException
      */
+    @Override
     public List<BitstreamFormat> findNonInternal(Context context) throws SQLException
     {
 
@@ -187,6 +193,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public BitstreamFormat create(Context context) throws SQLException, AuthorizeException
     {
         // Check authorisation - only administrators can create new formats
@@ -213,6 +220,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @param s
      *            the new short description
      */
+    @Override
     public final void setShortDescription(Context context, BitstreamFormat bitstreamFormat, String s)
        throws SQLException
     {
@@ -243,6 +251,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      *
      * @return the support level
      */
+    @Override
     public String getSupportLevelText(BitstreamFormat bitstreamFormat) {
         return supportLevelText[bitstreamFormat.getSupportLevel()];
     }
@@ -254,6 +263,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @param sl
      *            the new support level
      */
+    @Override
     public final void setSupportLevel(BitstreamFormat bitstreamFormat, int sl)
     {
         // Sanity check
@@ -271,6 +281,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void update(Context context, BitstreamFormat bitstreamFormat) throws SQLException, AuthorizeException
     {
         // Check authorisation - only administrators can change formats
@@ -293,6 +304,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @throws SQLException
      * @throws AuthorizeException
      */
+    @Override
     public void delete(Context context, BitstreamFormat bitstreamFormat) throws SQLException, AuthorizeException
     {
         // Check authorisation - only administrators can delete formats
@@ -331,6 +343,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
      * @return the corresponding action ID, or <code>-1</code> if the action
      *         string is unknown
      */
+    @Override
     public int getSupportLevelID(String slevel)
     {
         for (int i = 0; i < supportLevelText.length; i++)

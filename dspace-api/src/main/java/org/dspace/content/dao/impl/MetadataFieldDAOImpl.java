@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class MetadataFieldDAOImpl extends AbstractHibernateDAO<MetadataField> implements MetadataFieldDAO {
 
+    @Override
     public MetadataField find(Context context, int metadataFieldId, MetadataSchema metadataSchema, String element,
                            String qualifier) throws SQLException{
         Criteria criteria = createCriteria(context, MetadataField.class);
@@ -35,6 +36,7 @@ public class MetadataFieldDAOImpl extends AbstractHibernateDAO<MetadataField> im
         return uniqueResult(criteria);
     }
 
+    @Override
     public MetadataField findByElement(Context context, MetadataSchema metadataSchema, String element, String qualifier) throws SQLException
     {
         Criteria criteria = createCriteria(context, MetadataField.class);
@@ -48,6 +50,7 @@ public class MetadataFieldDAOImpl extends AbstractHibernateDAO<MetadataField> im
         return uniqueResult(criteria);
     }
 
+    @Override
     public List<MetadataField> findAllInSchema(Context context, String schema) throws SQLException {
         // Get all the metadatafieldregistry rows
         Criteria criteria = createCriteria(context, MetadataField.class);

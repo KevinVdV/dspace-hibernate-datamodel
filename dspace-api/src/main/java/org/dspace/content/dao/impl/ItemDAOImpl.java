@@ -21,6 +21,7 @@ import java.util.Iterator;
  */
 public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
 
+    @Override
     public Iterator<Item> findAll(Context context, boolean archived) throws SQLException
     {
         Query query = createQuery(context, "FROM Item WHERE inArchive= :in_archive");
@@ -28,6 +29,7 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
         return iterate(query);
     }
 
+    @Override
     public Iterator<Item> findAll(Context context, boolean archived, boolean withdrawn) throws SQLException
     {
         Query query = createQuery(context, "FROM Item WHERE inArchive= :in_archive or withdrawn = :withdrawn");
@@ -36,6 +38,7 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
         return iterate(query);
     }
 
+    @Override
     public Iterator<Item> findBySubmitter(Context context, EPerson eperson) throws SQLException {
         Query query = createQuery(context, "FROM Item WHERE inArchive= :in_archive and submitter= :submitter");
         query.setParameter("in_archive", true);
@@ -43,6 +46,7 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
         return iterate(query);
     }
 
+    @Override
     public Iterator<Item> findByMetadataField(Context context, MetadataField metadataField, String value, boolean inArchive) throws SQLException {
         String hqlQueryString = "select item from Item as item join item.metadata metadataValue WHERE item.inArchive=:in_archive AND metadataValue.metadataField = :metadata_field";
         if(value != null)
@@ -60,6 +64,7 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
         return iterate(query);
     }
 
+    @Override
     public Iterator<Item> findByAuthorityValue(Context context, MetadataField metadataField, String authority, boolean inArchive) throws SQLException {
         Query query = createQuery(context, "SELECT item FROM Item as item join item.metadata metadatavalue WHERE item.inArchive=:in_archive AND metadatavalue.metadataField = :metadata_field AND metadatavalue.authority = :authority");
         query.setParameter("in_archive", inArchive);
@@ -68,6 +73,7 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
         return iterate(query);
     }
 
+    @Override
     public Iterator<Item> findArchivedByCollection(Context context, Collection collection, Integer limit, Integer offset) throws SQLException{
         Query query = createQuery(context, "select i from Item i join i.collections c WHERE :collection IN c AND i.inArchive=:in_archive");
         query.setParameter("collection", collection);
@@ -85,6 +91,7 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
         return iterator;
     }
 
+    @Override
     public Iterator<Item> findAllByCollection(Context context, Collection collection) throws SQLException {
         Query query = createQuery(context, "select i from Item i join i.collections c WHERE :collection IN c");
         query.setParameter("collection", collection);

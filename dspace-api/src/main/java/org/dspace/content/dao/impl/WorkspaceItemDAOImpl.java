@@ -23,6 +23,7 @@ import java.util.List;
 public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> implements WorkspaceItemDAO {
 
 
+    @Override
     public List<WorkspaceItem> findByEPerson(Context context, EPerson ep) throws SQLException
     {
         Query query = createQuery(context, "from WorkspaceItem ws where ws.item.submitter = :submitter order by workspaceItemId");
@@ -30,6 +31,7 @@ public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> im
         return list(query);
     }
 
+    @Override
     public List<WorkspaceItem> findByCollection(Context context, Collection c) throws SQLException
     {
         Criteria criteria = createCriteria(context, WorkspaceItem.class);
@@ -37,6 +39,7 @@ public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> im
         return list(criteria);
     }
 
+    @Override
     public WorkspaceItem findByItem(Context context, Item i) throws SQLException
     {
         Criteria criteria = createCriteria(context, WorkspaceItem.class);
@@ -45,6 +48,7 @@ public class WorkspaceItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> im
         return uniqueResult(criteria);
     }
 
+    @Override
     public List<WorkspaceItem> findAll(Context context) throws SQLException
     {
         Criteria criteria = createCriteria(context, WorkspaceItem.class);

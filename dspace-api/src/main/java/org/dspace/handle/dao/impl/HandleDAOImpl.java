@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class HandleDAOImpl extends AbstractHibernateDAO<Handle> implements HandleDAO {
 
+    @Override
     public List<Handle> getHandlesByTypeAndId(Context context, int type, int id) throws SQLException {
         Criteria criteria = createCriteria(context, Handle.class);
         criteria.add(Restrictions.and(
@@ -28,12 +29,14 @@ public class HandleDAOImpl extends AbstractHibernateDAO<Handle> implements Handl
         return list(criteria);
     }
 
+    @Override
     public Handle findByHandle(Context context, String handle) throws SQLException {
         Criteria criteria = createCriteria(context, Handle.class);
         criteria.add(Restrictions.eq("handle", handle));
         return uniqueResult(criteria);
     }
 
+    @Override
     public List<Handle> findByPrefix(Context context, String prefix) throws SQLException {
         Criteria criteria = createCriteria(context, Handle.class);
         criteria.add(Restrictions.like("handle", prefix + "%"));

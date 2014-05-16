@@ -66,6 +66,7 @@ public class HandleServiceImpl implements HandleService
      * @exception SQLException
      *                If a database error occurs
      */
+    @Override
     public String resolveToURL(Context context, String handle)
             throws SQLException
     {
@@ -87,6 +88,7 @@ public class HandleServiceImpl implements HandleService
         return url;
     }
 
+    @Override
     public void modifyHandleDSpaceObject(Context context, String handle, DSpaceObject newOwner) throws SQLException {
         Handle dbHandle = findHandleInternal(context, handle);
         if(dbHandle != null)
@@ -106,6 +108,7 @@ public class HandleServiceImpl implements HandleService
      * or if the extracted handle couldn't be found.
      * @throws SQLException  If a database error occurs
      */
+    @Override
     public String resolveUrlToHandle(Context context, String url)
             throws SQLException
     {
@@ -149,6 +152,7 @@ public class HandleServiceImpl implements HandleService
      *            The handle
      * @return The canonical form
      */
+    @Override
     public String getCanonicalForm(String handle)
     {
 
@@ -190,6 +194,7 @@ public class HandleServiceImpl implements HandleService
      * @exception SQLException
      *                If a database error occurs
      */
+    @Override
     public String createHandle(Context context, DSpaceObject dso)
             throws SQLException
     {
@@ -225,6 +230,7 @@ public class HandleServiceImpl implements HandleService
      * @return the Handle
      * @throws IllegalStateException if specified handle is already in use by another object
      */
+    @Override
     public String createHandle(Context context, DSpaceObject dso, String suppliedHandle) throws SQLException, IllegalStateException
     {
         return createHandle(context, dso, suppliedHandle, false);
@@ -242,6 +248,7 @@ public class HandleServiceImpl implements HandleService
      * @return the Handle
      * @throws IllegalStateException if specified handle is already in use by another object
      */
+    @Override
     public String createHandle(Context context, DSpaceObject dso, String suppliedHandle, boolean force) throws SQLException, IllegalStateException
     {
         //Check if the supplied handle is already in use -- cannot use the same handle twice
@@ -308,6 +315,7 @@ public class HandleServiceImpl implements HandleService
      * @param context DSpace context
      * @param dso DSpaceObject whose Handle to unbind.
      */
+    @Override
     public void unbindHandle(Context context, DSpaceObject dso)
         throws SQLException
     {
@@ -350,6 +358,7 @@ public class HandleServiceImpl implements HandleService
      * @exception SQLException
      *                If a database error occurs
      */
+    @Override
     public DSpaceObject resolveToObject(Context context, String handle)
             throws IllegalStateException, SQLException
     {
@@ -401,6 +410,7 @@ public class HandleServiceImpl implements HandleService
      * @exception SQLException
      *                If a database error occurs
      */
+    @Override
     public String findHandle(Context context, DSpaceObject dso)
             throws SQLException
     {
@@ -448,6 +458,7 @@ public class HandleServiceImpl implements HandleService
      * @exception SQLException
      *                If a database error occurs
      */
+    @Override
     public List<String> getHandlesForPrefix(Context context, String prefix)
             throws SQLException
     {
@@ -463,6 +474,7 @@ public class HandleServiceImpl implements HandleService
      * Get the configured Handle prefix string, or a default
      * @return configured prefix or "123456789"
      */
+    @Override
     public String getPrefix()
     {
         String prefix = ConfigurationManager.getProperty("handle.prefix");

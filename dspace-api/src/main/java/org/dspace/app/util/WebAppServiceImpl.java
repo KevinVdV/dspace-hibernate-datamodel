@@ -20,6 +20,7 @@ public class WebAppServiceImpl implements WebAppService{
     protected WebAppDAO webAppDAO;
 
 
+    @Override
     public WebApp create(Context context, String appName, String url, Date started, int isUI) throws SQLException {
         WebApp webApp = webAppDAO.create(context, new WebApp());
         webApp.setAppName(appName);
@@ -30,10 +31,12 @@ public class WebAppServiceImpl implements WebAppService{
         return webApp;
     }
 
+    @Override
     public void delete(Context context, WebApp webApp) throws SQLException {
         webAppDAO.delete(context, webApp);
     }
 
+    @Override
     public List<WebApp> findAll(Context context) throws SQLException {
         return webAppDAO.findAll(context, WebApp.class);
     }

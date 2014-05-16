@@ -33,6 +33,7 @@ public class BitstreamFormatDAOImpl extends AbstractHibernateDAO<BitstreamFormat
      *         there's no bitstream format with the given MIMEtype.
      * @throws java.sql.SQLException
      */
+    @Override
     public BitstreamFormat findByMIMEType(Context context, String mimeType) throws SQLException
     {
         // NOTE: Avoid internal formats since e.g. "License" also has
@@ -58,6 +59,7 @@ public class BitstreamFormatDAOImpl extends AbstractHibernateDAO<BitstreamFormat
      *         there's no bitstream format with the given short description
      * @throws SQLException
      */
+    @Override
     public BitstreamFormat findByShortDescription(Context context,
             String desc) throws SQLException
     {
@@ -69,6 +71,7 @@ public class BitstreamFormatDAOImpl extends AbstractHibernateDAO<BitstreamFormat
         return uniqueResult(criteria);
     }
 
+    @Override
     public int updateRemovedBitstreamFormat(Context context, BitstreamFormat deletedBitstreamFormat, BitstreamFormat newBitstreamFormat) throws SQLException {
         // Set bitstreams with this format to "unknown"
         Query query = createQuery(context, "update Bitstream set bitstreamFormat = :unknown_format where bitstreamFormat = :deleted_format");
@@ -78,6 +81,7 @@ public class BitstreamFormatDAOImpl extends AbstractHibernateDAO<BitstreamFormat
         return query.executeUpdate();
     }
 
+    @Override
     public List<BitstreamFormat> findNonInternal(Context context) throws SQLException {
         Criteria criteria = createCriteria(context, BitstreamFormat.class);
         criteria.add(Restrictions.and(

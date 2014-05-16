@@ -24,28 +24,34 @@ public class WorkflowItemRoleServiceImpl implements WorkflowItemRoleService {
     {
     }
 
+    @Override
     public WorkflowItemRole find(Context context, int id) throws SQLException
     {
         return workflowItemRoleDAO.findByID(context, WorkflowItemRole.class, id);
     }
 
+    @Override
     public WorkflowItemRole findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException {
         return workflowItemRoleDAO.findByWorkflowItemAndRole(context, workflowItem, role);
     }
 
+    @Override
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         return workflowItemRoleDAO.findByWorkflowItem(context, workflowItem);
     }
 
+    @Override
     public WorkflowItemRole create(Context context) throws SQLException {
         return workflowItemRoleDAO.create(context, new WorkflowItemRole());
     }
 
+    @Override
     public void delete(Context context, WorkflowItemRole workflowItemRole) throws SQLException
     {
         workflowItemRoleDAO.delete(context, workflowItemRole);
     }
 
+    @Override
     public void update(Context context, WorkflowItemRole workflowItemRole) throws SQLException
     {
         workflowItemRoleDAO.save(context, workflowItemRole);

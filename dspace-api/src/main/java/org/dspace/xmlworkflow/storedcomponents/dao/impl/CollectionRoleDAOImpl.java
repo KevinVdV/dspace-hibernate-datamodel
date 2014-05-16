@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class CollectionRoleDAOImpl extends AbstractHibernateDAO<CollectionRole> implements CollectionRoleDAO {
 
+    @Override
     public List<CollectionRole> findByCollection(Context context, Collection collection) throws SQLException {
         Criteria criteria = createCriteria(context, CollectionRole.class);
         criteria.add(Restrictions.eq("collection", collection));
@@ -28,6 +29,7 @@ public class CollectionRoleDAOImpl extends AbstractHibernateDAO<CollectionRole> 
         return list(criteria);
     }
 
+    @Override
     public CollectionRole findByCollectionAndRole(Context context, Collection collection, String role) throws SQLException {
         Criteria criteria = createCriteria(context, CollectionRole.class);
         criteria.add(Restrictions.and(

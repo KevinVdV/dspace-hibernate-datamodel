@@ -32,13 +32,15 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
      * @return the collections in the system
      * @throws java.sql.SQLException
      */
+    @Override
     public List<Collection> findAll(Context context, String order) throws SQLException
     {
         return findAll(context, order, null, null);
     }
 
+    @Override
     public List<Collection> findAll(Context context, String order, Integer limit, Integer offset) throws SQLException {
-        Criteria criteria = getCriteria(context);
+        Criteria criteria = createCriteria(context, Collection.class);
         criteria.addOrder(Order.asc(order));
         if(limit != null)
         {
@@ -50,6 +52,7 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
         return list(criteria);
     }
 
+    @Override
     public Collection findByTemplateItem(Context context, Item item) throws SQLException {
         Criteria criteria = createCriteria(context, Collection.class);
         criteria.add(Restrictions.eq("template_item", item));
@@ -70,10 +73,4 @@ public class CollectionDAOImpl extends AbstractHibernateDAO<Collection> implemen
         );
         return uniqueResult(criteria);
     }
-
-
-    protected Criteria getCriteria(Context context) throws SQLException {
-        return createCriteria(context, Collection.class);
-    }
-
 }
