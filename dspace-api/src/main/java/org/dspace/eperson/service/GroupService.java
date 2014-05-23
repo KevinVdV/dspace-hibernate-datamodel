@@ -17,9 +17,15 @@ import java.util.Set;
  */
 public interface GroupService extends DSpaceObjectService<Group> {
 
+        // findAll sortby types
+    public static final int ID = 0; // sort by ID
+
+    public static final int NAME = 1; // sort by NAME (default)
+
+
     public Group create(Context context) throws SQLException, AuthorizeException;
 
-    public void addMember(Context context, Group groupEntity, EPerson e);
+    public void addMember(Context context, Group group, EPerson e);
 
     public void addMember(Context context, Group groupParent, Group groupChild);
 
@@ -27,9 +33,9 @@ public interface GroupService extends DSpaceObjectService<Group> {
 
     public void removeMember(Context context, Group owningGroup, Group childGroup);
 
-    public boolean isMember(Group group, EPerson e);
+    public boolean isDirectMember(Group group, EPerson e);
 
-    public boolean isMember(Group owningGroup, Group childGroup);
+    public boolean isDirectMember(Group owningGroup, Group childGroup);
 
     public boolean isMember(Context c, Group group) throws SQLException;
 
@@ -39,8 +45,6 @@ public interface GroupService extends DSpaceObjectService<Group> {
 
     public List<EPerson> allMembers(Context c, Group group) throws SQLException;
 
-    public Group find(Context context, int id) throws SQLException;
-
     public Group findByName(Context context, String name) throws SQLException;
 
     public List<Group> findAll(Context context, int sortField) throws SQLException;
@@ -49,9 +53,7 @@ public interface GroupService extends DSpaceObjectService<Group> {
 
     public int searchResultCount(Context context, String query) throws SQLException;
 
-    public void delete(Context context, Group groupEntity) throws SQLException, AuthorizeException;
+    public void delete(Context context, Group group) throws SQLException, AuthorizeException;
 
-    public boolean isEmpty(Group groupEntity);
-
-    public void update(Context context, Group group) throws SQLException, AuthorizeException;
+    public boolean isEmpty(Group group);
 }

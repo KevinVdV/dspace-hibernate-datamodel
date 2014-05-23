@@ -30,7 +30,8 @@ public class SupervisedItemDAOImpl extends AbstractHibernateDAO<WorkspaceItem> i
     @Override
     public List<WorkspaceItem> findByGroup(Context context, Group group) throws SQLException {
         Criteria criteria = createCriteria(context, WorkspaceItem.class);
-        criteria.add(Restrictions.eq("supervisorGroups.groups", group));
+        criteria.createAlias("supervisorGroups", "sgs");
+        criteria.add(Restrictions.eq("sgs.id",  group.getID()));
         return list(criteria);
     }
 

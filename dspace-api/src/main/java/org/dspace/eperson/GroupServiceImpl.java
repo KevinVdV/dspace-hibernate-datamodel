@@ -110,11 +110,12 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     @Override
     public void addMember(Context context, Group groupEntity, EPerson e)
     {
-        if (isMember(groupEntity, e))
+        if (isDirectMember(groupEntity, e))
         {
             return;
         }
         groupEntity.addMember(e);
+        e.getGroups().add(groupEntity);
         context.addEvent(new Event(Event.ADD, Constants.GROUP, groupEntity.getID(), Constants.EPERSON, e.getID(), e.getEmail()));
     }
 
@@ -134,6 +135,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
         }
 
         groupParent.addMember(groupChild);
+        groupChild.addParentGroup(groupParent);
 
         context.addEvent(new Event(Event.ADD, Constants.GROUP, groupParent.getID(), Constants.GROUP, groupChild.getID(), groupChild.getName()));
     }
@@ -162,6 +164,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     {
         if (owningGroup.remove(childGroup))
         {
+            childGroup.removeParentGroup(owningGroup);
             context.addEvent(new Event(Event.REMOVE, Constants.GROUP, owningGroup.getID(), Constants.GROUP, childGroup.getID(), childGroup.getName()));
         }
     }
@@ -174,7 +177,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *            eperson to check membership
      */
     @Override
-    public boolean isMember(Group group, EPerson e)
+    public boolean isDirectMember(Group group, EPerson e)
     {
         // special, group 0 is anonymous
         return group.getID() == 0 || group.contains(e);
@@ -188,7 +191,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *            group to check
      */
     @Override
-    public boolean isMember(Group owningGroup, Group childGroup)
+    public boolean isDirectMember(Group owningGroup, Group childGroup)
     {
         return owningGroup.contains(childGroup);
     }
@@ -442,22 +445,35 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *
      */
     @Override
-    public void delete(Context context, Group groupEntity) throws SQLException, AuthorizeException {
+    public void delete(Context context, Group group) throws SQLException, AuthorizeException {
         // FIXME: authorizations
 
-        context.addEvent(new Event(Event.DELETE, Constants.GROUP, groupEntity.getID(), groupEntity.getName()));
+        context.addEvent(new Event(Event.DELETE, Constants.GROUP, group.getID(), group.getName()));
 
         //Remove the supervised group from any workspace items linked to us.
-        supervisedItemService.removeSupervisedGroup(context, groupEntity);
+        supervisedItemService.removeSupervisedGroup(context, group);
 
         // Remove any ResourcePolicies that reference this group
-        AuthorizeManager.removeGroupPolicies(context, groupEntity);
+        AuthorizeManager.removeGroupPolicies(context, group);
+
+        group2GroupDAO.deleteByParent(context, group);
+        group2GroupDAO.deleteByChild(context, group);
+
+
+        //Remove all eperson references from this group
+        Iterator<EPerson> ePeople = group.getEpeople().iterator();
+        while (ePeople.hasNext()) {
+            EPerson ePerson = ePeople.next();
+            ePeople.remove();
+            ePerson.getGroups().remove(group);
+        }
 
         // Remove ourself
-        groupDAO.delete(context, groupEntity);
+        groupDAO.delete(context, group);
+        rethinkGroupCache(context);
 
         log.info(LogManager.getHeader(context, "delete_group", "group_id="
-                + groupEntity.getID()));
+                + group.getID()));
     }
 
     /**

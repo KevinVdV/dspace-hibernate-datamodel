@@ -1,6 +1,7 @@
 package org.dspace.eperson;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -9,7 +10,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "group2groupcache", schema = "public" )
-public class Group2GroupCache {
+public class Group2GroupCache implements Serializable {
 
     @Id
     @ManyToOne(fetch = FetchType.EAGER)

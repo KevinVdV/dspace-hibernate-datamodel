@@ -3,6 +3,7 @@ package org.dspace.eperson.dao.impl;
 import org.dspace.core.Context;
 import org.dspace.dao.AbstractDSpaceObjectDao;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.EPersonDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Disjunction;
@@ -11,6 +12,7 @@ import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -77,13 +79,26 @@ public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements 
 
     }
 
+    @Override
+    public List<EPerson> findByGroups(Context context, Set<Group> groups) throws SQLException {
+        Criteria criteria = createCriteria(context, EPerson.class);
+        criteria.createAlias("groups", "g");
+        Disjunction orRestriction = Restrictions.or();
+        for(Group group : groups)
+        {
+            orRestriction.add(Restrictions.eq("g.id", group.getID()));
+        }
+        criteria.add(orRestriction);
+        return list(criteria);
+    }
+
 
     protected Disjunction addSearchCriteria(String queryParam) {
         Disjunction disjunction = Restrictions.disjunction();
-        disjunction.add(Restrictions.ilike("eperson_id", queryParam));
-        disjunction.add(Restrictions.ilike("firstname", queryParam));
-        disjunction.add(Restrictions.ilike("lastname", queryParam));
-        disjunction.add(Restrictions.ilike("email", queryParam));
+        disjunction.add(Restrictions.like("eperson_id", queryParam));
+        disjunction.add(Restrictions.like("firstname", queryParam));
+        disjunction.add(Restrictions.like("lastname", queryParam));
+        disjunction.add(Restrictions.like("email", queryParam));
         return disjunction;
     }
 }

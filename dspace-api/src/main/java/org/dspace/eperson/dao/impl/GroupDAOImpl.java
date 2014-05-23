@@ -1,5 +1,6 @@
 package org.dspace.eperson.dao.impl;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.dspace.core.Context;
 import org.dspace.dao.AbstractDSpaceObjectDao;
 import org.dspace.eperson.EPerson;
@@ -48,9 +49,8 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
 
     @Override
     public List<Group> search(Context context, String query, int offset, int limit) throws SQLException {
-        String queryParam = "%"+query.toLowerCase()+"%";
         Criteria criteria = createCriteria(context, Group.class);
-        Disjunction disjunction = addSearchCriteria(queryParam);
+        Disjunction disjunction = addSearchCriteria(query);
         criteria.add(disjunction);
 
         if(0 <= offset)
@@ -66,9 +66,8 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
 
     @Override
     public int searchResultCount(Context context, String query) throws SQLException {
-        String queryParam = "%"+query.toLowerCase()+"%";
         Criteria criteria = createCriteria(context, Group.class);
-        Disjunction disjunction = addSearchCriteria(queryParam);
+        Disjunction disjunction = addSearchCriteria(query);
         criteria.add(disjunction);
 
         return count(criteria);
@@ -76,8 +75,13 @@ public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements Grou
 
     protected Disjunction addSearchCriteria(String queryParam) {
         Disjunction disjunction = Restrictions.disjunction();
-        disjunction.add(Restrictions.ilike("eperson_group_id", queryParam));
-        disjunction.add(Restrictions.ilike("name", queryParam));
+        //Check if our query parameter is an identifier, if not do not attempt to search.
+        //Hibernate will throw a ClassCastException when this param is added & is not an int.
+        if(NumberUtils.toInt(queryParam, -1) != -1)
+        {
+            disjunction.add(Restrictions.like("id", NumberUtils.toInt(queryParam)));
+        }
+        disjunction.add(Restrictions.like("name", "%" + queryParam + "%"));
         return disjunction;
     }
 }

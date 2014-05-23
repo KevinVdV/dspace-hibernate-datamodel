@@ -30,7 +30,7 @@ public interface EPersonService extends DSpaceObjectService<EPerson> {
      * @param context
      * @return
      */
-    public List<EPerson> findByGroups(Context context, Set<Group> groups);
+    public List<EPerson> findByGroups(Context context, Set<Group> groups) throws SQLException;
 
     public List<EPerson> search(Context context, String query) throws SQLException;
 

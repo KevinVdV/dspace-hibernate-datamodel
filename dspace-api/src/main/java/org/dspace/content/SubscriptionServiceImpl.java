@@ -165,4 +165,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new AuthorizeException("Only admin or e-person themselves can subscribe");
         }
     }
+
+    @Override
+    public void delete(Context context, EPerson person) throws SQLException, AuthorizeException {
+        //TODO: HIBERNATE IMPLEMENT
+    }
 }

@@ -78,6 +78,7 @@ public class AbstractUnitTest
      * EPerson mock object to use in the tests.
      */
     protected static EPerson eperson;
+    protected EPerson admin;
 
     protected DSpaceServiceFactory serviceFactory = DSpaceServiceFactory.getInstance();
     protected CommunityService communityService = serviceFactory.getCommunityService();
@@ -366,12 +367,19 @@ public class AbstractUnitTest
             //we start the context
             context = new Context();
             context.setCurrentUser(eperson);
+
+            context.turnOffAuthorisationSystem();
+            admin = createEPersonAndAddToGroup("admin@dspace.org", groupService.find(context, 1));
+            context.restoreAuthSystemState();
             context.commit();
         }
         catch (SQLException ex) 
         {
             log.error(ex.getMessage(),ex);
             fail("SQL Error on AbstractUnitTest init()");
+        } catch (AuthorizeException ex) {
+            log.error(ex.getMessage(),ex);
+            fail("Authorize Error on AbstractUnitTest init()");
         }
     }
 
@@ -386,6 +394,9 @@ public class AbstractUnitTest
     public void destroy() throws Exception {
         if(context != null && context.isValid())
         {
+            ePersonService.delete(context, admin);
+            admin = null;
+            context.commit();
             context.abort();
             context = null;
         }
@@ -430,4 +441,20 @@ public class AbstractUnitTest
         throw new Exception("Fail!");
     }
     */
+
+    protected EPerson createEPersonAndAddToGroup(String email, Group group) throws SQLException, AuthorizeException {
+        EPerson ePerson = createEPerson(email);
+        groupService.addMember(context, group, ePerson);
+        groupService.update(context, group);
+        ePersonService.update(context, ePerson);
+        return ePerson;
+    }
+
+    protected EPerson createEPerson(String email) throws SQLException, AuthorizeException {
+        EPerson ePerson = ePersonService.create(context);
+        ePerson.setEmail(email);
+        ePersonService.update(context, ePerson);
+        return ePerson;
+    }
+
 }

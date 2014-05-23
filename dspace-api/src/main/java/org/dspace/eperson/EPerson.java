@@ -9,7 +9,9 @@ import org.dspace.factory.DSpaceServiceFactory;
 
 import javax.persistence.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by kevin on 08/02/14.
@@ -67,22 +69,8 @@ public class EPerson extends DSpaceObject {
     private EPersonService ePersonService = DSpaceServiceFactory.getInstance().getEPersonService();
 
 
-    /*
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "epersongroup2eperson",
-            joinColumns = {@JoinColumn(name = "eperson_id") },
-            inverseJoinColumns = {@JoinColumn(name = "eperson_group_id") }
-    )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="long"),
-            generator = "epersongroup2eperson_seq"
-    )
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="epersongroup2eperson_seq")
-    @SequenceGenerator(name="epersongroup2eperson_seq", sequenceName="epersongroup2eperson_seq")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "epeople")
     private List<Group> groups = new ArrayList<Group>();
-    */
 
     /** Flag set when data is modified, for events */
     @Transient
@@ -436,6 +424,10 @@ public class EPerson extends DSpaceObject {
     public void setPhone(String phone) {
         this.phone = phone;
         modifiedMetadata = true;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
     }
 
     /*

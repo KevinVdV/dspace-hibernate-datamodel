@@ -20,4 +20,6 @@ public interface SubscriptionService {
     public void deleteByCollection(Context context, Collection collection) throws SQLException, AuthorizeException;
 
     public void delete(Context context, Subscription subscription) throws SQLException, AuthorizeException;
+
+    public void delete(Context context, EPerson person) throws SQLException, AuthorizeException;
 }

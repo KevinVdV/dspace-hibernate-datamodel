@@ -51,12 +51,6 @@ public class Group extends DSpaceObject {
             joinColumns = {@JoinColumn(name = "eperson_group_id") },
             inverseJoinColumns = {@JoinColumn(name = "eperson_id") }
     )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="long"),
-            generator = "epersongroup2eperson_seq"
-    )
-    @SequenceGenerator(name="epersongroup2eperson_seq", sequenceName="epersongroup2eperson_seq", allocationSize = 1)
     private List<EPerson> epeople = new ArrayList<EPerson>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -66,6 +60,10 @@ public class Group extends DSpaceObject {
             inverseJoinColumns = {@JoinColumn(name = "child_id") }
     )
     private List<Group> groups = new ArrayList<Group>();
+
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "groups")
+    private List<Group> parentGroups = new ArrayList<Group>();
 
 
     @Transient
@@ -123,6 +121,18 @@ public class Group extends DSpaceObject {
         groupsChanged = true;
     }
 
+    void addParentGroup(Group group)
+    {
+        getParentGroups().add(group);
+        groupsChanged = true;
+    }
+
+    void removeParentGroup(Group group)
+    {
+        getParentGroups().remove(group);
+        groupsChanged = true;
+    }
+
     boolean remove(EPerson e)
     {
         return getEpeople().remove(e);
@@ -151,6 +161,9 @@ public class Group extends DSpaceObject {
         return groups;
     }
 
+    List<Group> getParentGroups() {
+        return parentGroups;
+    }
 
     /**
      * Return EPerson members of a Group

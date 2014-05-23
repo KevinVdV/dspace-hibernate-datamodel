@@ -3,9 +3,11 @@ package org.dspace.eperson.dao;
 import org.dspace.core.Context;
 import org.dspace.dao.GenericDAO;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -23,4 +25,6 @@ public interface EPersonDAO extends GenericDAO<EPerson>{
     public int searchResultCount(Context context, String query) throws SQLException;
 
     public List<EPerson> findAll(Context context, String sortField) throws SQLException;
+
+    public List<EPerson> findByGroups(Context context, Set<Group> groups) throws SQLException;
 }

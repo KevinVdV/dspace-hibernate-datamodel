@@ -23,6 +23,9 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.DSpaceObjectServiceImpl;
+import org.dspace.content.Item;
+import org.dspace.content.service.ItemService;
+import org.dspace.content.service.SubscriptionService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -61,6 +64,12 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
 
     @Autowired(required= true)
     protected EPersonDAO ePersonDAO;
+
+    @Autowired(required = true)
+    protected SubscriptionService subscriptionService;
+
+    @Autowired(required = true)
+    protected ItemService itemService;
 
     public EPersonServiceImpl()
     {
@@ -124,6 +133,11 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
         }
 
         return ePersonDAO.findByNetid(context, netid);
+    }
+
+    @Override
+    public List<EPerson> findByGroups(Context context, Set<Group> groups) throws SQLException {
+        return ePersonDAO.findByGroups(context, groups);
     }
 
     /**
@@ -254,7 +268,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      */
     @Override
-    public void delete(Context context, EPerson ePersonEntity) throws SQLException, AuthorizeException, EPersonDeletionException
+    public void delete(Context context, EPerson ePerson) throws SQLException, AuthorizeException, EPersonDeletionException
     {
         // authorized?
         if (!AuthorizeManager.isAdmin(context))
@@ -265,8 +279,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
 
         // check for presence of eperson in tables that
         // have constraints on eperson_id
-        //TODO: Hibernate delete when constraints are ready
-        /*List<String> constraintList = getDeleteConstraints();
+        List<String> constraintList = getDeleteConstraints(context, ePerson);
 
         // if eperson exists in tables that have constraints
         // on eperson, throw an exception
@@ -274,33 +287,30 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
         {
             throw new EPersonDeletionException(constraintList);
         }
-        */
-        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, ePersonEntity.getID(), ePersonEntity.getEmail()));
+
+        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, ePerson.getID(), ePerson.getEmail()));
 
         // XXX FIXME: This sidesteps the object model code so it won't
         // generate  REMOVE events on the affected Groups.
 
         // Remove any group memberships first
-        //TODO: Hibernate delete when group is ready
-        /*
-        DatabaseManager.updateQuery(myContext,
-                "DELETE FROM EPersonGroup2EPerson WHERE eperson_id= ? ",
-                getID());
+        Iterator<Group> groups = ePerson.getGroups().iterator();
+        while (groups.hasNext()) {
+            Group group = groups.next();
+            groups.remove();
+            group.getEpeople().remove(ePerson);
+        }
 
-        // Remove any subscriptions
-        DatabaseManager.updateQuery(myContext,
-                "DELETE FROM subscription WHERE eperson_id= ? ",
-                getID());
+        subscriptionService.delete(context, ePerson);
 
-        */
         // Remove ourself
         //Clear the link to any groups we belong to
 //        HibernateQueryUtil.refresh(myContext, ePersonEntity);
 //        ePersonEntity.getGroups().clear();
-        ePersonDAO.delete(context, ePersonEntity);
+        ePersonDAO.delete(context, ePerson);
 
         log.info(LogManager.getHeader(context, "delete_eperson",
-                "eperson_id=" + ePersonEntity.getID()));
+                "eperson_id=" + ePerson.getID()));
     }
 
     /**
@@ -453,44 +463,33 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      *
      * @return List of tables that contain a reference to the eperson.
      */
-    //TODO: Hibernate fix this
-    /*
-    public List<String> getDeleteConstraints() throws SQLException
+    protected List<String> getDeleteConstraints(Context context, EPerson ePerson) throws SQLException
     {
         List<String> tableList = new ArrayList<String>();
 
+
         // check for eperson in item table
-        TableRowIterator tri = DatabaseManager.query(myContext,
-                "SELECT * from item where submitter_id= ? ",
-                getID());
-
-        try
+        Iterator<Item> itemsBySubmitter = itemService.findBySubmitter(context, ePerson);
+        if (itemsBySubmitter.hasNext())
         {
-            if (tri.hasNext())
-            {
-                tableList.add("item");
-            }
-        }
-        finally
-        {
-            // close the TableRowIterator to free up resources
-            if (tri != null)
-            {
-                tri.close();
-            }
+            tableList.add("item");
         }
 
+        //TODO: add when workflow manager is a service
+        /*
         if(ConfigurationManager.getProperty("workflow","workflow.framework").equals("xmlworkflow")){
             getXMLWorkflowConstraints(tableList);
         }else{
             getOriginalWorkflowConstraints(tableList);
 
         }
+        */
         // the list of tables can be used to construct an error message
         // explaining to the user why the eperson cannot be deleted.
         return tableList;
     }
 
+    /*
     private void getXMLWorkflowConstraints(List<String> tableList) throws SQLException {
         TableRowIterator tri;
         // check for eperson in claimtask table

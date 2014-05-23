@@ -1,6 +1,7 @@
 package org.dspace.eperson;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -9,16 +10,16 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "group2group", schema = "public" )
-public class Group2Group {
+public class Group2Group implements Serializable {
 
     @Id
     @ManyToOne(fetch = FetchType.EAGER)
-    @Column(name = "parent_id", nullable = false)
+    @JoinColumn(name = "parent_id", nullable = false)
     public Group parent;
 
     @Id
     @ManyToOne(fetch = FetchType.EAGER)
-    @Column(name = "child_id", nullable = false)
+    @JoinColumn(name = "child_id", nullable = false)
     public Group child;
 
 

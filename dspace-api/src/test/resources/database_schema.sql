@@ -437,7 +437,7 @@ CREATE INDEX rp_epersongroup_fk_idx ON ResourcePolicy(epersongroup_id);
 -------------------------------------------------------
 CREATE TABLE EPersonGroup2EPerson
 (
-  id               INTEGER PRIMARY KEY,
+  PRIMARY KEY (eperson_group_id, eperson_id),
   eperson_group_id INTEGER REFERENCES EPersonGroup(eperson_group_id),
   eperson_id       INTEGER REFERENCES EPerson(eperson_id)
 );
