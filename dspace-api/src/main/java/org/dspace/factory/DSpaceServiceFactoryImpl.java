@@ -11,8 +11,8 @@ import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.RegistrationDataService;
 import org.dspace.handle.service.HandleService;
 import org.dspace.identifier.DOIService;
-import org.dspace.workflow.service.TaskListItemService;
-import org.dspace.workflow.service.WorkflowItemService;
+import org.dspace.workflowbasic.service.BasicWorkflowItemService;
+import org.dspace.workflowbasic.service.TaskListItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +51,7 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Autowired(required = true)
     private WorkspaceItemService workspaceItemService;
     @Autowired(required = true)
-    private WorkflowItemService workflowItemService;
+    private BasicWorkflowItemService basicWorkflowItemService;
     @Autowired(required = true)
     private ResourcePolicyService resourcePolicyService;
     @Autowired(required = true)
@@ -138,8 +138,8 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
         return workspaceItemService;
     }
 
-    public WorkflowItemService getWorkflowItemService() {
-        return workflowItemService;
+    public BasicWorkflowItemService getBasicWorkflowItemService() {
+        return basicWorkflowItemService;
     }
 
     public ResourcePolicyService getResourcePolicyService() {

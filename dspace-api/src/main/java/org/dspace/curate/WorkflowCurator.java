@@ -34,9 +34,11 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.workflow.WorkflowItem;
-import org.dspace.workflow.WorkflowManager;
-import org.dspace.workflow.service.WorkflowItemService;
+import org.dspace.workflowbasic.BasicWorkflowItem;
+import org.dspace.workflowbasic.BasicWorkflowServiceImpl;
+import org.dspace.workflowbasic.factory.BasicWorkflowServiceFactory;
+import org.dspace.workflowbasic.service.BasicWorkflowItemService;
+import org.dspace.workflowbasic.service.BasicWorkflowService;
 
 // Warning - static import ahead!
 import static javax.xml.stream.XMLStreamConstants.*;
@@ -62,7 +64,8 @@ public class WorkflowCurator {
     private static final String[] flowSteps = { "step1", "step2", "step3", "archive" };
     protected static final EPersonService E_PERSON_SERVICE = DSpaceServiceFactory.getInstance().getEPersonService();
     protected static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
-    protected static final WorkflowItemService WORKFLOW_ITEM_SERVICE = DSpaceServiceFactory.getInstance().getWorkflowItemService();
+    protected static final BasicWorkflowService WORKFLOW_SERVICE = BasicWorkflowServiceFactory.getInstance().getBasicWorkflowService();
+    protected static final BasicWorkflowItemService WORKFLOW_ITEM_SERVICE = BasicWorkflowServiceFactory.getInstance().getBasicWorkflowItemService();
     protected static final GroupService GROUP_MANAGER = DSpaceServiceFactory.getInstance().getGroupService();
 
     
@@ -75,7 +78,7 @@ public class WorkflowCurator {
         }
     }
     
-    public static boolean needsCuration(Context context, WorkflowItem wfi) throws SQLException {
+    public static boolean needsCuration(Context context, BasicWorkflowItem wfi) throws SQLException {
        return getFlowStep(context, wfi) != null;
     }
   
@@ -91,7 +94,7 @@ public class WorkflowCurator {
      * @throws IOException
      * @throws SQLException
      */
-    public static boolean doCuration(Context c, WorkflowItem wfi)
+    public static boolean doCuration(Context c, BasicWorkflowItem wfi)
             throws AuthorizeException, IOException, SQLException {
         FlowStep step = getFlowStep(c, wfi);
         if (step != null) {
@@ -122,10 +125,10 @@ public class WorkflowCurator {
      */
     public static boolean curate(Curator curator, Context c, String wfId)
             throws AuthorizeException, IOException, SQLException, IllegalAccessException {
-        WorkflowItem wfi = WORKFLOW_ITEM_SERVICE.find(c, Integer.parseInt(wfId));
+        BasicWorkflowItem wfi = WORKFLOW_ITEM_SERVICE.find(c, Integer.parseInt(wfId));
         if (wfi != null) {
             if (curate(curator, c, wfi)) {
-                WorkflowManager.advance(c, wfi, c.getCurrentUser(), false, true);
+                WORKFLOW_SERVICE.advance(c, wfi, c.getCurrentUser(), false, true);
                 return true;
             }
         } else {
@@ -134,7 +137,7 @@ public class WorkflowCurator {
         return false;
     }
     
-    public static boolean curate(Curator curator, Context c, WorkflowItem wfi)
+    public static boolean curate(Curator curator, Context c, BasicWorkflowItem wfi)
             throws AuthorizeException, IOException, SQLException {
         FlowStep step = getFlowStep(c, wfi);
         if (step != null) {
@@ -155,8 +158,8 @@ public class WorkflowCurator {
                     notifyContacts(c, wfi, task, "fail", action, result);
                     // if task so empowered, reject submission and terminate
                     if ("reject".equals(action)) {
-                        WorkflowManager.reject(c, wfi, c.getCurrentUser(),
-                                                task.name + ": " + result);
+                        WORKFLOW_SERVICE.sendWorkflowItemBackSubmission(c, wfi, c.getCurrentUser(), null,
+                                task.name + ": " + result);
                         return false;
                     }
                 } else if (status == Curator.CURATE_SUCCESS) {
@@ -177,17 +180,17 @@ public class WorkflowCurator {
         return true;
     }
     
-    private static void notifyContacts(Context c, WorkflowItem wfi, Task task,
+    private static void notifyContacts(Context c, BasicWorkflowItem wfi, Task task,
                                        String status, String action, String message)
             throws AuthorizeException, IOException, SQLException  {
         EPerson[] epa = resolveContacts(c, task.getContacts(status), wfi);
         if (epa.length > 0) {
-            WorkflowManager.notifyOfCuration(c, wfi, epa, task.name, action, message);
+            WORKFLOW_SERVICE.notifyOfCuration(c, wfi, epa, task.name, action, message);
         }
     }
     
     private static EPerson[] resolveContacts(Context c, List<String> contacts,
-                                             WorkflowItem wfi) 
+                                             BasicWorkflowItem wfi)
                     throws AuthorizeException, IOException, SQLException {
         List<EPerson> epList = new ArrayList<EPerson>();
         for (String contact : contacts) {
@@ -230,7 +233,7 @@ public class WorkflowCurator {
         return epList.toArray(new EPerson[epList.size()]);
     }
     
-    private static FlowStep getFlowStep(Context context, WorkflowItem wfi) throws SQLException {
+    private static FlowStep getFlowStep(Context context, BasicWorkflowItem wfi) throws SQLException {
         Collection coll = wfi.getCollection();
         String key = tsMap.containsKey(coll.getHandle(context)) ? coll.getHandle(context) : "default";
         TaskSet ts = tsMap.get(key);
@@ -246,15 +249,15 @@ public class WorkflowCurator {
     }
     
     private static int state2step(int state) {
-        if (state <= WorkflowManager.WFSTATE_STEP1POOL)
+        if (state <= BasicWorkflowServiceImpl.WFSTATE_STEP1POOL)
         {
             return 1;
         }
-        if (state <= WorkflowManager.WFSTATE_STEP2POOL)
+        if (state <= BasicWorkflowServiceImpl.WFSTATE_STEP2POOL)
         {
             return 2;
         }
-        if (state <= WorkflowManager.WFSTATE_STEP3POOL)
+        if (state <= BasicWorkflowServiceImpl.WFSTATE_STEP3POOL)
         {
             return 3;
         }

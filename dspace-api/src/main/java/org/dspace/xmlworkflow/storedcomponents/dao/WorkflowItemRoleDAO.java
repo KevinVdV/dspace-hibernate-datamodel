@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface WorkflowItemRoleDAO extends GenericDAO<WorkflowItemRole> {
 
-    public WorkflowItemRole findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException;
+    public List<WorkflowItemRole> findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException;
 
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException;
 }

@@ -1,9 +1,9 @@
-package org.dspace.workflow.dao;
+package org.dspace.workflowbasic.dao;
 
 import org.dspace.core.Context;
 import org.dspace.dao.GenericDAO;
-import org.dspace.workflow.TaskListItem;
-import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflowbasic.BasicWorkflowItem;
+import org.dspace.workflowbasic.TaskListItem;
 
 import java.sql.SQLException;
 
@@ -14,5 +14,5 @@ import java.sql.SQLException;
  */
 public interface TaskListItemDAO extends GenericDAO<TaskListItem> {
 
-    public void deleteByWorkflowItem(Context context, WorkflowItem workflowItem) throws SQLException;
+    public void deleteByWorkflowItem(Context context, BasicWorkflowItem workflowItem) throws SQLException;
 }

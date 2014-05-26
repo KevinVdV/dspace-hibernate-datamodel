@@ -4,6 +4,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.eperson.EPerson;
+import org.dspace.workflow.WorkflowItem;
 
 import javax.persistence.*;
 
@@ -16,7 +17,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name="cwf_workflowitem", schema = "public")
-public class XmlWorkflowItem implements InProgressSubmission{
+public class XmlWorkflowItem implements WorkflowItem {
 
     @Id
     @Column(name="workflowitem_id")
@@ -45,6 +46,7 @@ public class XmlWorkflowItem implements InProgressSubmission{
         return id;
     }
 
+    @Override
     public Item getItem() {
         return item;
     }
@@ -53,6 +55,7 @@ public class XmlWorkflowItem implements InProgressSubmission{
         this.item = item;
     }
 
+    @Override
     public Collection getCollection() {
         return collection;
     }

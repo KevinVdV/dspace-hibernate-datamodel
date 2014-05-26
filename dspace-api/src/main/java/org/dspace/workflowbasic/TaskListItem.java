@@ -1,4 +1,4 @@
-package org.dspace.workflow;
+package org.dspace.workflowbasic;
 
 import org.dspace.eperson.EPerson;
 
@@ -25,7 +25,7 @@ public class TaskListItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workflow_id")
-    private WorkflowItem workflowItem;
+    private BasicWorkflowItem workflowItem;
 
     public int getTaskListItemId() {
         return taskListItemId;
@@ -35,7 +35,7 @@ public class TaskListItem {
         return ePerson;
     }
 
-    public WorkflowItem getWorkflowItem() {
+    public BasicWorkflowItem getWorkflowItem() {
         return workflowItem;
     }
 
@@ -43,7 +43,7 @@ public class TaskListItem {
         this.ePerson = ePerson;
     }
 
-    void setWorkflowItem(WorkflowItem workflowItem) {
+    void setWorkflowItem(BasicWorkflowItem workflowItem) {
         this.workflowItem = workflowItem;
     }
 }

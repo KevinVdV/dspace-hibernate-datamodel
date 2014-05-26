@@ -19,7 +19,8 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Event;
 import org.dspace.handle.service.HandleService;
-import org.dspace.workflow.service.WorkflowItemService;
+import org.dspace.workflow.factory.WorkflowServiceFactory;
+import org.dspace.workflowbasic.service.BasicWorkflowItemService;
 import org.dspace.xmlworkflow.storedcomponents.service.CollectionRoleService;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +71,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     @Autowired(required = true)
     protected XmlWorkflowItemService xmlWorkflowItemService;
     @Autowired(required = true)
-    protected WorkflowItemService workflowItemService;
+    protected BasicWorkflowItemService basicWorkflowItemService;
 
 
     /**
@@ -836,23 +837,15 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         // Remove all authorization policies
         AuthorizeManager.removeAllPolicies(context, collection);
 
-        if(ConfigurationManager.getProperty("workflow","workflow.framework").equals("xmlworkflow")){
-            // Remove any xml_WorkflowItems
-            xmlWorkflowItemService.deleteByCollection(context, collection);
-        }else{
-            // Remove any WorkflowItems
-            workflowItemService.deleteByCollection(context, collection);
-        }
+
+        //Remove all workflow items
+        WorkflowServiceFactory.getInstance().getWorkflowService().deleteCollection(context, collection);
 
         // Remove any WorkspaceItems
         workspaceItemService.deleteByCollection(context, collection);
 
         // Remove any Handle
         handleService.unbindHandle(context, collection);
-
-        if(ConfigurationManager.getProperty("workflow","workflow.framework").equals("xmlworkflow")){
-            collectionRoleService.deleteByCollection(context, collection);
-        }
 
         // Remove any workflow groups - must happen after deleting collection
         Group g = null;

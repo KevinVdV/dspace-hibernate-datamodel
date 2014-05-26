@@ -35,8 +35,8 @@
 
         <mapping class="org.dspace.identifier.DOI"/>
 
-        <mapping class="org.dspace.workflow.WorkflowItem"/>
-        <mapping class="org.dspace.workflow.TaskListItem"/>
+        <mapping class="org.dspace.workflowbasic.BasicWorkflowItem"/>
+        <mapping class="org.dspace.workflowbasic.TaskListItem"/>
 
         <mapping class="org.dspace.handle.Handle"/>
         <mapping class="org.dspace.authorize.ResourcePolicy"/>

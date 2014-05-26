@@ -4,6 +4,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
+import org.dspace.workflow.WorkflowItem;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -20,7 +21,7 @@ public interface WorkspaceItemService extends InProgressSubmissionService<Worksp
 
     public WorkspaceItem create(Context c, Collection coll, boolean template) throws AuthorizeException, SQLException, IOException;
 
-    public WorkspaceItem create(Context c, Collection coll, InProgressSubmission workflowItem) throws AuthorizeException, SQLException, IOException;
+    public WorkspaceItem create(Context c, WorkflowItem workflowItem) throws AuthorizeException, SQLException, IOException;
 
     public List<WorkspaceItem> findByEPerson(Context context, EPerson ep) throws SQLException;
 

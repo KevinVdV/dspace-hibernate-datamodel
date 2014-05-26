@@ -6,6 +6,7 @@ import org.dspace.content.Item;
 import org.dspace.content.service.InProgressSubmissionService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
+import org.dspace.workflow.WorkflowItemService;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 
 import java.io.IOException;
@@ -19,13 +20,8 @@ import java.util.List;
  * Time: 09:50
  * To change this template use File | Settings | File Templates.
  */
-public interface XmlWorkflowItemService extends InProgressSubmissionService<XmlWorkflowItem> {
+public interface XmlWorkflowItemService extends WorkflowItemService<XmlWorkflowItem> {
 
-    public XmlWorkflowItem create(Context context, Item item, Collection collection) throws SQLException;
-
-    public XmlWorkflowItem find(Context context, int id) throws SQLException;
-
-    public List<XmlWorkflowItem> findAll(Context context) throws SQLException;
 
     public List<XmlWorkflowItem> findAll(Context context, int page, int pagesize) throws SQLException;
 
@@ -34,12 +30,4 @@ public interface XmlWorkflowItemService extends InProgressSubmissionService<XmlW
     public int countAll(Context context) throws SQLException;
 
     public int countAllInCollection(Context context, Collection collection) throws SQLException;
-
-    public List<XmlWorkflowItem> findBySubmitter(Context context, EPerson ep) throws SQLException;
-
-    public List<XmlWorkflowItem> findByCollection(Context context, Collection collection) throws SQLException;
-
-    public XmlWorkflowItem findByItem(Context context, Item item) throws SQLException;
-
-    public void deleteByCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException;
 }

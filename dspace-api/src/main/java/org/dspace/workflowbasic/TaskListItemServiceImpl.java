@@ -1,9 +1,9 @@
-package org.dspace.workflow;
+package org.dspace.workflowbasic;
 
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.workflow.dao.TaskListItemDAO;
-import org.dspace.workflow.service.TaskListItemService;
+import org.dspace.workflowbasic.dao.TaskListItemDAO;
+import org.dspace.workflowbasic.service.TaskListItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
@@ -19,7 +19,7 @@ public class TaskListItemServiceImpl implements TaskListItemService {
     protected TaskListItemDAO taskListItemDAO;
 
     @Override
-    public TaskListItem create(Context context, WorkflowItem workflowItem, EPerson ePerson) throws SQLException {
+    public TaskListItem create(Context context, BasicWorkflowItem workflowItem, EPerson ePerson) throws SQLException {
         TaskListItem taskListItem = taskListItemDAO.create(context, new TaskListItem());
         taskListItem.setWorkflowItem(workflowItem);
         taskListItem.setEPerson(ePerson);
@@ -28,7 +28,7 @@ public class TaskListItemServiceImpl implements TaskListItemService {
     }
 
     @Override
-    public void deleteByWorkflowItem(Context context, WorkflowItem workflowItem) throws SQLException {
+    public void deleteByWorkflowItem(Context context, BasicWorkflowItem workflowItem) throws SQLException {
         taskListItemDAO.deleteByWorkflowItem(context, workflowItem);
     }
 

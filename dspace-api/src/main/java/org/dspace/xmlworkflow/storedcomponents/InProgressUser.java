@@ -38,7 +38,7 @@ public class InProgressUser {
         return ePerson;
     }
 
-    void setePerson(EPerson ePerson) {
+    public void setePerson(EPerson ePerson) {
         this.ePerson = ePerson;
     }
 
@@ -46,7 +46,7 @@ public class InProgressUser {
         return workflowItem;
     }
 
-    void setWorkflowItem(XmlWorkflowItem workflowItem) {
+    public void setWorkflowItem(XmlWorkflowItem workflowItem) {
         this.workflowItem = workflowItem;
     }
 

@@ -1,7 +1,6 @@
 package org.dspace.xmlworkflow.storedcomponents;
 
 import org.dspace.eperson.EPerson;
-import org.dspace.workflow.WorkflowItem;
 
 import javax.persistence.*;
 
@@ -47,15 +46,15 @@ public class ClaimedTask {
         this.workflowItem = workflowItem;
     }
 
-    void setWorkflowId(String workflowId) {
+    public void setWorkflowId(String workflowId) {
         this.workflowId = workflowId;
     }
 
-    void setStepId(String stepId) {
+    public void setStepId(String stepId) {
         this.stepId = stepId;
     }
 
-    void setActionId(String actionId) {
+    public void setActionId(String actionId) {
         this.actionId = actionId;
     }
 

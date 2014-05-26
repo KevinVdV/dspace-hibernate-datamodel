@@ -32,8 +32,8 @@
     <bean class="org.dspace.content.InstallItemServiceImpl"/>
     <bean class="org.dspace.content.SupervisedItemServiceImpl"/>
 
-    <bean class="org.dspace.workflow.WorkflowItemServiceImpl"/>
-    <bean class="org.dspace.workflow.TaskListItemServiceImpl"/>
+    <bean class="org.dspace.workflowbasic.BasicWorkflowItemServiceImpl"/>
+    <bean class="org.dspace.workflowbasic.TaskListItemServiceImpl"/>
 
     <bean class="org.dspace.handle.HandleServiceImpl"/>
 
@@ -41,6 +41,7 @@
     <bean class="org.dspace.harvest.HarvestedCollectionServiceImpl"/>
 
 
+    <bean class="org.dspace.xmlworkflow.WorkflowRequirementsServiceImpl"/>
     <bean class="org.dspace.xmlworkflow.storedcomponents.ClaimedTaskServiceImpl"/>
     <bean class="org.dspace.xmlworkflow.storedcomponents.CollectionRoleServiceImpl"/>
     <bean class="org.dspace.xmlworkflow.storedcomponents.InProgressUserServiceImpl"/>
@@ -75,6 +76,22 @@
 
     <bean class="org.dspace.versioning.VersionHistoryServiceImpl"/>
 
+    <!-- ********************* -->
+    <!-- Workflow declarations -->
+    <!-- ********************* -->
+
+    <!-- Basic workflow configuration (the default) -->
+    <bean id="workflowFactory" class="org.dspace.workflowbasic.factory.BasicWorkflowServiceFactoryImpl"/>
+
+    <bean id="basicWorkflowServiceFactory" class="org.dspace.workflowbasic.factory.BasicWorkflowServiceFactoryImpl"/>
+    <bean class="org.dspace.workflowbasic.BasicWorkflowServiceImpl"/>
+
+    <!-- Xml Workflow configuration (optional)-->
+    <!--<bean id="workflowFactory" class="org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactoryImpl"/>-->
+    <!--<bean id="xmlWorkflowServiceFactory" class="org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactoryImpl" />-->
+    <!--<bean class="org.dspace.xmlworkflow.factory.XmlWorkflowFactoryImpl"/>-->
+    <!--<bean class="org.dspace.xmlworkflow.XmlWorkflowServiceImpl"/>-->
+
 
     <!-- **************** -->
     <!-- DAO declarations -->
@@ -92,8 +109,8 @@
     <bean class="org.dspace.content.dao.impl.WorkspaceItemDAOImpl"/>
     <bean class="org.dspace.content.dao.impl.SupervisedItemDAOImpl"/>
 
-    <bean class="org.dspace.workflow.dao.impl.WorkflowItemDAOImpl"/>
-    <bean class="org.dspace.workflow.dao.impl.TaskListItemDAOImpl"/>
+    <bean class="org.dspace.workflowbasic.dao.impl.BasicWorkflowItemDAOImpl"/>
+    <bean class="org.dspace.workflowbasic.dao.impl.TaskListItemDAOImpl"/>
 
     <bean class="org.dspace.eperson.dao.impl.EPersonDAOImpl"/>
     <bean class="org.dspace.eperson.dao.impl.GroupDAOImpl"/>

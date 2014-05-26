@@ -6,6 +6,7 @@ import org.dspace.xmlworkflow.storedcomponents.service.WorkflowItemRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,13 +32,23 @@ public class WorkflowItemRoleServiceImpl implements WorkflowItemRoleService {
     }
 
     @Override
-    public WorkflowItemRole findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException {
+    public List<WorkflowItemRole> findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException {
         return workflowItemRoleDAO.findByWorkflowItemAndRole(context, workflowItem, role);
     }
 
     @Override
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         return workflowItemRoleDAO.findByWorkflowItem(context, workflowItem);
+    }
+
+    @Override
+    public void deleteForWorkflowItem(Context context, XmlWorkflowItem xmlWorkflowItem) throws SQLException {
+        Iterator<WorkflowItemRole> workflowItemRoles = findByWorkflowItem(context, xmlWorkflowItem).iterator();
+        while (workflowItemRoles.hasNext()) {
+            WorkflowItemRole workflowItemRole = workflowItemRoles.next();
+            workflowItemRoles.remove();
+            delete(context, workflowItemRole);
+        }
     }
 
     @Override

@@ -14,9 +14,7 @@ import org.dspace.eperson.service.RegistrationDataService;
 import org.dspace.handle.service.HandleService;
 import org.dspace.identifier.DOIService;
 import org.dspace.utils.DSpace;
-import org.dspace.workflow.WorkflowItem;
-import org.dspace.workflow.service.TaskListItemService;
-import org.dspace.workflow.service.WorkflowItemService;
+import org.dspace.workflow.factory.WorkflowServiceFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -51,11 +49,7 @@ public abstract class DSpaceServiceFactory {
 
     public abstract WorkspaceItemService getWorkspaceItemService();
 
-    public abstract WorkflowItemService getWorkflowItemService();
-
     public abstract ResourcePolicyService getResourcePolicyService();
-
-    public abstract TaskListItemService getTaskListItemService();
 
     public abstract HandleService getHandleService();
 
@@ -82,14 +76,11 @@ public abstract class DSpaceServiceFactory {
         if(inProgressSubmission instanceof WorkspaceItem)
         {
             return getWorkspaceItemService();
-        }else
-        if(inProgressSubmission instanceof WorkflowItem)
-        {
-            return getWorkflowItemService();
         }
-
-        //TODO: Implement workflowItem checks
-        throw new UnsupportedOperationException();
+        else
+        {
+            return WorkflowServiceFactory.getInstance().getWorkflowItemService();
+        }
     }
     public DSpaceObjectService<DSpaceObject> getDSpaceObjectService(DSpaceObject dso)
     {

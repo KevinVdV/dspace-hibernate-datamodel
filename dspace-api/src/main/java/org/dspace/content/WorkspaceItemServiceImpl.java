@@ -26,6 +26,8 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.factory.WorkflowServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -112,102 +114,24 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
         AuthorizeManager.authorizeAction(c, coll, Constants.ADD);
 
         WorkspaceItem workspaceItem = workspaceItemDAO.create(c, new WorkspaceItem());
+        workspaceItem.setCollection(coll);
 
         // Create an item
         Item i = itemService.create(c, workspaceItem);
         i.setSubmitter(c.getCurrentUser());
 
-        // Now create the policies for the submitter and workflow
-        // users to modify item and contents
-        // contents = bitstreams, bundles
-        // FIXME: icky hardcoded workflow steps
-        Group step1group = collectionService.getWorkflowGroup(coll, 1);
-        Group step2group = collectionService.getWorkflowGroup(coll, 2);
-        Group step3group = collectionService.getWorkflowGroup(coll, 3);
 
         EPerson e = c.getCurrentUser();
 
+        WorkflowServiceFactory.getInstance().getWorkflowService().addInitialWorkspaceItemPolicies(c, workspaceItem);
         // read permission
         AuthorizeManager.addPolicy(c, i, Constants.READ, e, ResourcePolicy.TYPE_SUBMISSION);
-
-
-        if (ConfigurationManager.getProperty("workflow", "workflow.framework").equals("originalworkflow")) {
-            if (step1group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.READ, step1group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-
-            if (step2group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.READ, step2group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-
-            if (step3group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.READ, step3group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-        }
-
-
         // write permission
         AuthorizeManager.addPolicy(c, i, Constants.WRITE, e, ResourcePolicy.TYPE_SUBMISSION);
-
-        if (ConfigurationManager.getProperty("workflow", "workflow.framework").equals("originalworkflow")) {
-            if (step1group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.WRITE, step1group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-
-            if (step2group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.WRITE, step2group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-
-            if (step3group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.WRITE, step3group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-        }
-
         // add permission
         AuthorizeManager.addPolicy(c, i, Constants.ADD, e, ResourcePolicy.TYPE_SUBMISSION);
-
-        if (ConfigurationManager.getProperty("workflow", "workflow.framework").equals("originalworkflow")) {
-            if (step1group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.ADD, step1group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-
-            if (step2group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.ADD, step2group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-
-            if (step3group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.ADD, step3group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-        }
-
         // remove contents permission
         AuthorizeManager.addPolicy(c, i, Constants.REMOVE, e, ResourcePolicy.TYPE_SUBMISSION);
-
-        if (ConfigurationManager.getProperty("workflow", "workflow.framework").equals("originalworkflow")) {
-            if (step1group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step1group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-
-            if (step2group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step2group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-
-            if (step3group != null)
-            {
-                AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step3group, ResourcePolicy.TYPE_WORKFLOW);
-            }
-        }
 
         // Copy template if appropriate
         Item templateItem = coll.getTemplateItem();
@@ -226,7 +150,6 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
 
         itemService.update(c, i);
         workspaceItem.setItem(i);
-        workspaceItem.setCollection(coll);
 
         log.info(LogManager.getHeader(c, "create_workspace_item",
                 "workspace_item_id=" + workspaceItem.getID()
@@ -238,14 +161,10 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
     }
 
     @Override
-    public WorkspaceItem create(Context c, Collection coll, InProgressSubmission workflowItem) throws AuthorizeException, SQLException, IOException {
-        if(workflowItem instanceof WorkspaceItem)
-        {
-            throw new IllegalStateException("Cannot create workspace item for a workspace item !");
-        }
+    public WorkspaceItem create(Context c, WorkflowItem workflowItem) throws AuthorizeException, SQLException, IOException {
         WorkspaceItem workspaceItem = workspaceItemDAO.create(c, new WorkspaceItem());
         workspaceItem.setItem(workflowItem.getItem());
-        workspaceItem.setCollection(coll);
+        workspaceItem.setCollection(workflowItem.getCollection());
         update(c, workspaceItem);
         return workspaceItem;
     }

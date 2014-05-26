@@ -1,4 +1,4 @@
-package org.dspace.workflow;
+package org.dspace.workflowbasic;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
@@ -8,9 +8,9 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.workflow.dao.WorkflowItemDAO;
-import org.dspace.workflow.service.TaskListItemService;
-import org.dspace.workflow.service.WorkflowItemService;
+import org.dspace.workflowbasic.dao.BasicWorkflowItemDAO;
+import org.dspace.workflowbasic.service.BasicWorkflowItemService;
+import org.dspace.workflowbasic.service.TaskListItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -23,13 +23,13 @@ import java.util.List;
  * Date: 7/04/14
  * Time: 15:52
  */
-public class WorkflowItemServiceImpl implements WorkflowItemService
+public class BasicWorkflowItemServiceImpl implements BasicWorkflowItemService
 {
     /** log4j category */
-    protected static Logger log = Logger.getLogger(WorkflowItem.class);
+    protected static Logger log = Logger.getLogger(BasicWorkflowItem.class);
 
     @Autowired(required = true)
-    protected WorkflowItemDAO workflowItemDAO;
+    protected BasicWorkflowItemDAO workflowItemDAO;
 
     @Autowired(required = true)
     protected ItemService itemService;
@@ -42,13 +42,13 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * Construct a workspace item corresponding to the given database row
      *
      */
-    public WorkflowItemServiceImpl()
+    public BasicWorkflowItemServiceImpl()
     {
     }
 
     @Override
-    public WorkflowItem create(Context context, Item item, Collection collection) throws SQLException, AuthorizeException {
-        WorkflowItem workflowItem = workflowItemDAO.create(context, new WorkflowItem());
+    public BasicWorkflowItem create(Context context, Item item, Collection collection) throws SQLException, AuthorizeException {
+        BasicWorkflowItem workflowItem = workflowItemDAO.create(context, new BasicWorkflowItem());
         workflowItem.setItem(item);
         workflowItem.setCollection(collection);
         update(context, workflowItem);
@@ -67,11 +67,11 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * @return the workflow item, or null if the ID is invalid.
      */
     @Override
-    public WorkflowItem find(Context context, int id)
+    public BasicWorkflowItem find(Context context, int id)
             throws SQLException
     {
 
-        WorkflowItem workflowItem = workflowItemDAO.findByID(context, WorkflowItem.class, id);
+        BasicWorkflowItem workflowItem = workflowItemDAO.findByID(context, BasicWorkflowItem.class, id);
 
         if (workflowItem == null)
         {
@@ -99,9 +99,9 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * @return WorkflowItem [] of all workflows in system
      */
     @Override
-    public List<WorkflowItem> findAll(Context c) throws SQLException
+    public List<BasicWorkflowItem> findAll(Context c) throws SQLException
     {
-        return workflowItemDAO.findAll(c, WorkflowItem.class);
+        return workflowItemDAO.findAll(c, BasicWorkflowItem.class);
     }
 
     /**
@@ -117,9 +117,9 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * @return the corresponding workflow items
      */
     @Override
-    public List<WorkflowItem> findByEPerson(Context context, EPerson ep) throws SQLException
+    public List<BasicWorkflowItem> findBySubmitter(Context context, EPerson ep) throws SQLException
     {
-        return workflowItemDAO.findByEPerson(context, ep);
+        return workflowItemDAO.findBySubmitter(context, ep);
     }
 
     /**
@@ -130,7 +130,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      *            The Eperson we want to fetch the pooled tasks for.
      */
     @Override
-    public List<WorkflowItem> findByPooledTasks(Context context, EPerson ePerson) throws SQLException
+    public List<BasicWorkflowItem> findByPooledTasks(Context context, EPerson ePerson) throws SQLException
     {
         return workflowItemDAO.findByPooledTasks(context, ePerson);
     }
@@ -146,7 +146,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * @return array of the corresponding workflow items
      */
     @Override
-    public List<WorkflowItem> findByCollection(Context context, Collection c) throws SQLException
+    public List<BasicWorkflowItem> findByCollection(Context context, Collection c) throws SQLException
     {
         return workflowItemDAO.findByCollection(context, c);
 
@@ -165,17 +165,17 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * @return workflow item corresponding to the item, or null
      */
     @Override
-    public WorkflowItem findByItem(Context context, Item i) throws SQLException
+    public BasicWorkflowItem findByItem(Context context, Item i) throws SQLException
     {
         return workflowItemDAO.findByItem(context, i);
     }
 
     @Override
     public void deleteByCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException {
-        List<WorkflowItem> workflowItems = findByCollection(context, collection);
-        Iterator<WorkflowItem> iterator = workflowItems.iterator();
+        List<BasicWorkflowItem> workflowItems = findByCollection(context, collection);
+        Iterator<BasicWorkflowItem> iterator = workflowItems.iterator();
         while (iterator.hasNext()) {
-            WorkflowItem workflowItem = iterator.next();
+            BasicWorkflowItem workflowItem = iterator.next();
             iterator.remove();
             delete(context, workflowItem);
         }
@@ -185,7 +185,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * Update the workflow item, including the unarchived item.
      */
     @Override
-    public void update(Context context, WorkflowItem workflowItem) throws SQLException, AuthorizeException
+    public void update(Context context, BasicWorkflowItem workflowItem) throws SQLException, AuthorizeException
     {
         // FIXME check auth
         log.info(LogManager.getHeader(context, "update_workflow_item",
@@ -203,7 +203,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
      * delete the WorkflowItem, retaining the Item
      */
     @Override
-    public void deleteWrapper(Context context, WorkflowItem workflowItem) throws SQLException, AuthorizeException
+    public void deleteWrapper(Context context, BasicWorkflowItem workflowItem) throws SQLException, AuthorizeException
     {
         // delete any pending tasks
         taskListItemService.deleteByWorkflowItem(context, workflowItem);
@@ -213,7 +213,7 @@ public class WorkflowItemServiceImpl implements WorkflowItemService
     }
 
     @Override
-    public void delete(Context context, WorkflowItem workflowItem) throws SQLException, AuthorizeException, IOException {
+    public void delete(Context context, BasicWorkflowItem workflowItem) throws SQLException, AuthorizeException, IOException {
         Item item = workflowItem.getItem();
         deleteWrapper(context, workflowItem);
         itemService.delete(context, item);

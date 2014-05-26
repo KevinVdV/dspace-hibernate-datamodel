@@ -1,10 +1,10 @@
-package org.dspace.workflow.dao.impl;
+package org.dspace.workflowbasic.dao.impl;
 
 import org.dspace.core.Context;
 import org.dspace.dao.AbstractHibernateDAO;
-import org.dspace.workflow.TaskListItem;
-import org.dspace.workflow.WorkflowItem;
-import org.dspace.workflow.dao.TaskListItemDAO;
+import org.dspace.workflowbasic.BasicWorkflowItem;
+import org.dspace.workflowbasic.TaskListItem;
+import org.dspace.workflowbasic.dao.TaskListItemDAO;
 import org.hibernate.Query;
 
 import java.sql.SQLException;
@@ -18,7 +18,7 @@ public class TaskListItemDAOImpl extends AbstractHibernateDAO<TaskListItem> impl
 {
 
     @Override
-    public void deleteByWorkflowItem(Context context, WorkflowItem workflowItem) throws SQLException {
+    public void deleteByWorkflowItem(Context context, BasicWorkflowItem workflowItem) throws SQLException {
         String queryString = "delete from TaskListItem where workflowItem = :workflowItem";
         Query query = createQuery(context, queryString);
         query.setParameter("workflowItem", workflowItem);
