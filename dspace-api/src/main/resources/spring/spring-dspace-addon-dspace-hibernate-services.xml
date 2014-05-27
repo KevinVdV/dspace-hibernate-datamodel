@@ -45,9 +45,6 @@
     <bean class="org.dspace.content.InstallItemServiceImpl"/>
     <bean class="org.dspace.content.SupervisedItemServiceImpl"/>
 
-    <bean class="org.dspace.workflowbasic.BasicWorkflowItemServiceImpl"/>
-    <bean class="org.dspace.workflowbasic.TaskListItemServiceImpl"/>
-
     <bean class="org.dspace.handle.HandleServiceImpl"/>
 
     <bean class="org.dspace.harvest.HarvestedItemServiceImpl"/>
@@ -55,13 +52,6 @@
 
     <bean class="org.dspace.storage.bitstore.BitstreamStorageServiceImpl"/>
 
-    <bean class="org.dspace.xmlworkflow.WorkflowRequirementsServiceImpl"/>
-    <bean class="org.dspace.xmlworkflow.storedcomponents.ClaimedTaskServiceImpl"/>
-    <bean class="org.dspace.xmlworkflow.storedcomponents.CollectionRoleServiceImpl"/>
-    <bean class="org.dspace.xmlworkflow.storedcomponents.InProgressUserServiceImpl"/>
-    <bean class="org.dspace.xmlworkflow.storedcomponents.PoolTaskServiceImpl"/>
-    <bean class="org.dspace.xmlworkflow.storedcomponents.WorkflowItemRoleServiceImpl"/>
-    <bean class="org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItemServiceImpl"/>
 
     <bean class="org.dspace.checker.ChecksumResultServiceImpl"/>
     <bean class="org.dspace.checker.MostRecentChecksumServiceImpl"/>
@@ -99,12 +89,22 @@
 
     <bean id="basicWorkflowServiceFactory" class="org.dspace.workflowbasic.factory.BasicWorkflowServiceFactoryImpl"/>
     <bean class="org.dspace.workflowbasic.BasicWorkflowServiceImpl"/>
+    <bean class="org.dspace.workflowbasic.BasicWorkflowItemServiceImpl"/>
+    <bean class="org.dspace.workflowbasic.TaskListItemServiceImpl"/>
 
     <!-- Xml Workflow configuration (optional)-->
     <!--<bean id="workflowFactory" class="org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactoryImpl"/>-->
     <!--<bean id="xmlWorkflowServiceFactory" class="org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactoryImpl" />-->
     <!--<bean class="org.dspace.xmlworkflow.factory.XmlWorkflowFactoryImpl"/>-->
     <!--<bean class="org.dspace.xmlworkflow.XmlWorkflowServiceImpl"/>-->
+    <!--<bean class="org.dspace.xmlworkflow.WorkflowRequirementsServiceImpl"/>-->
+    <!--<bean class="org.dspace.xmlworkflow.storedcomponents.ClaimedTaskServiceImpl"/>-->
+    <!--<bean class="org.dspace.xmlworkflow.storedcomponents.CollectionRoleServiceImpl"/>-->
+    <!--<bean class="org.dspace.xmlworkflow.storedcomponents.InProgressUserServiceImpl"/>-->
+    <!--<bean class="org.dspace.xmlworkflow.storedcomponents.PoolTaskServiceImpl"/>-->
+    <!--<bean class="org.dspace.xmlworkflow.storedcomponents.WorkflowItemRoleServiceImpl"/>-->
+    <!--<bean class="org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItemServiceImpl"/>-->
+
 
 
     <!-- **************** -->

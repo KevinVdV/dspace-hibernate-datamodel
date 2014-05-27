@@ -930,7 +930,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeService authManager;
+            AuthorizeService authorizeService;
             {
                 authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;

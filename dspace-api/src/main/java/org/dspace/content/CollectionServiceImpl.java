@@ -22,9 +22,6 @@ import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Event;
 import org.dspace.handle.service.HandleService;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
-import org.dspace.workflowbasic.service.BasicWorkflowItemService;
-import org.dspace.xmlworkflow.storedcomponents.service.CollectionRoleService;
-import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -67,13 +64,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     @Autowired(required = true)
     protected SubscriptionService subscriptionService;
     @Autowired(required = true)
-    protected CollectionRoleService collectionRoleService;
-    @Autowired(required = true)
     protected WorkspaceItemService workspaceItemService;
-    @Autowired(required = true)
-    protected XmlWorkflowItemService xmlWorkflowItemService;
-    @Autowired(required = true)
-    protected BasicWorkflowItemService basicWorkflowItemService;
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
     @Autowired(required = true)
