@@ -16,6 +16,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
@@ -78,6 +79,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected HandleService handleService;
     @Autowired(required = true)
     protected InstallItemService installItemService;
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
 
     public ItemServiceImpl()
     {
@@ -782,7 +785,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     public void addBundle(Context context, Item item, Bundle b) throws SQLException, AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, item, Constants.ADD);
+        authorizeService.authorizeAction(context, item, Constants.ADD);
 
         log.info(LogManager.getHeader(context, "add_bundle", "item_id="
                 + item.getID() + ",bundle_id=" + b.getID()));
@@ -795,7 +798,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         // now add authorization policies from owning item
         // hmm, not very "multiple-inclusion" friendly
-        AuthorizeManager.inheritPolicies(context, item, b);
+        authorizeService.inheritPolicies(context, item, b);
 
         // Add the bundle to in-memory list
         item.addBundle(b);
@@ -832,7 +835,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
      protected void deleteBundle(Context context, Item item, Bundle b) throws AuthorizeException, SQLException, IOException {
                           // Check authorisation
-        AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
+        authorizeService.authorizeAction(context, item, Constants.REMOVE);
 
         bundleService.delete(context, b);
 
@@ -1006,7 +1009,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         // only do write authorization if user is not an editor
         if (!canEdit(context, item))
         {
-            AuthorizeManager.authorizeAction(context, item, Constants.WRITE);
+            authorizeService.authorizeAction(context, item, Constants.WRITE);
         }
 
         log.info(LogManager.getHeader(context, "update_item", "item_id="
@@ -1119,7 +1122,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(), "WITHDRAW"));
 
         // remove all authorization policies, saving the custom ones
-        AuthorizeManager.removeAllPoliciesByDsoAndTypeNotEqualsTo(context, item, ResourcePolicy.TYPE_CUSTOM);
+        authorizeService.removeAllPoliciesByDsoAndTypeNotEqualsTo(context, item, ResourcePolicy.TYPE_CUSTOM);
 
         // Write log
         log.info(LogManager.getHeader(context, "withdraw_item", "user="
@@ -1198,7 +1201,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     public void delete(Context context, Item item) throws SQLException, IOException, AuthorizeException {
         // Check authorisation here. If we don't, it may happen that we remove the
         // collections leaving the database in an inconsistent state
-        AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
+        authorizeService.authorizeAction(context, item, Constants.REMOVE);
         item.getCollections().clear();
         rawDelete(context,  item);
     }
@@ -1217,7 +1220,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         // Check authorisation here. If we don't, it may happen that we remove the
         // metadata but when getting to the point of removing the bundles we get an exception
         // leaving the database in an inconsistent state
-        AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
+        authorizeService.authorizeAction(context, item, Constants.REMOVE);
 
         context.addEvent(new Event(Event.DELETE, Constants.ITEM, item.getID(), item.getHandle(context)));
 
@@ -1228,7 +1231,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         removeAllBundles(context, item);
 
         // remove all of our authorization policies
-        AuthorizeManager.removeAllPolicies(context, item);
+        authorizeService.removeAllPolicies(context, item);
         
         // Remove any Handle
         handleService.unbindHandle(context, item);
@@ -1293,8 +1296,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             AuthorizeException
     {
         // remove all our policies, add new ones
-        AuthorizeManager.removeAllPolicies(context, item);
-        AuthorizeManager.addPolicies(context, newpolicies, item);
+        authorizeService.removeAllPolicies(context, item);
+        authorizeService.addPolicies(context, newpolicies, item);
     }
 
     /**
@@ -1331,7 +1334,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     @Override
     public void removeGroupPolicies(Context context, Item item, Group g) throws SQLException, AuthorizeException {
         // remove Group's policies from Item
-        AuthorizeManager.removeGroupPolicies(context, item, g);
+        authorizeService.removeGroupPolicies(context, item, g);
 
         // remove all policies from bundles
         List<Bundle> bunds = item.getBundles();
@@ -1341,11 +1344,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
             for (Bitstream b : bs) {
                 // remove bitstream policies
-                AuthorizeManager.removeGroupPolicies(context, b, g);
+                authorizeService.removeGroupPolicies(context, b, g);
             }
 
             // change bundle policies
-            AuthorizeManager.removeGroupPolicies(context, mybundle, g);
+            authorizeService.removeGroupPolicies(context, mybundle, g);
         }
     }
 
@@ -1375,7 +1378,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     @Override
     public void adjustBundleBitstreamPolicies(Context context, Item item, Collection c) throws SQLException, AuthorizeException {
 
-        List<ResourcePolicy> defaultCollectionPolicies = AuthorizeManager.getPoliciesActionFilter(context, c, Constants.DEFAULT_BITSTREAM_READ);
+        List<ResourcePolicy> defaultCollectionPolicies = authorizeService.getPoliciesActionFilter(context, c, Constants.DEFAULT_BITSTREAM_READ);
 
         if (defaultCollectionPolicies.size() < 1){
             throw new SQLException("Collection " + c.getID()
@@ -1388,19 +1391,19 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         List<Bundle> bunds = item.getBundles();
         for (Bundle mybundle : bunds) {
             // if come from InstallItem: remove all submission/workflow policies
-            AuthorizeManager.removeAllPoliciesByDsoAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
-            AuthorizeManager.removeAllPoliciesByDsoAndType(context, mybundle, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.removeAllPoliciesByDsoAndType(context, mybundle, ResourcePolicy.TYPE_SUBMISSION);
+            authorizeService.removeAllPoliciesByDsoAndType(context, mybundle, ResourcePolicy.TYPE_WORKFLOW);
 
             List<ResourcePolicy> policiesBundleToAdd = filterPoliciesToAdd(context, defaultCollectionPolicies, mybundle);
-            AuthorizeManager.addPolicies(context, policiesBundleToAdd, mybundle);
+            authorizeService.addPolicies(context, policiesBundleToAdd, mybundle);
 
             for (Bitstream bitstream : mybundle.getBitstreams()) {
                 // if come from InstallItem: remove all submission/workflow policies
-                AuthorizeManager.removeAllPoliciesByDsoAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
-                AuthorizeManager.removeAllPoliciesByDsoAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
+                authorizeService.removeAllPoliciesByDsoAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
+                authorizeService.removeAllPoliciesByDsoAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);
 
                 List<ResourcePolicy> policiesBitstreamToAdd = filterPoliciesToAdd(context, defaultCollectionPolicies, bitstream);
-                AuthorizeManager.addPolicies(context, policiesBitstreamToAdd, bitstream);
+                authorizeService.addPolicies(context, policiesBitstreamToAdd, bitstream);
             }
         }
     }
@@ -1408,7 +1411,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     @Override
     public void adjustItemPolicies(Context context, Item item, Collection collection) throws SQLException, AuthorizeException {
         // read collection's default READ policies
-        List<ResourcePolicy> defaultCollectionPolicies = AuthorizeManager.getPoliciesActionFilter(context, collection, Constants.DEFAULT_ITEM_READ);
+        List<ResourcePolicy> defaultCollectionPolicies = authorizeService.getPoliciesActionFilter(context, collection, Constants.DEFAULT_ITEM_READ);
 
         // MUST have default policies
         if (defaultCollectionPolicies.size() < 1)
@@ -1419,12 +1422,12 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         }
 
         // if come from InstallItem: remove all submission/workflow policies
-        AuthorizeManager.removeAllPoliciesByDsoAndType(context, item, ResourcePolicy.TYPE_SUBMISSION);
-        AuthorizeManager.removeAllPoliciesByDsoAndType(context, item, ResourcePolicy.TYPE_WORKFLOW);
+        authorizeService.removeAllPoliciesByDsoAndType(context, item, ResourcePolicy.TYPE_SUBMISSION);
+        authorizeService.removeAllPoliciesByDsoAndType(context, item, ResourcePolicy.TYPE_WORKFLOW);
 
         // add default policies only if not already in place
         List<ResourcePolicy> policiesToAdd = filterPoliciesToAdd(context, defaultCollectionPolicies, item);
-        AuthorizeManager.addPolicies(context, policiesToAdd, item);
+        authorizeService.addPolicies(context, policiesToAdd, item);
     }
 
     protected List<ResourcePolicy> filterPoliciesToAdd(Context context, List<ResourcePolicy> defaultCollectionPolicies, DSpaceObject dso) throws SQLException {
@@ -1437,7 +1440,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
                 rp.setAction(Constants.READ);
                 // if an identical policy is already in place don't add it
-                if(!AuthorizeManager.isAnIdenticalPolicyAlreadyInPlace(context, dso, rp)){
+                if(!authorizeService.isAnIdenticalPolicyAlreadyInPlace(context, dso, rp)){
                     rp.setRpType(ResourcePolicy.TYPE_INHERITED);
                     policiesToAdd.add(rp);
                 }
@@ -1477,7 +1480,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     public boolean canEdit(Context context, Item item) throws java.sql.SQLException
     {
         // can this person write to the item?
-        return AuthorizeManager.authorizeActionBoolean(context, item, Constants.WRITE, true);
+        return authorizeService.authorizeActionBoolean(context, item, Constants.WRITE, true);
     }
 
     /**

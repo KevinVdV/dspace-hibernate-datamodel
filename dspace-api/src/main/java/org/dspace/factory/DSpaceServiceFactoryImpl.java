@@ -51,12 +51,6 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Autowired(required = true)
     private WorkspaceItemService workspaceItemService;
     @Autowired(required = true)
-    private BasicWorkflowItemService basicWorkflowItemService;
-    @Autowired(required = true)
-    private ResourcePolicyService resourcePolicyService;
-    @Autowired(required = true)
-    private TaskListItemService taskListItemService;
-    @Autowired(required = true)
     private HandleService handleService;
     @Autowired(required = true)
     private SubscriptionService subscriptionService;
@@ -78,78 +72,79 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     private DOIService doiService;
 
 
+    @Override
     public BitstreamFormatService getBitstreamFormatService()
     {
         return bitstreamFormatService;
     }
 
+    @Override
     public BitstreamService getBitstreamService()
     {
         return bitstreamService;
     }
 
+    @Override
     public BundleService getBundleService()
     {
         return bundleService;
     }
 
+    @Override
     public CollectionService getCollectionService()
     {
         return collectionService;
     }
 
+    @Override
     public CommunityService getCommunityService()
     {
         return communityService;
     }
 
+    @Override
     public EPersonService getEPersonService()
     {
         return epersonService;
     }
 
+    @Override
     public GroupService getGroupService()
     {
         return groupService;
     }
 
+    @Override
     public ItemService getItemService()
     {
         return itemService;
     }
 
+    @Override
     public MetadataSchemaService getMetadataSchemaService()
     {
         return metadataSchemaService;
     }
 
+    @Override
     public MetadataFieldService getMetadataFieldService()
     {
         return metadataFieldService;
     }
 
+    @Override
     public MetadataValueService getMetadataValueService()
     {
         return metadataValueService;
     }
 
+    @Override
     public WorkspaceItemService getWorkspaceItemService()
     {
         return workspaceItemService;
     }
 
-    public BasicWorkflowItemService getBasicWorkflowItemService() {
-        return basicWorkflowItemService;
-    }
-
-    public ResourcePolicyService getResourcePolicyService() {
-        return resourcePolicyService;
-    }
-
-    public TaskListItemService getTaskListItemService() {
-        return taskListItemService;
-    }
-
+    @Override
     public HandleService getHandleService() {
         return handleService;
     }

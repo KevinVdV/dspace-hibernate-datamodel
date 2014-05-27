@@ -16,7 +16,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
@@ -49,6 +49,9 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     protected BitstreamFormatService bitstreamFormatService;
     @Autowired(required = true)
     protected BundleService bundleService;
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
+
 
     public BitstreamServiceImpl()
     {
@@ -150,7 +153,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             IOException, SQLException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
+        authorizeService.authorizeAction(context, bundle, Constants.ADD);
 
         Bitstream b = create(context, is);
         bundleService.addBitstream(context, bundle, b);
@@ -172,7 +175,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         throws AuthorizeException, IOException, SQLException
     {
         // check authorisation
-        AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
+        authorizeService.authorizeAction(context, bundle, Constants.ADD);
 
         Bitstream b = register(context, assetstore, bitstreamPath);
         bundleService.addBitstream(context, bundle, b);
@@ -330,7 +333,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     public void update(Context context, Bitstream bitstream) throws SQLException, AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, bitstream, Constants.WRITE);
+        authorizeService.authorizeAction(context, bitstream, Constants.WRITE);
 
         log.info(LogManager.getHeader(context, "update_bitstream",
                 "bitstream_id=" + bitstream.getID()));
@@ -368,7 +371,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, bitstream.getID(), String.valueOf(bitstream.getSequenceID())));
 
         // Remove policies
-        AuthorizeManager.removeAllPolicies(context, bitstream);
+        authorizeService.removeAllPolicies(context, bitstream);
 
         // Remove bitstream itself
         bitstream.setDeleted(true);
@@ -388,7 +391,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             AuthorizeException
     {
         // Maybe should return AuthorizeException??
-        AuthorizeManager.authorizeAction(context, bitstream, Constants.READ);
+        authorizeService.authorizeAction(context, bitstream, Constants.READ);
 
         return BitstreamStorageManager.retrieve(context, bitstream.getID());
     }

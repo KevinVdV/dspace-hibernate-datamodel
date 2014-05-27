@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.BitstreamFormatDAO;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.core.Context;
@@ -34,7 +34,10 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
     private static Logger log = Logger.getLogger(BitstreamFormat.class);
 
     @Autowired(required = true)
-    private BitstreamFormatDAO bitstreamFormatDAO;
+    protected BitstreamFormatDAO bitstreamFormatDAO;
+
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
 
 
     /**
@@ -197,7 +200,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
     public BitstreamFormat create(Context context) throws SQLException, AuthorizeException
     {
         // Check authorisation - only administrators can create new formats
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "Only administrators can create bitstream formats");
@@ -285,7 +288,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
     public void update(Context context, BitstreamFormat bitstreamFormat) throws SQLException, AuthorizeException
     {
         // Check authorisation - only administrators can change formats
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "Only administrators can modify bitstream formats");
@@ -308,7 +311,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
     public void delete(Context context, BitstreamFormat bitstreamFormat) throws SQLException, AuthorizeException
     {
         // Check authorisation - only administrators can delete formats
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "Only administrators can delete bitstream formats");

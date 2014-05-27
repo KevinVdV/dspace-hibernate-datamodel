@@ -1,7 +1,6 @@
 package org.dspace.factory;
 
 import org.dspace.app.util.service.WebAppService;
-import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.checker.service.ChecksumHistoryService;
 import org.dspace.checker.service.ChecksumResultService;
 import org.dspace.checker.service.MostRecentChecksumService;
@@ -48,8 +47,6 @@ public abstract class DSpaceServiceFactory {
     public abstract MetadataValueService getMetadataValueService();
 
     public abstract WorkspaceItemService getWorkspaceItemService();
-
-    public abstract ResourcePolicyService getResourcePolicyService();
 
     public abstract HandleService getHandleService();
 

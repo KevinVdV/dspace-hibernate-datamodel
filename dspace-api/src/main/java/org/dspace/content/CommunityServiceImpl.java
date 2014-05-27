@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.CollectionService;
@@ -50,16 +51,19 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     private static Logger log = Logger.getLogger(Community.class);
 
     @Autowired(required = true)
-    private CommunityDAO communityDAO;
+    protected CommunityDAO communityDAO;
 
     @Autowired(required = true)
-    private CollectionService collectionService;
+    protected CollectionService collectionService;
     @Autowired(required = true)
-    private GroupService groupService;
+    protected GroupService groupService;
     @Autowired(required = true)
-    private BitstreamService bitstreamService;
+    protected BitstreamService bitstreamService;
     @Autowired(required = true)
-    private HandleService handleService;
+    protected HandleService handleService;
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
+
 
 
     public CommunityServiceImpl()
@@ -133,8 +137,8 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     public Community create(Context context, Community parent, String handle)
             throws SQLException, AuthorizeException
     {
-        if (!(AuthorizeManager.isAdmin(context) ||
-              (parent != null && AuthorizeManager.authorizeActionBoolean(context, parent, Constants.ADD))))
+        if (!(authorizeService.isAdmin(context) ||
+              (parent != null && authorizeService.authorizeActionBoolean(context, parent, Constants.ADD))))
         {
             throw new AuthorizeException(
                     "Only administrators can create communities");
@@ -168,7 +172,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         Group anonymousGroup = groupService.find(context, 0);
 
 
-        AuthorizeManager.createResourcePolicy(context, newCommunity, anonymousGroup, null, Constants.READ);
+        authorizeService.createResourcePolicy(context, newCommunity, anonymousGroup, null, Constants.READ);
 
         communityDAO.save(context, newCommunity);
         context.addEvent(new Event(Event.CREATE, Constants.COMMUNITY, newCommunity.getID(), newCommunity.getHandle(context)));
@@ -270,7 +274,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         // Check authorisation
         // authorized to remove the logo when DELETE rights
         // authorized when canEdit
-        if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
+        if (!((is == null) && authorizeService.authorizeActionBoolean(
                 context, community, Constants.DELETE)))
         {
             canEdit(context, community);
@@ -292,8 +296,8 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
 
             // now create policy for logo bitstream
             // to match our READ policy
-            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context, community, Constants.READ);
-            AuthorizeManager.addPolicies(context, policies, newLogo);
+            List<ResourcePolicy> policies = authorizeService.getPoliciesActionFilter(context, community, Constants.READ);
+            authorizeService.addPolicies(context, policies, newLogo);
 
             log.info(LogManager.getHeader(context, "set_logo",
                     "community_id=" + community.getID() + "logo_bitstream_id="
@@ -363,7 +367,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
             groupService.update(context, admins);
         }
 
-        AuthorizeManager.addPolicy(context, community, Constants.ADMIN, admins);
+        authorizeService.addPolicy(context, community, Constants.ADMIN, admins);
         
         // register this as the admin group
         community.setAdmins(admins);
@@ -466,7 +470,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
             AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, community, Constants.ADD);
+        authorizeService.authorizeAction(context, community, Constants.ADD);
 
         log.info(LogManager.getHeader(context, "add_collection",
                 "community_id=" + community.getID() + ",collection_id=" + collection.getID()));
@@ -501,7 +505,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
             AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, parentCommunity, Constants.ADD);
+        authorizeService.authorizeAction(context, parentCommunity, Constants.ADD);
 
         Community c = create(context, parentCommunity, handle);
         addSubcommunity(context, parentCommunity, c);
@@ -520,7 +524,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
             AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, parentCommunity, Constants.ADD);
+        authorizeService.authorizeAction(context, parentCommunity, Constants.ADD);
 
         log.info(LogManager.getHeader(context, "add_subcommunity",
                 "parent_comm_id=" + parentCommunity.getID() + ",child_comm_id=" + childCommunity.getID()));
@@ -544,7 +548,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
             AuthorizeException, IOException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, community, Constants.REMOVE);
+        authorizeService.authorizeAction(context, community, Constants.REMOVE);
 
         community.removeCollection(c);
         c.removeCommunity(community);
@@ -571,7 +575,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
             AuthorizeException, IOException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, parentCommunity, Constants.REMOVE);
+        authorizeService.authorizeAction(context, parentCommunity, Constants.REMOVE);
 
         parentCommunity.removeSubCommunity(childCommunity);
         childCommunity.setParentCommunities(null);
@@ -595,9 +599,9 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         // But since this is also the case for top-level communities, we would
         // give everyone rights to remove the top-level communities.
         // The same problem occurs in removing the logo
-        if (!AuthorizeManager.authorizeActionBoolean(context, getParentObject(context, community), Constants.REMOVE))
+        if (!authorizeService.authorizeActionBoolean(context, getParentObject(context, community), Constants.REMOVE))
         {
-            AuthorizeManager.authorizeAction(context, community, Constants.DELETE);
+            authorizeService.authorizeAction(context, community, Constants.DELETE);
         }
 
         // If not a top-level community, have parent remove me; this
@@ -650,7 +654,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         createLogo(context, community, null);
 
         // Remove all authorization policies
-        AuthorizeManager.removeAllPolicies(context, community);
+        authorizeService.removeAllPolicies(context, community);
 
         // Remove any Handle
         handleService.unbindHandle(context, community);
@@ -694,18 +698,18 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         List<Community> parents = getAllParents(context, community);
 
         for (Community parent : parents) {
-            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+            if (authorizeService.authorizeActionBoolean(context, parent,
                     Constants.WRITE)) {
                 return;
             }
 
-            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+            if (authorizeService.authorizeActionBoolean(context, parent,
                     Constants.ADD)) {
                 return;
             }
         }
 
-        AuthorizeManager.authorizeAction(context, community, Constants.WRITE);
+        authorizeService.authorizeAction(context, community, Constants.WRITE);
     }
 
     @Override

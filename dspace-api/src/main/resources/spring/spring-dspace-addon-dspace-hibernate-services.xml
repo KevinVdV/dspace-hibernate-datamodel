@@ -6,8 +6,13 @@
 
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
-    <bean id="serviceFactory" class="org.dspace.factory.DSpaceServiceFactoryImpl"/>
 
+
+    <!-- ******************** -->
+    <!-- Factory declartions -->
+    <!-- ******************** -->
+    <bean id="serviceFactory" class="org.dspace.factory.DSpaceServiceFactoryImpl"/>
+    <bean id="authorizeServiceFactory" class="org.dspace.authorize.factory.AuthorizeServiceFactoryImpl"/>
     <bean id="versionServiceFactory" class="org.dspace.versioning.factory.DSpaceVersionServiceFactoryImpl"/>
 
 
@@ -24,6 +29,7 @@
     <bean class="org.dspace.eperson.GroupServiceImpl"/>
     <bean class="org.dspace.eperson.RegistrationDataServiceImpl"/>
     <bean class="org.dspace.authorize.ResourcePolicyServiceImpl"/>
+    <bean class="org.dspace.authorize.AuthorizeServiceImpl"/>
     <bean class="org.dspace.content.MetadataFieldServiceImpl"/>
     <bean class="org.dspace.content.MetadataSchemaServiceImpl"/>
     <bean class="org.dspace.content.MetadataValueServiceImpl"/>

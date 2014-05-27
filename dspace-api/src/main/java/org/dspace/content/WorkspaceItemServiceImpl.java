@@ -14,18 +14,16 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +46,9 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
     protected CollectionService collectionService;
     @Autowired(required = true)
     protected ItemService itemService;
+    
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
 
     /**
      * Construct a workspace item corresponding to the given database row
@@ -111,7 +112,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
     public WorkspaceItem create(Context c, Collection coll, boolean template) throws AuthorizeException, SQLException,
             IOException {
         // Check the user has permission to ADD to the collection
-        AuthorizeManager.authorizeAction(c, coll, Constants.ADD);
+        authorizeService.authorizeAction(c, coll, Constants.ADD);
 
         WorkspaceItem workspaceItem = workspaceItemDAO.create(c, new WorkspaceItem());
         workspaceItem.setCollection(coll);
@@ -125,13 +126,13 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
 
         WorkflowServiceFactory.getInstance().getWorkflowService().addInitialWorkspaceItemPolicies(c, workspaceItem);
         // read permission
-        AuthorizeManager.addPolicy(c, i, Constants.READ, e, ResourcePolicy.TYPE_SUBMISSION);
+        authorizeService.addPolicy(c, i, Constants.READ, e, ResourcePolicy.TYPE_SUBMISSION);
         // write permission
-        AuthorizeManager.addPolicy(c, i, Constants.WRITE, e, ResourcePolicy.TYPE_SUBMISSION);
+        authorizeService.addPolicy(c, i, Constants.WRITE, e, ResourcePolicy.TYPE_SUBMISSION);
         // add permission
-        AuthorizeManager.addPolicy(c, i, Constants.ADD, e, ResourcePolicy.TYPE_SUBMISSION);
+        authorizeService.addPolicy(c, i, Constants.ADD, e, ResourcePolicy.TYPE_SUBMISSION);
         // remove contents permission
-        AuthorizeManager.addPolicy(c, i, Constants.REMOVE, e, ResourcePolicy.TYPE_SUBMISSION);
+        authorizeService.addPolicy(c, i, Constants.REMOVE, e, ResourcePolicy.TYPE_SUBMISSION);
 
         // Copy template if appropriate
         Item templateItem = coll.getTemplateItem();
@@ -274,7 +275,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
          * original submitter or an administrator can delete a workspace item.
 
          */
-        if (!AuthorizeManager.isAdmin(context)
+        if (!authorizeService.isAdmin(context)
                 && ((context.getCurrentUser() == null) || (context
                 .getCurrentUser().getID() != workspaceItem.getItem().getSubmitter()
                 .getID())))
@@ -328,7 +329,7 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService
     public void deleteWrapper(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException
     {
         // Check authorisation. We check permissions on the enclosed item.
-        AuthorizeManager.authorizeAction(context, workspaceItem.getItem(), Constants.WRITE);
+        authorizeService.authorizeAction(context, workspaceItem.getItem(), Constants.WRITE);
 
         log.info(LogManager.getHeader(context, "delete_workspace_item",
                 "workspace_item_id=" + workspaceItem.getID() + "item_id=" + workspaceItem.getItem().getID()

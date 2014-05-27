@@ -7,7 +7,6 @@
  */
 package org.dspace.test.content;
 
-import org.dspace.authorize.AuthorizeManager;
 import mockit.NonStrictExpectations;
 
 import java.io.IOException;
@@ -17,6 +16,7 @@ import java.util.List;
 import org.dspace.AbstractUnitTest;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
 import org.junit.*;
 import static org.junit.Assert.* ;
@@ -195,9 +195,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -217,9 +217,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = false;
+                authorizeService.isAdmin(context); result = false;
             }
         };
 
@@ -237,9 +237,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -313,9 +313,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -337,9 +337,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = false;
+                authorizeService.isAdmin(context); result = false;
             }
         };
 
@@ -359,9 +359,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -388,9 +388,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -413,9 +413,9 @@ public class MetadataFieldTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = false;
+                authorizeService.isAdmin(context); result = false;
             }
         };
 

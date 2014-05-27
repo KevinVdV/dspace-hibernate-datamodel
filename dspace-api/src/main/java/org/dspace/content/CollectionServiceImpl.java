@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.service.*;
 import org.dspace.core.*;
@@ -72,6 +73,9 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     protected XmlWorkflowItemService xmlWorkflowItemService;
     @Autowired(required = true)
     protected BasicWorkflowItemService basicWorkflowItemService;
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
+    
 
 
     /**
@@ -180,10 +184,10 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         // of 'anonymous' READ
         Group anonymousGroup = groupService.find(context, 0);
 
-        AuthorizeManager.createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.READ);
+        authorizeService.createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.READ);
         // now create the default policies for submitted items
-        AuthorizeManager.createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.DEFAULT_ITEM_READ);
-        AuthorizeManager.createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.DEFAULT_BITSTREAM_READ);
+        authorizeService.createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.DEFAULT_ITEM_READ);
+        authorizeService.createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.DEFAULT_BITSTREAM_READ);
 
         context.addEvent(new Event(Event.CREATE, Constants.COLLECTION, newCollection.getID(), newCollection.getHandle(context)));
 
@@ -281,7 +285,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         // Check authorisation
         // authorized to remove the logo when DELETE rights
         // authorized when canEdit
-        if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
+        if (!((is == null) && authorizeService.authorizeActionBoolean(
                 context, collection, Constants.DELETE)))
         {
             canEdit(context, collection, true);
@@ -306,8 +310,8 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
             // now create policy for logo bitstream
             // to match our READ policy
-            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context, collection, Constants.READ);
-            AuthorizeManager.addPolicies(context, policies, newLogo);
+            List<ResourcePolicy> policies = authorizeService.getPoliciesActionFilter(context, collection, Constants.READ);
+            authorizeService.addPolicies(context, policies, newLogo);
 
             log.info(LogManager.getHeader(context, "set_logo",
                     "collection_id=" + collection.getID() + "logo_bitstream_id="
@@ -348,7 +352,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             groupService.update(context, g);
             setWorkflowGroup(collection, step, g);
 
-            AuthorizeManager.addPolicy(context, collection, Constants.ADD, g);
+            authorizeService.addPolicy(context, collection, Constants.ADD, g);
         }
 
         return getWorkflowGroup(collection, step);
@@ -437,7 +441,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
             // register this as the submitter group
             collection.setSubmitters(submitters);
-            AuthorizeManager.addPolicy(context, collection, Constants.ADD, submitters);
+            authorizeService.addPolicy(context, collection, Constants.ADD, submitters);
 
 
         }
@@ -493,7 +497,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             groupService.update(context, admins);
         }
 
-        AuthorizeManager.addPolicy(context, collection,
+        authorizeService.addPolicy(context, collection,
                 Constants.ADMIN, admins);
 
         // register this as the admin group
@@ -653,7 +657,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     public void addItem(Context context, Collection collection, Item item) throws SQLException, AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, collection, Constants.ADD);
+        authorizeService.authorizeAction(context, collection, Constants.ADD);
 
         log.info(LogManager.getHeader(context, "add_item", "collection_id="
                 + collection.getID() + ",item_id=" + item.getID()));
@@ -682,7 +686,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
             IOException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, collection, Constants.REMOVE);
+        authorizeService.authorizeAction(context, collection, Constants.REMOVE);
 
         //Remove the item from the collection
         item.removeCollection(collection);
@@ -768,17 +772,17 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     {
         List<Community> parents = collection.getCommunities();
         for (Community parent : parents) {
-            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+            if (authorizeService.authorizeActionBoolean(context, parent,
                     Constants.WRITE, useInheritance)) {
                 return;
             }
 
-            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+            if (authorizeService.authorizeActionBoolean(context, parent,
                     Constants.ADD, useInheritance)) {
                 return;
             }
         }
-        AuthorizeManager.authorizeAction(context, collection, Constants.WRITE, useInheritance);
+        authorizeService.authorizeAction(context, collection, Constants.WRITE, useInheritance);
     }
 
     /**
@@ -800,7 +804,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         //TODO: move this to the community impl ?
         List<Community> communities = collection.getCommunities();
         for (Community community : communities) {
-            AuthorizeManager.authorizeAction(context, community, Constants.REMOVE);
+            authorizeService.authorizeAction(context, community, Constants.REMOVE);
         }
         collection.getCommunities().clear();
 
@@ -835,7 +839,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         createLogo(context, collection, null);
 
         // Remove all authorization policies
-        AuthorizeManager.removeAllPolicies(context, collection);
+        authorizeService.removeAllPolicies(context, collection);
 
 
         //Remove all workflow items
@@ -922,7 +926,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
         // now build a list of collections you have authorization for
         for (Collection myCollection : myCollections) {
-            if (AuthorizeManager.authorizeActionBoolean(context,
+            if (authorizeService.authorizeActionBoolean(context,
                     myCollection, actionID)) {
                 myResults.add(myCollection);
             }
@@ -997,7 +1001,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         // only do write authorization if user is not an editor
         if (!itemService.canEdit(context, item))
         {
-            AuthorizeManager.authorizeAction(context, item, Constants.WRITE);
+            authorizeService.authorizeAction(context, item, Constants.WRITE);
         }
 
         // Move the Item from one Collection to the other

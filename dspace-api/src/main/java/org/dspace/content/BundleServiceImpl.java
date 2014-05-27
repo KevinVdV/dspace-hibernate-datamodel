@@ -8,7 +8,6 @@
 package org.dspace.content;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -17,8 +16,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.BundleDAO;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.BundleService;
@@ -52,6 +51,9 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     protected ItemService itemService;
     @Autowired(required = true)
     protected BitstreamService bitstreamService;
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
+
 
     /**
      * Construct a bundle object with the given table row
@@ -122,7 +124,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
             throw new SQLException("Bundle must be created with non-null name");
         }
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, item, Constants.ADD);
+        authorizeService.authorizeAction(context, item, Constants.ADD);
 
 
         // Create a table row
@@ -173,7 +175,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
             AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
+        authorizeService.authorizeAction(context, bundle, Constants.ADD);
 
         log.info(LogManager.getHeader(context, "add_bitstream", "bundle_id="
                 + bundle.getID() + ",bitstream_id=" + b.getID()));
@@ -202,7 +204,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
 
         // copy authorization policies from bundle to bitstream
         // FIXME: multiple inclusion is affected by this...
-        AuthorizeManager.inheritPolicies(context, bundle, b);
+        authorizeService.inheritPolicies(context, bundle, b);
         bitstreamService.update(context, b);
     }
 
@@ -214,7 +216,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      */
     @Override
     public void setOrder(Context context, Bundle bundle, int bitstreamIds[]) throws AuthorizeException, SQLException {
-        AuthorizeManager.authorizeAction(context, bundle, Constants.WRITE);
+        authorizeService.authorizeAction(context, bundle, Constants.WRITE);
 
         //TODO: REORDER HIBERNATE CACHE !
         for (int i = 0; i < bitstreamIds.length; i++) {
@@ -257,7 +259,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
             SQLException, IOException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, bundle, Constants.REMOVE);
+        authorizeService.authorizeAction(context, bundle, Constants.REMOVE);
 
         log.info(LogManager.getHeader(context, "remove_bitstream",
                 "bundle_id=" + bundle.getID() + ",bitstream_id=" + b.getID()));
@@ -353,7 +355,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         }
 
         // remove our authorization policies
-        AuthorizeManager.removeAllPolicies(context, bundle);
+        authorizeService.removeAllPolicies(context, bundle);
 
         // Remove ourself
         bundleDAO.delete(context, bundle);
@@ -375,7 +377,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     public void inheritCollectionDefaultPolicies(Context context, Bundle bundle, Collection c)
             throws java.sql.SQLException, AuthorizeException
     {
-        List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context, c,
+        List<ResourcePolicy> policies = authorizeService.getPoliciesActionFilter(context, c,
                 Constants.DEFAULT_BITSTREAM_READ);
 
         // change the action to just READ
@@ -417,13 +419,13 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
             for (Bitstream bs : bitstreams)
             {
                 // change bitstream policies
-                AuthorizeManager.removeAllPolicies(context, bs);
-                AuthorizeManager.addPolicies(context, newpolicies, bs);
+                authorizeService.removeAllPolicies(context, bs);
+                authorizeService.addPolicies(context, newpolicies, bs);
             }
         }
         // change bundle policies
-        AuthorizeManager.removeAllPolicies(context, bundle);
-        AuthorizeManager.addPolicies(context, newpolicies, bundle);
+        authorizeService.removeAllPolicies(context, bundle);
+        authorizeService.addPolicies(context, newpolicies, bundle);
     }
 
     @Override
@@ -435,7 +437,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         {
             for (Bitstream bs : bitstreams)
             {
-                list.addAll(AuthorizeManager.getPolicies(context, bs));
+                list.addAll(authorizeService.getPolicies(context, bs));
             }
         }
         return list;

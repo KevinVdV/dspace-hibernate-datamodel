@@ -13,7 +13,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
@@ -66,6 +66,9 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     @Autowired(required = true)
     protected SupervisedItemService supervisedItemService;
 
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
+
     /**
      * Construct a Group from a given context and tablerow
      */
@@ -83,7 +86,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     public Group create(Context context) throws SQLException, AuthorizeException
     {
         // FIXME - authorization?
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "You must be an admin to create an EPerson Group");
@@ -454,7 +457,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
         supervisedItemService.removeSupervisedGroup(context, group);
 
         // Remove any ResourcePolicies that reference this group
-        AuthorizeManager.removeGroupPolicies(context, group);
+        authorizeService.removeGroupPolicies(context, group);
 
         group2GroupDAO.deleteByParent(context, group);
         group2GroupDAO.deleteByChild(context, group);

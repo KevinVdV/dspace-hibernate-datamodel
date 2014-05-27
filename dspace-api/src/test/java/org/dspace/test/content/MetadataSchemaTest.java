@@ -8,13 +8,13 @@
 package org.dspace.test.content;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import mockit.NonStrictExpectations;
 import java.sql.SQLException;
 import java.util.List;
 
 import org.dspace.AbstractUnitTest;
 import org.apache.log4j.Logger;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.NonUniqueMetadataException;
 import org.junit.*;
@@ -157,9 +157,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -179,9 +179,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = false;
+                authorizeService.isAdmin(context); result = false;
             }
         };
 
@@ -200,9 +200,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -232,9 +232,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -256,9 +256,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = false;
+                authorizeService.isAdmin(context); result = false;
             }
         };
 
@@ -279,9 +279,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -303,9 +303,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = true;
+                authorizeService.isAdmin(context); result = true;
             }
         };
 
@@ -328,9 +328,9 @@ public class MetadataSchemaTest extends AbstractUnitTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.isAdmin(context); result = false;
+                authorizeService.isAdmin(context); result = false;
             }
         };
 

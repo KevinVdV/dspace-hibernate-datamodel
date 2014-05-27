@@ -2,7 +2,7 @@ package org.dspace.content;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.SubscriptionDAO;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.SubscriptionService;
@@ -13,7 +13,6 @@ import org.dspace.eperson.EPerson;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,9 +33,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Autowired(required = true)
     protected CollectionService collectionService;
 
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
+
+
     @Override
     public Subscription create(Context context, Collection collection, EPerson ePerson) throws SQLException, AuthorizeException {
-        if (AuthorizeManager.isAdmin(context)
+        if (authorizeService.isAdmin(context)
                 || ((context.getCurrentUser() != null) && (context
                 .getCurrentUser().getID() == ePerson.getID()))) {
             if (isSubscribed(context, ePerson, collection)) {
@@ -66,7 +69,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     protected void unsubscribe(Context context, EPerson eperson,
                             Collection collection) throws SQLException, AuthorizeException {
         // Check authorisation. Must be administrator, or the eperson.
-        if (AuthorizeManager.isAdmin(context)
+        if (authorizeService.isAdmin(context)
                 || ((context.getCurrentUser() != null) && (context
                 .getCurrentUser().getID() == eperson.getID()))) {
             if (collection == null) {
@@ -147,7 +150,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public void deleteByCollection(Context context, Collection collection) throws SQLException, AuthorizeException {
-        if (AuthorizeManager.isAdmin(context)) {
+        if (authorizeService.isAdmin(context)) {
             subscriptionDAO.deleteByCollection(context, collection);
         } else {
             throw new AuthorizeException("Only admin can delete subscriptions for a collection");
@@ -157,7 +160,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public void delete(Context context, Subscription subscription) throws SQLException, AuthorizeException {
-        if (AuthorizeManager.isAdmin(context)
+        if (authorizeService.isAdmin(context)
                 || ((context.getCurrentUser() != null) && (context
                 .getCurrentUser().getID() == subscription.getePerson().getID()))) {
             subscriptionDAO.delete(context, subscription);

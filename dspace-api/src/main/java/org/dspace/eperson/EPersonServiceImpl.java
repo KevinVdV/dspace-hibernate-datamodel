@@ -21,7 +21,7 @@ import org.apache.commons.codec.DecoderException;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.DSpaceObjectServiceImpl;
 import org.dspace.content.Item;
 import org.dspace.content.service.ItemService;
@@ -70,6 +70,9 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
 
     @Autowired(required = true)
     protected ItemService itemService;
+
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
 
     public EPersonServiceImpl()
     {
@@ -246,7 +249,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
     public EPerson create(Context context) throws SQLException, AuthorizeException
     {
         // authorized?
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "You must be an admin to create an EPerson");
@@ -271,7 +274,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
     public void delete(Context context, EPerson ePerson) throws SQLException, AuthorizeException, EPersonDeletionException
     {
         // authorized?
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "You must be an admin to delete an EPerson");
@@ -432,7 +435,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
                 && ((context.getCurrentUser() == null) || (eperson.getID() != context
                 .getCurrentUser().getID())))
         {
-            AuthorizeManager.authorizeAction(context, eperson, Constants.WRITE);
+            authorizeService.authorizeAction(context, eperson, Constants.WRITE);
         }
 
         ePersonDAO.save(context, eperson);

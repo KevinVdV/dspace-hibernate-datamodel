@@ -9,8 +9,8 @@ package org.dspace.xmlworkflow;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
 import org.dspace.content.Collection;
 import org.dspace.content.service.InstallItemService;
@@ -75,6 +75,8 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
     protected XmlWorkflowFactory workflowFactory;
     @Autowired(required = true)
     protected CollectionRoleService collectionRoleService;
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
 
 
 
@@ -169,7 +171,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
     protected void grantSubmitterReadPolicies(Context context, Item item) throws SQLException, AuthorizeException {
               //A list of policies the user has for this item
         List<Integer>  userHasPolicies = new ArrayList<Integer>();
-        List<ResourcePolicy> itempols = AuthorizeManager.getPolicies(context, item);
+        List<ResourcePolicy> itempols = authorizeService.getPolicies(context, item);
         EPerson submitter = item.getSubmitter();
         for (ResourcePolicy resourcePolicy : itempols) {
             if(submitter.equals(resourcePolicy.getEPerson())){
@@ -568,7 +570,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         if(epa != null){
             //A list of policies the user has for this item
             List<Integer>  userHasPolicies = new ArrayList<Integer>();
-            List<ResourcePolicy> itempols = AuthorizeManager.getPolicies(context, item);
+            List<ResourcePolicy> itempols = authorizeService.getPolicies(context, item);
             for (ResourcePolicy resourcePolicy : itempols) {
                 if(epa.equals(resourcePolicy.getEPerson())){
                     //The user has already got this policy so it it to the list
@@ -594,7 +596,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         if(group != null){
             //A list of policies the user has for this item
             List<Integer>  groupHasPolicies = new ArrayList<Integer>();
-            List<ResourcePolicy> itempols = AuthorizeManager.getPolicies(context, item);
+            List<ResourcePolicy> itempols = authorizeService.getPolicies(context, item);
             for (ResourcePolicy resourcePolicy : itempols) {
                 if(group.equals(resourcePolicy.getGroup())){
                     //The user has already got this policy so it it to the list
@@ -617,26 +619,26 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
 
     protected void addPolicyToItem(Context context, Item item, int type, EPerson epa) throws AuthorizeException, SQLException {
         if(epa != null){
-            AuthorizeManager.addPolicy(context ,item, type, epa);
+            authorizeService.addPolicy(context, item, type, epa);
             List<Bundle> bundles = item.getBundles();
             for (Bundle bundle : bundles) {
-                AuthorizeManager.addPolicy(context ,bundle, type, epa);
+                authorizeService.addPolicy(context, bundle, type, epa);
                 List<Bitstream> bits = bundle.getBitstreams();
                 for (Bitstream bit : bits) {
-                    AuthorizeManager.addPolicy(context, bit, type, epa);
+                    authorizeService.addPolicy(context, bit, type, epa);
                 }
             }
         }
     }
     protected void addGroupPolicyToItem(Context context, Item item, int type, Group group) throws AuthorizeException, SQLException {
         if(group != null){
-            AuthorizeManager.addPolicy(context ,item, type, group);
+            authorizeService.addPolicy(context, item, type, group);
             List<Bundle> bundles = item.getBundles();
             for (Bundle bundle : bundles) {
-                AuthorizeManager.addPolicy(context ,bundle, type, group);
+                authorizeService.addPolicy(context, bundle, type, group);
                 List<Bitstream> bits = bundle.getBitstreams();
                 for (Bitstream bit : bits) {
-                    AuthorizeManager.addPolicy(context, bit, type, group);
+                    authorizeService.addPolicy(context, bit, type, group);
                 }
             }
         }
@@ -645,14 +647,14 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
     protected void removeUserItemPolicies(Context context, Item item, EPerson e) throws SQLException, AuthorizeException {
         if(e != null){
             //Also remove any lingering authorizations from this user
-            AuthorizeManager.removeEPersonPolicies(context, item, e);
+            authorizeService.removeEPersonPolicies(context, item, e);
             //Remove the bundle rights
             List<Bundle> bundles = item.getBundles();
             for (Bundle bundle : bundles) {
-                AuthorizeManager.removeEPersonPolicies(context, bundle, e);
+                authorizeService.removeEPersonPolicies(context, bundle, e);
                 List<Bitstream> bitstreams = bundle.getBitstreams();
                 for (Bitstream bitstream : bitstreams) {
-                    AuthorizeManager.removeEPersonPolicies(context, bitstream, e);
+                    authorizeService.removeEPersonPolicies(context, bitstream, e);
                 }
             }
             // Ensure that the submitter always retains his resource policies
@@ -666,14 +668,14 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
     protected void removeGroupItemPolicies(Context context, Item item, Group e) throws SQLException, AuthorizeException {
         if(e != null){
             //Also remove any lingering authorizations from this user
-            AuthorizeManager.removeGroupPolicies(context, item, e);
+            authorizeService.removeGroupPolicies(context, item, e);
             //Remove the bundle rights
             List<Bundle> bundles = item.getBundles();
             for (Bundle bundle : bundles) {
-                AuthorizeManager.removeGroupPolicies(context, bundle, e);
+                authorizeService.removeGroupPolicies(context, bundle, e);
                 List<Bitstream> bitstreams = bundle.getBitstreams();
                 for (Bitstream bitstream : bitstreams) {
-                    AuthorizeManager.removeGroupPolicies(context, bitstream, e);
+                    authorizeService.removeGroupPolicies(context, bitstream, e);
                 }
             }
         }
@@ -752,7 +754,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
     @Override
     public WorkspaceItem abort(Context c, XmlWorkflowItem wi, EPerson e) throws SQLException, AuthorizeException, IOException {
                 // authorize a DSpaceActions.ABORT
-        if (!AuthorizeManager.isAdmin(c))
+        if (!authorizeService.isAdmin(c))
         {
             throw new AuthorizeException(
                     "You must be an admin to abort a workflow");

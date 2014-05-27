@@ -9,7 +9,7 @@ package org.dspace.test.content;
 
 import java.util.Iterator;
 
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -128,9 +128,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testCreate() throws SQLException, AuthorizeException, IOException {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Item) any,
+                authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
             }
         };
@@ -233,9 +233,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any,
+                authorizeService.authorizeAction((Context) any, (Bundle) any,
                         Constants.ADD); result = null;
             }
         };
@@ -263,9 +263,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any,
+                authorizeService.authorizeAction((Context) any, (Bundle) any,
                         Constants.ADD); result = null;
             }
         };
@@ -305,9 +305,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any,
+                authorizeService.authorizeAction((Context) any, (Bundle) any,
                         Constants.ADD); result = new AuthorizeException();
             }
         };
@@ -326,9 +326,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any,
+                authorizeService.authorizeAction((Context) any, (Bundle) any,
                         Constants.ADD); result = null;
             }
         };
@@ -351,9 +351,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
+                authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
                 result = new AuthorizeException();
             }
         };
@@ -373,9 +373,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
+                authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
                 result = null;
             }
         };
@@ -398,9 +398,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
+                authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
                 result = new AuthorizeException();
             }
         };
@@ -419,9 +419,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
+                authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
                 result = null;
             }
         };
@@ -443,9 +443,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any, Constants.REMOVE);
+                authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.REMOVE);
                 result = new AuthorizeException();
             }
         };
@@ -465,9 +465,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Bundle) any, Constants.REMOVE);
+                authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.REMOVE);
                 result = null;
             }
         };
@@ -501,9 +501,9 @@ public class BundleTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Item) any,
+                authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.REMOVE, true); result = null;
             }
         };
@@ -529,7 +529,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testInheritCollectionDefaultPolicies() throws AuthorizeException, SQLException, CloneNotSupportedException {
 
         //TODO: we would need a method to get policies from collection, probably better!
-        List<ResourcePolicy> newpolicies = AuthorizeManager.getPoliciesActionFilter(context, collection,
+        List<ResourcePolicy> newpolicies = authorizeService.getPoliciesActionFilter(context, collection,
                 Constants.DEFAULT_BITSTREAM_READ);
         Iterator<ResourcePolicy> it = newpolicies.iterator();
         while (it.hasNext())
@@ -540,7 +540,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
 
         bundleService.inheritCollectionDefaultPolicies(context, b, collection);
 
-        List<ResourcePolicy> bspolicies = AuthorizeManager.getPolicies(context, b);
+        List<ResourcePolicy> bspolicies = authorizeService.getPolicies(context, b);
         assertTrue("testInheritCollectionDefaultPolicies 0", newpolicies.size() == bspolicies.size());
 
         boolean equals = true;
@@ -578,7 +578,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         newpolicies.add(resourcePolicyService.create(context));
         bundleService.replaceAllBitstreamPolicies(context, b, newpolicies);
         
-        List<ResourcePolicy> bspolicies = AuthorizeManager.getPolicies(context, b);
+        List<ResourcePolicy> bspolicies = authorizeService.getPolicies(context, b);
         assertTrue("testReplaceAllBitstreamPolicies 0", newpolicies.size() == bspolicies.size());
 
         boolean equals = true;
@@ -610,7 +610,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testGetBundlePolicies() throws SQLException
     {
         //empty by default
-        List<ResourcePolicy> bpolicies = AuthorizeManager.getPolicies(context, b);
+        List<ResourcePolicy> bpolicies = authorizeService.getPolicies(context, b);
         assertFalse("testGetBundlePolicies 0", bpolicies.isEmpty());
     }
 

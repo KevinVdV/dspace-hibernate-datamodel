@@ -20,8 +20,8 @@ import javax.mail.MessagingException;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.InstallItemService;
@@ -35,7 +35,6 @@ import org.dspace.eperson.service.GroupService;
 import org.dspace.handle.service.HandleService;
 import org.dspace.usage.UsageWorkflowEvent;
 import org.dspace.utils.DSpace;
-import org.dspace.workflow.WorkflowService;
 import org.dspace.workflowbasic.service.BasicWorkflowItemService;
 import org.dspace.workflowbasic.service.BasicWorkflowService;
 import org.dspace.workflowbasic.service.TaskListItemService;
@@ -128,6 +127,9 @@ public class BasicWorkflowServiceImpl implements BasicWorkflowService
     protected HandleService handleService;
     @Autowired(required = true)
     protected InstallItemService installItemService;
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
+    
 
     /**
      * Translate symbolic name of workflow state into number.
@@ -164,62 +166,62 @@ public class BasicWorkflowServiceImpl implements BasicWorkflowService
 
         if (step1group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.READ, step1group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.READ, step1group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step2group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.READ, step2group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.READ, step2group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step3group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.READ, step3group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.READ, step3group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step1group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.WRITE, step1group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.WRITE, step1group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step2group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.WRITE, step2group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.WRITE, step2group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step3group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.WRITE, step3group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.WRITE, step3group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step1group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.ADD, step1group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.ADD, step1group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step2group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.ADD, step2group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.ADD, step2group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step3group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.ADD, step3group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.ADD, step3group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step1group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.REMOVE, step1group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.REMOVE, step1group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step2group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.REMOVE, step2group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.REMOVE, step2group, ResourcePolicy.TYPE_WORKFLOW);
         }
 
         if (step3group != null)
         {
-            AuthorizeManager.addPolicy(context, item, Constants.REMOVE, step3group, ResourcePolicy.TYPE_WORKFLOW);
+            authorizeService.addPolicy(context, item, Constants.REMOVE, step3group, ResourcePolicy.TYPE_WORKFLOW);
         }
     }
 
@@ -518,7 +520,7 @@ public class BasicWorkflowServiceImpl implements BasicWorkflowService
     public WorkspaceItem abort(Context c, BasicWorkflowItem wi, EPerson e)
             throws SQLException, AuthorizeException, IOException {
         // authorize a DSpaceActions.ABORT
-        if (!AuthorizeManager.isAdmin(c))
+        if (!authorizeService.isAdmin(c))
         {
             throw new AuthorizeException(
                     "You must be an admin to abort a workflow");

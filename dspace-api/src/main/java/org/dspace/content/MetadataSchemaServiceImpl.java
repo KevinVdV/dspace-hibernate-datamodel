@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.core.Context;
@@ -40,6 +40,9 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
     @Autowired(required = true)
     protected MetadataSchemaDAO metadataSchemaDAO;
 
+    @Autowired(required = true)
+    protected AuthorizeService authorizeService;
+
     /**
      * Default constructor.
      */
@@ -62,7 +65,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
             AuthorizeException, NonUniqueMetadataException
     {
         // Check authorisation: Only admins may create metadata schemas
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "Only administrators may modify the metadata registry");
@@ -121,7 +124,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
             AuthorizeException, NonUniqueMetadataException
     {
         // Check authorisation: Only admins may update the metadata registry
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "Only administrators may modify the metadata registry");
@@ -157,7 +160,7 @@ public class MetadataSchemaServiceImpl implements MetadataSchemaService
     public void delete(Context context, MetadataSchema metadataSchema) throws SQLException, AuthorizeException
     {
         // Check authorisation: Only admins may create DC types
-        if (!AuthorizeManager.isAdmin(context))
+        if (!authorizeService.isAdmin(context))
         {
             throw new AuthorizeException(
                     "Only administrators may modify the metadata registry");

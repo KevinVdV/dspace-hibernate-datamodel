@@ -16,7 +16,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.apache.log4j.Logger;
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
@@ -129,11 +129,11 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         //Default to Collection Admin Rights, but NO full-Admin rights
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Collection) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Collection) any,
                         Constants.ADD); result = false;
-                AuthorizeManager.isAdmin((Context) any); result = true;
+                authorizeService.isAdmin((Context) any); result = true;
             }
         };
         // test creating collection with a specified handle which is NOT already in use
@@ -155,11 +155,11 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         //Default to Collection Admin Rights, but NO full-Admin rights
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Collection) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Collection) any,
                         Constants.ADD); result = false;
-                AuthorizeManager.isAdmin((Context) any); result = true;
+                authorizeService.isAdmin((Context) any); result = true;
             }
         };
 
@@ -323,13 +323,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                 authorizeService.authorizeAction((Context) any, (Collection) any,
                          Constants.WRITE, true); result = null;
             }
         };
@@ -350,13 +350,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                 authorizeService.authorizeAction((Context) any, (Collection) any,
                          Constants.WRITE, true); result = null;
             }
         };
@@ -377,13 +377,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                 authorizeService.authorizeAction((Context) any, (Collection) any,
                          Constants.WRITE, true); result = null;
             }
         };
@@ -404,13 +404,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                 AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                 authorizeService.authorizeAction((Context) any, (Collection) any,
                          Constants.WRITE, true); result = null;
             }
         };
@@ -431,13 +431,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = new AuthorizeException();
             }
         };
@@ -820,9 +820,9 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.ADD); result = null;
             }
         };
@@ -872,11 +872,11 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.ADD); result = null;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.REMOVE); result = null;
             }
         };
@@ -931,13 +931,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -954,13 +954,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -977,13 +977,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1000,13 +1000,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1023,13 +1023,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = new AuthorizeException();
             }
         };
@@ -1046,13 +1046,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1068,13 +1068,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1090,13 +1090,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1112,13 +1112,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1134,13 +1134,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = new AuthorizeException();
             }
         };
@@ -1156,13 +1156,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1178,13 +1178,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1200,13 +1200,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1222,13 +1222,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1244,13 +1244,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = null;
             }
         };
@@ -1266,13 +1266,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = null;
             }
         };
@@ -1288,13 +1288,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = null;
             }
         };
@@ -1310,13 +1310,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = null;
             }
         };
@@ -1332,13 +1332,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = new AuthorizeException();
             }
         };
@@ -1354,13 +1354,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = new AuthorizeException();
             }
         };
@@ -1376,13 +1376,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1399,13 +1399,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1422,13 +1422,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1445,13 +1445,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1468,13 +1468,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = new AuthorizeException();
             }
         };
@@ -1491,13 +1491,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1514,13 +1514,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1537,13 +1537,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1560,13 +1560,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = null;
             }
         };
@@ -1583,13 +1583,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = null;
             }
         };
@@ -1606,13 +1606,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = true;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = null;
             }
         };
@@ -1629,13 +1629,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = true;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = null;
             }
         };
@@ -1652,13 +1652,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = null;
             }
         };
@@ -1675,13 +1675,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, false); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, false); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, false); result = new AuthorizeException();
             }
         };
@@ -1699,13 +1699,13 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.WRITE, true); result = false;
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Community) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Community) any,
                         Constants.ADD, true); result = false;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, true); result = new AuthorizeException();
             }
         };
@@ -1724,11 +1724,11 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         new NonStrictExpectations()
         {
             AuthorizeUtil authUtil;
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
                 AuthorizeUtil.authorizeManageTemplateItem((Context) any, (Collection) any);
                  result = null;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, anyBoolean); result = null;
             }
         };
@@ -1747,11 +1747,11 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         new NonStrictExpectations()
         {
             AuthorizeUtil authUtil;
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
                 AuthorizeUtil.authorizeManageTemplateItem((Context) any, (Collection) any);
                  result = new AuthorizeException();
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, anyBoolean); result = null;
             }
         };
@@ -1769,11 +1769,11 @@ public class CollectionTest extends AbstractDSpaceObjectTest
         new NonStrictExpectations()
         {
             AuthorizeUtil authUtil;
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
                 AuthorizeUtil.authorizeManageTemplateItem((Context) any, (Collection) any);
                  result = null;
-                AuthorizeManager.authorizeAction((Context) any, (Collection) any,
+                authorizeService.authorizeAction((Context) any, (Collection) any,
                         Constants.WRITE, anyBoolean); result = new AuthorizeException();
             }
         };
@@ -1803,9 +1803,9 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeManager authManager;
+            AuthorizeService authManager;
             {
-                AuthorizeManager.authorizeActionBoolean((Context) any, (Collection) any,
+                authorizeService.authorizeActionBoolean((Context) any, (Collection) any,
                         Constants.ADD); result = true;
             }
         };

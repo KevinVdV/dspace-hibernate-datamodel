@@ -23,6 +23,8 @@ import org.apache.log4j.Logger;
 import org.dspace.administer.MetadataImporter;
 import org.dspace.administer.RegistryImportException;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.*;
 import org.dspace.content.service.*;
@@ -89,7 +91,7 @@ public class AbstractUnitTest
     protected BundleService bundleService = serviceFactory.getBundleService();
     protected MetadataSchemaService metadataSchemaService = serviceFactory.getMetadataSchemaService();
     protected MetadataFieldService metadataFieldService = serviceFactory.getMetadataFieldService();
-    protected ResourcePolicyService resourcePolicyService = serviceFactory.getResourcePolicyService();
+    protected ResourcePolicyService resourcePolicyService = AuthorizeServiceFactory.getInstance().getResourcePolicyService();
     protected EPersonService ePersonService = serviceFactory.getEPersonService();
     protected GroupService groupService = serviceFactory.getGroupService();
     protected BitstreamFormatService bitstreamFormatService = serviceFactory.getBitstreamFormatService();
@@ -99,6 +101,7 @@ public class AbstractUnitTest
     protected VersionService versionService = DSpaceVersionServiceFactory.getInstance().getVersionService();
     protected VersionHistoryService versionHistoryService = DSpaceVersionServiceFactory.getInstance().getVersionHistoryService();
     protected HandleService handleService = serviceFactory.getHandleService();
+    protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
 
 
     protected static DSpaceKernelImpl kernelImpl;

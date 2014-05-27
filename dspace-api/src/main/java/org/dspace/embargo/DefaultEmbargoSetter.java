@@ -8,11 +8,12 @@
 package org.dspace.embargo;
 
 import java.sql.SQLException;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 import org.dspace.authorize.*;
+import org.dspace.authorize.factory.AuthorizeServiceFactory;
+import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
@@ -35,8 +36,9 @@ import org.dspace.license.CreativeCommons;
  */
 public class DefaultEmbargoSetter implements EmbargoSetter
 {
-    protected static final GroupService GROUP_SERVICE = DSpaceServiceFactory.getInstance().getGroupService();
-    protected static final ResourcePolicyService RESOURCE_POLICY_SERVICE = DSpaceServiceFactory.getInstance().getResourcePolicyService();
+    protected GroupService groupService = DSpaceServiceFactory.getInstance().getGroupService();
+    protected ResourcePolicyService resourcePolicyService = AuthorizeServiceFactory.getInstance().getResourcePolicyService();
+    protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected String termsOpen = null;
 	
     public DefaultEmbargoSetter()
@@ -106,7 +108,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
         // add only embargo policy
         if(embargoDate!=null){
 
-            List<Group> authorizedGroups = AuthorizeManager.getAuthorizedGroups(context, owningCollection, Constants.DEFAULT_ITEM_READ);
+            List<Group> authorizedGroups = authorizeService.getAuthorizedGroups(context, owningCollection, Constants.DEFAULT_ITEM_READ);
 
             // look for anonymous
             boolean isAnonymousInPlace=false;
@@ -119,17 +121,17 @@ public class DefaultEmbargoSetter implements EmbargoSetter
             if(!isAnonymousInPlace){
                 // add policies for all the groups
                 for(Group g : authorizedGroups){
-                    ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, g, null, embargoDate, Constants.READ, reason, dso);
+                    ResourcePolicy rp = authorizeService.createOrModifyPolicy(null, context, null, g, null, embargoDate, Constants.READ, reason, dso);
                     if(rp!=null)
-                        RESOURCE_POLICY_SERVICE.update(context, rp);
+                        resourcePolicyService.update(context, rp);
                 }
 
             }
             else{
                 // add policy just for anonymous
-                ResourcePolicy rp = AuthorizeManager.createOrModifyPolicy(null, context, null, GROUP_SERVICE.find(context, 0), null, embargoDate, Constants.READ, reason, dso);
+                ResourcePolicy rp = authorizeService.createOrModifyPolicy(null, context, null, groupService.find(context, 0), null, embargoDate, Constants.READ, reason, dso);
                 if(rp!=null)
-                    RESOURCE_POLICY_SERVICE.update(context, rp);
+                    resourcePolicyService.update(context, rp);
             }
         }
 
@@ -159,7 +161,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
                 if (!(bnn.equals("TEXT") || bnn.equals("THUMBNAIL")))
                 {
                     // check for ANY read policies and report them:
-                    for (ResourcePolicy rp : AuthorizeManager.getPoliciesActionFilter(context, bn, Constants.READ))
+                    for (ResourcePolicy rp : authorizeService.getPoliciesActionFilter(context, bn, Constants.READ))
                     {
                         System.out.println("CHECK WARNING: Item "+item.getHandle(context)+", Bundle "+bn.getName()+" allows READ by "+
                           ((rp.getEPerson() == null) ? "Group "+rp.getGroup().getName() :
@@ -169,7 +171,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
 
                 for (Bitstream bs : bn.getBitstreams())
                 {
-                    for (ResourcePolicy rp : AuthorizeManager.getPoliciesActionFilter(context, bs, Constants.READ))
+                    for (ResourcePolicy rp : authorizeService.getPoliciesActionFilter(context, bs, Constants.READ))
                     {
                         System.out.println("CHECK WARNING: Item "+item.getHandle(context)+", Bitstream "+bs.getName()+" (in Bundle "+bn.getName()+") allows READ by "+
                           ((rp.getEPerson() == null) ? "Group "+rp.getGroup().getName() :
