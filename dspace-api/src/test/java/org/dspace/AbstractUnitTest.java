@@ -31,6 +31,8 @@ import org.dspace.content.service.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
+import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.core.service.LicenseService;
 import org.dspace.eperson.*;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
@@ -102,6 +104,7 @@ public class AbstractUnitTest
     protected VersionHistoryService versionHistoryService = DSpaceVersionServiceFactory.getInstance().getVersionHistoryService();
     protected HandleService handleService = serviceFactory.getHandleService();
     protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+    protected LicenseService licenseService = CoreServiceFactory.getInstance().getLicenseService();
 
 
     protected static DSpaceKernelImpl kernelImpl;

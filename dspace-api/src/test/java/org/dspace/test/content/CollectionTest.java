@@ -26,7 +26,6 @@ import static org.hamcrest.CoreMatchers.*;
 import mockit.*;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.core.Constants;
-import org.dspace.core.LicenseManager;
 
 /**
  * Unit Tests for class Collection
@@ -691,7 +690,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     public void testGetLicense()
     {
         assertThat("testGetLicense 0", collectionService.getLicense(collection), notNullValue());
-        assertThat("testGetLicense 1", collectionService.getLicense(collection), equalTo(LicenseManager.getDefaultSubmissionLicense()));
+        assertThat("testGetLicense 1", collectionService.getLicense(collection), equalTo(licenseService.getDefaultSubmissionLicense()));
     }
 
     /**

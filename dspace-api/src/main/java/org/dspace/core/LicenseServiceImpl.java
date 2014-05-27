@@ -12,12 +12,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+
+import org.dspace.core.service.LicenseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +27,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author mhwood
  */
-public class LicenseManager
+public class LicenseServiceImpl implements LicenseService
 {
-    private static final Logger log = LoggerFactory.getLogger(LicenseManager.class);
+    private static final Logger log = LoggerFactory.getLogger(LicenseServiceImpl.class);
 
     /** The default license */
-    private static String license;
+    protected String license;
 
     /**
      * Writes license to a text file.
@@ -40,7 +41,8 @@ public class LicenseManager
      *            name for the file into which license will be written,
      *            relative to the current directory.
      */
-    public static void writeLicenseFile(String licenseFile,
+    @Override
+    public void writeLicenseFile(String licenseFile,
                                         String newLicense)
     {
         try
@@ -67,7 +69,8 @@ public class LicenseManager
      *         license text
      *
      */
-    public static String getLicenseText(String licenseFile)
+    @Override
+    public String getLicenseText(String licenseFile)
     {
         InputStream is = null;
         InputStreamReader ir = null;
@@ -126,7 +129,8 @@ public class LicenseManager
      *
      * @return the default license
      */
-    public static String getDefaultSubmissionLicense()
+    @Override
+    public String getDefaultSubmissionLicense()
     {
         if (null == license)
         {
@@ -138,7 +142,7 @@ public class LicenseManager
     /**
      * Load in the default license.
      */
-    private static void init()
+    protected void init()
     {
         File licenseFile = new File(ConfigurationManager.getProperty("dspace.dir")
                 + File.separator + "config" + File.separator + "default.license");
@@ -153,11 +157,11 @@ public class LicenseManager
             ir = new InputStreamReader(fir, "UTF-8");
             br = new BufferedReader(ir);
             String lineIn;
-            LicenseManager.license = "";
+            license = "";
 
             while ((lineIn = br.readLine()) != null)
             {
-                LicenseManager.license = LicenseManager.license + lineIn + '\n';
+                license = license + lineIn + '\n';
             }
 
             br.close();

@@ -16,6 +16,7 @@ import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.service.*;
 import org.dspace.core.*;
+import org.dspace.core.service.LicenseService;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Event;
@@ -75,7 +76,9 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     protected BasicWorkflowItemService basicWorkflowItemService;
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
-    
+    @Autowired(required = true)
+    protected LicenseService licenseService;
+
 
 
     /**
@@ -544,7 +547,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
         if (license == null || license.trim().equals(""))
         {
             // Fallback to site-wide default
-            license = LicenseManager.getDefaultSubmissionLicense();
+            license = licenseService.getDefaultSubmissionLicense();
         }
 
         return license;

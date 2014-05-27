@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+
+import org.dspace.core.service.NewsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +26,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author mhwood
  */
-public class NewsManager
+public class NewsServiceImpl implements NewsService
 {
-    private static final Logger log = LoggerFactory.getLogger(NewsManager.class);
-
-    /** Not instantiable. */
-    private NewsManager() {}
+    private static final Logger log = LoggerFactory.getLogger(NewsServiceImpl.class);
 
     /**
      * Reads news from a text file.
@@ -37,7 +36,8 @@ public class NewsManager
      * @param newsFile
      *        name of the news file to read in, relative to the news file path.
      */
-    public static String readNewsFile(String newsFile)
+    @Override
+    public String readNewsFile(String newsFile)
     {
         String fileName = getNewsFilePath();
 
@@ -79,7 +79,8 @@ public class NewsManager
      * @param news
      *            the text to be written to the file.
      */
-    public static String writeNewsFile(String newsFile, String news)
+    @Override
+    public String writeNewsFile(String newsFile, String news)
     {
         String fileName = getNewsFilePath();
 
@@ -106,7 +107,8 @@ public class NewsManager
      * Get the path for the news files.
      *
      */
-    public static String getNewsFilePath()
+    @Override
+    public String getNewsFilePath()
     {
         String filePath = ConfigurationManager.getProperty("dspace.dir")
                 + File.separator + "config" + File.separator;

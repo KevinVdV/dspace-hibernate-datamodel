@@ -14,6 +14,7 @@
     <bean id="serviceFactory" class="org.dspace.factory.DSpaceServiceFactoryImpl"/>
     <bean id="authorizeServiceFactory" class="org.dspace.authorize.factory.AuthorizeServiceFactoryImpl"/>
     <bean id="versionServiceFactory" class="org.dspace.versioning.factory.DSpaceVersionServiceFactoryImpl"/>
+    <bean id="coreServiceFactory" class="org.dspace.core.factory.CoreServiceFactoryImpl"/>
 
 
     <!-- ******************** -->
@@ -30,6 +31,11 @@
     <bean class="org.dspace.eperson.RegistrationDataServiceImpl"/>
     <bean class="org.dspace.authorize.ResourcePolicyServiceImpl"/>
     <bean class="org.dspace.authorize.AuthorizeServiceImpl"/>
+
+
+    <bean class="org.dspace.core.LicenseServiceImpl"/>
+    <bean class="org.dspace.core.NewsServiceImpl"/>
+
     <bean class="org.dspace.content.MetadataFieldServiceImpl"/>
     <bean class="org.dspace.content.MetadataSchemaServiceImpl"/>
     <bean class="org.dspace.content.MetadataValueServiceImpl"/>
