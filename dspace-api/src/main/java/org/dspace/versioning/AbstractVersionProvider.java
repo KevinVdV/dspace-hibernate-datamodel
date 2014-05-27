@@ -14,7 +14,7 @@ import org.dspace.content.service.BundleService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.storage.bitstore.BitstreamStorageManager;
+import org.dspace.storage.factory.StorageServiceFactory;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -74,7 +74,7 @@ public abstract class AbstractVersionProvider {
 
     protected Bitstream createBitstream(Context context, Bitstream nativeBitstream) throws AuthorizeException, SQLException {
         BitstreamService bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
-        int idNew = BitstreamStorageManager.clone(context, nativeBitstream.getID());
+        int idNew = StorageServiceFactory.getInstance().getBitstreamStorageService().clone(context, nativeBitstream.getID());
         return bitstreamService.find(context, idNew);
     }
 

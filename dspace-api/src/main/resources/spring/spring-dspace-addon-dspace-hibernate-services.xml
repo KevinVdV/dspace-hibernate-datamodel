@@ -15,6 +15,7 @@
     <bean id="authorizeServiceFactory" class="org.dspace.authorize.factory.AuthorizeServiceFactoryImpl"/>
     <bean id="versionServiceFactory" class="org.dspace.versioning.factory.DSpaceVersionServiceFactoryImpl"/>
     <bean id="coreServiceFactory" class="org.dspace.core.factory.CoreServiceFactoryImpl"/>
+    <bean id="storageServiceFactory" class="org.dspace.storage.factory.StorageServiceFactoryImpl"/>
 
 
     <!-- ******************** -->
@@ -52,6 +53,7 @@
     <bean class="org.dspace.harvest.HarvestedItemServiceImpl"/>
     <bean class="org.dspace.harvest.HarvestedCollectionServiceImpl"/>
 
+    <bean class="org.dspace.storage.bitstore.BitstreamStorageServiceImpl"/>
 
     <bean class="org.dspace.xmlworkflow.WorkflowRequirementsServiceImpl"/>
     <bean class="org.dspace.xmlworkflow.storedcomponents.ClaimedTaskServiceImpl"/>

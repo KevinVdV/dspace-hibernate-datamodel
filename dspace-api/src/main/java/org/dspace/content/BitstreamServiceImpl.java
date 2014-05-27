@@ -23,7 +23,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.event.Event;
-import org.dspace.storage.bitstore.BitstreamStorageManager;
+import org.dspace.storage.service.BitstreamStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -51,6 +51,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     protected BundleService bundleService;
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
+    @Autowired(required = true)
+    protected BitstreamStorageService bitstreamStorageService;
 
 
     public BitstreamServiceImpl()
@@ -126,7 +128,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     public Bitstream create(Context context, InputStream is)
             throws IOException, SQLException, AuthorizeException {
         // Store the bits
-        int bitstreamID = BitstreamStorageManager.store(context, bitstreamDAO.create(context, new Bitstream()), is);
+        int bitstreamID = bitstreamStorageService.store(context, bitstreamDAO.create(context, new Bitstream()), is);
 
         log.info(LogManager.getHeader(context, "create_bitstream",
                 "bitstream_id=" + bitstreamID));
@@ -201,7 +203,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     		int assetstore, String bitstreamPath)
             throws IOException, SQLException, AuthorizeException {
         // Store the bits
-        int bitstreamID = BitstreamStorageManager.register(
+        int bitstreamID = bitstreamStorageService.register(
                 context, assetstore, bitstreamPath);
 
         log.info(LogManager.getHeader(context,
@@ -393,7 +395,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         // Maybe should return AuthorizeException??
         authorizeService.authorizeAction(context, bitstream, Constants.READ);
 
-        return BitstreamStorageManager.retrieve(context, bitstream.getID());
+        return bitstreamStorageService.retrieve(context, bitstream.getID());
     }
 
     /**
@@ -403,7 +405,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      */
     @Override
     public boolean isRegisteredBitstream(Bitstream bitstream) {
-        return BitstreamStorageManager
+        return bitstreamStorageService
 				.isRegisteredBitstream(bitstream.getInternalId());
     }
 
