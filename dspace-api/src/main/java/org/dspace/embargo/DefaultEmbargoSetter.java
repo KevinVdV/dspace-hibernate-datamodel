@@ -19,10 +19,11 @@ import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Constants;
+import org.dspace.embargo.factory.EmbargoServiceFactory;
+import org.dspace.embargo.service.EmbargoService;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.license.CreativeCommons;
 
 /**
@@ -40,6 +41,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
     protected GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
     protected ResourcePolicyService resourcePolicyService = AuthorizeServiceFactory.getInstance().getResourcePolicyService();
     protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
+    protected EmbargoService embargoService = EmbargoServiceFactory.getInstance().getEmbargoService();
     protected String termsOpen = null;
 	
     public DefaultEmbargoSetter()
@@ -58,6 +60,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
      * @param terms the embargo terms
      * @return parsed date in DCDate format
      */
+    @Override
     public DCDate parseTerms(Context context, Item item, String terms)
         throws SQLException, AuthorizeException
     {
@@ -65,7 +68,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
     	{
     		if (termsOpen.equals(terms))
             {
-                return EmbargoManager.FOREVER;
+                return EmbargoServiceImpl.FOREVER;
             }
             else
             {
@@ -82,10 +85,11 @@ public class DefaultEmbargoSetter implements EmbargoSetter
      * @param context the DSpace context
      * @param item the item to embargo
      */
+    @Override
     public void setEmbargo(Context context, Item item)
         throws SQLException, AuthorizeException
     {
-        DCDate liftDate = EmbargoManager.getEmbargoTermsAsDate(context, item);
+        DCDate liftDate = embargoService.getEmbargoTermsAsDate(context, item);
         for (Bundle bn : item.getBundles())
         {
             // Skip the LICENSE and METADATA bundles, they stay world-readable
@@ -148,6 +152,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
      * @param context the DSpace context
      * @param item the item to embargo
      */
+    @Override
     public void checkEmbargo(Context context, Item item)
         throws SQLException, AuthorizeException
     {

@@ -17,9 +17,12 @@ import java.util.Enumeration;
 import org.apache.log4j.Logger;
 
 import org.dspace.content.MetadataField;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.factory.DSpaceServiceFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Broker for metadata authority settings configured for each metadata field.
@@ -49,19 +52,19 @@ import org.dspace.factory.DSpaceServiceFactory;
  * @see Choices
  * @author Larry Stone
  */
-public class MetadataAuthorityManager
+public class MetadataAuthorityServiceImpl implements MetadataAuthorityService, InitializingBean
 {
 
-    protected static final MetadataFieldService METADATA_FIELD_SERVICE = DSpaceServiceFactory.getInstance().getMetadataFieldService();
-    private static Logger log = Logger.getLogger(MetadataAuthorityManager.class);
+    @Autowired(required = true)
+    protected MetadataFieldService metadataFieldService;
 
-    private static MetadataAuthorityManager cached = null;
+    private static Logger log = Logger.getLogger(MetadataAuthorityServiceImpl.class);
 
     // map of field key to authority plugin
-    private Map<String,Boolean> controlled = new HashMap<String,Boolean>();
+    protected Map<String,Boolean> controlled = new HashMap<String,Boolean>();
 
     // map of field key to answer of whether field is required to be controlled
-    private Map<String,Boolean> isAuthorityRequired = new HashMap<String,Boolean>();
+    protected Map<String,Boolean> isAuthorityRequired = new HashMap<String,Boolean>();
 
     /**
      * map of field key to answer of which is the min acceptable confidence
@@ -72,7 +75,8 @@ public class MetadataAuthorityManager
     /** fallback default value unless authority.minconfidence = X is configured. */
     private int defaultMinConfidence = Choices.CF_ACCEPTED;
 
-    private MetadataAuthorityManager()
+    @Override
+    public void afterPropertiesSet() throws Exception
     {
 
         Enumeration pn = ConfigurationManager.propertyNames();
@@ -125,7 +129,7 @@ public class MetadataAuthorityManager
         }
     }
 
-    private int readConfidence(String key)
+    protected int readConfidence(String key)
     {
         String mc = ConfigurationManager.getProperty(key);
         if (mc != null)
@@ -141,16 +145,6 @@ public class MetadataAuthorityManager
             }
         }
         return Choices.CF_UNSET-1;
-    }
-
-    // factory method
-    public static MetadataAuthorityManager getManager()
-    {
-        if (cached == null)
-        {
-            cached = new MetadataAuthorityManager();
-        }
-        return cached;
     }
 
 
@@ -194,9 +188,9 @@ public class MetadataAuthorityManager
      * that describes a metadata field.  Punt to the function we use for
      * submission UI input forms, for now.
      */
-    public static String makeFieldKey(String schema, String element, String qualifier)
+    public String makeFieldKey(String schema, String element, String qualifier)
     {
-        return METADATA_FIELD_SERVICE.formKey(schema, element, qualifier);
+        return metadataFieldService.formKey(schema, element, qualifier);
     }
 
     /**
@@ -216,7 +210,8 @@ public class MetadataAuthorityManager
      *
      * @return the list of metadata field with authority control
      */
-    public List<String> getAuthorityMetadata() {
+    public List<String> getAuthorityMetadata()
+    {
         List<String> copy = new ArrayList<String>();
         for (String s : controlled.keySet())
         {

@@ -17,7 +17,9 @@ import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.authority.MetadataAuthorityServiceImpl;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
@@ -25,7 +27,6 @@ import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
 import org.dspace.content.authority.Choices;
-import org.dspace.content.authority.MetadataAuthorityManager;
 import org.dspace.event.Event;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -83,6 +84,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected AuthorizeService authorizeService;
     @Autowired(required = true)
     protected ChoiceAuthorityService choiceAuthorityService;
+    @Autowired(required = true)
+    protected MetadataAuthorityService metadataAuthorityService;
 
     public ItemServiceImpl()
     {
@@ -407,9 +410,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      */
     @Override
     public void addMetadata(Context context, Item item, String schema, String element, String qualifier, String lang, List<String> values) throws SQLException {
-        MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
-        String fieldKey = MetadataAuthorityManager.makeFieldKey(schema, element, qualifier);
-        if (mam.isAuthorityControlled(fieldKey))
+        String fieldKey = metadataAuthorityService.makeFieldKey(schema, element, qualifier);
+        if (metadataAuthorityService.isAuthorityControlled(fieldKey))
         {
             List<String> authorities = new ArrayList<String>();
             List<Integer> confidences = new ArrayList<Integer>();
@@ -490,9 +492,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                 //Do not allow "null" values in our metadata
                 return;
             }
-            MetadataAuthorityManager mam = MetadataAuthorityManager.getManager();
-            boolean authorityControlled = mam.isAuthorityControlled(metadataField);
-            boolean authorityRequired = mam.isAuthorityRequired(metadataField);
+            boolean authorityControlled = metadataAuthorityService.isAuthorityControlled(metadataField);
+            boolean authorityRequired = metadataAuthorityService.isAuthorityRequired(metadataField);
 
             MetadataValue metadataValue = metadataValueService.create(context, item, metadataField);
 

@@ -13,7 +13,7 @@ package org.dspace.content.authority;
  *
  * @author Larry Stone
  * @see ChoiceAuthorityServiceImpl
- * @see MetadataAuthorityManager
+ * @see MetadataAuthorityServiceImpl
  */
 public interface ChoiceAuthority
 {

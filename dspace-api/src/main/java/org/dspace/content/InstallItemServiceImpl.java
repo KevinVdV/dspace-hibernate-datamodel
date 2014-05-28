@@ -17,7 +17,8 @@ import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.embargo.EmbargoManager;
+import org.dspace.embargo.EmbargoServiceImpl;
+import org.dspace.embargo.service.EmbargoService;
 import org.dspace.event.Event;
 import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.identifier.IdentifierException;
@@ -38,6 +39,9 @@ public class InstallItemServiceImpl implements InstallItemService
 
     @Autowired(required = true)
     protected ItemService itemService;
+
+    @Autowired(required = true)
+    protected EmbargoService embargoService;
 
     /**
      * Take an InProgressSubmission and turn it into a fully-archived Item,
@@ -173,7 +177,7 @@ public class InstallItemServiceImpl implements InstallItemService
         // be set when the embargo is lifted.
         // this will flush out fatal embargo metadata
         // problems before we set inArchive.
-        if (EmbargoManager.getEmbargoTermsAsDate(c, item) == null)
+        if (embargoService.getEmbargoTermsAsDate(c, item) == null)
         {
             itemService.addMetadata(c, item, MetadataSchema.DC_SCHEMA, "date", "available", null, now.toString());
         }
@@ -247,7 +251,7 @@ public class InstallItemServiceImpl implements InstallItemService
         itemService.inheritCollectionDefaultPolicies(c, item, item.getOwningCollection());
 
         // set embargo lift date and take away read access if indicated.
-        EmbargoManager.setEmbargo(c, item);
+        embargoService.setEmbargo(c, item);
 
         return item;
     }
