@@ -20,6 +20,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.PluginManager;
 import org.dspace.factory.DSpaceServiceFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Broker for ChoiceAuthority plugins, and for other information configured
@@ -42,7 +43,9 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService, InitializingBean
 {
-    protected static final MetadataFieldService METADATA_FIELD_SERVICE = DSpaceServiceFactory.getInstance().getMetadataFieldService();
+    @Autowired(required = true)
+    protected MetadataFieldService metadataFieldService;
+
     private static Logger log = Logger.getLogger(ChoiceAuthorityServiceImpl.class);
 
     // map of field key to authority plugin
@@ -285,7 +288,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService,
     @Override
     public String makeFieldKey(String schema, String element, String qualifier)
     {
-        return METADATA_FIELD_SERVICE.formKey(schema, element, qualifier);
+        return metadataFieldService.formKey(schema, element, qualifier);
     }
 
     /**

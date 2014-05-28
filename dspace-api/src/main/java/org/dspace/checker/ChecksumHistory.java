@@ -34,6 +34,7 @@ public class ChecksumHistory {
     @Column(name= "checksum_calculated", nullable = false)
     private String checksumCalculated;
 
+    @ManyToOne
     @JoinColumn(name = "result")
     private ChecksumResult checksumResult;
 

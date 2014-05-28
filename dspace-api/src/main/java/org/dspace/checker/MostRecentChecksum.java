@@ -3,6 +3,7 @@ package org.dspace.checker;
 import org.dspace.content.Bitstream;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name="most_recent_checksum", schema = "public")
-public class MostRecentChecksum
+public class MostRecentChecksum implements Serializable
 {
 
     @Id

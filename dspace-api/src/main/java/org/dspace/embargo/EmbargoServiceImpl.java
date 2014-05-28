@@ -50,7 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Larry Stone
  * @author Richard Rodgers
  */
-public class EmbargoServiceImpl implements EmbargoService, InitializingBean
+public class EmbargoServiceImpl implements EmbargoService
 {
     /** Special date signalling an Item is to be embargoed forever.
      ** The actual date is the first day of the year 10,000 UTC.
@@ -81,8 +81,7 @@ public class EmbargoServiceImpl implements EmbargoService, InitializingBean
     protected ItemService itemService;
     
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    protected void init() {
         if (terms_schema == null)
         {
             String terms = ConfigurationManager.getProperty("embargo.field.terms");
@@ -124,6 +123,7 @@ public class EmbargoServiceImpl implements EmbargoService, InitializingBean
     public void setEmbargo(Context context, Item item)
         throws SQLException, AuthorizeException
     {
+        init();
         // if lift is null, we might be restoring an item from an AIP
         DCDate myLift = getEmbargoTermsAsDate(context, item);
         if (myLift == null)
@@ -171,6 +171,7 @@ public class EmbargoServiceImpl implements EmbargoService, InitializingBean
     public DCDate getEmbargoTermsAsDate(Context context, Item item)
         throws SQLException, AuthorizeException
     {
+        init();
         List<MetadataValue> terms = itemService.getMetadata(item, terms_schema, terms_element,
                 terms_qualifier, Item.ANY);
 
@@ -218,6 +219,7 @@ public class EmbargoServiceImpl implements EmbargoService, InitializingBean
         throws SQLException, AuthorizeException, IOException
     {
 
+        init();
        // new version of Embargo policies remain in place.
         //lifter.liftEmbargo(context, item);
         itemService.clearMetadata(context, item, lift_schema, lift_element, lift_qualifier, Item.ANY);
@@ -271,6 +273,7 @@ public class EmbargoServiceImpl implements EmbargoService, InitializingBean
     @Override
     public DCDate getActualEmbargoLiftDate(Item item)
     {
+        init();
         List<MetadataValue> lift = itemService.getMetadata(item, lift_schema, lift_element, lift_qualifier, Item.ANY);
         if (lift.size() > 0) {
             MetadataValue liftDateMdV = lift.iterator().next();
@@ -282,11 +285,13 @@ public class EmbargoServiceImpl implements EmbargoService, InitializingBean
     @Override
     public Iterator<Item> findItemsWithEmbargo(Context context) throws SQLException, AuthorizeException
     {
+        init();
         return itemService.findByMetadataField(context, lift_schema, lift_element, lift_qualifier, Item.ANY);
     }
 
     @Override
     public EmbargoSetter getSetter() {
+        init();
         return setter;
     }
 }
