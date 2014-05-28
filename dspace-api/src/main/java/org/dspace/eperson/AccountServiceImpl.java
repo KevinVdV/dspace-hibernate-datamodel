@@ -20,9 +20,11 @@ import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.Utils;
+import org.dspace.eperson.service.AccountService;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.RegistrationDataService;
 import org.dspace.factory.DSpaceServiceFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -39,17 +41,14 @@ import org.dspace.factory.DSpaceServiceFactory;
  * @author Peter Breton
  * @version $Revision$
  */
-public class AccountManager
+public class AccountServiceImpl implements AccountService
 {
     /** log4j log */
-    private static Logger log = Logger.getLogger(AccountManager.class);
-    private static EPersonService ePersonService = DSpaceServiceFactory.getInstance().getEPersonService();
-    private static RegistrationDataService registrationDataService = DSpaceServiceFactory.getInstance().getRegistrationDataService();
-
-    /** Protected Constructor */
-    protected AccountManager()
-    {
-    }
+    private static Logger log = Logger.getLogger(AccountServiceImpl.class);
+    @Autowired(required = true)
+    protected EPersonService ePersonService;
+    @Autowired(required = true)
+    protected RegistrationDataService registrationDataService;
 
     /**
      * Email registration info to the given email address.
@@ -64,7 +63,8 @@ public class AccountManager
      * @param email
      *            Email address to send the registration email to
      */
-    public static void sendRegistrationInfo(Context context, String email)
+    @Override
+    public void sendRegistrationInfo(Context context, String email)
             throws SQLException, IOException, MessagingException,
             AuthorizeException
     {
@@ -84,7 +84,8 @@ public class AccountManager
      * @param email
      *            Email address to send the forgot-password email to
      */
-    public static void sendForgotPasswordInfo(Context context, String email)
+    @Override
+    public void sendForgotPasswordInfo(Context context, String email)
             throws SQLException, IOException, MessagingException,
             AuthorizeException
     {
@@ -111,7 +112,8 @@ public class AccountManager
      *                If the token or eperson cannot be retrieved from the
      *                database.
      */
-    public static EPerson getEPerson(Context context, String token)
+    @Override
+    public EPerson getEPerson(Context context, String token)
             throws SQLException, AuthorizeException
     {
         String email = getEmail(context, token);
@@ -134,7 +136,8 @@ public class AccountManager
      *            Account token
      * @return The email address corresponding to token, or null.
      */
-    public static String getEmail(Context context, String token)
+    @Override
+    public String getEmail(Context context, String token)
             throws SQLException
     {
         RegistrationData registrationData = registrationDataService.findByToken(context, token);
@@ -162,7 +165,8 @@ public class AccountManager
      * @exception SQLException
      *                If a database error occurs
      */
-    public static void deleteToken(Context context, String token)
+    @Override
+    public void deleteToken(Context context, String token)
             throws SQLException
     {
         registrationDataService.deleteByToken(context, token);
@@ -186,7 +190,7 @@ public class AccountManager
      * registration; otherwise, it is for forgot-password @param send If true,
      * send email; otherwise do not send any email
      */
-    protected static RegistrationData sendInfo(Context context, String email,
+    protected RegistrationData sendInfo(Context context, String email,
             boolean isRegister, boolean send) throws SQLException, IOException,
             MessagingException, AuthorizeException
     {
@@ -243,7 +247,7 @@ public class AccountManager
      * @exception IOException
      *                If an error occurs while reading the email template.
      */
-    private static void sendEmail(Context context, String email, boolean isRegister, RegistrationData rd)
+    protected void sendEmail(Context context, String email, boolean isRegister, RegistrationData rd)
             throws MessagingException, IOException, SQLException
     {
         String base = ConfigurationManager.getProperty("dspace.url");

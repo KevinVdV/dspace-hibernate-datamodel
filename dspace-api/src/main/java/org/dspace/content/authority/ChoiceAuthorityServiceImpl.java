@@ -14,10 +14,12 @@ import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 
+import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.PluginManager;
 import org.dspace.factory.DSpaceServiceFactory;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Broker for ChoiceAuthority plugins, and for other information configured
@@ -38,23 +40,22 @@ import org.dspace.factory.DSpaceServiceFactory;
  * @author Larry Stone
  * @see ChoiceAuthority
  */
-public final class ChoiceAuthorityManager
+public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService, InitializingBean
 {
     protected static final MetadataFieldService METADATA_FIELD_SERVICE = DSpaceServiceFactory.getInstance().getMetadataFieldService();
-    private static Logger log = Logger.getLogger(ChoiceAuthorityManager.class);
-
-    private static ChoiceAuthorityManager cached = null;
+    private static Logger log = Logger.getLogger(ChoiceAuthorityServiceImpl.class);
 
     // map of field key to authority plugin
-    private Map<String,ChoiceAuthority> controller = new HashMap<String,ChoiceAuthority>();
+    protected Map<String,ChoiceAuthority> controller = new HashMap<String,ChoiceAuthority>();
 
     // map of field key to presentation type
-    private Map<String,String> presentation = new HashMap<String,String>();
+    protected Map<String,String> presentation = new HashMap<String,String>();
 
     // map of field key to closed value
-    private Map<String,Boolean> closed = new HashMap<String,Boolean>();
+    protected Map<String,Boolean> closed = new HashMap<String,Boolean>();
 
-    private ChoiceAuthorityManager()
+    @Override
+    public void afterPropertiesSet() throws Exception
     {
 
         Enumeration pn = ConfigurationManager.propertyNames();
@@ -119,19 +120,9 @@ public final class ChoiceAuthorityManager
         }
     }
 
-    /** Factory method */
-    public static ChoiceAuthorityManager getManager()
-    {
-        if (cached == null)
-        {
-            cached = new ChoiceAuthorityManager();
-        }
-        return cached;
-    }
-
     // translate tail of configuration key (supposed to be schema.element.qual)
     // into field key
-    private String config2fkey(String field)
+    protected String config2fkey(String field)
     {
         // field is expected to be "schema.element.qualifier"
         int dot = field.indexOf('.');
@@ -166,6 +157,7 @@ public final class ChoiceAuthorityManager
      * @param locale explicit localization key if available, or null
      * @return a Choices object (never null).
      */
+    @Override
     public Choices getMatches(String schema, String element, String qualifier,
             String query, int collection, int start, int limit, String locale)
     {
@@ -186,6 +178,7 @@ public final class ChoiceAuthorityManager
      * @param locale explicit localization key if available, or null
      * @return a Choices object (never null).
      */
+    @Override
     public Choices getMatches(String fieldKey, String query, int collection,
             int start, int limit, String locale)
     {
@@ -210,6 +203,7 @@ public final class ChoiceAuthorityManager
      * @param locale explicit localization key if available, or null
      * @return a Choices object (never null) with 1 or 0 values.
      */
+    @Override
     public Choices getBestMatch(String fieldKey, String query, int collection,
             String locale)
     {
@@ -227,6 +221,7 @@ public final class ChoiceAuthorityManager
      *  Wrapper that calls getLabel method of the plugin corresponding to
      *  the metadata field defined by schema,element,qualifier.
      */
+    @Override
     public String getLabel(String schema, String element, String qualifier,
                                                       String authKey, String locale)
     {
@@ -237,6 +232,7 @@ public final class ChoiceAuthorityManager
      *  Wrapper that calls getLabel method of the plugin corresponding to
      *  the metadata field defined by single field key.
      */
+    @Override
     public String getLabel(String fieldKey, String authKey, String locale)
     {
         ChoiceAuthority ma = controller.get(fieldKey);
@@ -252,6 +248,7 @@ public final class ChoiceAuthorityManager
      * given metadata field?
      * @return true if choices are configured for this field.
     */
+    @Override
     public boolean isChoicesConfigured(String fieldKey)
     {
         return controller.containsKey(fieldKey);
@@ -263,6 +260,7 @@ public final class ChoiceAuthorityManager
      *
      * @return configured presentation type for this field, or null if none found
      */
+    @Override
     public String getPresentation(String fieldKey)
     {
         return presentation.get(fieldKey);
@@ -273,6 +271,7 @@ public final class ChoiceAuthorityManager
      *
      * @return true if choices are closed for this field.
     */
+    @Override
     public boolean isClosed(String fieldKey)
     {
         return closed.containsKey(fieldKey) ? closed.get(fieldKey).booleanValue() : false;
@@ -283,7 +282,8 @@ public final class ChoiceAuthorityManager
      * that describes a metadata field.  Punt to the function we use for
      * submission UI input forms, for now.
      */
-    public static String makeFieldKey(String schema, String element, String qualifier)
+    @Override
+    public String makeFieldKey(String schema, String element, String qualifier)
     {
         return METADATA_FIELD_SERVICE.formKey(schema, element, qualifier);
     }
@@ -291,7 +291,8 @@ public final class ChoiceAuthorityManager
     /**
      * Construct a single key from the "dot" notation e.g. "dc.rights"
      */
-    public static String makeFieldKey(String dotty)
+    @Override
+    public String makeFieldKey(String dotty)
     {
         return dotty.replace(".", "_");
     }
@@ -299,6 +300,7 @@ public final class ChoiceAuthorityManager
     /**
      * Wrapper to call plugin's getVariants().
      */
+    @Override
     public List<String> getVariants(String schema, String element, String qualifier,
             String authorityKey, String language)
     {

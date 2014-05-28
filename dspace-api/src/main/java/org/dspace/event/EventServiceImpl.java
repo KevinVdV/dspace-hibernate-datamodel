@@ -21,6 +21,8 @@ import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.apache.log4j.Logger;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
+import org.dspace.event.service.EventService;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Class for managing the content event environment. The EventManager mainly
@@ -29,33 +31,31 @@ import org.dspace.core.Context;
  *
  * Version: $Revision$
  */
-public class EventManager
+public class EventServiceImpl implements EventService, InitializingBean
 {
     /** log4j category */
-    private static Logger log = Logger.getLogger(EventManager.class);
+    private static Logger log = Logger.getLogger(EventServiceImpl.class);
 
-    // The name of the default dispatcher assigned to every new context unless
-    // overridden
-    public static final String DEFAULT_DISPATCHER = "default";
 
-    private static DispatcherPoolFactory dispatcherFactory = null;
+    protected DispatcherPoolFactory dispatcherFactory = null;
 
-    private static GenericKeyedObjectPool.Config poolConfig = null;
+    protected GenericKeyedObjectPool.Config poolConfig = null;
 
     // Keyed FIFO Pool of event dispatchers
-    private static KeyedObjectPool dispatcherPool = null;
+    protected KeyedObjectPool dispatcherPool = null;
 
-    private static Map<String, Integer> consumerIndicies = null;
+    protected Map<String, Integer> consumerIndicies = null;
 
-    private static final String CONSUMER_PFX = "event.consumer.";
+    protected final String CONSUMER_PFX = "event.consumer.";
 
-    public EventManager()
+    @Override
+    public void afterPropertiesSet() throws Exception
     {
         initPool();
         log.info("Event Dispatcher Pool Initialized");
     }
 
-    private static void initPool()
+    protected void initPool()
     {
 
         if (dispatcherPool == null)
@@ -94,7 +94,7 @@ public class EventManager
      * Get dispatcher for configuration named by "name". Returns cached instance
      * if one exists.
      */
-    public static Dispatcher getDispatcher(String name)
+    public Dispatcher getDispatcher(String name)
     {
         if (dispatcherPool == null)
         {
@@ -117,7 +117,8 @@ public class EventManager
 
     }
 
-    public static void returnDispatcher(String key, Dispatcher disp)
+    @Override
+    public void returnDispatcher(String key, Dispatcher disp)
     {
         try
         {
@@ -129,14 +130,14 @@ public class EventManager
         }
     }
 
-    protected static int getConsumerIndex(String consumerClass)
+    public int getConsumerIndex(String consumerClass)
     {
         Integer index = (Integer) consumerIndicies.get(consumerClass);
-        return index != null ? index.intValue() : -1;
+        return index != null ? index : -1;
 
     }
 
-    private static void enumerateConsumers()
+    protected void enumerateConsumers()
     {
         Enumeration propertyNames = ConfigurationManager.propertyNames();
         int bitSetIndex = 0;
@@ -161,7 +162,7 @@ public class EventManager
         }
     }
 
-    static class DispatcherPoolFactory implements KeyedPoolableObjectFactory
+    protected static class DispatcherPoolFactory implements KeyedPoolableObjectFactory
     {
 
         // Prefix of keys in DSpace Configuration

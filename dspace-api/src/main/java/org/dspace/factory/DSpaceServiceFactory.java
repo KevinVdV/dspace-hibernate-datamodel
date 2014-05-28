@@ -7,6 +7,7 @@ import org.dspace.checker.service.MostRecentChecksumService;
 import org.dspace.content.*;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.eperson.service.RegistrationDataService;
@@ -34,10 +35,6 @@ public abstract class DSpaceServiceFactory {
 
     public abstract CommunityService getCommunityService();
 
-    public abstract EPersonService getEPersonService();
-
-    public abstract GroupService getGroupService();
-
     public abstract ItemService getItemService();
 
     public abstract MetadataFieldService getMetadataFieldService();
@@ -51,8 +48,6 @@ public abstract class DSpaceServiceFactory {
     public abstract HandleService getHandleService();
 
     public abstract SubscriptionService getSubscriptionService();
-
-    public abstract RegistrationDataService getRegistrationDataService();
 
     public abstract MostRecentChecksumService getMostRecentChecksumService();
 
@@ -102,9 +97,9 @@ public abstract class DSpaceServiceFactory {
             case Constants.COMMUNITY:
                 return getCommunityService();
             case Constants.GROUP:
-                return getGroupService();
+                return EPersonServiceFactory.getInstance().getGroupService();
             case Constants.EPERSON:
-                return getEPersonService();
+                return EPersonServiceFactory.getInstance().getEPersonService();
             default:
                 throw new UnsupportedOperationException();
         }

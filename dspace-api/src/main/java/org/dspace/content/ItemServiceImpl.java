@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
@@ -24,7 +25,6 @@ import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
 import org.dspace.content.authority.Choices;
-import org.dspace.content.authority.ChoiceAuthorityManager;
 import org.dspace.content.authority.MetadataAuthorityManager;
 import org.dspace.event.Event;
 import org.dspace.eperson.EPerson;
@@ -81,6 +81,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected InstallItemService installItemService;
     @Autowired(required = true)
     protected AuthorizeService authorizeService;
+    @Autowired(required = true)
+    protected ChoiceAuthorityService choiceAuthorityService;
 
     public ItemServiceImpl()
     {
@@ -419,7 +421,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
                 {
                     collectionId = owningCollection.getID();
                 }
-                Choices c = ChoiceAuthorityManager.getManager().getBestMatch(fieldKey, values.get(i), collectionId, null);
+                Choices c = choiceAuthorityService.getBestMatch(fieldKey, values.get(i), collectionId, null);
                 authorities.add(c.values.length > 0 ? c.values[0].authority : null);
                 confidences.add(c.confidence);
             }

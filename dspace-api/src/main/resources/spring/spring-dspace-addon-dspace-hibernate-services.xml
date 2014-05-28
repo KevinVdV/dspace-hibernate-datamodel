@@ -16,6 +16,8 @@
     <bean id="versionServiceFactory" class="org.dspace.versioning.factory.DSpaceVersionServiceFactoryImpl"/>
     <bean id="coreServiceFactory" class="org.dspace.core.factory.CoreServiceFactoryImpl"/>
     <bean id="storageServiceFactory" class="org.dspace.storage.factory.StorageServiceFactoryImpl"/>
+    <bean id="eventServiceFactory" class="org.dspace.event.factory.EventServiceFactoryImpl"/>
+    <bean id="ePersonServiceFactoryImpl" class="org.dspace.eperson.factory.EPersonServiceFactoryImpl"/>
 
 
     <!-- ******************** -->
@@ -27,9 +29,12 @@
     <bean class="org.dspace.content.ItemServiceImpl"/>
     <bean class="org.dspace.content.CollectionServiceImpl"/>
     <bean class="org.dspace.content.CommunityServiceImpl"/>
+
     <bean class="org.dspace.eperson.EPersonServiceImpl"/>
     <bean class="org.dspace.eperson.GroupServiceImpl"/>
     <bean class="org.dspace.eperson.RegistrationDataServiceImpl"/>
+    <bean class="org.dspace.eperson.AccountServiceImpl"/>
+
     <bean class="org.dspace.authorize.ResourcePolicyServiceImpl"/>
     <bean class="org.dspace.authorize.AuthorizeServiceImpl"/>
 
@@ -44,6 +49,10 @@
     <bean class="org.dspace.content.WorkspaceItemServiceImpl"/>
     <bean class="org.dspace.content.InstallItemServiceImpl"/>
     <bean class="org.dspace.content.SupervisedItemServiceImpl"/>
+    <bean class="org.dspace.content.authority.ChoiceAuthorityServiceImpl"/>
+
+    <bean class="org.dspace.event.EventServiceImpl"/>
+
 
     <bean class="org.dspace.handle.HandleServiceImpl"/>
 

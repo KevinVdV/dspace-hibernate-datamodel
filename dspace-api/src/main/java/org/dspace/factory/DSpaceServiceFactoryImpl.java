@@ -39,10 +39,6 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Autowired(required = true)
     private CommunityService communityService;
     @Autowired(required = true)
-    private GroupService groupService;
-    @Autowired(required = true)
-    private EPersonService epersonService;
-    @Autowired(required = true)
     private MetadataSchemaService metadataSchemaService;
     @Autowired(required = true)
     private MetadataFieldService metadataFieldService;
@@ -103,18 +99,6 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     }
 
     @Override
-    public EPersonService getEPersonService()
-    {
-        return epersonService;
-    }
-
-    @Override
-    public GroupService getGroupService()
-    {
-        return groupService;
-    }
-
-    @Override
     public ItemService getItemService()
     {
         return itemService;
@@ -152,11 +136,6 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Override
     public SubscriptionService getSubscriptionService() {
         return subscriptionService;
-    }
-
-    @Override
-    public RegistrationDataService getRegistrationDataService() {
-        return registrationDataService;
     }
 
     @Override

@@ -10,6 +10,7 @@ package org.dspace.xmlworkflow;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.xmlworkflow.factory.XmlWorkflowServiceFactory;
@@ -32,7 +33,7 @@ import java.util.List;
  */
 public class Role {
 
-    private GroupService groupService = DSpaceServiceFactory.getInstance().getGroupService();
+    private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
     private CollectionRoleService collectionRoleService = XmlWorkflowServiceFactory.getInstance().getCollectionRoleService();
     private WorkflowItemRoleService workflowItemRoleService = XmlWorkflowServiceFactory.getInstance().getWorkflowItemRoleService();
     private String id;

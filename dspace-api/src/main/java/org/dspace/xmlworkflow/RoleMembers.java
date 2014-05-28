@@ -10,6 +10,7 @@ package org.dspace.xmlworkflow;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
 
@@ -28,7 +29,7 @@ import java.util.HashMap;
  */
 public class RoleMembers {
 
-    private GroupService groupService = DSpaceServiceFactory.getInstance().getGroupService();
+    private GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
     private ArrayList<Group> groups;
     private ArrayList<EPerson> epersons;
 

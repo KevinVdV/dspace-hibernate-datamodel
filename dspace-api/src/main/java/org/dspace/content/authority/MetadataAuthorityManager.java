@@ -45,7 +45,7 @@ import org.dspace.factory.DSpaceServiceFactory;
  * NOTE: There is *expected* to be a "choices" (see ChoiceAuthorityManager)
  * configuration for each authority-controlled field.
  *
- * @see ChoiceAuthorityManager
+ * @see ChoiceAuthorityServiceImpl
  * @see Choices
  * @author Larry Stone
  */

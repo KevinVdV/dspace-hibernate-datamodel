@@ -34,6 +34,7 @@ import org.dspace.core.I18nUtil;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.core.service.LicenseService;
 import org.dspace.eperson.*;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
@@ -85,6 +86,7 @@ public class AbstractUnitTest
     protected EPerson admin;
 
     protected DSpaceServiceFactory serviceFactory = DSpaceServiceFactory.getInstance();
+    protected EPersonServiceFactory ePersonServiceFactory = EPersonServiceFactory.getInstance();
     protected CommunityService communityService = serviceFactory.getCommunityService();
     protected CollectionService collectionService = serviceFactory.getCollectionService();
     protected ItemService itemService = serviceFactory.getItemService();
@@ -94,8 +96,8 @@ public class AbstractUnitTest
     protected MetadataSchemaService metadataSchemaService = serviceFactory.getMetadataSchemaService();
     protected MetadataFieldService metadataFieldService = serviceFactory.getMetadataFieldService();
     protected ResourcePolicyService resourcePolicyService = AuthorizeServiceFactory.getInstance().getResourcePolicyService();
-    protected EPersonService ePersonService = serviceFactory.getEPersonService();
-    protected GroupService groupService = serviceFactory.getGroupService();
+    protected EPersonService ePersonService = ePersonServiceFactory.getEPersonService();
+    protected GroupService groupService = ePersonServiceFactory.getGroupService();
     protected BitstreamFormatService bitstreamFormatService = serviceFactory.getBitstreamFormatService();
     protected InstallItemService installItemService = serviceFactory.getInstallItemService();
     protected SupervisedItemService supervisedItemService = serviceFactory.getSupervisedItemService();
@@ -170,7 +172,7 @@ public class AbstractUnitTest
                 ctx.commit();
             }
 
-            GroupService groupService = DSpaceServiceFactory.getInstance().getGroupService();
+            GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
             Group group = groupService.create(ctx);
             group.setName("Anonymous");
             groupService.update(ctx, group);
@@ -183,7 +185,7 @@ public class AbstractUnitTest
 
 
             //create eperson if required
-            EPersonService ePersonService = DSpaceServiceFactory.getInstance().getEPersonService();
+            EPersonService ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
             eperson = ePersonService.find(ctx, 1);
                 if(eperson == null)
                 {
@@ -400,7 +402,9 @@ public class AbstractUnitTest
     public void destroy() throws Exception {
         if(context != null && context.isValid())
         {
+            context.turnOffAuthorisationSystem();
             ePersonService.delete(context, admin);
+            context.restoreAuthSystemState();
             admin = null;
             context.commit();
             context.abort();

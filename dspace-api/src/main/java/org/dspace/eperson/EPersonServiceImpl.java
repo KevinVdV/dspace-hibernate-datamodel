@@ -31,6 +31,7 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
 import org.dspace.eperson.dao.EPersonDAO;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.event.Event;
 import org.dspace.factory.DSpaceServiceFactory;
@@ -749,7 +750,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
 
         // Create!
         EPerson eperson = null;
-        EPersonService epersonService = DSpaceServiceFactory.getInstance().getEPersonService();
+        EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
         try {
             eperson = epersonService.create(context);
         } catch (SQLException ex) {
@@ -822,7 +823,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
         }
 
         // Delete!
-        EPersonService epersonService = DSpaceServiceFactory.getInstance().getEPersonService();
+        EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
         EPerson eperson = null;
         try {
             if (command.hasOption(OPT_NETID.getOpt()))
@@ -907,7 +908,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
             return 0;
         }
 
-        EPersonService epersonService = DSpaceServiceFactory.getInstance().getEPersonService();
+        EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
         // Modify!
         EPerson eperson = null;
         try {
@@ -1007,7 +1008,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
         // wild or regex match user/netid
         // select details (pseudo-format string)
         try {
-            EPersonService epersonService = DSpaceServiceFactory.getInstance().getEPersonService();
+            EPersonService epersonService = EPersonServiceFactory.getInstance().getEPersonService();
             for (EPerson person : epersonService.findAll(context, EMAIL))
             {
                 System.out.printf("%d\t%s/%s\t%s, %s\n",

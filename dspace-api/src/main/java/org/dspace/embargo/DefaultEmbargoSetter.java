@@ -20,6 +20,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Constants;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.license.CreativeCommons;
@@ -36,7 +37,7 @@ import org.dspace.license.CreativeCommons;
  */
 public class DefaultEmbargoSetter implements EmbargoSetter
 {
-    protected GroupService groupService = DSpaceServiceFactory.getInstance().getGroupService();
+    protected GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
     protected ResourcePolicyService resourcePolicyService = AuthorizeServiceFactory.getInstance().getResourcePolicyService();
     protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected String termsOpen = null;

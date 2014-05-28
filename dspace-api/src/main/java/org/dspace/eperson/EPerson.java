@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.factory.DSpaceServiceFactory;
 
@@ -66,7 +67,7 @@ public class EPerson extends DSpaceObject {
     private String phone;
 
     @Transient
-    private EPersonService ePersonService = DSpaceServiceFactory.getInstance().getEPersonService();
+    private EPersonService ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
 
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "epeople")

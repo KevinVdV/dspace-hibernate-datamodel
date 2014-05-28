@@ -14,10 +14,12 @@ import org.apache.log4j.Logger;
 //import org.dspace.eperson.Group;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
-import org.dspace.event.EventManager;
+import org.dspace.event.factory.EventServiceFactory;
+import org.dspace.event.service.EventService;
 import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.hibernate.HibernateUtil;
 import org.hibernate.Session;
@@ -43,7 +45,7 @@ import org.springframework.util.CollectionUtils;
 public class Context
 {
     private static final Logger log = Logger.getLogger(Context.class);
-    protected static final GroupService GROUP_SERVICE = DSpaceServiceFactory.getInstance().getGroupService();
+    protected static final GroupService GROUP_SERVICE = EPersonServiceFactory.getInstance().getGroupService();
 
     /** option flags */
     public static final short READ_ONLY = 0x01;
@@ -62,6 +64,8 @@ public class Context
 
     /** A stack with the history of authorisation system check modify */
     private Stack<Boolean> authStateChangeHistory;
+
+    private EventService eventService;
 
     /**
      * A stack with the name of the caller class that modify authorisation
@@ -128,6 +132,7 @@ public class Context
 
         authStateChangeHistory = new Stack<Boolean>();
         authStateClassCallHistory = new Stack<String>();
+        eventService = EventServiceFactory.getInstance().getEventService();
     }
 
     /**
@@ -360,10 +365,10 @@ public class Context
 
                 if (dispName == null)
                 {
-                    dispName = EventManager.DEFAULT_DISPATCHER;
+                    dispName = EventService.DEFAULT_DISPATCHER;
                 }
 
-                dispatcher = EventManager.getDispatcher(dispName);
+                dispatcher = eventService.getDispatcher(dispName);
                 HibernateUtil.commitTransaction();
                 //TODO: HIBERNATE, ALLOW DISPATCHING !
                 //dispatcher.dispatch(this);
@@ -379,7 +384,7 @@ public class Context
             events = null;
             if (dispatcher != null)
             {
-                EventManager.returnDispatcher(dispName, dispatcher);
+                eventService.returnDispatcher(dispName, dispatcher);
             }
         }
     }

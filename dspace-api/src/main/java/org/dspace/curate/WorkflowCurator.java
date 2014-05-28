@@ -31,6 +31,7 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
 import org.dspace.factory.DSpaceServiceFactory;
@@ -62,11 +63,11 @@ public class WorkflowCurator {
     private static Map<String, TaskSet> tsMap = new HashMap<String, TaskSet>();
     
     private static final String[] flowSteps = { "step1", "step2", "step3", "archive" };
-    protected static final EPersonService E_PERSON_SERVICE = DSpaceServiceFactory.getInstance().getEPersonService();
+    protected static final EPersonService E_PERSON_SERVICE = EPersonServiceFactory.getInstance().getEPersonService();
     protected static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
     protected static final BasicWorkflowService WORKFLOW_SERVICE = BasicWorkflowServiceFactory.getInstance().getBasicWorkflowService();
     protected static final BasicWorkflowItemService WORKFLOW_ITEM_SERVICE = BasicWorkflowServiceFactory.getInstance().getBasicWorkflowItemService();
-    protected static final GroupService GROUP_MANAGER = DSpaceServiceFactory.getInstance().getGroupService();
+    protected static final GroupService GROUP_MANAGER = EPersonServiceFactory.getInstance().getGroupService();
 
     
     static {

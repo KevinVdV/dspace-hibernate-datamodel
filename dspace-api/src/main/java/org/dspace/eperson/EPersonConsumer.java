@@ -9,6 +9,7 @@ package org.dspace.eperson;
 
 import org.apache.log4j.Logger;
 import org.dspace.core.*;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
@@ -31,7 +32,7 @@ public class EPersonConsumer implements Consumer
     /** log4j logger */
     private static Logger log = Logger.getLogger(EPersonConsumer.class);
 
-    protected static final EPersonService EPERSON_SERVICE = DSpaceServiceFactory.getInstance().getEPersonService();
+    protected static final EPersonService EPERSON_SERVICE = EPersonServiceFactory.getInstance().getEPersonService();
 
     /**
      * Initalise the consumer

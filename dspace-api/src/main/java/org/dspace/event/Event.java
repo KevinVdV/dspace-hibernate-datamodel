@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.event.factory.EventServiceFactory;
 import org.dspace.factory.DSpaceServiceFactory;
 
 /**
@@ -604,7 +605,7 @@ public class Event implements Serializable
      */
     public void setBitSet(String consumerName)
     {
-        consumedBy.set(EventManager.getConsumerIndex(consumerName));
+        consumedBy.set(EventServiceFactory.getInstance().getEventService().getConsumerIndex(consumerName));
     }
 
     /**
