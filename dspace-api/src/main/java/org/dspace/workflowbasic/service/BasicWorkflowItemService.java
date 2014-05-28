@@ -20,4 +20,6 @@ import java.util.List;
 public interface BasicWorkflowItemService extends WorkflowItemService<BasicWorkflowItem> {
 
     public List<BasicWorkflowItem> findByPooledTasks(Context context, EPerson ePerson) throws SQLException;
+
+    public List<BasicWorkflowItem> findByOwner(Context context, EPerson ePerson) throws SQLException;
 }

@@ -1,11 +1,13 @@
 package org.dspace.xmlworkflow.storedcomponents;
 
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.dao.WorkflowItemRoleDAO;
 import org.dspace.xmlworkflow.storedcomponents.service.WorkflowItemRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,6 +41,11 @@ public class WorkflowItemRoleServiceImpl implements WorkflowItemRoleService {
     @Override
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         return workflowItemRoleDAO.findByWorkflowItem(context, workflowItem);
+    }
+
+    @Override
+    public List<WorkflowItemRole> findByEPerson(Context context, EPerson ePerson) throws SQLException {
+        return workflowItemRoleDAO.findByEPerson(context, ePerson);
     }
 
     @Override

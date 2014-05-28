@@ -135,6 +135,11 @@ public class BasicWorkflowItemServiceImpl implements BasicWorkflowItemService
         return workflowItemDAO.findByPooledTasks(context, ePerson);
     }
 
+    @Override
+    public List<BasicWorkflowItem> findByOwner(Context context, EPerson ePerson) throws SQLException {
+        return workflowItemDAO.findByOwner(context, ePerson);
+    }
+
     /**
      * Get all workflow items for a particular collection.
      *

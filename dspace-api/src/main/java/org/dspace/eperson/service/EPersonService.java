@@ -18,6 +18,21 @@ import java.util.Set;
  * Time: 11:38
  */
 public interface EPersonService extends DSpaceObjectService<EPerson> {
+    /** The e-mail field (for sorting) */
+    public static final int EMAIL = 1;
+
+    /** The last name (for sorting) */
+    public static final int LASTNAME = 2;
+
+    /** The e-mail field (for sorting) */
+    public static final int ID = 3;
+
+    /** The netid field (for sorting) */
+    public static final int NETID = 4;
+
+    /** The e-mail field (for sorting) */
+    public static final int LANGUAGE = 5;
+
 
     public EPerson find(Context context, int id) throws SQLException;
 

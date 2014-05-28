@@ -1,11 +1,13 @@
 package org.dspace.xmlworkflow.storedcomponents.service;
 
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 import org.dspace.service.DSpaceCRUDService;
 import org.dspace.xmlworkflow.storedcomponents.WorkflowItemRole;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -20,6 +22,8 @@ public interface WorkflowItemRoleService extends DSpaceCRUDService<WorkflowItemR
     public List<WorkflowItemRole> findByWorkflowItemAndRole(Context context, XmlWorkflowItem workflowItem, String role) throws SQLException;
 
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException;
+
+    public List<WorkflowItemRole> findByEPerson(Context context, EPerson ePerson) throws SQLException;
 
     public void deleteForWorkflowItem(Context context, XmlWorkflowItem xmlWorkflowItem) throws SQLException;
 }

@@ -2,6 +2,7 @@ package org.dspace.xmlworkflow.storedcomponents.dao.impl;
 
 import org.dspace.core.Context;
 import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.WorkflowItemRole;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.dao.WorkflowItemRoleDAO;
@@ -36,6 +37,14 @@ public class WorkflowItemRoleDAOImpl extends AbstractHibernateDAO<WorkflowItemRo
     public List<WorkflowItemRole> findByWorkflowItem(Context context, XmlWorkflowItem workflowItem) throws SQLException {
         Criteria criteria = createCriteria(context, WorkflowItemRole.class);
         criteria.add(Restrictions.eq("workflowItem", workflowItem));
+
+        return list(criteria);
+    }
+
+    @Override
+    public List<WorkflowItemRole> findByEPerson(Context context, EPerson ePerson) throws SQLException {
+        Criteria criteria = createCriteria(context, WorkflowItemRole.class);
+        criteria.add(Restrictions.eq("ePerson", ePerson));
 
         return list(criteria);
     }

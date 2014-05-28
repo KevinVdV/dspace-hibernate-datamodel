@@ -7,6 +7,7 @@ import org.dspace.workflowbasic.service.TaskListItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -35,5 +36,10 @@ public class TaskListItemServiceImpl implements TaskListItemService {
     @Override
     public void update(Context context, TaskListItem taskListItem) throws SQLException {
         taskListItemDAO.save(context, taskListItem);
+    }
+
+    @Override
+    public List<TaskListItem> findByEPerson(Context context, EPerson ePerson) throws SQLException {
+        return taskListItemDAO.findByEPerson(context, ePerson);
     }
 }

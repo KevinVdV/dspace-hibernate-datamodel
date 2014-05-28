@@ -17,7 +17,7 @@
     <bean id="coreServiceFactory" class="org.dspace.core.factory.CoreServiceFactoryImpl"/>
     <bean id="storageServiceFactory" class="org.dspace.storage.factory.StorageServiceFactoryImpl"/>
     <bean id="eventServiceFactory" class="org.dspace.event.factory.EventServiceFactoryImpl"/>
-    <bean id="ePersonServiceFactoryImpl" class="org.dspace.eperson.factory.EPersonServiceFactoryImpl"/>
+    <bean id="ePersonServiceFactory" class="org.dspace.eperson.factory.EPersonServiceFactoryImpl"/>
     <bean id="embargoFactory" class="org.dspace.embargo.factory.EmbargoServiceFactoryImpl"/>
     <bean id="contentAuthorityServiceFactory" class="org.dspace.content.authority.factory.ContentAuthorityServiceFactoryImpl"/>
 

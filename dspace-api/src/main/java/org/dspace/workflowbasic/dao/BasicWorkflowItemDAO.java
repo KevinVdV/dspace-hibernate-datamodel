@@ -24,4 +24,6 @@ public interface BasicWorkflowItemDAO extends GenericDAO<BasicWorkflowItem> {
     public List<BasicWorkflowItem> findByCollection(Context context, Collection c) throws SQLException;
 
     public List<BasicWorkflowItem> findByPooledTasks(Context context, EPerson ePerson) throws SQLException;
+
+    public List<BasicWorkflowItem> findByOwner(Context context, EPerson ePerson) throws SQLException;
 }

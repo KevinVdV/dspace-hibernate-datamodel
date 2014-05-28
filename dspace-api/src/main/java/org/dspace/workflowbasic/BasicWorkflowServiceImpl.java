@@ -9,20 +9,18 @@ package org.dspace.workflowbasic;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import javax.mail.MessagingException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
+import org.dspace.content.Collection;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
@@ -1009,6 +1007,22 @@ public class BasicWorkflowServiceImpl implements BasicWorkflowService
     @Override
     public void deleteCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException {
         workflowItemService.deleteByCollection(context, collection);
+    }
+
+    @Override
+    public List<String> getEPersonDeleteConstraints(Context context, EPerson ePerson) throws SQLException {
+        List<String> resultList = new ArrayList<String>();
+        List<BasicWorkflowItem> workflowItems = workflowItemService.findByOwner(context, ePerson);
+        if(CollectionUtils.isNotEmpty(workflowItems))
+        {
+            resultList.add("workflowitem");
+        }
+        List<TaskListItem> taskListItems = taskListItemService.findByEPerson(context, ePerson);
+        if(CollectionUtils.isNotEmpty(taskListItems))
+        {
+            resultList.add("tasklistitem");
+        }
+        return resultList;
     }
 
     protected void notifyOfReject(Context c, BasicWorkflowItem wi, EPerson e,

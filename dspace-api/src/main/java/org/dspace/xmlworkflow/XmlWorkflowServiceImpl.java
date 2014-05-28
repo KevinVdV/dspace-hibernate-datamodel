@@ -7,6 +7,7 @@
  */
 package org.dspace.xmlworkflow;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
@@ -914,5 +915,23 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
         xmlWorkflowItemService.deleteByCollection(context, collection);
         collectionRoleService.deleteByCollection(context, collection);
 
+    }
+
+    @Override
+    public List<String> getEPersonDeleteConstraints(Context context, EPerson ePerson) throws SQLException {
+        List<String> constraints = new ArrayList<String>();
+        if(CollectionUtils.isNotEmpty(claimedTaskService.findByEperson(context, ePerson)))
+        {
+            constraints.add("cwf_claimtask");
+        }
+        if(CollectionUtils.isNotEmpty(poolTaskService.findByEPerson(context, ePerson)))
+        {
+            constraints.add("cwf_pooltask");
+        }
+        if(CollectionUtils.isNotEmpty(workflowItemRoleService.findByEPerson(context, ePerson)))
+        {
+            constraints.add("cwf_workflowitemrole");
+        }
+        return constraints;
     }
 }

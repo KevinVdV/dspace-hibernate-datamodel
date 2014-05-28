@@ -56,5 +56,10 @@ public class BasicWorkflowItemDAOImpl extends AbstractHibernateDAO<BasicWorkflow
         return list(query);
     }
 
-
+    @Override
+    public List<BasicWorkflowItem> findByOwner(Context context, EPerson ePerson) throws SQLException {
+        Criteria criteria = createCriteria(context, BasicWorkflowItem.class);
+        criteria.add(Restrictions.eq("owner", ePerson));
+        return list(criteria);
+    }
 }

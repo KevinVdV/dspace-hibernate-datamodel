@@ -9,6 +9,7 @@ import org.dspace.eperson.EPerson;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -44,4 +45,6 @@ public interface WorkflowService<T extends WorkflowItem> {
     public String getMyDSpaceLink();
 
     public void deleteCollection(Context context, Collection collection) throws SQLException, IOException, AuthorizeException;
+
+    public List<String> getEPersonDeleteConstraints(Context context, EPerson ePerson) throws SQLException;
 }
