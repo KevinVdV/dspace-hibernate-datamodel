@@ -20,10 +20,10 @@ public class MetadataSchema {
     @SequenceGenerator(name="metadataschemaregistry_seq", sequenceName="metadataschemaregistry_seq", allocationSize = 1, initialValue = 1)
     private Integer id;
 
-    @Column(name = "namespace")
+    @Column(name = "namespace", unique = true, length = 256)
     private String namespace;
 
-    @Column(name = "short_id")
+    @Column(name = "short_id", unique = true, length = 32)
     private String name;
 
 

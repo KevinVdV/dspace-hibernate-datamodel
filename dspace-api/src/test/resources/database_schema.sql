@@ -631,11 +631,11 @@ CREATE TABLE community_item_count (
 -- list of the possible results as determined
 -- by the system or an administrator
 
-CREATE TABLE checksum_results
-(
-    result_code VARCHAR PRIMARY KEY,
-    result_description VARCHAR
-);
+--CREATE TABLE checksum_results
+--(
+--    result_code VARCHAR PRIMARY KEY,
+--    result_description VARCHAR
+--);
 
 
 -- This table has a one-to-one relationship

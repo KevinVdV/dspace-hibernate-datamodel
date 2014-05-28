@@ -17,7 +17,7 @@ public class Handle {
     @SequenceGenerator(name="handle_seq", sequenceName="handle_seq", allocationSize = 1)
     private Integer id;
 
-    @Column(name = "handle", unique = true)
+    @Column(name = "handle", unique = true, length = 256)
     private String handle;
 
     @Column(name = "resource_type_id")

@@ -26,7 +26,7 @@ public class Bundle extends DSpaceObject{
     @SequenceGenerator(name="bundle_seq", sequenceName="bundle_seq")
     private Integer id;
 
-    @Column(name= "name")
+    @Column(name= "name", length = 16)
     private String name = null;
 
 

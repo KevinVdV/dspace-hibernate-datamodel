@@ -30,9 +30,11 @@ public class MostRecentChecksum implements Serializable
     @Column(name= "current_checksum", nullable = false)
     private String currentChecksum;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name= "last_process_start_date", nullable = false)
     private Date processStartDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name= "last_process_end_date", nullable = false)
     private Date processEndDate;
 

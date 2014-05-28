@@ -21,12 +21,13 @@ public class ChecksumHistory {
     @Column(name = "bitstream_id")
     private int bitstreamId;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "process_start_date", nullable = false)
     private Date processStartDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "process_end_date", nullable = false)
     private Date processEndDate;
-
 
     @Column(name= "checksum_expected", nullable = false)
     private String checksumExpected;

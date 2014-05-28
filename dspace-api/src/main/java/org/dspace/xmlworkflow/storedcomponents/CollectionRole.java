@@ -23,6 +23,7 @@ public class CollectionRole {
     private int id;
 
     @Column(name = "role_id")
+    @Lob
     private String roleId;
 
     @ManyToOne(fetch = FetchType.LAZY)

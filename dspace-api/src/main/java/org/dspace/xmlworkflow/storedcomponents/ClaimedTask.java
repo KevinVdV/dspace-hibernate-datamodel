@@ -26,12 +26,15 @@ public class ClaimedTask {
     private XmlWorkflowItem workflowItem;
 
     @Column(name = "workflow_id")
+    @Lob
     private String workflowId;
 
     @Column(name = "step_id")
+    @Lob
     private String stepId;
 
     @Column(name = "action_id")
+    @Lob
     private String actionId;
 
     @ManyToOne(fetch = FetchType.LAZY)

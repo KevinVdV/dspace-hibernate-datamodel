@@ -21,13 +21,14 @@ public class MetadataField {
     @JoinColumn(name = "metadata_schema_id",nullable = false)
     private MetadataSchema metadataSchema;
 
-    @Column(name = "element")
+    @Column(name = "element", length = 64)
     private String element;
 
-    @Column(name = "qualifier")
+    @Column(name = "qualifier", length = 64)
     private String qualifier = null;
 
     @Column(name = "scope_note")
+    @Lob
     private String scopeNote;
 
 

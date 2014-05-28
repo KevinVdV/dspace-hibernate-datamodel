@@ -47,10 +47,11 @@ public class MetadataValue
 
     /** The value of the field */
     @Column(name = "text_value")
+    @Lob
     private String value;
 
     /** The language of the field, may be <code>null</code> */
-    @Column(name = "text_lang")
+    @Column(name = "text_lang", length = 24)
     private String language;
 
     /** The position of the record. */
@@ -58,7 +59,7 @@ public class MetadataValue
     private int place = 1;
 
     /** Authority key, if any */
-    @Column(name = "authority")
+    @Column(name = "authority", length = 100)
     private String authority = null;
 
     /** Authority confidence value -- see Choices class for values */

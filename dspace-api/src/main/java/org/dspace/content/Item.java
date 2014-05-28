@@ -44,7 +44,8 @@ public class Item extends DSpaceObject{
     @Column(name= "withdrawn")
     private boolean withdrawn = false;
 
-    @Column(name= "last_modified")
+    @Column(name= "last_modified", columnDefinition="timestamp with time zone")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date lastModified = new Date();
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -15,7 +15,7 @@ import java.util.Date;
 public class HarvestedCollection
 {
     @Id
-    @Column(name="item_id")
+    @Column(name="id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="harvested_collection_seq")
     @SequenceGenerator(name="harvested_collection_seq", sequenceName="harvested_collection_seq")
     private Integer id;
@@ -42,12 +42,12 @@ public class HarvestedCollection
     @Column(name = "harvest_status")
     private int harvestStatus;
 
-    //TODO: uses "timestamp with time zone" will need to be changed
-    @Column(name = "harvest_start_time")
+    @Column(name = "harvest_start_time", columnDefinition="timestamp with time zone")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date harvestStartTime;
 
-    //TODO: uses "timestamp with time zone" will need to be changed
-    @Column(name = "last_harvested")
+    @Column(name = "last_harvested", columnDefinition="timestamp with time zone")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date lastHarvested;
 
     public Integer getId() {

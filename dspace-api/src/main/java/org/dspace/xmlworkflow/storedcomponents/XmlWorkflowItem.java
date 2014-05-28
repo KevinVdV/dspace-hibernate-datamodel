@@ -26,7 +26,7 @@ public class XmlWorkflowItem implements WorkflowItem {
     private int id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id", unique = true)
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)

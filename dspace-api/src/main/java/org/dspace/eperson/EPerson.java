@@ -27,25 +27,26 @@ public class EPerson extends DSpaceObject {
     @SequenceGenerator(name="eperson_seq", sequenceName="eperson_seq")
     private Integer id;
 
-    @Column(name="language")
+    @Column(name="language", length = 64)
     private String language;
 
-    @Column(name="netid")
+    @Column(name="netid", length = 64)
     private String netid;
 
     @Column(name="last_active")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date last_active;
 
     @Column(name="can_log_in", nullable = true)
     private Boolean can_log_in;
 
-    @Column(name="lastname")
+    @Column(name="lastname", length = 64)
     private String lastname;
 
-    @Column(name="firstname")
+    @Column(name="firstname", length = 64)
     private String firstname;
 
-    @Column(name="email", unique=true)
+    @Column(name="email", unique=true, length = 64)
     private String email;
 
     @Column(name="require_certificate", nullable = true)
@@ -54,16 +55,16 @@ public class EPerson extends DSpaceObject {
     @Column(name="self_registered", nullable = true)
     private Boolean self_registered;
 
-    @Column(name="password")
+    @Column(name="password", length = 128)
     private String password;
 
-    @Column(name="salt")
+    @Column(name="salt", length = 32)
     private String salt;
 
-    @Column(name="digest_algorithm")
+    @Column(name="digest_algorithm", length = 16)
     private String digest_algorithm;
 
-    @Column(name="phone")
+    @Column(name="phone", length = 32)
     private String phone;
 
     @Transient

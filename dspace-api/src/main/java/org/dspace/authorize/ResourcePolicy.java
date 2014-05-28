@@ -53,14 +53,14 @@ public class ResourcePolicy implements Cloneable{
     @Column(name="end_date")
     private Date endDate;
 
-    @Column(name="rpname")
+    @Column(name="rpname", length = 30)
     private String rpname;
 
 
-    @Column(name="rptype")
+    @Column(name="rptype", length = 30)
     private String rptype;
 
-    @Column(name="rpdescription")
+    @Column(name="rpdescription", length = 100)
     private String rpdescription;
 
     /**

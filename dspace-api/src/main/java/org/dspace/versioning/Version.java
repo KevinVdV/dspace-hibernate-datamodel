@@ -33,6 +33,7 @@ public class Version {
     private EPerson ePerson;
 
     @Column(name = "version_date")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date versionDate;
 
     @Column(name = "version_summary", length = 255)

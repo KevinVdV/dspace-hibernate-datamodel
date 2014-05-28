@@ -27,14 +27,14 @@ public class BitstreamFormat {
     @SequenceGenerator(name="bitstreamformatregistry_seq", sequenceName="bitstreamformatregistry_seq")
     private Integer id;
 
-    @Column(name="short_description")
+    @Column(name="short_description", length = 128, unique = true)
     private String shortDescription;
 
     @Column(name="description")
     @Lob //Generates a TEXT or LONGTEXT data type
     private String description;
 
-    @Column(name="mimetype")
+    @Column(name="mimetype", length = 256)
     private String mimetype;
 
     @Column(name="support_level")

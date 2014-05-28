@@ -51,25 +51,30 @@ public class Collection extends DSpaceObject {
     @JoinColumn(name = "workflow_step_3")
     private Group workflowStep3;
 
-    @Column(name = "name")
+    @Column(name = "name", length = 128)
     private String name;
 
-    @Column(name = "short_description")
+    @Column(name = "short_description", length = 512)
     private String shortDescription;
 
     @Column(name = "provenance_description")
+    @Lob
     private String provenanceDescription;
 
     @Column(name = "license")
+    @Lob
     private String license;
 
     @Column(name = "copyright_text")
+    @Lob
     private String copyrightText;
 
     @Column(name = "side_bar_text")
+    @Lob
     private String sideBarText;
 
     @Column(name = "introductory_text")
+    @Lob
     private String introductoryText;
 
     /** The logo bitstream */

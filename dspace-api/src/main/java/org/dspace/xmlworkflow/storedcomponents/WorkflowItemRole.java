@@ -23,6 +23,7 @@ public class WorkflowItemRole
     private int id;
 
     @Column(name = "role_id")
+    @Lob
     private String roleId;
 
     @OneToOne(fetch = FetchType.LAZY)

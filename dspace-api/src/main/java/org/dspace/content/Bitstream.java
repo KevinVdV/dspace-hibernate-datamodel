@@ -33,19 +33,20 @@ public class Bitstream extends DSpaceObject{
     @Column(name = "sequence_id")
     private Integer sequenceId = -1;
 
-    @Column(name = "name")
+    @Column(name = "name", length = 256)
     private String name;
 
-    @Column(name = "source")
+    @Column(name = "source", length = 256)
     private String source;
 
     @Column(name = "description")
+    @Lob //Generates a TEXT or LONGTEXT data type
     private String description;
 
-    @Column(name = "checksum")
+    @Column(name = "checksum", length = 64)
     private String checksum;
 
-    @Column(name = "checksum_algorithm")
+    @Column(name = "checksum_algorithm", length = 32)
     private String checksumAlgorithm;
 
     @Column(name = "size_bytes")
@@ -54,7 +55,7 @@ public class Bitstream extends DSpaceObject{
     @Column(name = "deleted")
     private boolean deleted;
 
-    @Column(name = "internal_id")
+    @Column(name = "internal_id", length = 256)
     private String internalId;
 
     @Column(name = "store_number")
@@ -90,6 +91,7 @@ public class Bitstream extends DSpaceObject{
     private Collection collection;
 
     @Column(name = "user_format_description")
+    @Lob //Generates a TEXT or LONGTEXT data type
     private String userFormatDescription;
 
 

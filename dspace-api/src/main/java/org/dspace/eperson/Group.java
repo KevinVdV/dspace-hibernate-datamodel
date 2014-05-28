@@ -33,7 +33,7 @@ public class Group extends DSpaceObject {
     @SequenceGenerator(name="epersongroup_seq", sequenceName="epersongroup_seq", initialValue = 2)
     private Integer id;
 
-    @Column(name="name")
+    @Column(name="name", length = 256, unique = true)
     private String name;
 
     /** Flag set when metadata is modified, for events */

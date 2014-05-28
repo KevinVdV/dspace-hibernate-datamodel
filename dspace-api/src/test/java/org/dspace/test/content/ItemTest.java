@@ -316,9 +316,37 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         //Delete the field & schema
         context.turnOffAuthorisationSystem();
+        itemService.clearMetadata(context, it, "test", "type", null, Item.ANY);
         metadataFieldService.delete(context, metadataField);
         metadataSchemaService.delete(context, metadataSchema);
         context.restoreAuthSystemState();
+    }
+
+    /**
+     * Test of addMetadata method, of class Item.
+     */
+    @Test
+    public void testAddMetadata_longString() throws Exception
+    {
+        String schema = "dc";
+        String element = "description";
+        String qualifier = "abstract";
+        String lang = Item.ANY;
+        String value = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec non libero a nunc " +
+                "elementum imperdiet. Nunc et malesuada odio. In auctor est ac velit faucibus dignissim. Nullam nec " +
+                "purus tempor, vestibulum massa a, dignissim lorem. Sed vel est nunc. Etiam sit amet mattis ipsum. " +
+                "Suspendisse consectetur non enim sit amet vulputate. Morbi non massa vel sem porttitor molestie. " +
+                "Ut condimentum risus turpis, id consequat sapien eleifend non. Sed iaculis lacus vitae nulla adipiscing volutpat. " +
+                "Vivamus in elit et metus gravida feugiat. Aenean auctor rutrum eros, in iaculis tortor.";
+
+        itemService.addMetadata(context, it, schema, element, qualifier, lang, value);
+        context.turnOffAuthorisationSystem();
+        itemService.update(context, it);
+        context.commit();
+        context.restoreAuthSystemState();
+        List<MetadataValue> metadata = itemService.getMetadata(it, schema, element, qualifier, lang);
+        assertTrue("testAddMetadata_longString 1", metadata.size() == 1);
+        assertEquals("testAddMetadata_longString 1", metadata.iterator().next().getValue(), value);
     }
 
     /**

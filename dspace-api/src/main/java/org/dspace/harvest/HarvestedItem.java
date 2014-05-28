@@ -24,8 +24,8 @@ public class HarvestedItem  {
     @JoinColumn(name="item_id")
     private Item item;
 
-    //TODO: uses "timestamp with time zone" will need to be changed
-    @Column(name = "last_harvested")
+    @Column(name = "last_harvested", columnDefinition="timestamp with time zone")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date lastHarvested;
 
     @Column(name = "oai_id")

@@ -18,13 +18,14 @@ public class RegistrationData {
     @SequenceGenerator(name="registrationdata_seq", sequenceName="registrationdata_seq", allocationSize = 1)
     private int id;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, length = 64)
     private String email;
 
-    @Column(name = "token")
+    @Column(name = "token", length = 48)
     private String token;
 
     @Column(name = "expires")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date expires;
 
     public int getId() {

@@ -45,19 +45,22 @@ public class Community extends DSpaceObject{
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "communities")
     private List<Collection> collections = new ArrayList<Collection>();
 
-    @Column(name = "name")
+    @Column(name = "name", length = 128)
     private String name = "";
 
-    @Column(name = "short_description")
+    @Column(name = "short_description", length = 512)
     private String shortDescription = "";
 
     @Column(name = "copyright_text")
-    private String copyrightText ="";
+    @Lob
+    private String copyrightText = "";
 
     @Column(name = "side_bar_text")
+    @Lob
     private String sideBarText = "";
 
     @Column(name = "introductory_text")
+    @Lob
     private String introductoryText = "";
 
 
