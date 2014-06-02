@@ -30,11 +30,11 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.DisseminationCrosswalk;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
-import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.identifier.DOI;
-import org.dspace.identifier.DOIService;
+import org.dspace.handle.factory.HandleServiceFactory;
+import org.dspace.identifier.service.DOIService;
 import org.dspace.services.ConfigurationService;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -362,7 +362,7 @@ implements DOIConnector
                 String dsoUrl = null;
                 try
                 {
-                    dsoUrl = DSpaceServiceFactory.getInstance().getHandleService().resolveToURL(context, dso.getHandle(context));
+                    dsoUrl = HandleServiceFactory.getInstance().getHandleService().resolveToURL(context, dso.getHandle(context));
                 }
                 catch (SQLException e)
                 {
@@ -375,7 +375,7 @@ implements DOIConnector
                     // the handle of the dso was not found in our db?!
                     log.error("The HandleManager was unable to find the handle "
                             + "of a DSpaceObject in the database!?! "
-                            + "Type: {} ID: {}", DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso), dso.getID());
+                            + "Type: {} ID: {}", ContentServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso), dso.getID());
                     throw new RuntimeException("The HandleManager was unable to "
                             + "find the handle of a DSpaceObject in the database!");
                 }
@@ -472,7 +472,7 @@ implements DOIConnector
                     + " and ID " + dso.getID() + ". Giving up reserving the DOI "
                     + doi + ".");
             throw new DOIIdentifierException("Cannot disseminate "
-                    + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso) + "/" + dso.getID()
+                    + ContentServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso) + "/" + dso.getID()
                     + " using crosswalk " + this.CROSSWALK_NAME + ".",
                     DOIIdentifierException.CONVERSION_ERROR);
         }
@@ -488,7 +488,7 @@ implements DOIConnector
                     + "with type " + dso.getType() + " and ID " + dso.getID()
                     + ". Giving up to reserve DOI " + doi + ".", ae);
             throw new DOIIdentifierException("AuthorizeException occured while "
-                    + "converting " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso) + "/" + dso.getID()
+                    + "converting " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso) + "/" + dso.getID()
                     + " using crosswalk " + this.CROSSWALK_NAME + ".", ae,
                     DOIIdentifierException.CONVERSION_ERROR);
         }
@@ -498,7 +498,7 @@ implements DOIConnector
                     + doi + ") for DSO with type " + dso.getType() + " and ID " 
                     + dso.getID() + ". Won't reserve the doi.", ce);
             throw new DOIIdentifierException("CrosswalkException occured while "
-                    + "converting " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso) + "/" + dso.getID()
+                    + "converting " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso) + "/" + dso.getID()
                     + " using crosswalk " + this.CROSSWALK_NAME + ".", ce,
                     DOIIdentifierException.CONVERSION_ERROR);
         }
@@ -523,7 +523,7 @@ implements DOIConnector
         else if (!metadataDOI.equals(doi.substring(DOIService.SCHEME.length())))
         {
             // FIXME: that's not an error. If at all, it is worth logging it.
-            throw new DOIIdentifierException("DSO with type " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso)
+            throw new DOIIdentifierException("DSO with type " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso).getTypeText(dso)
                     + " and id " + dso.getID() + " already has DOI "
                     + metadataDOI + ". Won't reserve DOI " + doi + " for it.");
         }
@@ -608,7 +608,7 @@ implements DOIConnector
         try
         {
             resp = this.sendDOIPostRequest(doi,
-                    DSpaceServiceFactory.getInstance().getHandleService().resolveToURL(context, dso.getHandle(context)));
+                    HandleServiceFactory.getInstance().getHandleService().resolveToURL(context, dso.getHandle(context)));
         }
         catch (SQLException e)
         {
@@ -1009,7 +1009,7 @@ implements DOIConnector
             Element alternateIdentifier = it.next();
             try
             {
-                handle = DSpaceServiceFactory.getInstance().getHandleService().resolveUrlToHandle(context,
+                handle = HandleServiceFactory.getInstance().getHandleService().resolveUrlToHandle(context,
                         alternateIdentifier.getText());
             }
             catch (SQLException e)

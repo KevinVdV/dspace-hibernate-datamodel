@@ -5,6 +5,7 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.identifier.dao.DOIDAO;
 import org.dspace.identifier.doi.DOIIdentifierException;
+import org.dspace.identifier.service.DOIService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;

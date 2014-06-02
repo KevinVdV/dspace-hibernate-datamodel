@@ -14,7 +14,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Context;
 import org.dspace.identifier.IdentifierException;
-import org.dspace.identifier.IdentifierService;
+import org.dspace.identifier.service.IdentifierService;
 import org.dspace.utils.DSpace;
 import org.dspace.versioning.service.VersionHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +39,9 @@ public class DefaultItemVersionProvider extends AbstractVersionProvider implemen
 
     @Autowired(required = true)
     protected WorkspaceItemService workspaceItemService;
+
+    @Autowired(required = true)
+    protected IdentifierService identifierService;
 
     public Item createNewItemAndAddItInWorkspace(Context context, Item nativeItem) {
         try
@@ -71,7 +74,6 @@ public class DefaultItemVersionProvider extends AbstractVersionProvider implemen
             }
 
             // assign tombstone to the Identifier and reset canonical to the previous version only if there is a previous version
-            IdentifierService identifierService = new DSpace().getSingletonService(IdentifierService.class);
             Item itemToDelete=versionToDelete.getItem();
             identifierService.delete(c, itemToDelete);
         } catch (SQLException e) {
@@ -89,7 +91,6 @@ public class DefaultItemVersionProvider extends AbstractVersionProvider implemen
         {
             copyMetadata(c, itemNew, previousItem);
             createBundlesAndAddBitstreams(c, itemNew, previousItem);
-            IdentifierService identifierService = new DSpace().getSingletonService(IdentifierService.class);
             try
             {
                 identifierService.reserve(c, itemNew);

@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
@@ -34,7 +35,6 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.workflowbasic.BasicWorkflowItem;
 import org.dspace.workflowbasic.BasicWorkflowServiceImpl;
 import org.dspace.workflowbasic.factory.BasicWorkflowServiceFactory;
@@ -64,7 +64,7 @@ public class WorkflowCurator {
     
     private static final String[] flowSteps = { "step1", "step2", "step3", "archive" };
     protected static final EPersonService E_PERSON_SERVICE = EPersonServiceFactory.getInstance().getEPersonService();
-    protected static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
+    protected static final CollectionService COLLECTION_SERVICE = ContentServiceFactory.getInstance().getCollectionService();
     protected static final BasicWorkflowService WORKFLOW_SERVICE = BasicWorkflowServiceFactory.getInstance().getBasicWorkflowService();
     protected static final BasicWorkflowItemService WORKFLOW_ITEM_SERVICE = BasicWorkflowServiceFactory.getInstance().getBasicWorkflowItemService();
     protected static final GroupService GROUP_MANAGER = EPersonServiceFactory.getInstance().getGroupService();

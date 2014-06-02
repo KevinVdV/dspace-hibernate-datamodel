@@ -10,12 +10,12 @@ package org.dspace.discovery;
 import org.apache.log4j.Logger;
 import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BundleService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.utils.DSpace;
 
 import java.util.HashSet;
@@ -40,7 +40,7 @@ public class IndexEventConsumer implements Consumer {
     // handles to delete since IDs are not useful by now.
     private Set<String> handlesToDelete = null;
 
-    private BundleService bundleService = DSpaceServiceFactory.getInstance().getBundleService();
+    private BundleService bundleService = ContentServiceFactory.getInstance().getBundleService();
 
     DSpace dspace = new DSpace();
 

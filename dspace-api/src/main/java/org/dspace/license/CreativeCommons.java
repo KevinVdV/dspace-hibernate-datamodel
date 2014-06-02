@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.BundleService;
@@ -32,7 +33,6 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
-import org.dspace.factory.DSpaceServiceFactory;
 
 public class CreativeCommons
 {
@@ -57,10 +57,10 @@ public class CreativeCommons
 
     protected static final Templates templates;
 
-    protected static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
-    protected static final BitstreamFormatService BITSTREAM_FORMAT_SERVICE = DSpaceServiceFactory.getInstance().getBitstreamFormatService();
-    protected static final BitstreamService BITSTREAM_SERVICE = DSpaceServiceFactory.getInstance().getBitstreamService();
-    protected static final BundleService BUNDLE_SERVICE = DSpaceServiceFactory.getInstance().getBundleService();
+    protected static final ItemService ITEM_SERVICE = ContentServiceFactory.getInstance().getItemService();
+    protected static final BitstreamFormatService BITSTREAM_FORMAT_SERVICE = ContentServiceFactory.getInstance().getBitstreamFormatService();
+    protected static final BitstreamService BITSTREAM_SERVICE = ContentServiceFactory.getInstance().getBitstreamService();
+    protected static final BundleService BUNDLE_SERVICE = ContentServiceFactory.getInstance().getBundleService();
 
     static
     {

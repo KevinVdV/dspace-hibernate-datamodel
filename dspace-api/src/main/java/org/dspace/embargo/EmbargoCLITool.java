@@ -9,7 +9,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.embargo.factory.EmbargoServiceFactory;
 import org.dspace.embargo.service.EmbargoService;
-import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 
 import java.util.Date;
@@ -23,7 +23,7 @@ import java.util.Iterator;
 public class EmbargoCLITool {
 
     private static final Logger log = Logger.getLogger(EmbargoCLITool.class);
-    protected static final HandleService HANDLE_SERVICE = DSpaceServiceFactory.getInstance().getHandleService();
+    protected static final HandleService HANDLE_SERVICE = HandleServiceFactory.getInstance().getHandleService();
     protected static final EmbargoService EMBARGO_SERVICE = EmbargoServiceFactory.getInstance().getEmbargoService();
 
     /**

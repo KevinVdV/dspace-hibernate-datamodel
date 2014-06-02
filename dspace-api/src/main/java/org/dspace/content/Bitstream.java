@@ -1,11 +1,11 @@
 package org.dspace.content;
 
 import org.dspace.checker.MostRecentChecksum;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
 
@@ -104,7 +104,7 @@ public class Bitstream extends DSpaceObject{
     private boolean modifiedMetadata;
 
     @Transient
-    private BitstreamService bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
+    private BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
 
     /**
      * Get the internal identifier of this bitstream

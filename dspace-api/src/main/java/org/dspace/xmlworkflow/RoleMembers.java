@@ -12,7 +12,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
-import org.dspace.factory.DSpaceServiceFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

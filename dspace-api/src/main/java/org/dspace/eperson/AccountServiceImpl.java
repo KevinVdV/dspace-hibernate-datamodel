@@ -23,7 +23,6 @@ import org.dspace.core.Utils;
 import org.dspace.eperson.service.AccountService;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.RegistrationDataService;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

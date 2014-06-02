@@ -16,12 +16,12 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.DSpaceObjectService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -36,7 +36,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
     private static Logger log = Logger.getLogger(ResourcePolicyServiceImpl.class);
 
     @Autowired(required = true)
-    protected DSpaceServiceFactory serviceFactory;
+    protected ContentServiceFactory serviceFactory;
 
     @Autowired(required = true)
     protected ResourcePolicyDAO resourcePolicyDAO;

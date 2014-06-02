@@ -1,30 +1,14 @@
-package org.dspace.factory;
+package org.dspace.content.factory;
 
-import org.dspace.app.util.service.WebAppService;
-import org.dspace.authorize.service.ResourcePolicyService;
-import org.dspace.checker.service.ChecksumHistoryService;
-import org.dspace.checker.service.ChecksumResultService;
-import org.dspace.checker.service.MostRecentChecksumService;
 import org.dspace.content.service.*;
-import org.dspace.eperson.service.EPersonService;
-import org.dspace.eperson.service.GroupService;
-import org.dspace.eperson.service.RegistrationDataService;
-import org.dspace.handle.service.HandleService;
-import org.dspace.identifier.DOIService;
-import org.dspace.workflowbasic.service.BasicWorkflowItemService;
-import org.dspace.workflowbasic.service.TaskListItemService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
- * Created with IntelliJ IDEA.
- * User: kevin
- * Date: 01/04/14
- * Time: 08:05
- * To change this template use File | Settings | File Templates.
+ * User: kevin (kevin at atmire.com)
+ * Date: 2/06/14
+ * Time: 10:56
  */
-@Component
-public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
+public class ContentServiceFactoryImpl extends ContentServiceFactory {
 
     @Autowired(required = true)
     private BitstreamFormatService bitstreamFormatService;
@@ -47,25 +31,11 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     @Autowired(required = true)
     private WorkspaceItemService workspaceItemService;
     @Autowired(required = true)
-    private HandleService handleService;
-    @Autowired(required = true)
     private SubscriptionService subscriptionService;
-    @Autowired(required = true)
-    private RegistrationDataService registrationDataService;
-    @Autowired(required = true)
-    private MostRecentChecksumService mostRecentChecksumService;
-    @Autowired(required = true)
-    private ChecksumHistoryService checksumHistoryService;
-    @Autowired(required = true)
-    private ChecksumResultService checksumResultService;
     @Autowired(required = true)
     private InstallItemService installItemService;
     @Autowired(required = true)
-    private WebAppService webAppService;
-    @Autowired(required = true)
     private SupervisedItemService supervisedItemService;
-    @Autowired(required = true)
-    private DOIService doiService;
 
 
     @Override
@@ -129,28 +99,8 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     }
 
     @Override
-    public HandleService getHandleService() {
-        return handleService;
-    }
-
-    @Override
     public SubscriptionService getSubscriptionService() {
         return subscriptionService;
-    }
-
-    @Override
-    public MostRecentChecksumService getMostRecentChecksumService() {
-        return mostRecentChecksumService;
-    }
-
-    @Override
-    public ChecksumHistoryService getChecksumHistoryService() {
-        return checksumHistoryService;
-    }
-
-    @Override
-    public ChecksumResultService getChecksumResultService() {
-        return checksumResultService;
     }
 
     @Override
@@ -159,17 +109,7 @@ public class DSpaceServiceFactoryImpl extends DSpaceServiceFactory {
     }
 
     @Override
-    public WebAppService getWebAppService() {
-        return webAppService;
-    }
-
-    @Override
     public SupervisedItemService getSupervisedItemService() {
         return supervisedItemService;
-    }
-
-    @Override
-    public DOIService getDOIService() {
-        return doiService;
     }
 }

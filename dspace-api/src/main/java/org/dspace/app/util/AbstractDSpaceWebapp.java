@@ -19,10 +19,10 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.HeadMethod;
+import org.dspace.app.util.factory.AppUtilServiceFactory;
 import org.dspace.app.util.service.WebAppService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public abstract class AbstractDSpaceWebapp implements DSpaceWebappMXBean
 {
     private static final Logger log = LoggerFactory.getLogger(AbstractDSpaceWebapp.class);
 
-    protected static final WebAppService webAppService = DSpaceServiceFactory.getInstance().getWebAppService();
+    protected static final WebAppService webAppService = AppUtilServiceFactory.getInstance().getWebAppService();
 
     protected String kind;
 

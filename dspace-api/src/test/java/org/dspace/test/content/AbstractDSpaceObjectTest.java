@@ -10,8 +10,8 @@ package org.dspace.test.content;
 import java.sql.SQLException;
 import org.dspace.AbstractUnitTest;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.DSpaceObjectService;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.junit.*;
 import static org.junit.Assert.* ;
 import static org.hamcrest.CoreMatchers.*;
@@ -110,7 +110,7 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
     @Test
     public void testFind() throws SQLException
     {
-        DSpaceObjectService dSpaceObjectService = DSpaceServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType());
+        DSpaceObjectService dSpaceObjectService = ContentServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType());
 
         if(this.dspaceObject instanceof Bitstream)
         {
@@ -197,7 +197,7 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
         }
         else
         {
-            DSpaceServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType()).getAdminObject(context, dspaceObject, Constants.ADMIN);
+            ContentServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType()).getAdminObject(context, dspaceObject, Constants.ADMIN);
             fail("Exception should have been thrown");
         }
     }
@@ -208,7 +208,7 @@ public abstract class AbstractDSpaceObjectTest extends AbstractUnitTest
     @Test
     public void testGetParentObject() throws SQLException
     {
-        assertThat("testGetParentObject 0", DSpaceServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType()).getParentObject(context, dspaceObject), nullValue());
+        assertThat("testGetParentObject 0", ContentServiceFactory.getInstance().getDSpaceObjectService(dspaceObject.getType()).getParentObject(context, dspaceObject), nullValue());
     }
 
     /**

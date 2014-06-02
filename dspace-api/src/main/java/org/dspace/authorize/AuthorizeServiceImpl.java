@@ -14,12 +14,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.service.GroupService;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AuthorizeServiceImpl implements AuthorizeService
 {
     @Autowired(required = true)
-    protected DSpaceServiceFactory serviceFactory;
+    protected ContentServiceFactory serviceFactory;
     @Autowired(required = true)
     protected GroupService groupService;
     @Autowired(required = true)

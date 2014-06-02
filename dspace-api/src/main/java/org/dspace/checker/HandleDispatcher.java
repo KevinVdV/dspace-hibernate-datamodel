@@ -16,10 +16,11 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.log4j.Logger;
 import org.dspace.content.Bitstream;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 
 /**
@@ -51,8 +52,8 @@ public class HandleDispatcher implements BitstreamDispatcher
     /**
      * Database access for retrieving bitstreams
      */
-    protected BitstreamService bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
-    protected HandleService handleService = DSpaceServiceFactory.getInstance().getHandleService();
+    protected BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
+    protected HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
 
     /**
      * Blanked off, no-op constructor.

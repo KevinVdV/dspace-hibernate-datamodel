@@ -8,13 +8,14 @@
 package org.dspace.checker;
 
 import org.apache.log4j.Logger;
+import org.dspace.checker.factory.CheckerServiceFactory;
 import org.dspace.checker.service.ChecksumHistoryService;
 import org.dspace.content.Bitstream;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * Class for removing Checker data for a Bitstreams based on deletion events.
@@ -26,8 +27,8 @@ public class CheckerConsumer implements Consumer
     /** log4j logger */
     private static Logger log = Logger.getLogger(CheckerConsumer.class);
     
-    protected ChecksumHistoryService checksumHistoryService = DSpaceServiceFactory.getInstance().getChecksumHistoryService();
-    protected BitstreamService bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
+    protected ChecksumHistoryService checksumHistoryService = CheckerServiceFactory.getInstance().getChecksumHistoryService();
+    protected BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
 
 
     /**

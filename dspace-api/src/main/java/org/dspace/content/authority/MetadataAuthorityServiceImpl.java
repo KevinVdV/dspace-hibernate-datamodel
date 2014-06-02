@@ -20,7 +20,6 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 

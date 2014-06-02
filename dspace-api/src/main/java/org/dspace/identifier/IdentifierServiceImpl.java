@@ -10,8 +10,9 @@ package org.dspace.identifier;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.identifier.service.IdentifierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -32,7 +33,7 @@ public class IdentifierServiceImpl implements IdentifierService {
     /** log4j category */
     private static Logger log = Logger.getLogger(IdentifierServiceImpl.class);
 
-    @Autowired
+   @Autowired
    @Required
    public void setProviders(List<IdentifierProvider> providers)
    {
@@ -56,7 +57,7 @@ public class IdentifierServiceImpl implements IdentifierService {
             service.mint(context, dso);
         }
         //Update our item
-        DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso).update(context, dso);
+        ContentServiceFactory.getInstance().getDSpaceObjectService(dso).update(context, dso);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class IdentifierServiceImpl implements IdentifierService {
             }
         }
         //Update our item
-        DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso).update(context, dso);
+        ContentServiceFactory.getInstance().getDSpaceObjectService(dso).update(context, dso);
     }
 
     @Override
@@ -82,7 +83,7 @@ public class IdentifierServiceImpl implements IdentifierService {
             service.register(context, dso);
         }
         //Update our item
-        DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso).update(context, dso);
+        ContentServiceFactory.getInstance().getDSpaceObjectService(dso).update(context, dso);
     }
 
     @Override
@@ -105,7 +106,7 @@ public class IdentifierServiceImpl implements IdentifierService {
                 + "find a provider that supports this identifier.");
         }
         //Update our item
-        DSpaceServiceFactory.getInstance().getDSpaceObjectService(object).update(context, object);
+        ContentServiceFactory.getInstance().getDSpaceObjectService(object).update(context, object);
     }
 
     @Override

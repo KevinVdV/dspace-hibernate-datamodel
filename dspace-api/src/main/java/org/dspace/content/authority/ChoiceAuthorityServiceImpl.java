@@ -18,7 +18,6 @@ import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.PluginManager;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 

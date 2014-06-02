@@ -2,12 +2,8 @@ package org.dspace.eperson;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
-import org.dspace.core.Context;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
-import org.dspace.factory.DSpaceServiceFactory;
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.ArrayList;

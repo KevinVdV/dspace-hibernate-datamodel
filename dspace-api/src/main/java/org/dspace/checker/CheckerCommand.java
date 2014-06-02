@@ -17,14 +17,15 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.checker.factory.CheckerServiceFactory;
 import org.dspace.checker.service.ChecksumHistoryService;
 import org.dspace.checker.service.ChecksumResultService;
 import org.dspace.checker.service.MostRecentChecksumService;
 import org.dspace.content.Bitstream;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
-import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * <p>
@@ -85,10 +86,10 @@ public final class CheckerCommand
      */
     public CheckerCommand(Context context)
     {
-        checksumService = DSpaceServiceFactory.getInstance().getMostRecentChecksumService();
-        checksumHistoryService = DSpaceServiceFactory.getInstance().getChecksumHistoryService();
-        bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
-        checksumResultService = DSpaceServiceFactory.getInstance().getChecksumResultService();
+        checksumService = CheckerServiceFactory.getInstance().getMostRecentChecksumService();
+        checksumHistoryService = CheckerServiceFactory.getInstance().getChecksumHistoryService();
+        bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
+        checksumResultService = CheckerServiceFactory.getInstance().getChecksumResultService();
         this.context = context;
     }
 

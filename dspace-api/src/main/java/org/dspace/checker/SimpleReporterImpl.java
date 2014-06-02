@@ -14,12 +14,13 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.dspace.checker.factory.CheckerServiceFactory;
 import org.dspace.checker.service.MostRecentChecksumService;
 import org.dspace.content.Bitstream;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
-import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * 
@@ -48,8 +49,8 @@ public class SimpleReporterImpl implements SimpleReporter
      */
     public SimpleReporterImpl()
     {
-        this.mostRecentChecksumService = DSpaceServiceFactory.getInstance().getMostRecentChecksumService();
-        this.bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
+        this.mostRecentChecksumService = CheckerServiceFactory.getInstance().getMostRecentChecksumService();
+        this.bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
     }
 
     /**

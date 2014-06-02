@@ -1,8 +1,8 @@
 package org.dspace.content;
 
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamFormatService;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CollectionId;
 import org.hibernate.annotations.Type;
@@ -56,7 +56,7 @@ public class BitstreamFormat {
     private List<String> fileExtensions;
 
     @Transient
-    private BitstreamFormatService bitstreamFormatService = DSpaceServiceFactory.getInstance().getBitstreamFormatService();
+    private BitstreamFormatService bitstreamFormatService = ContentServiceFactory.getInstance().getBitstreamFormatService();
 
     /**
      * Get the internal identifier of this bitstream format

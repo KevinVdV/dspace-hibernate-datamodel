@@ -20,11 +20,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.dspace.checker.factory.CheckerServiceFactory;
 import org.dspace.checker.service.ChecksumHistoryService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
-import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * Manages the deletion of results from the checksum history. It uses the
@@ -180,7 +180,7 @@ public final class ResultsPruner
      */
     public ResultsPruner(Context context)
     {
-        this.checksumHistoryService = DSpaceServiceFactory.getInstance().getChecksumHistoryService();
+        this.checksumHistoryService = CheckerServiceFactory.getInstance().getChecksumHistoryService();
         this.context = context;
     }
 

@@ -15,11 +15,12 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.identifier.doi.DOIConnector;
 import org.dspace.identifier.doi.DOIIdentifierException;
+import org.dspace.identifier.service.DOIService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -384,7 +385,7 @@ public class DOIIdentifierProvider
         {
             log.error("Refuse to update metadata of DOI {} with the metadata of "
                             + " an object ({}/{}) the DOI is not dedicated to.",
-                    new String[] {doi, DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso), Integer.toString(dso.getID())});
+                    new String[] {doi, ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso), Integer.toString(dso.getID())});
             throw new DOIIdentifierException("Cannot update DOI metadata: "
                     + "DOI and DSpaceObject does not match!",
                     DOIIdentifierException.MISMATCH);
@@ -427,9 +428,9 @@ public class DOIIdentifierProvider
         catch (SQLException e)
         {
             log.error("Error while attemping to retrieve information about a DOI for "
-                    + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + ".");
+                    + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + ".");
             throw new RuntimeException("Error while attempting to retrieve " +
-                    "information about a DOI for " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) +
+                    "information about a DOI for " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) +
                     " with ID " + dso.getID() + ".", e);
         }
         if (null == doi)
@@ -445,7 +446,7 @@ public class DOIIdentifierProvider
                 log.error("Error while creating new DOI for Object of " +
                         "ResourceType {} with id {}.", dso.getType(), dso.getID());
                 throw new RuntimeException("Error while attempting to create a " +
-                        "new DOI for " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " +
+                        "new DOI for " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " +
                         dso.getID() + ".", e);
             }
         }
@@ -500,7 +501,7 @@ public class DOIIdentifierProvider
         if (null == doi)
         {
             throw new IdentifierNotFoundException("No DOI for DSpaceObject of type "
-                    + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + " found.");
+                    + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + " found.");
         }
 
         return doi;
@@ -522,9 +523,9 @@ public class DOIIdentifierProvider
         catch (SQLException ex)
         {
             log.error("Error while attemping to retrieve information about a DOI for "
-                    + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + ".", ex);
+                    + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + ".", ex);
             throw new RuntimeException("Error while attempting to retrieve " +
-                    "information about a DOI for " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) +
+                    "information about a DOI for " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) +
                     " with ID " + dso.getID() + ".", ex);
         }
 
@@ -541,18 +542,18 @@ public class DOIIdentifierProvider
         catch (AuthorizeException ex)
         {
             log.error("Error while removing a DOI out of the metadata of an "
-                    + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + ".", ex);
+                    + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + ".", ex);
             throw new RuntimeException("Error while removing a DOI out of the "
-                    + "metadata of an " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID "
+                    + "metadata of an " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID "
                     + dso.getID() + ".", ex);
 
         }
         catch (SQLException ex)
         {
             log.error("Error while removing a DOI out of the metadata of an "
-                    + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + ".", ex);
+                    + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID " + dso.getID() + ".", ex);
             throw new RuntimeException("Error while removing a DOI out of the "
-                    + "metadata of an " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID "
+                    + "metadata of an " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + " with ID "
                     + dso.getID() + ".", ex);
         }
     }
@@ -702,7 +703,7 @@ public class DOIIdentifierProvider
                     " in database, but no assigned Object could be found.");
         }
 
-        return DSpaceServiceFactory.getInstance().getDSpaceObjectService(doiRow.getResourceTypeId()).find(context,
+        return ContentServiceFactory.getInstance().getDSpaceObjectService(doiRow.getResourceTypeId()).find(context,
                 doiRow.getResourceId());
     }
 
@@ -729,9 +730,9 @@ public class DOIIdentifierProvider
         if (doiRow.getDoi() == null)
         {
             log.error("A DOI with an empty doi column was found in the database. DSO-Type: "
-                    + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + ", ID: " + dso.getID() + ".");
+                    + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + ", ID: " + dso.getID() + ".");
             throw new IllegalStateException("A DOI with an empty doi column " +
-                    "was found in the database. DSO-Type: " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) +
+                    "was found in the database. DSO-Type: " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) +
                     ", ID: " + dso.getID() + ".");
         }
 
@@ -822,7 +823,7 @@ public class DOIIdentifierProvider
         if (!(dso instanceof Item))
         {
             throw new IllegalArgumentException("We currently support DOIs for "
-                    + "Items only, not for " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + ".");
+                    + "Items only, not for " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + ".");
         }
         Item item = (Item)dso;
 
@@ -853,7 +854,7 @@ public class DOIIdentifierProvider
         if (!(dso instanceof Item))
         {
             throw new IllegalArgumentException("We currently support DOIs for "
-                    + "Items only, not for " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + ".");
+                    + "Items only, not for " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + ".");
         }
         Item item = (Item) dso;
 
@@ -885,7 +886,7 @@ public class DOIIdentifierProvider
         if (!(dso instanceof Item))
         {
             throw new IllegalArgumentException("We currently support DOIs for "
-                    + "Items only, not for " + DSpaceServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + ".");
+                    + "Items only, not for " + ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso) + ".");
         }
         Item item = (Item)dso;
 

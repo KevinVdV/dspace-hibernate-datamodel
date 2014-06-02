@@ -1,14 +1,12 @@
 package org.dspace.content;
 
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.sql.SQLException;
@@ -78,10 +76,10 @@ public class Item extends DSpaceObject{
     private List<MetadataValue> metadata = new ArrayList<MetadataValue>();
 
     @Transient
-    private ItemService itemService = DSpaceServiceFactory.getInstance().getItemService();
+    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
     @Transient
-    private HandleService handleService = DSpaceServiceFactory.getInstance().getHandleService();
+    private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
 
 
 

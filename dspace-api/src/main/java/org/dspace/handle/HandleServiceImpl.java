@@ -15,10 +15,10 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.handle.dao.HandleDAO;
 import org.dspace.handle.service.HandleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -389,7 +389,7 @@ public class HandleServiceImpl implements HandleService
         int handletypeid = dbhandle.getResourceTypeId();
         int resourceID = dbhandle.getResourceId();
 
-        DSpaceObject dso = DSpaceServiceFactory.getInstance().getDSpaceObjectService(handletypeid).find(context, resourceID);
+        DSpaceObject dso = ContentServiceFactory.getInstance().getDSpaceObjectService(handletypeid).find(context, resourceID);
         if(log.isDebugEnabled())
         {
             log.debug("Resolved handle " + handle + " to " + dso.getClass().getSimpleName()

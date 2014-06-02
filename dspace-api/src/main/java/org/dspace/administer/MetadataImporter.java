@@ -23,11 +23,11 @@ import org.apache.xpath.XPathAPI;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.core.Context;
 
-import org.dspace.factory.DSpaceServiceFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -159,7 +159,7 @@ public class MetadataImporter
         System.out.print("Registering Schema: " + name + " - " + namespace + " ... ");
         
         // check to see if the schema already exists
-        MetadataSchemaService metadataSchemaService = DSpaceServiceFactory.getInstance().getMetadataSchemaService();
+        MetadataSchemaService metadataSchemaService = ContentServiceFactory.getInstance().getMetadataSchemaService();
         MetadataSchema s = metadataSchemaService.find(context, name);
         
         if (s == null)
@@ -229,7 +229,7 @@ public class MetadataImporter
         System.out.print("Registering Metadata: " + schema + "." + element + "." + qualifier + " ... ");
         
         // Find the matching schema object
-        MetadataSchemaService metadataSchemaService = DSpaceServiceFactory.getInstance().getMetadataSchemaService();
+        MetadataSchemaService metadataSchemaService = ContentServiceFactory.getInstance().getMetadataSchemaService();
         MetadataSchema schemaObj = metadataSchemaService.find(context, schema);
         
         if (schemaObj == null)
@@ -237,7 +237,7 @@ public class MetadataImporter
             throw new RegistryImportException("Schema '" + schema + "' is not registered");
         }
 
-        MetadataFieldService metadataFieldService = DSpaceServiceFactory.getInstance().getMetadataFieldService();
+        MetadataFieldService metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
         MetadataField mf = metadataFieldService.findByElement(context, schemaObj, element, qualifier);
         if (mf != null)
         {

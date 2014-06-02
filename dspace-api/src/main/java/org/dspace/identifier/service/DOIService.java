@@ -1,7 +1,9 @@
-package org.dspace.identifier;
+package org.dspace.identifier.service;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
+import org.dspace.identifier.DOI;
+import org.dspace.identifier.IdentifierException;
 import org.dspace.identifier.doi.DOIIdentifierException;
 import org.dspace.service.DSpaceCRUDService;
 

@@ -15,14 +15,15 @@ import org.apache.log4j.Logger;
 
 import org.dspace.content.*;
 import org.dspace.content.Collection;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 
 /**
@@ -65,9 +66,9 @@ public class Curator
     private TaskResolver resolver = new TaskResolver();
     private TxScope txScope = TxScope.OPEN;
 
-    protected final CommunityService communityService = DSpaceServiceFactory.getInstance().getCommunityService();
-    protected final ItemService itemService = DSpaceServiceFactory.getInstance().getItemService();
-    protected final HandleService handleService = DSpaceServiceFactory.getInstance().getHandleService();
+    protected final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
+    protected final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
+    protected final HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
 
 
     /**

@@ -6,8 +6,7 @@ import org.dspace.content.CollectionServiceImpl;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.eperson.*;
-import org.dspace.factory.DSpaceServiceFactory;
-import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.factory.HandleServiceFactory;
 
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -54,7 +53,7 @@ public class TestStuff {
         groupManager.delete(context, groupEntity);
         //Lookup collection items to test query
         CollectionServiceImpl collectionDAO = new CollectionServiceImpl();
-        Collection collection = (Collection) DSpaceServiceFactory.getInstance().getHandleService().resolveToObject(context, "10986/2117");
+        Collection collection = (Collection) HandleServiceFactory.getInstance().getHandleService().resolveToObject(context, "10986/2117");
 //        Iterator<Item> allItems = collectionDAO.getAllItems(context, collection);
 //        while (allItems.hasNext()) {
 //            Item item = allItems.next();

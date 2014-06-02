@@ -27,6 +27,7 @@ import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
@@ -37,9 +38,10 @@ import org.dspace.eperson.*;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.eperson.service.GroupService;
-import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
-import org.dspace.identifier.DOIService;
+import org.dspace.identifier.factory.IdentifierServiceFactory;
+import org.dspace.identifier.service.DOIService;
 import org.dspace.servicemanager.DSpaceKernelImpl;
 import org.dspace.servicemanager.DSpaceKernelInit;
 import org.dspace.versioning.factory.DSpaceVersionServiceFactory;
@@ -85,7 +87,7 @@ public class AbstractUnitTest
     protected static EPerson eperson;
     protected EPerson admin;
 
-    protected DSpaceServiceFactory serviceFactory = DSpaceServiceFactory.getInstance();
+    protected ContentServiceFactory serviceFactory = ContentServiceFactory.getInstance();
     protected EPersonServiceFactory ePersonServiceFactory = EPersonServiceFactory.getInstance();
     protected CommunityService communityService = serviceFactory.getCommunityService();
     protected CollectionService collectionService = serviceFactory.getCollectionService();
@@ -101,10 +103,10 @@ public class AbstractUnitTest
     protected BitstreamFormatService bitstreamFormatService = serviceFactory.getBitstreamFormatService();
     protected InstallItemService installItemService = serviceFactory.getInstallItemService();
     protected SupervisedItemService supervisedItemService = serviceFactory.getSupervisedItemService();
-    protected DOIService doiService = serviceFactory.getDOIService();
+    protected DOIService doiService = IdentifierServiceFactory.getInstance().getDOIService();
     protected VersionService versionService = DSpaceVersionServiceFactory.getInstance().getVersionService();
     protected VersionHistoryService versionHistoryService = DSpaceVersionServiceFactory.getInstance().getVersionHistoryService();
-    protected HandleService handleService = serviceFactory.getHandleService();
+    protected HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
     protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected LicenseService licenseService = CoreServiceFactory.getInstance().getLicenseService();
 
@@ -160,7 +162,7 @@ public class AbstractUnitTest
             // always be in the database, if it has been initialized, to avoid
             // doing the work twice.
             //TODO: HIBERNATE, IS THIS REQUIRED ?
-            if(DSpaceServiceFactory.getInstance().getMetadataFieldService().find(ctx, 1) == null)
+            if(ContentServiceFactory.getInstance().getMetadataFieldService().find(ctx, 1) == null)
             {
                 String base = ConfigurationManager.getProperty("dspace.dir")
                         + File.separator + "config" + File.separator

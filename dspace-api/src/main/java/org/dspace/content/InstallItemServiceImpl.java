@@ -12,17 +12,16 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.InstallItemService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.embargo.EmbargoServiceImpl;
 import org.dspace.embargo.service.EmbargoService;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.identifier.IdentifierException;
-import org.dspace.identifier.IdentifierService;
+import org.dspace.identifier.service.IdentifierService;
 import org.dspace.utils.DSpace;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,6 +41,9 @@ public class InstallItemServiceImpl implements InstallItemService
 
     @Autowired(required = true)
     protected EmbargoService embargoService;
+
+    @Autowired(required = true)
+    protected IdentifierService identifierService;
 
     /**
      * Take an InProgressSubmission and turn it into a fully-archived Item,
@@ -76,7 +78,6 @@ public class InstallItemServiceImpl implements InstallItemService
     public Item installItem(Context c, InProgressSubmission is, String suppliedHandle) throws SQLException, AuthorizeException
     {
         Item item = is.getItem();
-        IdentifierService identifierService = new DSpace().getSingletonService(IdentifierService.class);
         try {
             if(suppliedHandle == null)
             {
@@ -244,7 +245,7 @@ public class InstallItemServiceImpl implements InstallItemService
 
         // remove in-progress submission
         //TODO: FIX UNCHECKED CALL
-        DSpaceServiceFactory.getInstance().getInProgressSubmissionService(is).deleteWrapper(c, is);
+        ContentServiceFactory.getInstance().getInProgressSubmissionService(is).deleteWrapper(c, is);
 
         // remove the item's policies and replace them with
         // the defaults from the collection

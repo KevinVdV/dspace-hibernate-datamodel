@@ -17,35 +17,42 @@ import java.util.List;
  */
 public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
 
+    @Override
     public T create(Context context, T t) throws SQLException {
         context.getDBConnection().save(t);
         return t;
     }
 
+    @Override
     public void save(Context context, T t) throws SQLException {
         context.getDBConnection().save(t);
     }
 
+    @Override
     public void delete(Context context, T t) throws SQLException {
         context.getDBConnection().delete(t);
     }
 
-    public List<T> findAll(Context context, Class clazz) throws SQLException {
+    @Override
+    public List<T> findAll(Context context, Class<T> clazz) throws SQLException {
         return list(createCriteria(context, clazz));
     }
 
+    @Override
     public T findUnique(Context context, String query) throws SQLException {
         @SuppressWarnings("unchecked")
         T result = (T) createQuery(context, query).uniqueResult();
         return result;
     }
 
+    @Override
     public T findByID(Context context, Class clazz, int id) throws SQLException {
         @SuppressWarnings("unchecked")
         T result = (T) context.getDBConnection().get(clazz, id);
         return result;
     }
 
+    @Override
     public List<T> findMany(Context context, String query) throws SQLException {
         @SuppressWarnings("unchecked")
         List<T> result = (List<T>) createQuery(context, query).uniqueResult();

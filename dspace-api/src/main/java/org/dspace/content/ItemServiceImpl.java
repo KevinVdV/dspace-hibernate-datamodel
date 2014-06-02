@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
 import org.dspace.authorize.service.AuthorizeService;
-import org.dspace.content.authority.MetadataAuthorityServiceImpl;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.dao.ItemDAO;
@@ -32,8 +31,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.handle.service.HandleService;
 import org.dspace.identifier.IdentifierException;
-import org.dspace.identifier.IdentifierService;
-import org.dspace.utils.DSpace;
+import org.dspace.identifier.service.IdentifierService;
 import org.dspace.versioning.factory.DSpaceVersionServiceFactory;
 import org.dspace.versioning.service.VersionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +84,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected ChoiceAuthorityService choiceAuthorityService;
     @Autowired(required = true)
     protected MetadataAuthorityService metadataAuthorityService;
+    @Autowired(required = true)
+    protected IdentifierService identifierService;
 
     public ItemServiceImpl()
     {
@@ -1254,7 +1254,6 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         {
             versionService.removeVersion(context, item);
         }else{
-            IdentifierService identifierService = new DSpace().getSingletonService(IdentifierService.class);
             try {
                 identifierService.delete(context, item);
             } catch (IdentifierException e) {

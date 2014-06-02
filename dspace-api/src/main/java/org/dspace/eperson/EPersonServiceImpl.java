@@ -10,13 +10,6 @@ package org.dspace.eperson;
 import java.sql.SQLException;
 import java.util.*;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.codec.DecoderException;
 
 import org.apache.log4j.Logger;
@@ -31,10 +24,8 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
 import org.dspace.eperson.dao.EPersonDAO;
-import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.workflow.WorkflowService;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
 import org.springframework.beans.factory.annotation.Autowired;

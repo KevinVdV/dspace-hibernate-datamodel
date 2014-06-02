@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.apache.log4j.Logger;
-//import org.dspace.eperson.Group;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -20,7 +19,6 @@ import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.factory.EventServiceFactory;
 import org.dspace.event.service.EventService;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.hibernate.HibernateUtil;
 import org.hibernate.Session;
 import org.springframework.util.CollectionUtils;

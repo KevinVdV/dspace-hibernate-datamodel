@@ -14,8 +14,8 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.handle.HandleServiceImpl;
+import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 
 /**
@@ -26,7 +26,7 @@ public class Site extends DSpaceObject
 {
     /** "database" identifier of the site */
     public static final int SITE_ID = 0;
-    private static final HandleService HANDLE_SERVICE = DSpaceServiceFactory.getInstance().getHandleService();
+    private static final HandleService HANDLE_SERVICE = HandleServiceFactory.getInstance().getHandleService();
 
     // cache for Handle that is persistent ID for entire site.
     private static String handle = null;

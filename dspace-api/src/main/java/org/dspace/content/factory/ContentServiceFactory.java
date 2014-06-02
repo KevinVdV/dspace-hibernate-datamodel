@@ -1,29 +1,20 @@
-package org.dspace.factory;
+package org.dspace.content.factory;
 
-import org.dspace.app.util.service.WebAppService;
-import org.dspace.checker.service.ChecksumHistoryService;
-import org.dspace.checker.service.ChecksumResultService;
-import org.dspace.checker.service.MostRecentChecksumService;
-import org.dspace.content.*;
+import org.dspace.content.DSpaceObject;
+import org.dspace.content.InProgressSubmission;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
 import org.dspace.eperson.factory.EPersonServiceFactory;
-import org.dspace.eperson.service.EPersonService;
-import org.dspace.eperson.service.GroupService;
-import org.dspace.eperson.service.RegistrationDataService;
-import org.dspace.handle.service.HandleService;
-import org.dspace.identifier.DOIService;
 import org.dspace.utils.DSpace;
 import org.dspace.workflow.factory.WorkflowServiceFactory;
 
 /**
- * Created with IntelliJ IDEA.
- * User: kevin
- * Date: 01/04/14
- * Time: 08:05
- * To change this template use File | Settings | File Templates.
+ * User: kevin (kevin at atmire.com)
+ * Date: 2/06/14
+ * Time: 10:55
  */
-public abstract class DSpaceServiceFactory {
+public abstract class ContentServiceFactory {
 
     public abstract BitstreamFormatService getBitstreamFormatService();
 
@@ -45,23 +36,11 @@ public abstract class DSpaceServiceFactory {
 
     public abstract WorkspaceItemService getWorkspaceItemService();
 
-    public abstract HandleService getHandleService();
-
     public abstract SubscriptionService getSubscriptionService();
-
-    public abstract MostRecentChecksumService getMostRecentChecksumService();
-
-    public abstract ChecksumHistoryService getChecksumHistoryService();
-
-    public abstract ChecksumResultService getChecksumResultService();
 
     public abstract InstallItemService getInstallItemService();
 
-    public abstract WebAppService getWebAppService();
-
     public abstract SupervisedItemService getSupervisedItemService();
-
-    public abstract DOIService getDOIService();
 
     public InProgressSubmissionService getInProgressSubmissionService(InProgressSubmission inProgressSubmission)
     {
@@ -105,7 +84,8 @@ public abstract class DSpaceServiceFactory {
         }
     }
 
-    public static DSpaceServiceFactory getInstance(){
-        return new DSpace().getServiceManager().getServiceByName("serviceFactory", DSpaceServiceFactory.class);
+    public static ContentServiceFactory getInstance(){
+        return new DSpace().getServiceManager().getServiceByName("contentServiceFactory", ContentServiceFactory.class);
     }
+
 }

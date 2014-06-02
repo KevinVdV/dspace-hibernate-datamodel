@@ -9,11 +9,11 @@ package org.dspace.versioning;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.BundleService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.storage.factory.StorageServiceFactory;
 
 import java.sql.SQLException;
@@ -32,7 +32,7 @@ public abstract class AbstractVersionProvider {
     private Set<String> ignoredMetadataFields;
 
     protected void copyMetadata(Context context, Item itemNew, Item nativeItem) throws SQLException {
-        ItemService itemService = DSpaceServiceFactory.getInstance().getItemService();
+        ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
         List<MetadataValue> md = itemService.getMetadata(nativeItem, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         for (MetadataValue aMd : md) {
@@ -51,8 +51,7 @@ public abstract class AbstractVersionProvider {
     }
 
     protected void createBundlesAndAddBitstreams(Context c, Item itemNew, Item nativeItem) throws SQLException, AuthorizeException {
-        ItemService itemService = DSpaceServiceFactory.getInstance().getItemService();
-        BundleService bundleService = DSpaceServiceFactory.getInstance().getBundleService();
+        BundleService bundleService = ContentServiceFactory.getInstance().getBundleService();
         for(Bundle nativeBundle : nativeItem.getBundles())
         {
             Bundle bundleNew = bundleService.create(c, itemNew, nativeBundle.getName());
@@ -73,7 +72,7 @@ public abstract class AbstractVersionProvider {
 
 
     protected Bitstream createBitstream(Context context, Bitstream nativeBitstream) throws AuthorizeException, SQLException {
-        BitstreamService bitstreamService = DSpaceServiceFactory.getInstance().getBitstreamService();
+        BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
         int idNew = StorageServiceFactory.getInstance().getBitstreamStorageService().clone(context, nativeBitstream.getID());
         return bitstreamService.find(context, idNew);
     }

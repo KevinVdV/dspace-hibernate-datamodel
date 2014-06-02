@@ -13,7 +13,6 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceServiceFactory;
 
 import javax.mail.MessagingException;
 import java.util.Date;

@@ -17,10 +17,10 @@ import java.util.Map;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.factory.EventServiceFactory;
-import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * An Event object represents a single action that changed one object in the
@@ -320,7 +320,7 @@ public class Event implements Serializable
         }
         else
         {
-            return DSpaceServiceFactory.getInstance().getDSpaceObjectService(type).find(context, id);
+            return ContentServiceFactory.getInstance().getDSpaceObjectService(type).find(context, id);
         }
     }
 
@@ -332,7 +332,7 @@ public class Event implements Serializable
      */
     public DSpaceObject getSubject(Context context) throws SQLException
     {
-        return DSpaceServiceFactory.getInstance().getDSpaceObjectService(getSubjectType()).find(context, getSubjectID());
+        return ContentServiceFactory.getInstance().getDSpaceObjectService(getSubjectType()).find(context, getSubjectID());
     }
 
     /**

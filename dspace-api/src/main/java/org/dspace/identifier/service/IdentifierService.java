@@ -5,11 +5,15 @@
  *
  * http://www.dspace.org/license/
  */
-package org.dspace.identifier;
+package org.dspace.identifier.service;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
+import org.dspace.identifier.Identifier;
+import org.dspace.identifier.IdentifierException;
+import org.dspace.identifier.IdentifierNotFoundException;
+import org.dspace.identifier.IdentifierNotResolvableException;
 
 import java.sql.SQLException;
 
@@ -45,8 +49,8 @@ public interface IdentifierService {
      *
      * @param context
      * @param identifier
-     * @throws IdentifierNotFoundException
-     * @throws IdentifierNotResolvableException
+     * @throws org.dspace.identifier.IdentifierNotFoundException
+     * @throws org.dspace.identifier.IdentifierNotResolvableException
      */
     DSpaceObject resolve(Context context, String identifier) throws IdentifierNotFoundException, IdentifierNotResolvableException;
 
@@ -58,7 +62,7 @@ public interface IdentifierService {
      * @param dso
      * @throws org.dspace.authorize.AuthorizeException
      * @throws java.sql.SQLException
-     * @throws IdentifierException
+     * @throws org.dspace.identifier.IdentifierException
      */
     void reserve(Context context, DSpaceObject dso) throws AuthorizeException, SQLException, IdentifierException;
 

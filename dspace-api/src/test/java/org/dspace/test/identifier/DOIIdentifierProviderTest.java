@@ -16,11 +16,12 @@ import java.util.Random;
 import org.dspace.AbstractUnitTest;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.identifier.*;
+import org.dspace.identifier.service.DOIService;
 import org.dspace.kernel.ServiceManager;
 import org.dspace.services.ConfigurationService;
 import org.dspace.utils.DSpace;
@@ -178,11 +179,11 @@ public class DOIIdentifierProviderTest
         ctx.turnOffAuthorisationSystem();
         ctx.setCurrentUser(eperson);
         // Create an environment for our test objects to live in.
-        CommunityService communityService = DSpaceServiceFactory.getInstance().getCommunityService();
+        CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
         community = communityService.create(ctx, null);
         community.setName("A Test Community");
         communityService.update(ctx, community);
-        CollectionService collectionService = DSpaceServiceFactory.getInstance().getCollectionService();
+        CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
         collection = collectionService.create(ctx, community);
         collection.setName("A Test Collection");
         collectionService.update(ctx, collection);

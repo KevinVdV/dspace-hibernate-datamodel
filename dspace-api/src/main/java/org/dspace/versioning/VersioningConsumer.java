@@ -8,12 +8,12 @@
 package org.dspace.versioning;
 
 import org.dspace.content.Item;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
-import org.dspace.factory.DSpaceServiceFactory;
 import org.dspace.versioning.factory.DSpaceVersionServiceFactory;
 import org.dspace.versioning.service.VersionHistoryService;
 
@@ -33,7 +33,7 @@ public class VersioningConsumer implements Consumer {
     private Set<Item> itemsToProcess;
 
     private VersionHistoryService versionHistoryService = DSpaceVersionServiceFactory.getInstance().getVersionHistoryService();
-    private ItemService itemService = DSpaceServiceFactory.getInstance().getItemService();
+    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
     public void initialize() throws Exception {}
 

@@ -16,12 +16,12 @@ import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.factory.DSpaceServiceFactory;
 
 /**
  * This class is an addition to the AuthorizeManager that perform authorization
@@ -33,9 +33,9 @@ import org.dspace.factory.DSpaceServiceFactory;
 public class AuthorizeUtil
 {
 
-    private static final CommunityService COMMUNITY_SERVICE = DSpaceServiceFactory.getInstance().getCommunityService();
-    private static final CollectionService COLLECTION_SERVICE = DSpaceServiceFactory.getInstance().getCollectionService();
-    private static final ItemService ITEM_SERVICE = DSpaceServiceFactory.getInstance().getItemService();
+    private static final CommunityService COMMUNITY_SERVICE = ContentServiceFactory.getInstance().getCommunityService();
+    private static final CollectionService COLLECTION_SERVICE = ContentServiceFactory.getInstance().getCollectionService();
+    private static final ItemService ITEM_SERVICE = ContentServiceFactory.getInstance().getItemService();
     private static final AuthorizeService AUTHORIZE_SERVICE = AuthorizeServiceFactory.getInstance().getAuthorizeService();
 
     /**
@@ -504,7 +504,7 @@ public class AuthorizeUtil
     public static void authorizeManagePolicy(Context c, ResourcePolicy rp)
             throws SQLException, AuthorizeException
     {
-        DSpaceServiceFactory serviceFactory = DSpaceServiceFactory.getInstance();
+        ContentServiceFactory serviceFactory = ContentServiceFactory.getInstance();
         switch (rp.getResourceType())
         {
 

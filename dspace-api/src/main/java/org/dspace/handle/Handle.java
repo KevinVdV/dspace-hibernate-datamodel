@@ -14,7 +14,7 @@ public class Handle {
     @Id
     @Column(name="handle_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="handle_seq")
-    @SequenceGenerator(name="handle_seq", sequenceName="handle_seq", allocationSize = 1)
+    @SequenceGenerator(name="handle_seq", sequenceName="handle_seq", allocationSize = 1, initialValue = 1)
     private Integer id;
 
     @Column(name = "handle", unique = true, length = 256)

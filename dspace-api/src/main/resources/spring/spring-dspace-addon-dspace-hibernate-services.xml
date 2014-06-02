@@ -20,6 +20,12 @@
     <bean id="ePersonServiceFactory" class="org.dspace.eperson.factory.EPersonServiceFactoryImpl"/>
     <bean id="embargoFactory" class="org.dspace.embargo.factory.EmbargoServiceFactoryImpl"/>
     <bean id="contentAuthorityServiceFactory" class="org.dspace.content.authority.factory.ContentAuthorityServiceFactoryImpl"/>
+    <bean id="identifierServiceFactory" class="org.dspace.identifier.factory.IdentifierServiceFactoryImpl"/>
+    <bean id="harvestServiceFactory" class="org.dspace.harvest.factory.HarvestServiceFactoryImpl"/>
+    <bean id="handleServiceFactory" class="org.dspace.handle.factory.HandleServiceFactoryImpl"/>
+    <bean id="contentServiceFactory" class="org.dspace.content.factory.ContentServiceFactoryImpl"/>
+    <bean id="checkerServiceFactory" class="org.dspace.checker.factory.CheckerServiceFactoryImpl"/>
+    <bean id="appUtilServiceFactory" class="org.dspace.app.util.factory.AppUtilServiceFactoryImpl"/>
 
 
     <!-- ******************** -->

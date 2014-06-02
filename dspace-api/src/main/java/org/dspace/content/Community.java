@@ -1,11 +1,12 @@
 package org.dspace.content;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CommunityService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
-import org.dspace.factory.DSpaceServiceFactory;
+import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 
 import javax.persistence.*;
@@ -83,10 +84,10 @@ public class Community extends DSpaceObject{
     private boolean modifiedMetadata = false;
 
     @Transient
-    private CommunityService communityService = DSpaceServiceFactory.getInstance().getCommunityService();
+    private CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 
     @Transient
-    private HandleService handleService = DSpaceServiceFactory.getInstance().getHandleService();
+    private HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
 
 
     /**
