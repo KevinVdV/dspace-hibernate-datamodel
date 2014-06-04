@@ -19,7 +19,7 @@ import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.factory.EventServiceFactory;
 import org.dspace.event.service.EventService;
-import org.dspace.hibernate.HibernateUtil;
+import org.dspace.utils.DSpace;
 import org.hibernate.Session;
 import org.springframework.util.CollectionUtils;
 
@@ -43,7 +43,7 @@ import org.springframework.util.CollectionUtils;
 public class Context
 {
     private static final Logger log = Logger.getLogger(Context.class);
-    protected static final GroupService GROUP_SERVICE = EPersonServiceFactory.getInstance().getGroupService();
+    protected GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
 
     /** option flags */
     public static final short READ_ONLY = 0x01;
@@ -86,6 +86,8 @@ public class Context
     /** options */
     private short options = 0;
 
+    private DBConnection dbConnection;
+
     /**
      * Construct a new context object with default options. A database connection is opened.
      * No user is authenticated.
@@ -120,6 +122,7 @@ public class Context
      */
     private void init() throws SQLException
     {
+        dbConnection = new DSpace().getSingletonService(DBConnection.class);
         currentUser = null;
         currentLocale = I18nUtil.DEFAULTLOCALE;
         extraLogInfo = "";
@@ -138,9 +141,8 @@ public class Context
      *
      * @return the database connection
      */
-    public Session getDBConnection() throws SQLException {
-        HibernateUtil.beginTransaction();
-        return HibernateUtil.getSession();
+    DBConnection getDBConnection() throws SQLException {
+        return dbConnection;
     }
 
     /**
@@ -331,7 +333,7 @@ public class Context
         finally
         {
             // Free the connection
-            HibernateUtil.closeSession();
+            dbConnection.closeDBConnection();
         }
     }
 
@@ -367,13 +369,13 @@ public class Context
                 }
 
                 dispatcher = eventService.getDispatcher(dispName);
-                HibernateUtil.commitTransaction();
+                dbConnection.commit();
                 //TODO: HIBERNATE, ALLOW DISPATCHING !
                 //dispatcher.dispatch(this);
             }
             else
             {
-                HibernateUtil.commitTransaction();
+                dbConnection.commit();
             }
 
         }
@@ -396,7 +398,7 @@ public class Context
         {
             throw new IllegalStateException("Attempt to commit transaction in read-only context");
         }
-        HibernateUtil.commitTransaction();
+        dbConnection.commit();
     }
 
     /**
@@ -477,11 +479,11 @@ public class Context
     {
         try
         {
-            if (!HibernateUtil.isTransActionAlive())
+            if (!dbConnection.isTransActionAlive())
             {
                 if (! isReadOnly())
                 {
-                    HibernateUtil.rollbackTransaction();
+                    dbConnection.rollback();
                 }
             }
         }
@@ -493,9 +495,9 @@ public class Context
         {
             try
             {
-                if (!HibernateUtil.isSessionAlive())
+                if (!dbConnection.isSessionAlive())
                 {
-                    HibernateUtil.closeSession();
+                    dbConnection.closeDBConnection();
                 }
             }
             catch (Exception ex)
@@ -517,7 +519,7 @@ public class Context
     public boolean isValid()
     {
         // Only return true if our DB connection is live
-        return HibernateUtil.isTransActionAlive();
+        return dbConnection.isTransActionAlive();
     }
 
     /**
@@ -572,7 +574,7 @@ public class Context
         List<Group> myGroups = new ArrayList<Group>();
         for (Integer groupId : specialGroups)
         {
-            myGroups.add(GROUP_SERVICE.find(this, groupId));
+            myGroups.add(groupService.find(this, groupId));
         }
 
         return myGroups;
@@ -584,7 +586,7 @@ public class Context
          * If a context is garbage-collected, we roll back and free up the
          * database connection if there is one.
          */
-        if (HibernateUtil.isTransActionAlive())
+        if (dbConnection.isTransActionAlive())
         {
             abort();
         }

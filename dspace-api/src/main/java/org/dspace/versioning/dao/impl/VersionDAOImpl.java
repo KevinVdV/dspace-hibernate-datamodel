@@ -2,7 +2,7 @@ package org.dspace.versioning.dao.impl;
 
 import org.dspace.content.Item;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.versioning.Version;
 import org.dspace.versioning.dao.VersionDAO;
 import org.hibernate.Criteria;

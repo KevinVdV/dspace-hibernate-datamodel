@@ -4,7 +4,7 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -54,7 +54,8 @@ public class MetadataFieldDAOImpl extends AbstractHibernateDAO<MetadataField> im
     public List<MetadataField> findAllInSchema(Context context, String schema) throws SQLException {
         // Get all the metadatafieldregistry rows
         Criteria criteria = createCriteria(context, MetadataField.class);
-        criteria.add(Restrictions.eq("metadataSchema.name", schema));
+        criteria.createAlias("metadataSchema", "mds");
+        criteria.add(Restrictions.eq("mds.name", schema));
         criteria.addOrder(Order.asc("element")).addOrder(Order.asc("qualifier"));
         return list(criteria);
     }

@@ -7,6 +7,7 @@
  */
 package org.dspace.test.content;
 
+import mockit.Mocked;
 import mockit.NonStrictExpectations;
 
 import java.io.IOException;
@@ -193,9 +194,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testCreateAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.isAdmin(context); result = true;
             }
@@ -215,9 +215,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test(expected=AuthorizeException.class)
     public void testCreateNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.isAdmin(context); result = false;
             }
@@ -235,9 +234,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test(expected=NonUniqueMetadataException.class)
     public void testCreateRepeated() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.isAdmin(context); result = true;
             }
@@ -311,9 +309,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testUpdateAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.isAdmin(context); result = true;
             }
@@ -335,9 +332,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test(expected=AuthorizeException.class)
     public void testUpdateNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.isAdmin(context); result = false;
             }
@@ -357,9 +353,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test(expected=NonUniqueMetadataException.class)
     public void testUpdateRepeated() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.isAdmin(context); result = true;
             }
@@ -386,9 +381,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test
     public void testDeleteAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.isAdmin(context); result = true;
             }
@@ -411,9 +405,8 @@ public class MetadataFieldTest extends AbstractUnitTest
     @Test(expected=AuthorizeException.class)
     public void testDeleteNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.isAdmin(context); result = false;
             }

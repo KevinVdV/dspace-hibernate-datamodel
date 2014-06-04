@@ -7,11 +7,12 @@
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
 
+    <!--Hibernate database connection-->
+    <bean id="org.dspace.core.DBConnection" class="org.dspace.core.HibernateDBConnection"/>
 
     <!-- ******************** -->
-    <!-- Factory declartions -->
+    <!-- Factory declarations -->
     <!-- ******************** -->
-    <bean id="serviceFactory" class="org.dspace.factory.DSpaceServiceFactoryImpl"/>
     <bean id="authorizeServiceFactory" class="org.dspace.authorize.factory.AuthorizeServiceFactoryImpl"/>
     <bean id="versionServiceFactory" class="org.dspace.versioning.factory.DSpaceVersionServiceFactoryImpl"/>
     <bean id="coreServiceFactory" class="org.dspace.core.factory.CoreServiceFactoryImpl"/>

@@ -3,7 +3,7 @@ package org.dspace.content.dao.impl;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.MetadataValueDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 

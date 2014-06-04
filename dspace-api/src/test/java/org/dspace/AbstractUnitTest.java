@@ -19,6 +19,7 @@ import java.util.TimeZone;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import mockit.Mocked;
 import org.apache.log4j.Logger;
 import org.dspace.administer.MetadataImporter;
 import org.dspace.administer.RegistryImportException;
@@ -107,6 +108,7 @@ public class AbstractUnitTest
     protected VersionService versionService = DSpaceVersionServiceFactory.getInstance().getVersionService();
     protected VersionHistoryService versionHistoryService = DSpaceVersionServiceFactory.getInstance().getVersionHistoryService();
     protected HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
+    @Mocked
     protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected LicenseService licenseService = CoreServiceFactory.getInstance().getLicenseService();
 

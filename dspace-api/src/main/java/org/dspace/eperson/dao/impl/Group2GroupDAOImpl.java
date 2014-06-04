@@ -1,7 +1,7 @@
 package org.dspace.eperson.dao.impl;
 
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.Group2Group;
 import org.dspace.eperson.dao.Group2GroupDAO;

@@ -1,7 +1,7 @@
 package org.dspace.eperson.dao.impl;
 
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractDSpaceObjectDao;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.EPersonDAO;
@@ -19,7 +19,7 @@ import java.util.Set;
  * Date: 31/03/14
  * Time: 11:16
  */
-public class EPersonDAOImpl extends AbstractDSpaceObjectDao<EPerson> implements EPersonDAO {
+public class EPersonDAOImpl extends AbstractHibernateDAO<EPerson> implements EPersonDAO {
 
     @Override
     public EPerson findByEmail(Context context, String email) throws SQLException

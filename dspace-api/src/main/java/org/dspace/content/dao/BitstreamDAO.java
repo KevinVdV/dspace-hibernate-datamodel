@@ -12,7 +12,7 @@ import java.util.List;
  * Date: 17/03/14
  * Time: 11:42
  */
-public interface BitstreamDAO extends GenericDAO<Bitstream> {
+public interface BitstreamDAO extends DSpaceObjectDAO<Bitstream> {
 
     public List<Bitstream> findDeletedBitstreams(Context context) throws SQLException;
 

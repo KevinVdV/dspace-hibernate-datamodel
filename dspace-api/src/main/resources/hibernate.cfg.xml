@@ -13,6 +13,9 @@
 
         <property name="show_sql">true</property>
 
+        <!--Second level cache configuration-->
+        <property name="hibernate.cache.use_second_level_cache">true</property>
+        <property name="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</property>
 
 
         <mapping class="org.dspace.app.util.WebApp"/>
@@ -60,5 +63,11 @@
         <!--<mapping class="org.dspace.xmlworkflow.storedcomponents.PoolTask"/>-->
         <!--<mapping class="org.dspace.xmlworkflow.storedcomponents.WorkflowItemRole"/>-->
         <!--<mapping class="org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem"/>-->
+
+        <!--*********************-->
+        <!-- Cache configuration -->
+        <!--*********************-->
+        <class-cache class="org.dspace.content.MetadataSchema" usage="read-write" />
+        <class-cache class="org.dspace.content.MetadataField" usage="read-write" />
     </session-factory>
 </hibernate-configuration>

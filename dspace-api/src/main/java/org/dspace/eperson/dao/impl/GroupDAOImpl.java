@@ -1,8 +1,8 @@
 package org.dspace.eperson.dao.impl;
 
 import org.apache.commons.lang.math.NumberUtils;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractDSpaceObjectDao;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
@@ -20,7 +20,7 @@ import java.util.List;
  * Date: 31/03/14
  * Time: 12:03
  */
-public class GroupDAOImpl extends AbstractDSpaceObjectDao<Group> implements GroupDAO {
+public class GroupDAOImpl extends AbstractHibernateDAO<Group> implements GroupDAO {
 
     @Override
     public Group findByName(Context context, String name) throws SQLException

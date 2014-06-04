@@ -1,7 +1,7 @@
 package org.dspace.eperson.dao;
 
+import org.dspace.content.dao.DSpaceObjectDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.GenericDAO;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
@@ -14,7 +14,7 @@ import java.util.Set;
  * Date: 31/03/14
  * Time: 11:16
  */
-public interface EPersonDAO extends GenericDAO<EPerson>{
+public interface EPersonDAO extends DSpaceObjectDAO<EPerson> {
 
     public EPerson findByEmail(Context context, String email) throws SQLException;
 

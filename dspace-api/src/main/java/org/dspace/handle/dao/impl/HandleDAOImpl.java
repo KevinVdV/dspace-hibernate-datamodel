@@ -1,7 +1,7 @@
 package org.dspace.handle.dao.impl;
 
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.handle.Handle;
 import org.dspace.handle.dao.HandleDAO;
 import org.hibernate.Criteria;

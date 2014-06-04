@@ -1,7 +1,7 @@
 package org.dspace.xmlworkflow.storedcomponents.dao.impl;
 
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.eperson.EPerson;
 import org.dspace.xmlworkflow.storedcomponents.InProgressUser;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;

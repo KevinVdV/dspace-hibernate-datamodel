@@ -2,7 +2,7 @@ package org.dspace.content.dao.impl;
 
 import org.dspace.content.Bundle;
 import org.dspace.content.dao.BundleDAO;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 
 /**
  * Created with IntelliJ IDEA.

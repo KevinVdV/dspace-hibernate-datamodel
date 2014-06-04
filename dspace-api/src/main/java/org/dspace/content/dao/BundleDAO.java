@@ -10,5 +10,5 @@ import org.dspace.dao.GenericDAO;
  * Time: 10:16
  * To change this template use File | Settings | File Templates.
  */
-public interface BundleDAO extends GenericDAO<Bundle> {
+public interface BundleDAO extends DSpaceObjectDAO<Bundle> {
 }

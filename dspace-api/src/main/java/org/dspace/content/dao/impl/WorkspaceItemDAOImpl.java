@@ -5,7 +5,7 @@ import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.eperson.EPerson;
 import org.hibernate.Criteria;
 import org.hibernate.Query;

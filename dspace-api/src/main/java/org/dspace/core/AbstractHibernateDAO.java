@@ -1,9 +1,9 @@
-package org.dspace.dao;
+package org.dspace.core;
 
-import org.dspace.core.Context;
+import org.dspace.dao.GenericDAO;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.criterion.Criterion;
+import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 
 import java.sql.SQLException;
@@ -19,18 +19,22 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
 
     @Override
     public T create(Context context, T t) throws SQLException {
-        context.getDBConnection().save(t);
+        getHibernateSession(context).save(t);
         return t;
     }
 
     @Override
     public void save(Context context, T t) throws SQLException {
-        context.getDBConnection().save(t);
+        getHibernateSession(context).save(t);
+    }
+
+    protected Session getHibernateSession(Context context) throws SQLException {
+        return ((Session) context.getDBConnection().getSession());
     }
 
     @Override
     public void delete(Context context, T t) throws SQLException {
-        context.getDBConnection().delete(t);
+        getHibernateSession(context).delete(t);
     }
 
     @Override
@@ -48,7 +52,7 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
     @Override
     public T findByID(Context context, Class clazz, int id) throws SQLException {
         @SuppressWarnings("unchecked")
-        T result = (T) context.getDBConnection().get(clazz, id);
+        T result = (T) getHibernateSession(context).get(clazz, id);
         return result;
     }
 
@@ -60,11 +64,11 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
     }
 
     public Criteria createCriteria(Context context, Class<T> persistentClass) throws SQLException {
-        return context.getDBConnection().createCriteria(persistentClass);
+        return getHibernateSession(context).createCriteria(persistentClass);
     }
 
     public Query createQuery(Context context, String query) throws SQLException {
-        return context.getDBConnection().createQuery(query);
+        return getHibernateSession(context).createQuery(query);
     }
 
     public List<T> list(Criteria criteria)

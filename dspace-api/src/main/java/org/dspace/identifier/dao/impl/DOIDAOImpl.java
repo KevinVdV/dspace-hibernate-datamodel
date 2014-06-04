@@ -2,7 +2,7 @@ package org.dspace.identifier.dao.impl;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.identifier.DOI;
 import org.dspace.identifier.dao.DOIDAO;
 import org.hibernate.Criteria;

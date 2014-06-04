@@ -3,13 +3,12 @@ package org.dspace.content.dao.impl;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

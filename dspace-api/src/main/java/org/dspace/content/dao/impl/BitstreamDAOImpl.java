@@ -4,7 +4,7 @@ import org.dspace.checker.MostRecentChecksum;
 import org.dspace.content.Bitstream;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;

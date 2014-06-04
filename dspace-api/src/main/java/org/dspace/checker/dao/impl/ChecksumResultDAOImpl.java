@@ -4,7 +4,7 @@ import org.dspace.checker.ChecksumResult;
 import org.dspace.checker.ChecksumResultCode;
 import org.dspace.checker.dao.ChecksumResultDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 

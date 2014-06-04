@@ -3,7 +3,7 @@ package org.dspace.content.dao.impl;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.SupervisedItemDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.hibernate.Criteria;

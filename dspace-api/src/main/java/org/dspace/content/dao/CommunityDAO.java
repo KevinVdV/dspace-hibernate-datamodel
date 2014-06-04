@@ -13,7 +13,7 @@ import java.util.List;
  * Date: 14/03/14
  * Time: 15:13
  */
-public interface CommunityDAO extends GenericDAO<Community> {
+public interface CommunityDAO extends DSpaceObjectDAO<Community> {
 
     public List<Community> findAll(Context context, String order) throws SQLException;
 

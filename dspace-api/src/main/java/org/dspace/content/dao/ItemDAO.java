@@ -4,7 +4,6 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
-import org.dspace.dao.GenericDAO;
 import org.dspace.eperson.EPerson;
 
 import java.sql.SQLException;
@@ -17,7 +16,7 @@ import java.util.Iterator;
  * Time: 09:10
  * To change this template use File | Settings | File Templates.
  */
-public interface ItemDAO extends GenericDAO<Item> {
+public interface ItemDAO extends DSpaceObjectDAO<Item> {
 
     public Iterator<Item> findAll(Context context, boolean archived) throws SQLException;
 

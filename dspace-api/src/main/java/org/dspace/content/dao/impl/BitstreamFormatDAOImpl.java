@@ -3,7 +3,7 @@ package org.dspace.content.dao.impl;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.dao.BitstreamFormatDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Order;

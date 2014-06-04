@@ -2,7 +2,7 @@ package org.dspace.xmlworkflow.storedcomponents.dao.impl;
 
 import org.dspace.content.Collection;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.xmlworkflow.storedcomponents.CollectionRole;
 import org.dspace.xmlworkflow.storedcomponents.dao.CollectionRoleDAO;
 import org.hibernate.Criteria;

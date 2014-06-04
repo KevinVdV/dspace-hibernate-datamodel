@@ -1,7 +1,7 @@
 package org.dspace.eperson.dao;
 
+import org.dspace.content.dao.DSpaceObjectDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.GenericDAO;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * Date: 31/03/14
  * Time: 12:03
  */
-public interface GroupDAO extends GenericDAO<Group> {
+public interface GroupDAO extends DSpaceObjectDAO<Group> {
 
     public Group findByName(Context context, String name) throws SQLException;
 

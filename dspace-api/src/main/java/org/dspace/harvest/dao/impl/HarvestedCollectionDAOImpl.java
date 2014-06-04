@@ -2,7 +2,7 @@ package org.dspace.harvest.dao.impl;
 
 import org.dspace.content.Collection;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.harvest.HarvestedCollection;
 import org.dspace.harvest.dao.HarvestedCollectionDAO;
 import org.hibernate.Criteria;

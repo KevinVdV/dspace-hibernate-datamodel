@@ -4,15 +4,13 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.eperson.Group;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
 
 /**

@@ -5,7 +5,7 @@ import org.dspace.checker.ChecksumResultCode;
 import org.dspace.checker.dao.ChecksumHistoryDAO;
 import org.dspace.content.Bitstream;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.hibernate.Query;
 
 import java.sql.SQLException;

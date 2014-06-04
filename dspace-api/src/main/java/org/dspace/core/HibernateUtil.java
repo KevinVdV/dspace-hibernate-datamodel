@@ -1,4 +1,4 @@
-package org.dspace.hibernate;
+package org.dspace.core;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;

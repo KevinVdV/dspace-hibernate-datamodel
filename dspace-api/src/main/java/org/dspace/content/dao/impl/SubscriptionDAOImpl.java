@@ -4,7 +4,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Subscription;
 import org.dspace.content.dao.SubscriptionDAO;
 import org.dspace.core.Context;
-import org.dspace.dao.AbstractHibernateDAO;
+import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.eperson.EPerson;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
