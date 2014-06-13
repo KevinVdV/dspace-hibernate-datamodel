@@ -55,8 +55,8 @@ public class AuthorizeUtil
     public static void authorizeManageBitstreamPolicy(Context context,
             Bitstream bitstream) throws AuthorizeException, SQLException
     {
-        Bundle bundle = bitstream.getBundles().iterator().next();
-        authorizeManageBundlePolicy(context, bundle);
+        BundleBitstream bundleBitstream = bitstream.getBundles().iterator().next();
+        authorizeManageBundlePolicy(context, bundleBitstream.getBundle());
     }
 
     /**

@@ -624,9 +624,9 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             List<Bundle> bundles = item.getBundles();
             for (Bundle bundle : bundles) {
                 authorizeService.addPolicy(context, bundle, type, epa);
-                List<Bitstream> bits = bundle.getBitstreams();
-                for (Bitstream bit : bits) {
-                    authorizeService.addPolicy(context, bit, type, epa);
+                List<BundleBitstream> bits = bundle.getBitstreams();
+                for (BundleBitstream bundleBitstream : bits) {
+                    authorizeService.addPolicy(context, bundleBitstream.getBitstream(), type, epa);
                 }
             }
         }
@@ -637,9 +637,9 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             List<Bundle> bundles = item.getBundles();
             for (Bundle bundle : bundles) {
                 authorizeService.addPolicy(context, bundle, type, group);
-                List<Bitstream> bits = bundle.getBitstreams();
-                for (Bitstream bit : bits) {
-                    authorizeService.addPolicy(context, bit, type, group);
+                List<BundleBitstream> bits = bundle.getBitstreams();
+                for (BundleBitstream bundleBitstream : bits) {
+                    authorizeService.addPolicy(context, bundleBitstream.getBitstream(), type, group);
                 }
             }
         }
@@ -653,9 +653,9 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             List<Bundle> bundles = item.getBundles();
             for (Bundle bundle : bundles) {
                 authorizeService.removeEPersonPolicies(context, bundle, e);
-                List<Bitstream> bitstreams = bundle.getBitstreams();
-                for (Bitstream bitstream : bitstreams) {
-                    authorizeService.removeEPersonPolicies(context, bitstream, e);
+                List<BundleBitstream> bitstreams = bundle.getBitstreams();
+                for (BundleBitstream bundleBitstream : bitstreams) {
+                    authorizeService.removeEPersonPolicies(context, bundleBitstream.getBitstream(), e);
                 }
             }
             // Ensure that the submitter always retains his resource policies
@@ -674,9 +674,9 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
             List<Bundle> bundles = item.getBundles();
             for (Bundle bundle : bundles) {
                 authorizeService.removeGroupPolicies(context, bundle, e);
-                List<Bitstream> bitstreams = bundle.getBitstreams();
-                for (Bitstream bitstream : bitstreams) {
-                    authorizeService.removeGroupPolicies(context, bitstream, e);
+                List<BundleBitstream> bitstreams = bundle.getBitstreams();
+                for (BundleBitstream bitstream : bitstreams) {
+                    authorizeService.removeGroupPolicies(context, bitstream.getBitstream(), e);
                 }
             }
         }

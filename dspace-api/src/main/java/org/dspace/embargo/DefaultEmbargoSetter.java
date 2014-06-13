@@ -98,10 +98,10 @@ public class DefaultEmbargoSetter implements EmbargoSetter
             {
                 //AuthorizeManager.removePoliciesActionFilter(context, bn, Constants.READ);
                 generatePolicies(context, liftDate.toDate(), null, bn, item.getOwningCollection());
-                for (Bitstream bs : bn.getBitstreams())
+                for (BundleBitstream bs : bn.getBitstreams())
                 {
                     //AuthorizeManager.removePoliciesActionFilter(context, bs, Constants.READ);
-                    generatePolicies(context, liftDate.toDate(), null, bs, item.getOwningCollection());
+                    generatePolicies(context, liftDate.toDate(), null, bs.getBitstream(), item.getOwningCollection());
                 }
             }
         }
@@ -175,11 +175,12 @@ public class DefaultEmbargoSetter implements EmbargoSetter
                     }
                 }
 
-                for (Bitstream bs : bn.getBitstreams())
+                for (BundleBitstream bundleBitstream : bn.getBitstreams())
                 {
-                    for (ResourcePolicy rp : authorizeService.getPoliciesActionFilter(context, bs, Constants.READ))
+                    Bitstream bitstream = bundleBitstream.getBitstream();
+                    for (ResourcePolicy rp : authorizeService.getPoliciesActionFilter(context, bitstream, Constants.READ))
                     {
-                        System.out.println("CHECK WARNING: Item "+item.getHandle(context)+", Bitstream "+bs.getName()+" (in Bundle "+bn.getName()+") allows READ by "+
+                        System.out.println("CHECK WARNING: Item "+item.getHandle(context)+", Bitstream "+ bitstream.getName()+" (in Bundle "+bn.getName()+") allows READ by "+
                           ((rp.getEPerson() == null) ? "Group "+rp.getGroup().getName() :
                                                       "EPerson "+rp.getEPerson().getFullName()));
                     }

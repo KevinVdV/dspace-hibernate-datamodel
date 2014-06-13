@@ -203,18 +203,18 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     		int assetstore, String bitstreamPath)
             throws IOException, SQLException, AuthorizeException {
         // Store the bits
-        int bitstreamID = bitstreamStorageService.register(
-                context, assetstore, bitstreamPath);
+        Bitstream bitstream = bitstreamDAO.create(context, new Bitstream());
+        bitstreamStorageService.register(
+                context, bitstream, assetstore, bitstreamPath);
 
         log.info(LogManager.getHeader(context,
             "create_bitstream",
-            "bitstream_id=" + bitstreamID));
+            "bitstream_id=" + bitstream.getID()));
 
         // Set the format to "unknown"
-        Bitstream bitstream = find(context, bitstreamID);
         bitstream.setFormat(null);
 
-        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID, "REGISTER"));
+        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstream.getID(), "REGISTER"));
 
         return bitstream;
     }
@@ -425,11 +425,11 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     @Override
     public DSpaceObject getParentObject(Context context, Bitstream bitstream) throws SQLException
     {
-        List<Bundle> bundles = bitstream.getBundles();
+        List<BundleBitstream> bundles = bitstream.getBundles();
         if (CollectionUtils.isNotEmpty(bundles))
         {
             // the ADMIN action is not allowed on Bundle object so skip to the item
-            Item item = (Item) bundleService.getParentObject(context, bundles.iterator().next());
+            Item item = (Item) bundleService.getParentObject(context, bundles.iterator().next().getBundle());
             if (item != null)
             {
                 return item;

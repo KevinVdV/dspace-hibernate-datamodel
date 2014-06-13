@@ -250,9 +250,10 @@ CREATE INDEX item2bundle_bundle_fk_idx ON Item2Bundle(bundle_id);
 -------------------------------------------------------
 CREATE TABLE Bundle2Bitstream
 (
-  id              INTEGER PRIMARY KEY,
+  PRIMARY KEY(bundle_id, bitstream_id) ,
   bundle_id       INTEGER REFERENCES Bundle(bundle_id),
-  bitstream_id    INTEGER REFERENCES Bitstream(bitstream_id)
+  bitstream_id    INTEGER REFERENCES Bitstream(bitstream_id),
+  bitstream_order INTEGER
 );
 
 -- index by bundle_id
@@ -580,6 +581,7 @@ CREATE INDEX epg2wi_workspace_fk_idx ON epersongroup2workspaceitem(workspace_ite
 -------------------------------------------------------
 --  Communities2Item table
 -------------------------------------------------------
+--TODO: SHOULD BE DROPPED ?
 CREATE TABLE Communities2Item
 (
    id                      INTEGER PRIMARY KEY,

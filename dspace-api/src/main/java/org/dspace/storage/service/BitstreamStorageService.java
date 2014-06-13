@@ -18,7 +18,7 @@ public interface BitstreamStorageService {
     public int store(Context context, Bitstream bitstream, InputStream is)
             throws SQLException, IOException, AuthorizeException;
 
-    public int register(Context context, int assetstore,
+    public void register(Context context, Bitstream bitstream, int assetstore,
     				String bitstreamPath) throws SQLException, IOException, AuthorizeException;
 
     public boolean isRegisteredBitstream(String internalId);

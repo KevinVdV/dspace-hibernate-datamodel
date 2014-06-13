@@ -44,21 +44,9 @@ public class Bundle extends DSpaceObject{
     private boolean modifiedMetadata = false;
 
 
-    @OneToMany(fetch = FetchType.LAZY)
-    /** The bitstreams in this bundle */
-    @JoinTable(
-            name = "bundle2bitstream",
-            joinColumns = {@JoinColumn(name = "bundle_id") },
-            inverseJoinColumns = {@JoinColumn(name = "bitstream_id") }
-    )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="integer"),
-            generator = "bundle2bitstream_seq"
-    )
-    @SequenceGenerator(name="bundle2bitstream_seq", sequenceName="bundle2bitstream_seq", allocationSize = 1)
-    @OrderBy("sequence_id asc")
-    private List<Bitstream> bitstreams = new ArrayList<Bitstream>();
+    @OneToMany(mappedBy = "bundle", fetch = FetchType.LAZY)
+    @OrderBy("bitstreamOrder asc")
+    private List<BundleBitstream> bitstreams = new ArrayList<BundleBitstream>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -146,7 +134,7 @@ public class Bundle extends DSpaceObject{
         this.modifiedMetadata = false;
     }
 
-    void addBitstream(Bitstream bitstream){
+    void addBitstream(BundleBitstream bitstream){
         bitstreams.add(bitstream);
     }
 
@@ -156,7 +144,7 @@ public class Bundle extends DSpaceObject{
      *
      * @return the bitstreams
      */
-    public List<Bitstream> getBitstreams() {
+    public List<BundleBitstream> getBitstreams() {
         return bitstreams;
     }
 

@@ -126,12 +126,13 @@ public class BundleTest extends AbstractDSpaceObjectTest
      */
     @Test
     public void testCreate() throws SQLException, AuthorizeException, IOException {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
+                authorizeService.authorizeAction((Context) any, (Item) any,
+                        Constants.REMOVE); result = null;
             }
         };
         Bundle created = bundleService.create(context, it, "test");
@@ -231,12 +232,13 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetBitstreamByName() throws FileNotFoundException, SQLException, IOException, AuthorizeException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any,
                         Constants.ADD); result = null;
+                authorizeService.authorizeAction((Context) any, (Bundle) any,
+                        Constants.WRITE); result = null;
             }
         };
 
@@ -249,6 +251,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         Bitstream bs = bitstreamService.create(context, new FileInputStream(f));
         bs.setName(name);
         bundleService.addBitstream(context, b, bs);
+        bundleService.update(context, b);
         assertThat("testGetHandle 1", bundleService.getBitstreamByName(b, name), notNullValue());
         assertThat("testGetHandle 2", bundleService.getBitstreamByName(b, name), equalTo(bs));
         assertThat("testGetHandle 3", bundleService.getBitstreamByName(b, name).getName(), equalTo(name));
@@ -261,12 +264,13 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetBitstreams() throws FileNotFoundException, SQLException, IOException, AuthorizeException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any,
                         Constants.ADD); result = null;
+                authorizeService.authorizeAction((Context) any, (Bundle) any,
+                        Constants.WRITE); result = null;
             }
         };
 
@@ -280,9 +284,10 @@ public class BundleTest extends AbstractDSpaceObjectTest
         Bitstream bs = bitstreamService.create(context, new FileInputStream(f));
         bs.setName(name);
         bundleService.addBitstream(context, b, bs);
+        bundleService.update(context, b);
         assertThat("testGetBitstreams 2", b.getBitstreams(), notNullValue());
         assertThat("testGetBitstreams 3", b.getBitstreams().size(), equalTo(1));
-        assertThat("testGetBitstreams 4", b.getBitstreams().get(0).getName(), equalTo(name));
+        assertThat("testGetBitstreams 4", b.getBitstreams().get(0).getBitstream().getName(), equalTo(name));
         context.commit();
     }
 
@@ -303,9 +308,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testCreateBitstreamNoAuth() throws FileNotFoundException, AuthorizeException, SQLException, IOException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any,
                         Constants.ADD); result = new AuthorizeException();
@@ -324,12 +328,13 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test
     public void testCreateBitstreamAuth() throws FileNotFoundException, AuthorizeException, SQLException, IOException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any,
                         Constants.ADD); result = null;
+                authorizeService.authorizeAction((Context) any, (Bundle) any,
+                        Constants.WRITE); result = null;
             }
         };
 
@@ -349,9 +354,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testRegisterBitstreamNoAuth() throws AuthorizeException, IOException, SQLException 
     {
 
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
                 result = new AuthorizeException();
@@ -371,11 +375,13 @@ public class BundleTest extends AbstractDSpaceObjectTest
     public void testRegisterBitstreamAuth() throws AuthorizeException, IOException, SQLException 
     {
 
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
             AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
+                result = null;
+                authorizeService.authorizeAction((Context) any, (Bitstream) any, Constants.WRITE);
                 result = null;
             }
         };
@@ -396,9 +402,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testAddBitstreamNoAuth() throws SQLException, AuthorizeException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
                 result = new AuthorizeException();
@@ -408,6 +413,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         int id = 1;
         Bitstream bs = bitstreamService.find(context, id);
         bundleService.addBitstream(context, b, bs);
+        bundleService.update(context, b);
         fail("Exception should have been thrown");
     }
 
@@ -417,11 +423,12 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test
     public void testAddBitstreamAuth() throws SQLException, AuthorizeException, FileNotFoundException, IOException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
+                result = null;
+                authorizeService.authorizeAction((Context) any, (Bitstream) any, Constants.WRITE);
                 result = null;
             }
         };
@@ -441,9 +448,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testRemoveBitstreamNoAuth() throws SQLException, AuthorizeException, IOException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.REMOVE);
                 result = new AuthorizeException();
@@ -463,11 +469,14 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test
     public void testRemoveBitstreamAuth() throws SQLException, AuthorizeException, IOException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.REMOVE);
+                result = null;
+                authorizeService.authorizeAction((Context) any, (Bundle) any, Constants.ADD);
+                result = null;
+                authorizeService.authorizeAction((Context) any, (Bitstream) any, Constants.WRITE);
                 result = null;
             }
         };
@@ -476,8 +485,10 @@ public class BundleTest extends AbstractDSpaceObjectTest
         File f = new File(testProps.get("test.bitstream").toString());
         Bitstream bs = bitstreamService.find(context, id);
         bundleService.addBitstream(context, b, bs);
+        bundleService.update(context, b);
         context.commit();
         bundleService.removeBitstream(context, b, bs);
+        bundleService.update(context, b);
         assertThat("testRemoveBitstreamAuth 0", bundleService.getBitstreamByName(b, bs.getName()), nullValue());
     }
 
@@ -499,9 +510,8 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test
     public void testDelete() throws SQLException, AuthorizeException, IOException
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.REMOVE, true); result = null;

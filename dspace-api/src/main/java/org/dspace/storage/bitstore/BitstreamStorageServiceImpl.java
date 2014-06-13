@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.checker.service.ChecksumHistoryService;
@@ -270,8 +271,6 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
          */
         bitstream.setStoreNumber(incoming);
 
-        bitstreamService.update(context, bitstream);
-
         // Where on the file system will this new bitstream go?
 		GeneralFile file = getFile(bitstream);
 
@@ -315,7 +314,14 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
         }
         
         bitstream.setDeleted(false);
-        bitstreamService.update(context, bitstream);
+        try {
+            //Update our bitstream but turn off the authorization system since permissions haven't been set at this point in time.
+            context.turnOffAuthorisationSystem();
+            bitstreamService.update(context, bitstream);
+        } finally {
+            context.restoreAuthSystemState();
+        }
+
 
         int bitstreamId = bitstream.getID();
 
@@ -343,32 +349,23 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
 	 * @throws IOException
 	 */
 	@Override
-    public int register(Context context, int assetstore,
+    public void register(Context context, Bitstream bitstream, int assetstore,
 				String bitstreamPath) throws SQLException, IOException, AuthorizeException {
 
 		// mark this bitstream as a registered bitstream
 		String sInternalId = REGISTERED_FLAG + bitstreamPath;
 
 		// Create a deleted bitstream row, using a separate DB connection
-		Bitstream bitstream;
-		Context tempContext = null;
+        if(StringUtils.isNotBlank(bitstream.getInternalId()))
+        {
+            throw new IOException("Cannot register assetstore path to bitstream that already links to a file.");
+        }
 
-		try {
-			tempContext = new Context();
+        bitstream.setDeleted(true);
+        bitstream.setInternalId(sInternalId);
+        bitstream.setStoreNumber(assetstore);
+        bitstreamService.update(context, bitstream);
 
-			bitstream = new Bitstream();
-			bitstream.setDeleted(true);
-			bitstream.setInternalId(sInternalId);
-			bitstream.setStoreNumber(assetstore);
-            bitstreamService.update(context, bitstream);
-
-			tempContext.complete();
-		} catch (SQLException sqle) {
-			if (tempContext != null) {
-				tempContext.abort();
-			}
-			throw sqle;
-		}
 
 		// get a reference to the file
 		GeneralFile file = getFile(bitstream);
@@ -469,7 +466,6 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
 			log.debug("Stored bitstream " + bitstreamId + " in file "
 					+ file.getAbsolutePath());
 		}
-		return bitstreamId;
 	}
 
 	/**

@@ -18,6 +18,7 @@ import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.dao.BundleBitstreamDAO;
 import org.dspace.content.dao.BundleDAO;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.BundleService;
@@ -46,6 +47,8 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
 
     @Autowired(required = true)
     protected BundleDAO bundleDAO;
+    @Autowired(required = true)
+    protected BundleBitstreamDAO bundleBitstreamDAO;
 
     @Autowired(required = true)
     protected ItemService itemService;
@@ -154,9 +157,10 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     {
         Bitstream target = null;
 
-        for (Bitstream b : bundle.getBitstreams()) {
-            if (name.equals(b.getName())) {
-                target = b;
+        for (BundleBitstream bundleBitstream : bundle.getBitstreams()) {
+            Bitstream bitstream = bundleBitstream.getBitstream();
+            if (name.equals(bitstream.getName())) {
+                target = bitstream;
                 break;
             }
         }
@@ -180,25 +184,27 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         log.info(LogManager.getHeader(context, "add_bitstream", "bundle_id="
                 + bundle.getID() + ",bitstream_id=" + b.getID()));
 
-        List<Bitstream> bitstreams = bundle.getBitstreams();
+        List<BundleBitstream> bundleBitstreams = bundle.getBitstreams();
         int topOrder = 0;
-        //TODO: HIBERNATE FIX THIS ORDER !
-        /*
         // First check that the bitstream isn't already in the list
-        for (Bitstream existingBitstream : bitstreams) {
-            if (b.getID() == existingBitstream.getID()) {
+        for (BundleBitstream bundleBitstream : bundleBitstreams) {
+            if (b.getID() == bundleBitstream.getBitstream().getID()) {
                 // Bitstream is already there; no change
                 return;
             }
             //The last file we encounter will have the highest order
-            topOrder = existingBitstream.getBitstreamOrder();
+            topOrder = bundleBitstream.getBitstreamOrder();
         }
 
 
-        b.setBitstreamOrder(topOrder++);
-        */
         // Add the bitstream object
-        bundle.addBitstream(b);
+        BundleBitstream bundleBitstream = bundleBitstreamDAO.create(context, new BundleBitstream());
+        bundleBitstream.setBitstream(b);
+        bundleBitstream.setBundle(bundle);
+        bundleBitstream.setBitstreamOrder(topOrder++);
+        bundleBitstreamDAO.save(context, bundleBitstream);
+        bundle.addBitstream(bundleBitstream);
+        b.getBundles().add(bundleBitstream);
 
         context.addEvent(new Event(Event.ADD, Constants.BUNDLE, bundle.getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
 
@@ -218,7 +224,6 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     public void setOrder(Context context, Bundle bundle, int bitstreamIds[]) throws AuthorizeException, SQLException {
         authorizeService.authorizeAction(context, bundle, Constants.WRITE);
 
-        //TODO: REORDER HIBERNATE CACHE !
         for (int i = 0; i < bitstreamIds.length; i++) {
             int bitstreamId = bitstreamIds[i];
             Bitstream bitstream = bitstreamService.find(context, bitstreamId);
@@ -227,8 +232,13 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
                 log.warn(LogManager.getHeader(context, "Invalid bitstream id while changing bitstream order", "Bundle: " + bundle.getID() + ", bitstream id: " + bitstreamId));
                 continue;
             }
-                    //TODO: HIBERNATE FIX THIS ORDER !
-//            bitstream.setBitstreamOrder(i);
+
+            List<BundleBitstream> bitstreamBundles = bitstream.getBundles();
+            for (BundleBitstream bundleBitstream : bitstreamBundles) {
+                bundleBitstream.setBitstreamOrder(i);
+                bundleBitstreamDAO.save(context, bundleBitstream);
+
+            }
             bitstreamService.update(context, bitstream);
         }
 
@@ -265,17 +275,17 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
                 "bundle_id=" + bundle.getID() + ",bitstream_id=" + b.getID()));
 
         // Remove from internal list of bitstreams
-        ListIterator li = bundle.getBitstreams().listIterator();
-
-        //TODO: replace by remove ?
+        Iterator<BundleBitstream> li = bundle.getBitstreams().iterator();
         while (li.hasNext())
         {
-            Bitstream existing = (Bitstream) li.next();
+            BundleBitstream bundleBitstream = li.next();
 
-            if (b.getID() == existing.getID())
+            if (b.getID() == bundleBitstream.getBitstream().getID())
             {
                 // We've found the bitstream to remove
                 li.remove();
+                b.getBundles().remove(bundleBitstream);
+                bundleBitstreamDAO.delete(context, bundleBitstream);
             }
         }
 
@@ -300,8 +310,6 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
 
         bundle.removeBitstream(b);
         bitstreamService.delete(context, b);
-
-
     }
 
     @Override
@@ -348,10 +356,18 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
         context.addEvent(new Event(Event.DELETE, Constants.BUNDLE, bundle.getID(), bundle.getName()));
 
         // Remove bitstreams
-        List<Bitstream> bs = new ArrayList<Bitstream>(bundle.getBitstreams());
+        Iterator<BundleBitstream> bundleBitstreams = bundle.getBitstreams().iterator();
+        while (bundleBitstreams.hasNext()) {
+            BundleBitstream bundleBitstream = bundleBitstreams.next();
+            bundleBitstreams.remove();
+            removeBitstream(context, bundle, bundleBitstream.getBitstream());
+            bundleBitstreamDAO.delete(context, bundleBitstream);
+        }
 
-        for (Bitstream b : bs) {
-            removeBitstream(context, bundle, b);
+        Iterator<Item> items = bundle.getItems().iterator();
+        while (items.hasNext()) {
+            Item item = items.next();
+            item.removeBundle(bundle);
         }
 
         // remove our authorization policies
@@ -413,11 +429,12 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     public void replaceAllBitstreamPolicies(Context context, Bundle bundle, List<ResourcePolicy> newpolicies)
             throws SQLException, AuthorizeException
     {
-        List<Bitstream> bitstreams = bundle.getBitstreams();
-        if (bitstreams != null && bitstreams.size() > 0)
+        List<BundleBitstream> bundleBitstreams = bundle.getBitstreams();
+        if (bundleBitstreams != null && bundleBitstreams.size() > 0)
         {
-            for (Bitstream bs : bitstreams)
+            for (BundleBitstream bundleBitstream : bundleBitstreams)
             {
+                Bitstream bs = bundleBitstream.getBitstream();
                 // change bitstream policies
                 authorizeService.removeAllPolicies(context, bs);
                 authorizeService.addPolicies(context, newpolicies, bs);
@@ -431,13 +448,13 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
     @Override
     public List<ResourcePolicy> getBitstreamPolicies(Context context, Bundle bundle) throws SQLException
     {
-        List<Bitstream> bitstreams = bundle.getBitstreams();
+        List<BundleBitstream> bitstreams = bundle.getBitstreams();
         List<ResourcePolicy> list = new ArrayList<ResourcePolicy>();
         if (bitstreams != null && bitstreams.size() > 0)
         {
-            for (Bitstream bs : bitstreams)
+            for (BundleBitstream bs : bitstreams)
             {
-                list.addAll(authorizeService.getPolicies(context, bs));
+                list.addAll(authorizeService.getPolicies(context, bs.getBitstream()));
             }
         }
         return list;

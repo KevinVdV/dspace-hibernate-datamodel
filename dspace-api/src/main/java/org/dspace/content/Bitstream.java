@@ -61,28 +61,13 @@ public class Bitstream extends DSpaceObject{
     @Column(name = "store_number")
     private int storeNumber;
 
-//    @Column(name = "bitstream_order")
-//    private int bitstreamOrder;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bitstream_format_id")
     private BitstreamFormat bitstreamFormat;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    /** The bitstreams in this bundle */
-    @JoinTable(
-            name = "bundle2bitstream",
-            joinColumns = {@JoinColumn(name = "bitstream_id") },
-            inverseJoinColumns = {@JoinColumn(name = "bundle_id") }
-    )
-    @CollectionId(
-            columns = @Column(name="id"),
-            type=@Type(type="integer"),
-            generator = "bundle2bitstream_seq"
-    )
-    @SequenceGenerator(name="bundle2bitstream_seq", sequenceName="bundle2bitstream_seq", allocationSize = 1)
-    @OrderBy("sequence_id asc")
-    private List<Bundle> bundles = null;
+    @OneToMany(mappedBy = "bitstream", fetch = FetchType.LAZY)
+    @OrderBy("bitstreamOrder asc")
+    private List<BundleBitstream> bundles = new ArrayList<BundleBitstream>();
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy="logo")
     private Community community;
@@ -309,11 +294,11 @@ public class Bitstream extends DSpaceObject{
      * @return array of <code>Bundle</code> s this bitstream appears in
      * @throws SQLException
      */
-    public List<Bundle> getBundles() {
+    public List<BundleBitstream> getBundles() {
         return bundles;
     }
 
-    void setBundles(List<Bundle> bundles) {
+    void setBundles(List<BundleBitstream> bundles) {
         this.bundles = bundles;
     }
 
@@ -324,14 +309,6 @@ public class Bitstream extends DSpaceObject{
     public Community getCommunity() {
         return community;
     }
-
-//    public int getBitstreamOrder() {
-//        return bitstreamOrder;
-//    }
-
-//    public void setBitstreamOrder(int bitstreamOrder) {
-//        this.bitstreamOrder = bitstreamOrder;
-//    }
 
     /**
      * Get the user's format description. Returns null if the format is known by

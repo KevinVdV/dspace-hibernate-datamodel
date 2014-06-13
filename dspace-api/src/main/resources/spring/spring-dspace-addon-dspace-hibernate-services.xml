@@ -134,6 +134,7 @@
     <bean class="org.dspace.content.dao.impl.BitstreamDAOImpl"/>
     <bean class="org.dspace.content.dao.impl.BitstreamFormatDAOImpl"/>
     <bean class="org.dspace.content.dao.impl.BundleDAOImpl"/>
+    <bean class="org.dspace.content.dao.impl.BundleBitstreamDAOImpl"/>
     <bean class="org.dspace.content.dao.impl.CollectionDAOImpl"/>
     <bean class="org.dspace.content.dao.impl.CommunityDAOImpl"/>
     <bean class="org.dspace.content.dao.impl.ItemDAOImpl"/>

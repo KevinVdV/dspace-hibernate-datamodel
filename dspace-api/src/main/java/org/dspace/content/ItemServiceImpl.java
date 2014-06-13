@@ -910,9 +910,10 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         List<Bundle> bunds = item.getBundles();
 
         for (Bundle bund : bunds) {
-            List<Bitstream> bitstreams = bund.getBitstreams();
+            List<BundleBitstream> bitstreams = bund.getBitstreams();
 
-            for (Bitstream bitstream : bitstreams) {
+            for (BundleBitstream bundleBitstream : bitstreams) {
+                Bitstream bitstream = bundleBitstream.getBitstream();
                 if (!bitstream.getFormat().isInternal()) {
                     // Bitstream is not of an internal format
                     bitstreamList.add(bitstream);
@@ -969,10 +970,10 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         for (Bundle bund : bunds) {
             boolean removethisbundle = false;
 
-            List<Bitstream> bits = bund.getBitstreams();
+            List<BundleBitstream> bits = bund.getBitstreams();
 
-            for (Bitstream bit : bits) {
-                BitstreamFormat bft = bit.getFormat();
+            for (BundleBitstream bit : bits) {
+                BitstreamFormat bft = bit.getBitstream().getFormat();
 
                 if (bft.getID() == licensetype) {
                     removethisbundle = true;
@@ -1024,9 +1025,10 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
         // find the highest current sequence number
         for (Bundle bund : bunds) {
-            List<Bitstream> streams = bund.getBitstreams();
+            List<BundleBitstream> streams = bund.getBitstreams();
 
-            for (Bitstream bitstream : streams) {
+            for (BundleBitstream bundleBitstream : streams) {
+                Bitstream bitstream = bundleBitstream.getBitstream();
                 if (bitstream.getSequenceID() > sequence) {
                     sequence = bitstream.getSequenceID();
                 }
@@ -1037,9 +1039,10 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         sequence++;
 
         for (Bundle bund : bunds) {
-            List<Bitstream> streams = bund.getBitstreams();
+            List<BundleBitstream> streams = bund.getBitstreams();
 
-            for (Bitstream stream : streams) {
+            for (BundleBitstream bundleBitstream : streams) {
+                Bitstream stream = bundleBitstream.getBitstream();
                 if (stream.getSequenceID() < 0) {
                     stream.setSequenceID(sequence);
                     sequence++;
@@ -1342,11 +1345,12 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         List<Bundle> bunds = item.getBundles();
 
         for (Bundle mybundle : bunds) {
-            List<Bitstream> bs = mybundle.getBitstreams();
+            List<BundleBitstream> bs = mybundle.getBitstreams();
 
-            for (Bitstream b : bs) {
+            for (BundleBitstream b : bs) {
+                Bitstream bitstream = b.getBitstream();
                 // remove bitstream policies
-                authorizeService.removeGroupPolicies(context, b, g);
+                authorizeService.removeGroupPolicies(context, bitstream, g);
             }
 
             // change bundle policies
@@ -1399,7 +1403,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             List<ResourcePolicy> policiesBundleToAdd = filterPoliciesToAdd(context, defaultCollectionPolicies, mybundle);
             authorizeService.addPolicies(context, policiesBundleToAdd, mybundle);
 
-            for (Bitstream bitstream : mybundle.getBitstreams()) {
+            for (BundleBitstream bundleBitstream : mybundle.getBitstreams()) {
+                Bitstream bitstream = bundleBitstream.getBitstream();
                 // if come from InstallItem: remove all submission/workflow policies
                 authorizeService.removeAllPoliciesByDsoAndType(context, bitstream, ResourcePolicy.TYPE_SUBMISSION);
                 authorizeService.removeAllPoliciesByDsoAndType(context, bitstream, ResourcePolicy.TYPE_WORKFLOW);

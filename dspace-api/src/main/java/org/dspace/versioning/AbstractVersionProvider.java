@@ -56,13 +56,13 @@ public abstract class AbstractVersionProvider {
         {
             Bundle bundleNew = bundleService.create(c, itemNew, nativeBundle.getName());
 
-            for(Bitstream nativeBitstream : nativeBundle.getBitstreams())
+            for(BundleBitstream nativeBundleBitstream : nativeBundle.getBitstreams())
             {
 
-                Bitstream bitstreamNew = createBitstream(c, nativeBitstream);
+                Bitstream bitstreamNew = createBitstream(c, nativeBundleBitstream.getBitstream());
                 bundleService.addBitstream(c, bundleNew, bitstreamNew);
 
-                if(nativeBundle.getPrimaryBitstream().getID() == nativeBitstream.getID())
+                if(nativeBundle.getPrimaryBitstream().getID() == nativeBundleBitstream.getBitstream().getID())
                 {
                     bundleNew.setPrimaryBitstream(bitstreamNew);
                 }
