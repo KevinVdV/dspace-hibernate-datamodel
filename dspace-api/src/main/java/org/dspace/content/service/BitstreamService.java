@@ -34,11 +34,11 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream> {
 
     public List<Bitstream> findDuplicateInternalIdentifier(Context context, Bitstream bitstream) throws SQLException;
 
-    public Iterator<Bitstream> findAllInCommunity(Context context, Community community);
+    public Iterator<Bitstream> findAllInCommunity(Context context, Community community) throws SQLException;
 
-    public Iterator<Bitstream> findAllInCollection(Context context, Collection collection);
+    public Iterator<Bitstream> findAllInCollection(Context context, Collection collection) throws SQLException;
 
-    public Iterator<Bitstream> findAllInItem(Context context, Item item);
+    public Iterator<Bitstream> findAllInItem(Context context, Item item) throws SQLException;
 
     public void setUserFormatDescription(Context context, Bitstream bitstream, String desc) throws SQLException;
 
@@ -47,6 +47,8 @@ public interface BitstreamService extends DSpaceObjectService<Bitstream> {
     public void setFormat(Context context, Bitstream bitstream, BitstreamFormat f) throws SQLException;
 
     public void delete(Context context, Bitstream bitstream) throws SQLException, AuthorizeException;
+
+    public void expunge(Context context, Bitstream bitstream) throws SQLException, AuthorizeException;
 
     public InputStream retrieve(Context context, Bitstream bitstream) throws IOException, SQLException, AuthorizeException;
 

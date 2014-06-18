@@ -23,7 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 
 
@@ -374,10 +376,8 @@ public class Util {
      *            A String with the qualifier name of the metadata field
      * @return A list of the respective "displayed-values"
      */
-    //TODO: HIBERNATE: IMPLEMENT THIS
-    /*
-    public static List<String> getControlledVocabulariesDisplayValueLocalized(
-            Item item, DCValue[] values, String schema, String element,
+    public static List<String> getControlledVocabulariesDisplayValueLocalized(Context context,
+            Item item, List<MetadataValue> values, String schema, String element,
             String qualifier, Locale locale) throws SQLException,
             DCInputsReaderException
     {
@@ -396,7 +396,7 @@ public class Util {
         }
         else
         {
-            col_handle = collection.getHandle();
+            col_handle = collection.getHandle(context);
         }
 
         // Read the input form file for the specific collection
@@ -447,16 +447,13 @@ public class Util {
         if (myInputsFound)
         {
 
-            for (int j = 0; j < values.length; j++)
-            {
-
+            for (MetadataValue value : values) {
                 String pairsName = myInputs.getPairsType();
-                String stored_value = values[j].value;
+                String stored_value = value.getValue();
                 String displayVal = myInputs.getDisplayString(pairsName,
                         stored_value);
 
-                if (displayVal != null && !"".equals(displayVal))
-                {
+                if (displayVal != null && !"".equals(displayVal)) {
 
                     toReturn.add(displayVal);
                 }
@@ -466,5 +463,4 @@ public class Util {
 
         return toReturn;
     }
-    */
 }

@@ -285,6 +285,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
                 // We've found the bitstream to remove
                 li.remove();
                 b.getBundles().remove(bundleBitstream);
+                bundle.getBitstreams().remove(bundleBitstream);
                 bundleBitstreamDAO.delete(context, bundleBitstream);
             }
         }
@@ -308,7 +309,6 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
             bundle.setPrimaryBitstream(null);
         }
 
-        bundle.removeBitstream(b);
         bitstreamService.delete(context, b);
     }
 
@@ -346,7 +346,6 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * this may result in their deletion, if deleting this bundle leaves them as
      * orphans.
      */
-    //TODO: Implement properrly so item doesn't have issues with this
     @Override
     public void delete(Context context, Bundle bundle) throws SQLException, AuthorizeException, IOException
     {

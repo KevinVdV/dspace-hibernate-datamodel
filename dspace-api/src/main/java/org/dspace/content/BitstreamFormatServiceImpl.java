@@ -125,7 +125,7 @@ public class BitstreamFormatServiceImpl implements BitstreamFormatService
     public BitstreamFormat findByShortDescription(Context context, String desc) throws SQLException
     {
 
-        return bitstreamFormatDAO.findByMIMEType(context, desc);
+        return bitstreamFormatDAO.findByShortDescription(context, desc);
     }
 
     /**

@@ -524,13 +524,12 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
     @Override
     public void cleanup(boolean deleteDbRecords, boolean verbose) throws SQLException, IOException, AuthorizeException {
         Context context = null;
-        //TODO: HIBERNATE IMPLEMENT BitstreamInfoDAO
-//        BitstreamInfoDAO bitstreamInfoDAO = new BitstreamInfoDAO();
         int commitCounter = 0;
 
         try
         {
             context = new Context();
+            context.turnOffAuthorisationSystem();
 
 
             List<Bitstream> storage = bitstreamService.findDeletedBitstreams(context);
@@ -556,7 +555,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
                         {
                             System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
                         }
-                        bitstreamService.delete(context, bitstream);
+                        bitstreamService.expunge(context, bitstream);
                     }
                     continue;
                 }
@@ -581,8 +580,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
                     {
                         System.out.println(" - Deleting bitstream record from database (ID: " + bid + ")");
                     }
-                    //TODO: HIBERNATE: DOESN't DELETE ACTUAL ROW IN DB !
-                    bitstreamService.delete(context, bitstream);
+                    bitstreamService.expunge(context, bitstream);
                 }
 
 				if (isRegisteredBitstream(bitstream.getInternalId())) {

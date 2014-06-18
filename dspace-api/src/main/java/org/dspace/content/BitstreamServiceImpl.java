@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BundleBitstreamDAO;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -44,6 +45,8 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
     @Autowired(required = true)
     protected BitstreamDAO bitstreamDAO;
+    @Autowired(required = true)
+    protected BundleBitstreamDAO bundleBitstreamDAO;
 
     @Autowired(required = true)
     protected BitstreamFormatService bitstreamFormatService;
@@ -135,7 +138,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         // Set the format to "unknown"
         Bitstream bitstream = find(context, bitstreamID);
-        bitstream.setFormat(null);
+        setFormat(context, bitstream, null);
 
         context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID, null));
 
@@ -212,7 +215,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
             "bitstream_id=" + bitstream.getID()));
 
         // Set the format to "unknown"
-        bitstream.setFormat(null);
+        setFormat(context, bitstream, null);
 
         context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstream.getID(), "REGISTER"));
 
@@ -230,21 +233,18 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     }
 
     @Override
-    public Iterator<Bitstream> findAllInCommunity(Context context, Community community) {
-        //TODO: IMPLEMENT THIS ONCE BUNDLE HAS BEEN REFACTORED
-        return null;
+    public Iterator<Bitstream> findAllInCommunity(Context context, Community community) throws SQLException {
+        return bitstreamDAO.findByCommunity(context, community);
     }
 
     @Override
-    public Iterator<Bitstream> findAllInCollection(Context context, Collection collection) {
-        //TODO: IMPLEMENT THIS ONCE BUNDLE HAS BEEN REFACTORED
-        return null;
+    public Iterator<Bitstream> findAllInCollection(Context context, Collection collection) throws SQLException {
+        return bitstreamDAO.findByCollection(context, collection);
     }
 
     @Override
-    public Iterator<Bitstream> findAllInItem(Context context, Item item) {
-        //TODO: IMPLEMENT THIS ONCE BUNDLE HAS BEEN REFACTORED
-        return null;
+    public Iterator<Bitstream> findAllInItem(Context context, Item item) throws SQLException {
+        return bitstreamDAO.findByItem(context, item);
     }
 
     /**
@@ -362,7 +362,18 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      */
     @Override
     public void delete(Context context, Bitstream bitstream) throws SQLException, AuthorizeException {
-        bitstream.setBundles(null);
+
+        Iterator<BundleBitstream> bundleBits = bitstream.getBundles().iterator();
+        while(bundleBits.hasNext())
+        {
+            BundleBitstream bundleBitstream = bundleBits.next();
+            if(bundleBitstream.getBitstream().getID() == bitstream.getID())
+            {
+                bundleBits.remove();
+                bundleBitstreamDAO.delete(context, bundleBitstream);
+
+            }
+        }
         // changed to a check on remove
         // Check authorisation
         //AuthorizeManager.authorizeAction(bContext, this, Constants.DELETE);
@@ -379,6 +390,17 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
         bitstream.setDeleted(true);
         update(context, bitstream);
     }
+
+    @Override
+    public void expunge(Context context, Bitstream bitstream) throws SQLException, AuthorizeException {
+        authorizeService.authorizeAction(context, bitstream, Constants.DELETE);
+        if(!bitstream.isDeleted())
+        {
+            throw new IllegalStateException("Bitstream must be deleted before it can be removed from the database");
+        }
+        bitstreamDAO.delete(context, bitstream);
+    }
+
 
     /**
      * Retrieve the contents of the bitstream

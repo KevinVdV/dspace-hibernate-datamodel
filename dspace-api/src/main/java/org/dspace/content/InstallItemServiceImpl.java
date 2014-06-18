@@ -115,8 +115,6 @@ public class InstallItemServiceImpl implements InstallItemService
     {
         Item item = is.getItem();
 
-        //TODO HIBERNATE: Implement once identifier services framework comes into play
-        /*
         IdentifierService identifierService = new DSpace().getSingletonService(IdentifierService.class);
         try {
             if(suppliedHandle == null)
@@ -128,7 +126,7 @@ public class InstallItemServiceImpl implements InstallItemService
         } catch (IdentifierException e) {
             throw new RuntimeException("Can't create an Identifier!");
         }
-        */
+
         // Even though we are restoring an item it may not have the proper dates. So let's
         // double check its associated date(s)
         DCDate now = DCDate.getCurrent();

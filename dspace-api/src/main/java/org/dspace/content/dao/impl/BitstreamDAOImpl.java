@@ -2,15 +2,20 @@ package org.dspace.content.dao.impl;
 
 import org.dspace.checker.MostRecentChecksum;
 import org.dspace.content.Bitstream;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
+import org.dspace.content.Item;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.core.Context;
 import org.dspace.core.AbstractHibernateDAO;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -59,5 +64,45 @@ public class BitstreamDAOImpl extends AbstractHibernateDAO<Bitstream> implements
         return result;
     }
 
+    @Override
+    public Iterator<Bitstream> findByCommunity(Context context, Community community) throws SQLException {
+        Query query = createQuery(context, "select b from Bitstream b " +
+                "join b.bundles bitBundles " +
+                "join bitBundles.bundle bundle " +
+                "join bundle.items item " +
+                "join item.collections itemColl " +
+                "join itemColl.communities community " +
+                "WHERE :community IN community");
 
+        query.setParameter("community", community);
+
+        return iterate(query);
+    }
+
+    @Override
+    public Iterator<Bitstream> findByCollection(Context context, Collection collection) throws SQLException {
+        Query query = createQuery(context, "select b from Bitstream b " +
+                "join b.bundles bitBundles " +
+                "join bitBundles.bundle bundle " +
+                "join bundle.items item " +
+                "join item.collections c " +
+                "WHERE :collection IN c");
+
+        query.setParameter("collection", collection);
+
+        return iterate(query);
+    }
+
+    @Override
+    public Iterator<Bitstream> findByItem(Context context, Item item) throws SQLException {
+        Query query = createQuery(context, "select b from Bitstream b " +
+                "join b.bundles bitBundles " +
+                "join bitBundles.bundle bundle " +
+                "join bundle.items item " +
+                "WHERE :item IN item");
+
+        query.setParameter("item", item);
+
+        return iterate(query);
+    }
 }

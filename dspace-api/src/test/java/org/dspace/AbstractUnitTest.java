@@ -23,6 +23,7 @@ import mockit.Mocked;
 import org.apache.log4j.Logger;
 import org.dspace.administer.MetadataImporter;
 import org.dspace.administer.RegistryImportException;
+import org.dspace.administer.RegistryLoader;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
@@ -170,7 +171,7 @@ public class AbstractUnitTest
                         + File.separator + "config" + File.separator
                         + "registries" + File.separator;
 
-//                RegistryLoader.loadBitstreamFormats(ctx, base + "bitstream-formats.xml");
+                RegistryLoader.loadBitstreamFormats(ctx, base + "bitstream-formats.xml");
                 MetadataImporter.loadRegistry(base + "dublin-core-types.xml", true);
                 MetadataImporter.loadRegistry(base + "sword-metadata.xml", true);
                 ctx.commit();

@@ -65,7 +65,7 @@ public class BitstreamFormatDAOImpl extends AbstractHibernateDAO<BitstreamFormat
     {
         Criteria criteria = createCriteria(context, BitstreamFormat.class);
         criteria.add(Restrictions.and(
-                Restrictions.eq("short_description", desc)
+                Restrictions.eq("shortDescription", desc)
         ));
 
         return uniqueResult(criteria);
@@ -86,9 +86,9 @@ public class BitstreamFormatDAOImpl extends AbstractHibernateDAO<BitstreamFormat
         Criteria criteria = createCriteria(context, BitstreamFormat.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("internal", false),
-                Restrictions.not(Restrictions.like("short_description", "Unknown"))
+                Restrictions.not(Restrictions.like("shortDescription", "Unknown"))
         ));
-        criteria.addOrder(Order.desc("support_level")).addOrder(Order.asc("short_description"));
+        criteria.addOrder(Order.desc("supportLevel")).addOrder(Order.asc("shortDescription"));
 
         return list(criteria);
 
@@ -97,7 +97,7 @@ public class BitstreamFormatDAOImpl extends AbstractHibernateDAO<BitstreamFormat
     @Override
     public List<BitstreamFormat> findAll(Context context, Class clazz) throws SQLException {
         Criteria criteria = createCriteria(context, BitstreamFormat.class);
-        criteria.addOrder(Order.asc("bitstream_format_id"));
+        criteria.addOrder(Order.asc("id"));
         return list(criteria);
     }
 

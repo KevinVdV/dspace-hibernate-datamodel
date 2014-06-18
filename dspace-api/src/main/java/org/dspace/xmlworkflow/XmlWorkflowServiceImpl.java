@@ -209,7 +209,6 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
     /*
      * Executes an action and returns the next.
      */
-    //TODO: RENAME AS ADVANCE ?
     public WorkflowActionConfig doState(Context c, EPerson user, HttpServletRequest request, int workflowItemId, Workflow workflow, WorkflowActionConfig currentActionConfig) throws SQLException, AuthorizeException, IOException, MessagingException, WorkflowConfigurationException, WorkflowException {
         try {
             XmlWorkflowItem wi = xmlWorkflowItemService.find(c, workflowItemId);

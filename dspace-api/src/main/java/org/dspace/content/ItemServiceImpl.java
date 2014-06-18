@@ -848,7 +848,6 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     /**
-     * TODO: MOVE TO BITSTREAMSERVICE ?
      * Create a single bitstream in a new bundle. Provided as a convenience
      * method for the most common use.
      *
@@ -876,7 +875,6 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     }
 
     /**
-     * TODO: MOVE TO BITSTREAMSERVICE ?
      * Convenience method, calls createSingleBitstream() with name "ORIGINAL"
      *
      * @param is

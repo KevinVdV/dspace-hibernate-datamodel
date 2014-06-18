@@ -157,10 +157,6 @@ public class Bundle extends DSpaceObject{
         return items;
     }
 
-    void removeBitstream(Bitstream b) {
-        getBitstreams().remove(b);
-    }
-
     /**
      * Set the item this bundle appears in
      *

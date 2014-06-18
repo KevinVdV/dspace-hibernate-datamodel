@@ -64,7 +64,6 @@ public class Item extends DSpaceObject{
             joinColumns = {@JoinColumn(name = "item_id") },
             inverseJoinColumns = {@JoinColumn(name = "collection_id") }
     )
-    @SequenceGenerator(name="collection2item_seq", sequenceName="collection2item_seq", allocationSize = 1)
     private List<Collection> collections = new ArrayList<Collection>();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "items")

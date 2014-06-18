@@ -8,9 +8,14 @@
 package org.dspace.harvest;
 
 import org.apache.log4j.Logger;
+import org.dspace.content.Collection;
+import org.dspace.content.DSpaceObject;
 import org.dspace.core.*;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
+import org.dspace.harvest.factory.HarvestServiceFactory;
+import org.dspace.harvest.service.HarvestedCollectionService;
+import org.dspace.harvest.service.HarvestedItemService;
 
 /**
  * Class for handling cleanup of harvest settings for collections and items
@@ -25,6 +30,9 @@ public class HarvestConsumer implements Consumer
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(HarvestConsumer.class);
+
+    private HarvestedItemService harvestedItemService = HarvestServiceFactory.getInstance().getHarvestedItemService();
+    private HarvestedCollectionService harvestedCollectionService = HarvestServiceFactory.getInstance().getHarvestedCollectionService();
 
     /**
      * Initialise the consumer
@@ -47,46 +55,44 @@ public class HarvestConsumer implements Consumer
     public void consume(Context context, Event event)
         throws Exception
     {
-    	int st = event.getSubjectType();
 	    int et = event.getEventType();
-	    int id = event.getSubjectID();
-	
-	    switch (st)
+        DSpaceObject dso = event.getSubject(context);
+        if(dso == null)
+        {
+            return;
+        }
+
+	    switch (dso.getType())
 	    {
-            //TODO: IMPLEMENT WHEN HARVESTITEMS BECOME AVAILABLE
-	        /*
             case Constants.ITEM:
 	            if (et == Event.DELETE)
 	            {
-	            	HarvestedItem hi = HarvestedItem.find(context, id);
+	            	HarvestedItem hi = harvestedItemService.find(context, (org.dspace.content.Item) dso);
 	            	if (hi != null) {
-	            		log.debug("Deleted item '" + id + "', also deleting associated harvested_item '" + hi.getOaiID() + "'.");
-	            		hi.delete();
-	            		hi.update();
-	            	}	            		
+	            		log.debug("Deleted item '" + dso.getID() + "', also deleting associated harvested_item '" + hi.getOaiId() + "'.");
+                        harvestedItemService.delete(context, hi);
+	            	}
 	            	else
                     {
-                        log.debug("Deleted item '" + id + "' and the associated harvested_item.");
+                        log.debug("Deleted item '" + dso.getID() + "' and the associated harvested_item.");
                     }
 	            } 
 	            break;
 	        case Constants.COLLECTION:
 	        	if (et == Event.DELETE)
 	            {
-	        		HarvestedCollection hc = HarvestedCollection.find(context, id);
+	        		HarvestedCollection hc = harvestedCollectionService.findByCollection(context, (Collection) dso);
 	            	if (hc != null) {
-	            		log.debug("Deleted collection '" + id + "', also deleting associated harvested_collection '" + hc.getOaiSource() + ":" + hc.getOaiSetId() + "'.");
-	            		hc.delete();
-	            		hc.update();
-	            	}	            		
+	            		log.debug("Deleted collection '" + dso.getID() + "', also deleting associated harvested_collection '" + hc.getOaiSource() + ":" + hc.getOaiSetId() + "'.");
+	            		harvestedCollectionService.delete(context, hc);
+	            	}
 	            	else
                     {
-                        log.debug("Deleted collection '" + id + "' and the associated harvested_collection.");
+                        log.debug("Deleted collection '" + dso.getID() + "' and the associated harvested_collection.");
                     }
 	            }
 	        default:
 	            log.warn("consume() got unrecognized event: " + event.toString());
-	            */
 	    }
     }
 
