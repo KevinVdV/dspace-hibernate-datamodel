@@ -15,7 +15,7 @@ public class ChecksumHistory {
     @Id
     @Column(name="check_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="checksum_history_check_id_seq")
-    @SequenceGenerator(name="checksum_history_check_id_seq", sequenceName="checksum_history_check_id_seq")
+    @SequenceGenerator(name="checksum_history_check_id_seq", sequenceName="checksum_history_check_id_seq", allocationSize = 1)
     private long id;
 
     @Column(name = "bitstream_id")

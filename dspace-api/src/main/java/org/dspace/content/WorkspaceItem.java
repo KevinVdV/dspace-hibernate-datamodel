@@ -23,7 +23,7 @@ public class WorkspaceItem implements InProgressSubmission{
     @Id
     @Column(name = "workspace_item_id", unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="workspace_item_seq")
-    @SequenceGenerator(name="workspace_item_seq", sequenceName="workspace_item_seq")
+    @SequenceGenerator(name="workspace_item_seq", sequenceName="workspace_item_seq", allocationSize = 1)
     private int workspaceItemId;
 
     /** The item this workspace object pertains to */
@@ -37,13 +37,13 @@ public class WorkspaceItem implements InProgressSubmission{
     private Collection collection;
 
     @Column(name = "multiple_titles")
-    private Boolean multipleTitles = false;
+    private boolean multipleTitles = false;
 
     @Column(name = "published_before")
-    private Boolean publishedBefore = false;
+    private boolean publishedBefore = false;
 
     @Column(name = "multiple_files")
-    private Boolean multipleFiles = false;
+    private boolean multipleFiles = false;
 
     @Column(name = "stage_reached")
     private Integer stageReached;
@@ -68,6 +68,7 @@ public class WorkspaceItem implements InProgressSubmission{
      *
      * @return the internal identifier
      */
+    @Override
     public int getID() {
         return workspaceItemId;
     }
@@ -102,6 +103,7 @@ public class WorkspaceItem implements InProgressSubmission{
         return new HashCodeBuilder().append(getID()).toHashCode();
     }
 
+    @Override
     public Item getItem() {
         return item;
     }
@@ -110,6 +112,7 @@ public class WorkspaceItem implements InProgressSubmission{
         this.item = item;
     }
 
+    @Override
     public Collection getCollection() {
         return collection;
     }
@@ -123,28 +126,34 @@ public class WorkspaceItem implements InProgressSubmission{
         this.collection = collection;
     }
 
+    @Override
     public boolean hasMultipleTitles() {
         return multipleTitles;
     }
 
+    @Override
     public void setMultipleTitles(boolean multipleTitles) {
         this.multipleTitles = multipleTitles;
     }
 
+    @Override
     public boolean isPublishedBefore() {
         return publishedBefore;
     }
 
+    @Override
     public void setPublishedBefore(boolean publishedBefore) {
         this.publishedBefore = publishedBefore;
     }
 
+    @Override
     public boolean hasMultipleFiles() {
         return multipleFiles;
     }
 
 
 
+    @Override
     public void setMultipleFiles(boolean multipleFiles) {
         this.multipleFiles = multipleFiles;
     }

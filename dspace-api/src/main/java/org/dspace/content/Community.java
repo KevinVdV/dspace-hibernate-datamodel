@@ -29,7 +29,7 @@ public class Community extends DSpaceObject{
     @Id
     @Column(name="community_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="community_seq")
-    @SequenceGenerator(name="community_seq", sequenceName="community_seq")
+    @SequenceGenerator(name="community_seq", sequenceName="community_seq", allocationSize = 1)
     private Integer id;
 
     @ManyToMany(fetch = FetchType.LAZY)

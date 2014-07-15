@@ -31,7 +31,7 @@ public class DOI implements Identifier{
     @Id
     @Column(name="doi_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="doi_seq")
-    @SequenceGenerator(name="doi_seq", sequenceName="doi_seq", initialValue = 1)
+    @SequenceGenerator(name="doi_seq", sequenceName="doi_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name = "doi", unique = true, length = 256)

@@ -78,7 +78,7 @@ public interface AuthorizeService {
 
     public void generateAutomaticPolicies(Context context, Date embargoDate, String reason, DSpaceObject dso, org.dspace.content.Collection owningCollection) throws SQLException, AuthorizeException;
 
-    public void createResourcePolicy(Context context, DSpaceObject dso, Group group, EPerson eperson, int type) throws SQLException, AuthorizeException;
+    public void createResourcePolicy(Context context, DSpaceObject dso, Group group, EPerson eperson, int type, String rpType) throws SQLException, AuthorizeException;
 
     public ResourcePolicy createOrModifyPolicy(ResourcePolicy policy, Context context, String name, Group group, EPerson ePerson, Date embargoDate, int action, String reason, DSpaceObject dso) throws AuthorizeException, SQLException;
 

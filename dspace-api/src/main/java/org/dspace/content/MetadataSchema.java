@@ -17,7 +17,7 @@ public class MetadataSchema {
     @Id
     @Column(name="metadata_schema_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="metadataschemaregistry_seq")
-    @SequenceGenerator(name="metadataschemaregistry_seq", sequenceName="metadataschemaregistry_seq", allocationSize = 1, initialValue = 1)
+    @SequenceGenerator(name="metadataschemaregistry_seq", sequenceName="metadataschemaregistry_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name = "namespace", unique = true, length = 256)

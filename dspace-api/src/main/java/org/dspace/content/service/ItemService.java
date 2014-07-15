@@ -78,6 +78,8 @@ public interface ItemService extends DSpaceObjectService<Item> {
 
     public void clearMetadata(Context context, Item item, String schema, String element, String qualifier, String lang) throws SQLException;
 
+    public void removeMetadataValues(Context context, Item item, List<MetadataValue> values) throws SQLException;
+
     public boolean isIn(Item item, Collection collection) throws SQLException;
 
     public List<Community> getCommunities(Context context, Item item) throws SQLException;

@@ -17,7 +17,7 @@ public class Subscription {
     @Id
     @Column(name = "subscription_id", unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="subscription_seq")
-    @SequenceGenerator(name="subscription_seq", sequenceName="subscription_seq")
+    @SequenceGenerator(name="subscription_seq", sequenceName="subscription_seq", allocationSize = 1)
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)

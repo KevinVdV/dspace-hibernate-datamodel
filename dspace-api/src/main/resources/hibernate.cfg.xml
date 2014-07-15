@@ -7,6 +7,8 @@
         <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/dspace-kevin</property>
         <property name="hibernate.connection.username">dspace</property>
         <property name="hibernate.connection.password">dspace</property>
+
+        <!--<property name="hibernate.default_schema"></property>-->
         <property name="hibernate.connection.pool_size">10</property>
         <property name="hibernate.connection.autocommit">false</property>
         <property name="dialect">org.hibernate.dialect.PostgreSQL9Dialect</property>
@@ -15,7 +17,8 @@
 
         <!--Second level cache configuration-->
         <property name="hibernate.cache.use_second_level_cache">true</property>
-        <property name="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</property>
+        <property name="hibernate.cache.use_query_cache">true</property>
+        <property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
 
 
         <mapping class="org.dspace.app.util.WebApp"/>

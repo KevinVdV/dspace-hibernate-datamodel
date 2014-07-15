@@ -14,7 +14,7 @@ public class MetadataField {
     @Id
     @Column(name="metadata_field_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="metadatafieldregistry_seq")
-    @SequenceGenerator(name="metadatafieldregistry_seq", sequenceName="metadatafieldregistry_seq", allocationSize = 1, initialValue = 1)
+    @SequenceGenerator(name="metadatafieldregistry_seq", sequenceName="metadatafieldregistry_seq", allocationSize = 1)
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)

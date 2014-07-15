@@ -13,7 +13,7 @@ import java.util.Date;
 public class RegistrationData {
 
     @Id
-    @Column(name="registrationdata_seq")
+    @Column(name="registrationdata_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="registrationdata_seq")
     @SequenceGenerator(name="registrationdata_seq", sequenceName="registrationdata_seq", allocationSize = 1)
     private int id;

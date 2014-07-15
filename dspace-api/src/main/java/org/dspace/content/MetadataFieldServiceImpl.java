@@ -78,7 +78,7 @@ public class MetadataFieldServiceImpl implements MetadataFieldService
         }
 
         // Create a table row and update it with the values
-        MetadataField metadataField = new MetadataField();
+        MetadataField metadataField = metadataFieldDAO.create(context, new MetadataField());
         metadataField.setElement(element);
         metadataField.setQualifier(qualifier);
         metadataField.setScopeNote(scopeNote);

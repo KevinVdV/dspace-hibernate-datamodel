@@ -24,13 +24,12 @@ public class Item extends DSpaceObject{
     /**
      * Wild card for Dublin Core metadata qualifiers/languages
      */
-    //TODO: move to item service ?
     public static final String ANY = "*";
 
     @Id
     @Column(name="item_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="item_seq")
-    @SequenceGenerator(name="item_seq", sequenceName="item_seq")
+    @SequenceGenerator(name="item_seq", sequenceName="item_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name= "in_archive")
@@ -87,7 +86,7 @@ public class Item extends DSpaceObject{
      * update()
      */
     @Transient
-    private boolean dublinCoreChanged = false;
+    private boolean metadataModified = false;
 
     /**
      * True if anything else was changed since last update()
@@ -203,7 +202,7 @@ public class Item extends DSpaceObject{
      * @param isArchived
      *            new value for the flag
      */
-    public void setInArchive(boolean isArchived) {
+    void setInArchive(boolean isArchived) {
         this.inArchive = isArchived;
         modified = true;
 
@@ -295,19 +294,19 @@ public class Item extends DSpaceObject{
 
     void removeMetadata(MetadataValue metadataValue)
     {
-        dublinCoreChanged = true;
+        metadataModified = true;
         this.metadata.remove(metadataValue);
     }
 
     void removeMetadata(List<MetadataValue> metadataValues)
     {
-        dublinCoreChanged = true;
+        metadataModified = true;
         this.metadata.removeAll(metadataValues);
     }
 
 
     void addMetadata(MetadataValue metadataValue) {
-        dublinCoreChanged = true;
+        metadataModified = true;
         this.metadata.add(metadataValue);
         addDetails(metadataValue.getMetadataField().toString());
     }
@@ -337,16 +336,16 @@ public class Item extends DSpaceObject{
         getCollections().remove(collection);
     }
 
-    boolean isDublinCoreChanged() {
-        return dublinCoreChanged;
+    boolean isMetadataModified() {
+        return metadataModified;
     }
 
     boolean isModified() {
         return modified;
     }
 
-    void setDublinCoreChanged(boolean dublinCoreChanged) {
-        this.dublinCoreChanged = dublinCoreChanged;
+    void setMetadataModified(boolean metadataModified) {
+        this.metadataModified = metadataModified;
     }
 
     void setModified(boolean modified) {

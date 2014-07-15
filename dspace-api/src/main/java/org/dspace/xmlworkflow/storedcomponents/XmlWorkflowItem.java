@@ -34,14 +34,15 @@ public class XmlWorkflowItem implements WorkflowItem {
     private Collection collection;
 
     @Column(name = "multiple_titles")
-    private Boolean multipleTitles = false;
+    private boolean multipleTitles = false;
 
     @Column(name = "published_before")
-    private Boolean publishedBefore = false;
+    private boolean publishedBefore = false;
 
     @Column(name = "multiple_files")
-    private Boolean multipleFiles = false;
+    private boolean multipleFiles = false;
 
+    @Override
     public int getID() {
         return id;
     }
@@ -69,26 +70,32 @@ public class XmlWorkflowItem implements WorkflowItem {
         this.collection = collection;
     }
 
+    @Override
     public boolean hasMultipleTitles() {
         return multipleTitles;
     }
 
+    @Override
     public void setMultipleTitles(boolean multipleTitles) {
         this.multipleTitles = multipleTitles;
     }
 
+    @Override
     public boolean isPublishedBefore() {
         return publishedBefore;
     }
 
+    @Override
     public void setPublishedBefore(boolean publishedBefore) {
         this.publishedBefore = publishedBefore;
     }
 
+    @Override
     public boolean hasMultipleFiles() {
         return multipleFiles;
     }
 
+    @Override
     public void setMultipleFiles(boolean multipleFiles) {
         this.multipleFiles = multipleFiles;
     }

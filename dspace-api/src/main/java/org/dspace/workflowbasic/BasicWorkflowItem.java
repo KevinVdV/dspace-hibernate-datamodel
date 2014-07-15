@@ -20,7 +20,7 @@ public class BasicWorkflowItem implements WorkflowItem {
     @Id
     @Column(name = "workflow_id", unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="workflowitem_seq")
-    @SequenceGenerator(name="workflowitem_seq", sequenceName="workflowitem_seq")
+    @SequenceGenerator(name="workflowitem_seq", sequenceName="workflowitem_seq", allocationSize = 1)
     private int workflowitemId;
 
     /** The item this workflowitem object pertains to */
@@ -42,13 +42,13 @@ public class BasicWorkflowItem implements WorkflowItem {
     private int state;
 
     @Column(name = "multiple_titles")
-    private Boolean multipleTitles;
+    private boolean multipleTitles = false;
 
     @Column(name = "published_before")
-    private Boolean publishedBefore = false;
+    private boolean publishedBefore = false;
 
     @Column(name = "multiple_files")
-    private Boolean multipleFiles = false;
+    private boolean multipleFiles = false;
 
 
     /**
@@ -56,6 +56,7 @@ public class BasicWorkflowItem implements WorkflowItem {
      *
      * @return the internal identifier
      */
+    @Override
     public int getID() {
         return workflowitemId;
     }
@@ -121,26 +122,32 @@ public class BasicWorkflowItem implements WorkflowItem {
         this.state = state;
     }
 
+    @Override
     public boolean hasMultipleTitles() {
         return multipleTitles;
     }
 
+    @Override
     public void setMultipleTitles(boolean multipleTitles) {
         this.multipleTitles = multipleTitles;
     }
 
+    @Override
     public boolean isPublishedBefore() {
         return publishedBefore;
     }
 
+    @Override
     public void setPublishedBefore(boolean publishedBefore) {
         this.publishedBefore = publishedBefore;
     }
 
+    @Override
     public boolean hasMultipleFiles() {
         return multipleFiles;
     }
 
+    @Override
     public void setMultipleFiles(boolean multipleFiles) {
         this.multipleFiles = multipleFiles;
     }

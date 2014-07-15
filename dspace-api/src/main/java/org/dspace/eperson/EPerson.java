@@ -7,7 +7,6 @@ import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.EPersonService;
 
 import javax.persistence.*;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +21,7 @@ public class EPerson extends DSpaceObject {
     @Id
     @Column(name="eperson_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="eperson_seq")
-    @SequenceGenerator(name="eperson_seq", sequenceName="eperson_seq")
+    @SequenceGenerator(name="eperson_seq", sequenceName="eperson_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name="language", length = 64)
@@ -47,11 +46,11 @@ public class EPerson extends DSpaceObject {
     @Column(name="email", unique=true, length = 64)
     private String email;
 
-    @Column(name="require_certificate", nullable = true)
-    private Boolean require_certificate;
+    @Column(name="require_certificate")
+    private boolean requireCertificate = false;
 
-    @Column(name="self_registered", nullable = true)
-    private Boolean self_registered;
+    @Column(name="self_registered")
+    private boolean selfRegistered = false;
 
     @Column(name="password", length = 128)
     private String password;
@@ -326,7 +325,7 @@ public class EPerson extends DSpaceObject {
      */
     public void setRequireCertificate(final boolean isrequired)
     {
-        require_certificate = isrequired;
+        requireCertificate = isrequired;
         modified = true;
     }
 
@@ -335,9 +334,9 @@ public class EPerson extends DSpaceObject {
      *
      * @return boolean, yes/no (or false if the column is an SQL NULL)
      */
-    public boolean getRequireCertificate()
+    public Boolean getRequireCertificate()
     {
-        return require_certificate;
+        return requireCertificate;
     }
 
     /**
@@ -347,7 +346,7 @@ public class EPerson extends DSpaceObject {
      */
     public void setSelfRegistered(boolean self_registered)
     {
-        this.self_registered = self_registered;
+        this.selfRegistered = self_registered;
         modified = true;
     }
 
@@ -369,9 +368,9 @@ public class EPerson extends DSpaceObject {
      *
      * @return boolean, yes/no (or false if the column is an SQL NULL)
      */
-    public boolean getSelfRegistered()
+    public Boolean getSelfRegistered()
     {
-        return self_registered;
+        return selfRegistered;
     }
 
     void setPassword(String password) {

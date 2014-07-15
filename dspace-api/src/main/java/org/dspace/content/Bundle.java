@@ -23,7 +23,7 @@ public class Bundle extends DSpaceObject{
     @Id
     @Column(name="bundle_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="bundle_seq")
-    @SequenceGenerator(name="bundle_seq", sequenceName="bundle_seq")
+    @SequenceGenerator(name="bundle_seq", sequenceName="bundle_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name= "name", length = 16)

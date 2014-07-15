@@ -17,7 +17,7 @@ public class HarvestedCollection
     @Id
     @Column(name="id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="harvested_collection_seq")
-    @SequenceGenerator(name="harvested_collection_seq", sequenceName="harvested_collection_seq")
+    @SequenceGenerator(name="harvested_collection_seq", sequenceName="harvested_collection_seq", allocationSize = 1)
     private Integer id;
 
     @OneToOne(fetch = FetchType.EAGER)

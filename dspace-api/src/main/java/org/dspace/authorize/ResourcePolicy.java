@@ -26,7 +26,7 @@ public class ResourcePolicy implements Cloneable{
     @Id
     @Column(name="policy_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="resourcepolicy_seq")
-    @SequenceGenerator(name="resourcepolicy_seq", sequenceName="resourcepolicy_seq")
+    @SequenceGenerator(name="resourcepolicy_seq", sequenceName="resourcepolicy_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name="resource_type_id")

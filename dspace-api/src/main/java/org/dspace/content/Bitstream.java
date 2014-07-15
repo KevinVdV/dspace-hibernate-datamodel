@@ -27,7 +27,7 @@ public class Bitstream extends DSpaceObject{
     @Id
     @Column(name="bitstream_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="bitstream_seq")
-    @SequenceGenerator(name="bitstream_seq", sequenceName="bitstream_seq")
+    @SequenceGenerator(name="bitstream_seq", sequenceName="bitstream_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name = "sequence_id")
@@ -53,7 +53,7 @@ public class Bitstream extends DSpaceObject{
     private long sizeBytes;
 
     @Column(name = "deleted")
-    private boolean deleted;
+    private boolean deleted = false;
 
     @Column(name = "internal_id", length = 256)
     private String internalId;
@@ -249,7 +249,7 @@ public class Bitstream extends DSpaceObject{
         return deleted;
     }
 
-    public void setDeleted(boolean deleted) {
+    void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
 
@@ -257,7 +257,7 @@ public class Bitstream extends DSpaceObject{
         return internalId;
     }
 
-    public void setInternalId(String internalId) {
+    void setInternalId(String internalId) {
         this.internalId = internalId;
     }
 
@@ -270,7 +270,7 @@ public class Bitstream extends DSpaceObject{
         return storeNumber;
     }
 
-    public void setStoreNumber(int storeNumber) {
+    void setStoreNumber(int storeNumber) {
         this.storeNumber = storeNumber;
     }
 

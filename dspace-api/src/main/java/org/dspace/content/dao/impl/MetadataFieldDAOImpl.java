@@ -59,5 +59,4 @@ public class MetadataFieldDAOImpl extends AbstractHibernateDAO<MetadataField> im
         criteria.addOrder(Order.asc("element")).addOrder(Order.asc("qualifier"));
         return list(criteria);
     }
-
 }

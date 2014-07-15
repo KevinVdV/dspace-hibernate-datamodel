@@ -482,16 +482,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
     public void addPolicy(Context context, DSpaceObject o, int actionID,
                                  EPerson e, String type) throws SQLException, AuthorizeException
     {
-        ResourcePolicy rp = resourcePolicyService.create(context);
-
-        resourcePolicyService.setResource(rp, o);
-        rp.setAction(actionID);
-        rp.setEPerson(e);
-        rp.setRpType(type);
-
-        resourcePolicyService.update(context, rp);
-
-        serviceFactory.getDSpaceObjectService(o).updateLastModified(context, o);
+        createResourcePolicy(context, o, null, e, actionID, type);
     }
 
     /**
@@ -514,7 +505,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
     public void addPolicy(Context c, DSpaceObject o, int actionID,
                                  Group g) throws SQLException, AuthorizeException
     {
-        addPolicy(c, o, actionID, g, null);
+        createResourcePolicy(c, o, g, null, actionID, null);
     }
 
     /**
@@ -539,16 +530,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
     public void addPolicy(Context c, DSpaceObject o, int actionID,
                                  Group g, String type) throws SQLException, AuthorizeException
     {
-        ResourcePolicy rp = resourcePolicyService.create(c);
-
-        resourcePolicyService.setResource(rp, o);
-        rp.setAction(actionID);
-        rp.setGroup(g);
-        rp.setRpType(type);
-
-        resourcePolicyService.update(c, rp);
-
-        serviceFactory.getDSpaceObjectService(o).updateLastModified(c, o);
+        createResourcePolicy(c, o, g, null, actionID, type);
     }
 
     /**
@@ -837,7 +819,6 @@ public class AuthorizeServiceImpl implements AuthorizeService
     public List<Group> getAuthorizedGroups(Context c, DSpaceObject o,
                                               int actionID) throws java.sql.SQLException
     {
-        //TODO: HIBERNATE: REWRITE QUERY TO INCLUDE GROUP !
         List<ResourcePolicy> policies = getPoliciesActionFilter(c, o, actionID);
 
         List<Group> groups = new ArrayList<Group>();
@@ -939,8 +920,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
     }
 
     @Override
-    public void createResourcePolicy(Context context, DSpaceObject dso, Group group, EPerson eperson, int type) throws SQLException, AuthorizeException {
-        //TODO: use this method abit more !
+    public void createResourcePolicy(Context context, DSpaceObject dso, Group group, EPerson eperson, int type, String rpType) throws SQLException, AuthorizeException {
         if(group == null && eperson == null)
         {
             throw new IllegalArgumentException("We need at least an eperson or a group in order to create a resource policy.");
@@ -951,9 +931,9 @@ public class AuthorizeServiceImpl implements AuthorizeService
         myPolicy.setAction(type);
         myPolicy.setGroup(group);
         myPolicy.setEPerson(eperson);
+        myPolicy.setRpType(rpType);
         resourcePolicyService.update(context, myPolicy);
-
-
+        serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
     }
 
 
@@ -974,11 +954,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
 
         if (policy == null)
         {
-            policy = resourcePolicyService.create(context);
-            policy.setResourceID(dso.getID());
-            policy.setResourceType(dso.getType());
-            policy.setAction(action);
-            policy.setRpType(ResourcePolicy.TYPE_CUSTOM);
+            createResourcePolicy(context, dso, group, ePerson, action, ResourcePolicy.TYPE_CUSTOM);
         }
         policy.setGroup(group);
         policy.setEPerson(ePerson);

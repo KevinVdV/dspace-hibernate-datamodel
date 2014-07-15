@@ -18,7 +18,7 @@ public class Version {
     @Id
     @Column(name="versionitem_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="versionitem_seq")
-    @SequenceGenerator(name="versionitem_seq", sequenceName="versionitem_seq", allocationSize = 1, initialValue = 1)
+    @SequenceGenerator(name="versionitem_seq", sequenceName="versionitem_seq", allocationSize = 1)
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)

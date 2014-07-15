@@ -632,6 +632,19 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         }
     }
 
+    @Override
+    public void removeMetadataValues(Context context, Item item, List<MetadataValue> values) throws SQLException {
+        Iterator<MetadataValue> metadata = item.getMetadata().iterator();
+        while (metadata.hasNext()) {
+            MetadataValue metadataValue = metadata.next();
+            if(values.contains(metadataValue))
+            {
+                metadata.remove();
+                metadataValueService.delete(context, metadataValue);
+            }
+        }
+    }
+
     /**
      * Utility method for pattern-matching metadata elements.  This
      * method will return <code>true</code> if the given schema,
@@ -1055,7 +1068,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         // Values are Integers indicating number of values written for a
         // element/qualifier
 
-        if (item.isDublinCoreChanged() || item.isModified())
+        if (item.isMetadataModified() || item.isModified())
         {
             // Set the last modified date
             item.setLastModified(new Date());
@@ -1063,11 +1076,11 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
             itemDAO.save(context, item);
 
-            if (item.isDublinCoreChanged())
+            if (item.isMetadataModified())
             {
                 context.addEvent(new Event(Event.MODIFY_METADATA, Constants.ITEM, item.getID(), item.getDetails()));
                 item.clearDetails();
-                item.setDublinCoreChanged(false);
+                item.setMetadataModified(false);
             }
 
             context.addEvent(new Event(Event.MODIFY, Constants.ITEM, item.getID(), null));

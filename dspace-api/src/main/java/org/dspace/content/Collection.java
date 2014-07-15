@@ -27,7 +27,7 @@ public class Collection extends DSpaceObject {
     @Id
     @Column(name="collection_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="collection_seq")
-    @SequenceGenerator(name="collection_seq", sequenceName="collection_seq")
+    @SequenceGenerator(name="collection_seq", sequenceName="collection_seq", allocationSize = 1)
     private Integer id;
 
     @OneToOne

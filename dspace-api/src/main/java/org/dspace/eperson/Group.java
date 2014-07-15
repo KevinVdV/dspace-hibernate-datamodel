@@ -26,7 +26,7 @@ public class Group extends DSpaceObject {
     @Id
     @Column(name="eperson_group_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="epersongroup_seq")
-    @SequenceGenerator(name="epersongroup_seq", sequenceName="epersongroup_seq", initialValue = 2)
+    @SequenceGenerator(name="epersongroup_seq", sequenceName="epersongroup_seq", allocationSize = 1, initialValue = 2)
     private Integer id;
 
     @Column(name="name", length = 256, unique = true)

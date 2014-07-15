@@ -16,7 +16,7 @@ public class WebApp {
     @Id
     @Column(name="webapp_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="webapp_seq")
-    @SequenceGenerator(name="webapp_seq", sequenceName="webapp_seq", allocationSize = 1, initialValue = 1)
+    @SequenceGenerator(name="webapp_seq", sequenceName="webapp_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name = "appname", unique = true, length = 32)

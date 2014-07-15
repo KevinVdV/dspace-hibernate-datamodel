@@ -16,7 +16,7 @@ public class TaskListItem {
     @Id
     @Column(name = "tasklist_id", unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="tasklistitem_seq")
-    @SequenceGenerator(name="tasklistitem_seq", sequenceName="tasklistitem_seq")
+    @SequenceGenerator(name="tasklistitem_seq", sequenceName="tasklistitem_seq", allocationSize = 1)
     private int taskListItemId;
 
     @ManyToOne(fetch = FetchType.LAZY)

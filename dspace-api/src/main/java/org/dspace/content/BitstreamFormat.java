@@ -24,7 +24,7 @@ public class BitstreamFormat {
     @Id
     @Column(name="bitstream_format_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="bitstreamformatregistry_seq")
-    @SequenceGenerator(name="bitstreamformatregistry_seq", sequenceName="bitstreamformatregistry_seq")
+    @SequenceGenerator(name="bitstreamformatregistry_seq", sequenceName="bitstreamformatregistry_seq", allocationSize = 1)
     private Integer id;
 
     @Column(name="short_description", length = 128, unique = true)
@@ -41,7 +41,7 @@ public class BitstreamFormat {
     private int supportLevel;
 
     @Column(name="internal")
-    private Boolean internal = false;
+    private boolean internal = false;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name="fileextension", joinColumns=@JoinColumn(name="bitstream_format_id"))

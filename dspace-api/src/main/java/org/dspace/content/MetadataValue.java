@@ -37,7 +37,7 @@ public class MetadataValue
     @Id
     @Column(name="metadata_value_id")
     @GeneratedValue(strategy = GenerationType.AUTO ,generator="metadatavalue_seq")
-    @SequenceGenerator(name="metadatavalue_seq", sequenceName="metadatavalue_seq")
+    @SequenceGenerator(name="metadatavalue_seq", sequenceName="metadatavalue_seq", allocationSize = 1)
     private int fieldId;
 
     /** The primary key for the metadata value */
