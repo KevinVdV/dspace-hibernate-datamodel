@@ -172,7 +172,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         Group anonymousGroup = groupService.find(context, 0);
 
 
-        authorizeService.createResourcePolicy(context, newCommunity, anonymousGroup, null, Constants.READ);
+        authorizeService.createResourcePolicy(context, newCommunity, anonymousGroup, null, Constants.READ, null);
 
         communityDAO.save(context, newCommunity);
         context.addEvent(new Event(Event.CREATE, Constants.COMMUNITY, newCommunity.getID(), newCommunity.getHandle(context)));

@@ -249,7 +249,7 @@ public class Bitstream extends DSpaceObject{
         return deleted;
     }
 
-    void setDeleted(boolean deleted) {
+    public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
 
@@ -257,7 +257,7 @@ public class Bitstream extends DSpaceObject{
         return internalId;
     }
 
-    void setInternalId(String internalId) {
+    public void setInternalId(String internalId) {
         this.internalId = internalId;
     }
 
