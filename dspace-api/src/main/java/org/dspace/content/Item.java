@@ -148,7 +148,7 @@ public class Item extends DSpaceObject{
      */
     public int getLegacyID()
     {
-        return id;
+        return legacyId;
     }
 
     @Override
