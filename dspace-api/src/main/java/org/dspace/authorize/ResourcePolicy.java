@@ -1,6 +1,7 @@
 package org.dspace.authorize;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.dspace.content.DSpaceObject;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
@@ -29,11 +30,9 @@ public class ResourcePolicy implements Cloneable{
     @SequenceGenerator(name="resourcepolicy_seq", sequenceName="resourcepolicy_seq", allocationSize = 1)
     private Integer id;
 
-    @Column(name="resource_type_id")
-    private int resourceTypeId;
-
-    @Column(name="resource_id")
-    private int resourceId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dspace_object_id")
+    private DSpaceObject dSpaceObject;
 
     @Column(name="action_id")
     private int actionId;
@@ -150,46 +149,12 @@ public class ResourcePolicy implements Cloneable{
         return id;
     }
 
-    /**
-     * Get the type of the objects referred to by policy
-     *
-     * @return type of object/resource
-     */
-    public int getResourceType() {
-        return resourceTypeId;
+    public DSpaceObject getdSpaceObject() {
+        return dSpaceObject;
     }
 
-    /**
-     * Set the type of the resource referred to by the policy
-     *
-     * @param mytype
-     *            type of the resource
-     */
-    public void setResourceType(int mytype)
-    {
-        this.resourceTypeId = mytype;
-    }
-
-    /**
-     * If the policy refers to a single resource, this is the ID of that
-     * resource.
-     *
-     * @param myid   id of resource (database primary key)
-     */
-    public void setResourceID(int myid)
-    {
-        this.resourceId = myid;
-    }
-
-    /**
-     * Get the ID of a resource pointed to by the policy (is null if policy
-     * doesn't apply to a single resource.)
-     *
-     * @return resource_id
-     */
-    public int getResourceID()
-    {
-        return resourceId;
+    public void setdSpaceObject(DSpaceObject dSpaceObject) {
+        this.dSpaceObject = dSpaceObject;
     }
 
     /**

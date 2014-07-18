@@ -2,14 +2,20 @@ package org.dspace.content;
 
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Created by kevin on 08/02/14.
  */
 //TODO: IMPLEMENT EQUALS/HASHCODE HERE ?
+@Entity
+@Inheritance(strategy= InheritanceType.JOINED)
+@Table(name = "dspaceobject", schema = "public")
 public abstract class DSpaceObject {
 
     // accumulate information to add to "detail" element of content Event,
@@ -17,12 +23,13 @@ public abstract class DSpaceObject {
     @Transient
     private StringBuilder eventDetails = null;
 
-    /**
-     * Get the internal ID (database primary key) of this object
-     *
-     * @return internal ID of object
-     */
-    public abstract int getID();
+    // Unique identifier that remains unique across ALL DSpaceObjects (is to be used instead of the type & identifier combo)
+    @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid2")
+    @Column(name = "uuid", unique = true, nullable = false, columnDefinition = "BINARY(16)")
+    protected java.util.UUID id;
+
 
     /**
      * Get the Handle of the object. This may return <code>null</code>
@@ -50,6 +57,15 @@ public abstract class DSpaceObject {
      * @return type of the object
      */
     public abstract int getType();
+
+    /**
+     * Get the internal ID (database primary key) of this object
+     *
+     * @return internal ID of object
+     */
+    public UUID getID() {
+        return id;
+    }
 
     /**
      * Add a string to the cache of event details.  Automatically

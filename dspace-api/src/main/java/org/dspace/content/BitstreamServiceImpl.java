@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
@@ -75,7 +76,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
      * @throws SQLException
      */
     @Override
-    public Bitstream find(Context context, int id) throws SQLException
+    public Bitstream find(Context context, UUID id) throws SQLException
     {
         // First check the cache
         Bitstream bitstream = bitstreamDAO.findByID(context, Bitstream.class, id);
@@ -131,7 +132,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     public Bitstream create(Context context, InputStream is)
             throws IOException, SQLException, AuthorizeException {
         // Store the bits
-        int bitstreamID = bitstreamStorageService.store(context, bitstreamDAO.create(context, new Bitstream()), is);
+        UUID bitstreamID = bitstreamStorageService.store(context, bitstreamDAO.create(context, new Bitstream()), is);
 
         log.info(LogManager.getHeader(context, "create_bitstream",
                 "bitstream_id=" + bitstreamID));

@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.dspace.authorize.AuthorizeException;
@@ -100,7 +101,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Test
     public void testCollectionFind() throws Exception
     {
-        int id = collection.getID();
+        UUID id = collection.getID();
         Collection found =  collectionService.find(context, id);
         assertThat("testCollectionFind 0", found, notNullValue());
         assertThat("testCollectionFind 1", found.getID(), equalTo(id));
@@ -225,7 +226,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
     @Override
     public void testGetID()
     {
-        assertTrue("testGetID 0", collection.getID() >= 1);
+        assertTrue("testGetID 0", collection.getID() != null);
     }
 
     /**
@@ -1732,7 +1733,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        int id = collection.getID();
+        UUID id = collection.getID();
         communityService.removeCollection(context, owningCommunity, collection);
         assertThat("testDelete 0", collectionService.find(context, id),nullValue());
     }
@@ -1777,7 +1778,7 @@ public class CollectionTest extends AbstractDSpaceObjectTest
             }
         };
 
-        int id = collection.getID();
+        UUID id = collection.getID();
         communityService.removeCollection(context, owningCommunity, collection);
         fail("Exception expected");
     }

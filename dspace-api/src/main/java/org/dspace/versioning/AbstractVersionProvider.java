@@ -19,6 +19,7 @@ import org.dspace.storage.factory.StorageServiceFactory;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  *
@@ -62,7 +63,7 @@ public abstract class AbstractVersionProvider {
                 Bitstream bitstreamNew = createBitstream(c, nativeBundleBitstream.getBitstream());
                 bundleService.addBitstream(c, bundleNew, bitstreamNew);
 
-                if(nativeBundle.getPrimaryBitstream().getID() == nativeBundleBitstream.getBitstream().getID())
+                if(nativeBundle.getPrimaryBitstream().equals(nativeBundleBitstream.getBitstream()))
                 {
                     bundleNew.setPrimaryBitstream(bitstreamNew);
                 }
@@ -73,7 +74,7 @@ public abstract class AbstractVersionProvider {
 
     protected Bitstream createBitstream(Context context, Bitstream nativeBitstream) throws AuthorizeException, SQLException {
         BitstreamService bitstreamService = ContentServiceFactory.getInstance().getBitstreamService();
-        int idNew = StorageServiceFactory.getInstance().getBitstreamStorageService().clone(context, nativeBitstream.getID());
+        UUID idNew = StorageServiceFactory.getInstance().getBitstreamStorageService().clone(context, nativeBitstream.getID());
         return bitstreamService.find(context, idNew);
     }
 

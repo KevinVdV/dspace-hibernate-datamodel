@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.service.AuthorizeService;
@@ -95,7 +96,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     @Test
     public void testCommunityFind() throws Exception
     {
-        int id = community.getID();
+        UUID id = community.getID();
         Community found =  communityService.find(context, id);
         assertThat("testCommunityFind 0", found, notNullValue());
         assertThat("testCommunityFind 1", found.getID(), equalTo(id));
@@ -315,7 +316,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
     @Override
     public void testGetID()
     {
-        assertTrue("testGetID 0", community.getID() >= 1);
+        assertTrue("testGetID 0", community.getID() != null);
     }
 
     /**
@@ -1075,7 +1076,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        int id = community.getID();
+        UUID id = community.getID();
         communityService.delete(context, community);
         Community found = communityService.find(context, id);
         assertThat("testDeleteAuth 0",found, nullValue());
@@ -1098,7 +1099,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        int id = community.getID();
+        UUID id = community.getID();
         communityService.delete(context, community);
         Community found = communityService.find(context, id);
         assertThat("testDeleteAuth2 0",found, nullValue());
@@ -1121,7 +1122,7 @@ public class CommunityTest extends AbstractDSpaceObjectTest
             }
         };
 
-        int id = community.getID();
+        UUID id = community.getID();
         communityService.delete(context, community);
         fail("Exception expected");
     }

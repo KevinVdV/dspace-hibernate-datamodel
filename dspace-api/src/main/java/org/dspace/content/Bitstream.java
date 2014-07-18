@@ -24,11 +24,8 @@ import java.util.List;
 public class Bitstream extends DSpaceObject{
 
 
-    @Id
-    @Column(name="bitstream_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="bitstream_seq")
-    @SequenceGenerator(name="bitstream_seq", sequenceName="bitstream_seq", allocationSize = 1)
-    private Integer id;
+    @Column(name="bitstream_id", insertable = false, updatable = false)
+    private Integer legacyId;
 
     @Column(name = "sequence_id")
     private Integer sequenceId = -1;
@@ -95,10 +92,12 @@ public class Bitstream extends DSpaceObject{
      * Get the internal identifier of this bitstream
      *
      * @return the internal identifier
+     *
+     * @deprecated use getID()
      */
-    public int getID()
+    public int getLegacyID()
     {
-        return id;
+        return legacyId;
     }
 
     /**
@@ -270,7 +269,7 @@ public class Bitstream extends DSpaceObject{
         return storeNumber;
     }
 
-    void setStoreNumber(int storeNumber) {
+    public void setStoreNumber(int storeNumber) {
         this.storeNumber = storeNumber;
     }
 
@@ -362,6 +361,7 @@ public class Bitstream extends DSpaceObject{
         bitstreamService.setFormat(context, this, f);
     }
 
+    @Override
     public String getName()
     {
         return bitstreamService.getName(this);

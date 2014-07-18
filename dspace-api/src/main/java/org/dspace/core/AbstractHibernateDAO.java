@@ -9,6 +9,7 @@ import org.hibernate.criterion.Projections;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -46,6 +47,13 @@ public abstract class AbstractHibernateDAO<T> implements GenericDAO<T> {
     public T findUnique(Context context, String query) throws SQLException {
         @SuppressWarnings("unchecked")
         T result = (T) createQuery(context, query).uniqueResult();
+        return result;
+    }
+
+    @Override
+    public T findByID(Context context, Class clazz, UUID id) throws SQLException {
+        @SuppressWarnings("unchecked")
+        T result = (T) getHibernateSession(context).get(clazz, id);
         return result;
     }
 

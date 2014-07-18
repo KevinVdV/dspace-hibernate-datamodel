@@ -1,5 +1,6 @@
 package org.dspace.handle.dao.impl;
 
+import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.core.AbstractHibernateDAO;
 import org.dspace.handle.Handle;
@@ -20,11 +21,11 @@ import java.util.List;
 public class HandleDAOImpl extends AbstractHibernateDAO<Handle> implements HandleDAO {
 
     @Override
-    public List<Handle> getHandlesByTypeAndId(Context context, int type, int id) throws SQLException {
+    public List<Handle> getHandlesByTypeAndDSpaceObject(Context context, int type, DSpaceObject dso) throws SQLException {
         Criteria criteria = createCriteria(context, Handle.class);
         criteria.add(Restrictions.and(
                 Restrictions.eq("resourceTypeId", type),
-                Restrictions.eq("resourceId", id)
+                Restrictions.eq("dspaceObject", dso)
         ));
         return list(criteria);
     }

@@ -84,6 +84,11 @@
 -- sequence called 'tablename_seq'.
 -------------------------------------------------------
 
+--CREATE TABLE DSPaceObject
+--(
+--    uuid            BINARY(16) PRIMARY KEY
+--);
+
 -------------------------------------------------------
 -- BitstreamFormatRegistry table
 -------------------------------------------------------
@@ -116,7 +121,8 @@ CREATE INDEX fe_bitstream_fk_idx ON FileExtension(bitstream_format_id);
 -------------------------------------------------------
 CREATE TABLE Bitstream
 (
-   bitstream_id            INTEGER PRIMARY KEY,
+   uuid                    BINARY(16) PRIMARY KEY REFERENCES DSPaceObject(uuid),
+   bitstream_id            INTEGER,
    bitstream_format_id     INTEGER REFERENCES BitstreamFormatRegistry(bitstream_format_id),
    name                    VARCHAR(256),
    size_bytes              BIGINT,
@@ -138,7 +144,8 @@ CREATE INDEX bit_bitstream_fk_idx ON Bitstream(bitstream_format_id);
 -------------------------------------------------------
 CREATE TABLE EPerson
 (
-  eperson_id          INTEGER PRIMARY KEY,
+  uuid                BINARY(16) PRIMARY KEY REFERENCES DSPaceObject(uuid),
+  eperson_id          INTEGER,
   email               VARCHAR(64),
   password            VARCHAR(128),
   salt                VARCHAR(32),
@@ -166,23 +173,24 @@ CREATE INDEX eperson_netid_idx ON EPerson(netid);
 -------------------------------------------------------
 CREATE TABLE EPersonGroup
 (
-  eperson_group_id INTEGER PRIMARY KEY,
+  uuid             BINARY(16) PRIMARY KEY REFERENCES DSPaceObject(uuid),
+  eperson_group_id INTEGER,
   name             VARCHAR(256)
 );
 
 ------------------------------------------------------
 -- Group2Group table, records group membership in other groups
 ------------------------------------------------------
-CREATE TABLE Group2Group
-(
-  PRIMARY KEY(parent_id, child_id),
-  parent_id INTEGER REFERENCES EPersonGroup(eperson_group_id),
-  child_id  INTEGER REFERENCES EPersonGroup(eperson_group_id)
-);
-
-CREATE INDEX g2g_parent_fk_idx ON Group2Group(parent_id);
-CREATE INDEX g2g_child_fk_idx ON Group2Group(child_id);
-
+--CREATE TABLE Group2Group
+--(
+--  PRIMARY KEY(parent_id, child_id),
+--  parent_id BINARY(16) REFERENCES EPersonGroup(uuid),
+--  child_id  BINARY(16) REFERENCES EPersonGroup(uuid)
+--);
+--
+--CREATE INDEX g2g_parent_fk_idx ON Group2Group(parent_id);
+--CREATE INDEX g2g_child_fk_idx ON Group2Group(child_id);
+--TODO: FIX IT
 ------------------------------------------------------
 -- Group2GroupCache table, is the 'unwound' hierarchy in
 -- Group2Group.  It explicitly names every parent child
@@ -192,23 +200,24 @@ CREATE INDEX g2g_child_fk_idx ON Group2Group(child_id);
 -- AND parent(A,C) so that all of the child groups of A can be
 -- looked up in a single simple query
 ------------------------------------------------------
-CREATE TABLE Group2GroupCache
-(
-  PRIMARY KEY(parent_id, child_id),
-  parent_id INTEGER REFERENCES EPersonGroup(eperson_group_id),
-  child_id  INTEGER REFERENCES EPersonGroup(eperson_group_id)
-);
+--CREATE TABLE Group2GroupCache
+--(
+--  PRIMARY KEY(parent_id, child_id),
+--  parent_id BINARY(16) REFERENCES EPersonGroup(uuid),
+--  child_id  BINARY(16) REFERENCES EPersonGroup(uuid)
+--);
 
-CREATE INDEX g2gc_parent_fk_idx ON Group2Group(parent_id);
-CREATE INDEX g2gc_child_fk_idx ON Group2Group(child_id);
-
+--CREATE INDEX g2gc_parent_fk_idx ON Group2GroupCache(parent_id);
+--CREATE INDEX g2gc_child_fk_idx ON Group2GroupCache(child_id);
+--TODO: FIX IT
 -------------------------------------------------------
 -- Item table
 -------------------------------------------------------
 CREATE TABLE Item
 (
-  item_id         INTEGER PRIMARY KEY,
-  submitter_id    INTEGER REFERENCES EPerson(eperson_id),
+  uuid            BINARY(16) PRIMARY KEY REFERENCES DSPaceObject(uuid),
+  item_id         INTEGER,
+  submitter_id    BINARY(16) REFERENCES EPerson(uuid),
   in_archive      BOOLEAN,
   withdrawn       BOOLEAN,
   discoverable    BOOLEAN,
@@ -223,9 +232,10 @@ CREATE INDEX item_submitter_fk_idx ON Item(submitter_id);
 -------------------------------------------------------
 CREATE TABLE Bundle
 (
-  bundle_id          INTEGER PRIMARY KEY,
-  name               VARCHAR(16),  
-  primary_bitstream_id  INTEGER REFERENCES Bitstream(bitstream_id)
+  uuid               BINARY(16) PRIMARY KEY REFERENCES DSPaceObject(uuid),
+  bundle_id          INTEGER,
+  name               VARCHAR(16),
+  primary_bitstream_id  BINARY(16) REFERENCES Bitstream(uuid)
 );
 
 CREATE INDEX bundle_primary_fk_idx ON Bundle(primary_bitstream_id);
@@ -233,33 +243,34 @@ CREATE INDEX bundle_primary_fk_idx ON Bundle(primary_bitstream_id);
 -------------------------------------------------------
 -- Item2Bundle table
 -------------------------------------------------------
-CREATE TABLE Item2Bundle
-(
-  PRIMARY KEY(item_id, bundle_id),
-  item_id   INTEGER REFERENCES Item(item_id),
-  bundle_id INTEGER REFERENCES Bundle(bundle_id)
-);
+--CREATE TABLE Item2Bundle
+--(
+--  PRIMARY KEY(item_id, bundle_id),
+--  item_id   BINARY(16) REFERENCES Item(uuid),
+--  bundle_id BINARY(16) REFERENCES Bundle(uuid)
+--);
 
 -- index by item_id
-CREATE INDEX item2bundle_item_idx on Item2Bundle(item_id);
-
-CREATE INDEX item2bundle_bundle_fk_idx ON Item2Bundle(bundle_id);
-
+--CREATE INDEX item2bundle_item_idx on Item2Bundle(item_id);
+--
+--CREATE INDEX item2bundle_bundle_fk_idx ON Item2Bundle(bundle_id);
+--TODO: FIX
 -------------------------------------------------------
 -- Bundle2Bitstream table
 -------------------------------------------------------
-CREATE TABLE Bundle2Bitstream
-(
-  PRIMARY KEY(bundle_id, bitstream_id) ,
-  bundle_id       INTEGER REFERENCES Bundle(bundle_id),
-  bitstream_id    INTEGER REFERENCES Bitstream(bitstream_id),
-  bitstream_order INTEGER
-);
+--CREATE TABLE Bundle2Bitstream
+--(
+--  PRIMARY KEY(bundle_id, bitstream_id) ,
+--  bundle_id       BINARY(16) REFERENCES Bundle(uuid),
+--  bitstream_id    BINARY(16) REFERENCES Bitstream(uuid),
+--  bitstream_order INTEGER
+--);
+                                        --TODO: FIX
 
 -- index by bundle_id
-CREATE INDEX bundle2bitstream_bundle_idx ON Bundle2Bitstream(bundle_id);
-
-CREATE INDEX bundle2bitstream_bitstream_fk_idx ON Bundle2Bitstream(bitstream_id);
+--CREATE INDEX bundle2bitstream_bundle_idx ON Bundle2Bitstream(bundle_id);
+--
+--CREATE INDEX bundle2bitstream_bitstream_fk_idx ON Bundle2Bitstream(bitstream_id);
 
 -------------------------------------------------------
 -- Metadata Tables and Sequences
@@ -283,7 +294,7 @@ CREATE TABLE MetadataFieldRegistry
 CREATE TABLE MetadataValue
 (
   metadata_value_id  INTEGER PRIMARY KEY,
-  item_id            INTEGER REFERENCES Item(item_id),
+  item_id            BINARY(16) REFERENCES Item(uuid),
   metadata_field_id  INTEGER REFERENCES MetadataFieldRegistry(metadata_field_id),
   text_value         TEXT,
   text_lang          VARCHAR(24),
@@ -314,14 +325,15 @@ CREATE INDEX metadatafield_schema_idx ON MetadataFieldRegistry(metadata_schema_i
 -------------------------------------------------------
 CREATE TABLE Community
 (
-  community_id      INTEGER PRIMARY KEY,
+  uuid              BINARY(16) PRIMARY KEY REFERENCES DSPaceObject(uuid),
+  community_id      INTEGER,
   name              VARCHAR(128),
   short_description VARCHAR(512),
   introductory_text TEXT,
-  logo_bitstream_id INTEGER REFERENCES Bitstream(bitstream_id),
+  logo_bitstream_id BINARY(16) REFERENCES Bitstream(uuid),
   copyright_text    TEXT,
   side_bar_text     TEXT,
-  admin             INTEGER REFERENCES EPersonGroup( eperson_group_id )
+  admin             BINARY(16) REFERENCES EPersonGroup( uuid )
 );
 
 CREATE INDEX community_logo_fk_idx ON Community(logo_bitstream_id);
@@ -332,21 +344,22 @@ CREATE INDEX community_admin_fk_idx ON Community(admin);
 -------------------------------------------------------
 CREATE TABLE Collection
 (
-  collection_id     INTEGER PRIMARY KEY,
+  uuid              BINARY(16) PRIMARY KEY REFERENCES DSPaceObject(uuid),
+  collection_id     INTEGER,
   name              VARCHAR(128),
   short_description VARCHAR(512),
   introductory_text TEXT,
-  logo_bitstream_id INTEGER REFERENCES Bitstream(bitstream_id),
-  template_item_id  INTEGER REFERENCES Item(item_id),
+  logo_bitstream_id BINARY(16) REFERENCES Bitstream(uuid),
+  template_item_id  BINARY(16) REFERENCES Item(uuid),
   provenance_description  TEXT,
   license           TEXT,
   copyright_text    TEXT,
   side_bar_text     TEXT,
-  workflow_step_1   INTEGER REFERENCES EPersonGroup( eperson_group_id ),
-  workflow_step_2   INTEGER REFERENCES EPersonGroup( eperson_group_id ),
-  workflow_step_3   INTEGER REFERENCES EPersonGroup( eperson_group_id ),
-  submitter         INTEGER REFERENCES EPersonGroup( eperson_group_id ),
-  admin             INTEGER REFERENCES EPersonGroup( eperson_group_id )
+  workflow_step_1   BINARY(16) REFERENCES EPersonGroup( uuid ),
+  workflow_step_2   BINARY(16) REFERENCES EPersonGroup( uuid ),
+  workflow_step_3   BINARY(16) REFERENCES EPersonGroup( uuid ),
+  submitter         BINARY(16) REFERENCES EPersonGroup( uuid ),
+  admin             BINARY(16) REFERENCES EPersonGroup( uuid )
 );
 
 CREATE INDEX collection_logo_fk_idx ON Collection(logo_bitstream_id);
@@ -360,31 +373,31 @@ CREATE INDEX collection_admin_fk_idx ON Collection(admin);
 -------------------------------------------------------
 -- Community2Community table
 -------------------------------------------------------
-CREATE TABLE Community2Community
-(
-  PRIMARY KEY(parent_comm_id, child_comm_id),
-  parent_comm_id INTEGER REFERENCES Community(community_id),
-  child_comm_id  INTEGER,
+--CREATE TABLE Community2Community
+--(
+--  PRIMARY KEY(parent_comm_id, child_comm_id),
+--  parent_comm_id BINARY(16) REFERENCES Community(uuid),
+--  child_comm_id  BINARY(16) REFERENCES Community(uuid)
   --  TODO: IMPLEMENT DEFERRABLE
-  CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(community_id)
+--  CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(uuid)
 --  CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(community_id) DEFERRABLE
-);
+--);
 
-CREATE INDEX com2com_parent_fk_idx ON Community2Community(parent_comm_id);
-CREATE INDEX com2com_child_fk_idx ON Community2Community(child_comm_id);
+--CREATE INDEX com2com_parent_fk_idx ON Community2Community(parent_comm_id);
+--CREATE INDEX com2com_child_fk_idx ON Community2Community(child_comm_id);
 
 -------------------------------------------------------
 -- Community2Collection table
 -------------------------------------------------------
-CREATE TABLE Community2Collection
-(
-  PRIMARY KEY(community_id, collection_id),
-  community_id   INTEGER REFERENCES Community(community_id),
-  collection_id  INTEGER,
+--CREATE TABLE Community2Collection
+--(
+--  PRIMARY KEY(community_id, collection_id),
+--  community_id   BINARY(16) REFERENCES Community(uuid),
+--  collection_id  INTEGER,
 --  TODO: IMPLEMENT DEFERRABLE
-  CONSTRAINT comm2coll_collection_fk FOREIGN KEY (collection_id) REFERENCES Collection(collection_id)
+--  CONSTRAINT comm2coll_collection_fk FOREIGN KEY (collection_id) REFERENCES Collection(uuid)
   --  CONSTRAINT com2com_child_fk FOREIGN KEY (child_comm_id) REFERENCES Community(community_id) DEFERRABLE
-);
+--);
 
 -- Index on community ID
 CREATE INDEX Community2Collection_community_id_idx ON Community2Collection(community_id);
@@ -394,19 +407,19 @@ CREATE INDEX Community2Collection_collection_id_idx ON Community2Collection(coll
 -------------------------------------------------------
 -- Collection2Item table
 -------------------------------------------------------
-CREATE TABLE Collection2Item
-(
-  PRIMARY KEY(collection_id, item_id),
-  collection_id INTEGER REFERENCES Collection(collection_id),
-  item_id       INTEGER,
+--CREATE TABLE Collection2Item
+--(
+--  PRIMARY KEY(collection_id, item_id),
+--  collection_id BINARY(16) REFERENCES Collection(uuid),
+--  item_id       INTEGER,
   --  TODO: IMPLEMENT DEFERRABLE
 --  CONSTRAINT coll2item_item_fk FOREIGN KEY (item_id) REFERENCES Item(item_id) DEFERRABLE
-);
+--);
 
 -- index by collection_id
-CREATE INDEX collection2item_collection_idx ON Collection2Item(collection_id);
+--CREATE INDEX collection2item_collection_idx ON Collection2Item(collection_id);
 -- and item_id
-CREATE INDEX Collection2Item_item_id_idx ON Collection2Item( item_id );
+--CREATE INDEX Collection2Item_item_id_idx ON Collection2Item( item_id );
 
 -------------------------------------------------------
 -- ResourcePolicy table
@@ -414,11 +427,10 @@ CREATE INDEX Collection2Item_item_id_idx ON Collection2Item( item_id );
 CREATE TABLE ResourcePolicy
 (
   policy_id            INTEGER PRIMARY KEY,
-  resource_type_id     INTEGER,
-  resource_id          INTEGER,
+  dspace_object_id        BINARY(16)  REFERENCES DSPaceObject(uuid),
   action_id            INTEGER,
-  eperson_id           INTEGER REFERENCES EPerson(eperson_id),
-  epersongroup_id      INTEGER REFERENCES EPersonGroup(eperson_group_id),
+  eperson_id           BINARY(16) REFERENCES EPerson(uuid),
+  epersongroup_id      BINARY(16) REFERENCES EPersonGroup(uuid),
   start_date           DATE,
   end_date             DATE,
   rpname               VARCHAR(30),
@@ -428,7 +440,7 @@ CREATE TABLE ResourcePolicy
 
 -- index by resource_type,resource_id - all queries by
 -- authorization manager are select type=x, id=y, action=z
-CREATE INDEX resourcepolicy_type_id_idx ON ResourcePolicy(resource_type_id,resource_id);
+CREATE INDEX resourcepolicy_type_id_idx ON ResourcePolicy(dspace_object_id);
 
 CREATE INDEX rp_eperson_fk_idx ON ResourcePolicy(eperson_id);
 CREATE INDEX rp_epersongroup_fk_idx ON ResourcePolicy(epersongroup_id);
@@ -436,17 +448,18 @@ CREATE INDEX rp_epersongroup_fk_idx ON ResourcePolicy(epersongroup_id);
 -------------------------------------------------------
 -- EPersonGroup2EPerson table
 -------------------------------------------------------
-CREATE TABLE EPersonGroup2EPerson
-(
-  PRIMARY KEY (eperson_group_id, eperson_id),
-  eperson_group_id INTEGER REFERENCES EPersonGroup(eperson_group_id),
-  eperson_id       INTEGER REFERENCES EPerson(eperson_id)
-);
+--CREATE TABLE EPersonGroup2EPerson
+--(
+--  PRIMARY KEY (eperson_group_id, eperson_id),
+--  eperson_group_id BINARY(16) REFERENCES EPersonGroup(uuid),
+--  eperson_id       BINARY(16) REFERENCES EPerson(uuid)
+--);
 
 -- Index by group ID (used heavily by AuthorizeManager)
-CREATE INDEX epersongroup2eperson_group_idx on EPersonGroup2EPerson(eperson_group_id);
-
-CREATE INDEX epg2ep_eperson_fk_idx ON EPersonGroup2EPerson(eperson_id);
+--CREATE INDEX epersongroup2eperson_group_idx on EPersonGroup2EPerson(eperson_group_id);
+--
+--CREATE INDEX epg2ep_eperson_fk_idx ON EPersonGroup2EPerson(eperson_id);
+--TODO: FIX
 
 -------------------------------------------------------
 -- Handle table
@@ -455,14 +468,14 @@ CREATE TABLE Handle
 (
   handle_id        INTEGER PRIMARY KEY,
   handle           VARCHAR(256),
-  resource_type_id INTEGER,
-  resource_id      INTEGER
+  resource_type_id    INTEGER,
+  dspace_object_id BINARY(16) REFERENCES DSPaceObject(uuid)
 );
 
 -- index by handle, commonly looked up
 CREATE INDEX handle_handle_idx ON Handle(handle);
 -- index by resource id and resource type id
-CREATE INDEX handle_resource_id_and_type_idx ON handle(resource_id, resource_type_id);
+--CREATE INDEX handle_resource_id_and_type_idx ON handle(resource_id, resource_type_id);
 
 -------------------------------------------------------
 -- Doi table
@@ -471,15 +484,14 @@ CREATE TABLE Doi
 (
   doi_id           INTEGER PRIMARY KEY,
   doi              VARCHAR(256),
-  resource_type_id INTEGER,
-  resource_id      INTEGER,
+  dspace_object_id    BINARY(16) REFERENCES DSPaceObject(uuid),
   status           INTEGER
 );
 
 -- index by handle, commonly looked up
 CREATE INDEX doi_doi_idx ON Doi(doi);
 -- index by resource id and resource type id
-CREATE INDEX doi_resource_id_and_type_idx ON Doi(resource_id, resource_type_id);
+--CREATE INDEX doi_resource_id_and_type_idx ON Doi(resource_id, resource_type_id);
 
 -------------------------------------------------------
 --  WorkspaceItem table
@@ -487,8 +499,8 @@ CREATE INDEX doi_resource_id_and_type_idx ON Doi(resource_id, resource_type_id);
 CREATE TABLE WorkspaceItem
 (
   workspace_item_id INTEGER PRIMARY KEY,
-  item_id           INTEGER REFERENCES Item(item_id),
-  collection_id     INTEGER REFERENCES Collection(collection_id),
+  item_id           BINARY(16) REFERENCES Item(uuid),
+  collection_id     BINARY(16) REFERENCES Collection(uuid),
   -- Answers to questions on first page of submit UI
   multiple_titles   BOOLEAN,
   published_before  BOOLEAN,
@@ -507,10 +519,10 @@ CREATE INDEX workspace_coll_fk_idx ON WorkspaceItem(collection_id);
 CREATE TABLE WorkflowItem
 (
   workflow_id    INTEGER PRIMARY KEY,
-  item_id        INTEGER REFERENCES Item(item_id),
-  collection_id  INTEGER REFERENCES Collection(collection_id),
+  item_id        BINARY(16) REFERENCES Item(uuid),
+  collection_id  BINARY(16) REFERENCES Collection(uuid),
   state          INTEGER,
-  owner          INTEGER REFERENCES EPerson(eperson_id),
+  owner          BINARY(16) REFERENCES EPerson(uuid),
 
   -- Answers to questions on first page of submit UI
   multiple_titles       BOOLEAN,
@@ -531,7 +543,7 @@ CREATE INDEX workflow_owner_fk_idx ON WorkflowItem(owner);
 CREATE TABLE TasklistItem
 (
   tasklist_id   INTEGER PRIMARY KEY,
-  eperson_id    INTEGER REFERENCES EPerson(eperson_id),
+  eperson_id    BINARY(16) REFERENCES EPerson(uuid),
   workflow_id   INTEGER REFERENCES WorkflowItem(workflow_id)
 );
 
@@ -556,8 +568,8 @@ CREATE TABLE RegistrationData
 CREATE TABLE Subscription
 (
   subscription_id   INTEGER PRIMARY KEY,
-  eperson_id        INTEGER REFERENCES EPerson(eperson_id),
-  collection_id     INTEGER REFERENCES Collection(collection_id)
+  eperson_id        BINARY(16) REFERENCES EPerson(uuid),
+  collection_id     BINARY(16) REFERENCES Collection(uuid)
 );
 
 CREATE INDEX subs_eperson_fk_idx ON Subscription(eperson_id);
@@ -571,28 +583,28 @@ CREATE INDEX subs_collection_fk_idx ON Subscription(collection_id);
 CREATE TABLE epersongroup2workspaceitem
 (
   PRIMARY KEY (eperson_group_id, workspace_item_id),
-  eperson_group_id integer REFERENCES EPersonGroup(eperson_group_id),
+  eperson_group_id BINARY(16) REFERENCES EPersonGroup(uuid),
   workspace_item_id integer REFERENCES WorkspaceItem(workspace_item_id)
 );
 
 CREATE INDEX epg2wi_group_fk_idx ON epersongroup2workspaceitem(eperson_group_id);
 CREATE INDEX epg2wi_workspace_fk_idx ON epersongroup2workspaceitem(workspace_item_id);
-
+--TODO: CHECK !
 -------------------------------------------------------
 --  Communities2Item table
 -------------------------------------------------------
 --TODO: SHOULD BE DROPPED ?
-CREATE TABLE Communities2Item
-(
-   id                      INTEGER PRIMARY KEY,
-   community_id            INTEGER REFERENCES Community(community_id),
-   item_id                 INTEGER REFERENCES Item(item_id)
-);
-
+--CREATE TABLE Communities2Item
+--(
+--   id                      INTEGER PRIMARY KEY,
+--   community_id            BINARY(16) REFERENCES Community(uuid),
+--   item_id                 BINARY(16) REFERENCES Item(uuid)
+--);
+--
 -- Index by item_id for update/re-index
-CREATE INDEX Communities2Item_item_id_idx ON Communities2Item( item_id );
-
-CREATE INDEX Comm2Item_community_fk_idx ON Communities2Item( community_id );
+--CREATE INDEX Communities2Item_item_id_idx ON Communities2Item( item_id );
+--
+--CREATE INDEX Comm2Item_community_fk_idx ON Communities2Item( community_id );
 
 -------------------------------------------------------
 -- Community2Item view
@@ -608,12 +620,12 @@ CREATE VIEW Community2Item as
 -------------------------------------------------------------------------
 
 CREATE TABLE collection_item_count (
-        collection_id INTEGER PRIMARY KEY REFERENCES collection(collection_id),
+        collection_id BINARY(16) PRIMARY KEY REFERENCES collection(uuid),
         item_count INTEGER
 );
 
 CREATE TABLE community_item_count (
-        community_id INTEGER PRIMARY KEY REFERENCES community(community_id),
+        community_id BINARY(16) PRIMARY KEY REFERENCES community(uuid),
         item_count INTEGER
 );
 
@@ -646,20 +658,21 @@ CREATE TABLE community_item_count (
 -- that row will be updated every time the checksum is
 -- re-calculated.
 
-CREATE TABLE most_recent_checksum
-(
-    bitstream_id INTEGER PRIMARY KEY REFERENCES bitstream(bitstream_id),
-    to_be_processed BOOLEAN NOT NULL,
-    expected_checksum VARCHAR NOT NULL,
-    current_checksum VARCHAR NOT NULL,
-    last_process_start_date TIMESTAMP NOT NULL,
-    last_process_end_date TIMESTAMP NOT NULL,
-    checksum_algorithm VARCHAR NOT NULL,
-    matched_prev_checksum BOOLEAN NOT NULL,
-    result VARCHAR REFERENCES checksum_results(result_code)
-);
-
-CREATE INDEX mrc_result_fk_idx ON most_recent_checksum( result );
+--TODO: FIX THIS
+--CREATE TABLE most_recent_checksum
+--(
+--    bitstream_id BINARY(16) PRIMARY KEY REFERENCES bitstream(uuid),
+--    to_be_processed BOOLEAN NOT NULL,
+--    expected_checksum VARCHAR NOT NULL,
+--    current_checksum VARCHAR NOT NULL,
+--    last_process_start_date TIMESTAMP NOT NULL,
+--    last_process_end_date TIMESTAMP NOT NULL,
+--    checksum_algorithm VARCHAR NOT NULL,
+--    matched_prev_checksum BOOLEAN NOT NULL,
+--    result VARCHAR REFERENCES checksum_results(result_code)
+--);
+--
+--CREATE INDEX mrc_result_fk_idx ON most_recent_checksum( result );
 
 -- A row will be inserted into this table every
 -- time a checksum is re-calculated.
@@ -667,7 +680,7 @@ CREATE INDEX mrc_result_fk_idx ON most_recent_checksum( result );
 CREATE TABLE checksum_history
 (
     check_id BIGINT PRIMARY KEY,
-    bitstream_id INTEGER,
+    bitstream_id BINARY(16),
     process_start_date TIMESTAMP,
     process_end_date TIMESTAMP,
     checksum_expected VARCHAR,
@@ -753,7 +766,7 @@ insert into checksum_results
 
 CREATE TABLE harvested_collection
 (
-    collection_id INTEGER REFERENCES collection(collection_id) ON DELETE CASCADE,
+    collection_id BINARY(16) REFERENCES collection(uuid) ON DELETE CASCADE,
     harvest_type INTEGER,
     oai_source VARCHAR,
     oai_set_id VARCHAR,
@@ -770,7 +783,7 @@ CREATE INDEX harvested_collection_fk_idx ON harvested_collection(collection_id);
 
 CREATE TABLE harvested_item
 (
-    item_id INTEGER REFERENCES item(item_id) ON DELETE CASCADE,
+    item_id BINARY(16) REFERENCES item(uuid) ON DELETE CASCADE,
     last_harvested TIMESTAMP,
     oai_id VARCHAR,
     id INTEGER PRIMARY KEY
@@ -788,9 +801,9 @@ CREATE TABLE versionhistory
 CREATE TABLE versionitem
 (
   versionitem_id INTEGER NOT NULL PRIMARY KEY,
-  item_id INTEGER REFERENCES Item(item_id),
+  item_id BINARY(16) REFERENCES Item(uuid),
   version_number INTEGER,
-  eperson_id INTEGER REFERENCES EPerson(eperson_id),
+  eperson_id BINARY(16) REFERENCES EPerson(uuid),
   version_date TIMESTAMP,
   version_summary VARCHAR(255),
   versionhistory_id INTEGER REFERENCES VersionHistory(versionhistory_id)

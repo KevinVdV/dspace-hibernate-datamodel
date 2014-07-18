@@ -147,13 +147,13 @@ public class GroupTest extends AbstractUnitTest {
         assertThat("findAllIdSort 1", groups, notNullValue());
 
         //Check our sorting order by adding to a treeSet & check against arraylist values
-        List<Integer> listNames = new ArrayList<Integer>();
-        Set<Integer> setNames = new TreeSet<Integer>();
+        List<String> listNames = new ArrayList<String>();
+        Set<String> setNames = new TreeSet<String>();
         for (Group group : groups) {
-            listNames.add(group.getID());
-            setNames.add(group.getID());
+            listNames.add(group.getID().toString());
+            setNames.add(group.getID().toString());
         }
-        assertTrue("findAllIdSort 2 ", ArrayUtils.isEquals(setNames.toArray(new Integer[setNames.size()]), listNames.toArray(new Integer[listNames.size()])));
+        assertTrue("findAllIdSort 2 ", ArrayUtils.isEquals(setNames.toArray(new String[setNames.size()]), listNames.toArray(new String[listNames.size()])));
     }
 
 

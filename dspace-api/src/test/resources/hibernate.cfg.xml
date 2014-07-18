@@ -15,6 +15,7 @@
         <property name="hibernate.hbm2ddl.import_files">database_schema.sql</property>
         <property name="hibernate.hbm2ddl.import_files_sql_extractor">org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor</property>
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL9Dialect</property>
+        <!--<property name="hibernate.dialect">org.dspace.hibernate.dialect.CustomHSQLDialectPostgresSQL9Dialect</property>-->
 
         <!--Second level cache configuration-->
         <property name="hibernate.cache.use_second_level_cache">true</property>
@@ -29,6 +30,7 @@
         <mapping class="org.dspace.checker.ChecksumResult"/>
         <mapping class="org.dspace.checker.MostRecentChecksum"/>
 
+        <mapping class="org.dspace.content.DSpaceObject"/>
         <mapping class="org.dspace.content.Bitstream"/>
         <mapping class="org.dspace.content.BitstreamFormat"/>
         <mapping class="org.dspace.content.Bundle"/>

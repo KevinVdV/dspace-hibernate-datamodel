@@ -22,6 +22,8 @@ import org.apache.log4j.Logger;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 
@@ -115,7 +117,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test
     public void testBundleFind() throws SQLException
     {
-        int id = b.getID();
+        UUID id = b.getID();
         Bundle found =  bundleService.find(context, id);
         assertThat("testBundleFind 0", found, notNullValue());
         assertThat("testBundleFind 1", found.getID(), equalTo(id));
@@ -138,7 +140,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         Bundle created = bundleService.create(context, it, "test");
         //the item created by default has no name nor type set
         assertThat("testCreate 0", created, notNullValue());
-        assertTrue("testCreate 1", created.getID() >= 0);
+        assertTrue("testCreate 1", created.getID() != null);
         assertTrue("testCreate 2", created.getBitstreams().size() == 0);
         assertThat("testCreate 3", created.getName(), equalTo("test"));
         itemService.removeBundle(context, it, created);
@@ -150,7 +152,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetID()
     {
-        assertTrue("testGetID 0", b.getID() >= 0);
+        assertTrue("testGetID 0", b.getID() != null);
     }
 
     /**
@@ -410,7 +412,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
             }
         };
 
-        int id = 1;
+        UUID id = null;
         Bitstream bs = bitstreamService.find(context, id);
         bundleService.addBitstream(context, b, bs);
         bundleService.update(context, b);
@@ -481,7 +483,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
             }
         };
 
-        int id = 1;
+        UUID id = null;
         File f = new File(testProps.get("test.bitstream").toString());
         Bitstream bs = bitstreamService.find(context, id);
         bundleService.addBitstream(context, b, bs);
@@ -517,7 +519,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
                         Constants.REMOVE, true); result = null;
             }
         };
-        int id = b.getID();
+        UUID id = b.getID();
         itemService.removeBundle(context, it, b);
         context.commit();
         assertThat("testDelete 0", bundleService.find(context, id), nullValue());

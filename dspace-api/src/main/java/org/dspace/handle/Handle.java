@@ -1,5 +1,7 @@
 package org.dspace.handle;
 
+import org.dspace.content.DSpaceObject;
+
 import javax.persistence.*;
 
 /**
@@ -20,11 +22,12 @@ public class Handle {
     @Column(name = "handle", unique = true, length = 256)
     private String handle;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "dspace_object_id")
+    private DSpaceObject dspaceObject;
+
     @Column(name = "resource_type_id")
     private Integer resourceTypeId;
-
-    @Column(name = "resource_id")
-    private Integer resourceId;
 
     public Integer getId() {
         return id;
@@ -46,11 +49,12 @@ public class Handle {
         this.resourceTypeId = resource_type_id;
     }
 
-    public Integer getResourceId() {
-        return resourceId;
+
+    public DSpaceObject getDSpaceObject() {
+        return dspaceObject;
     }
 
-    void setResourceId(Integer resource_id) {
-        this.resourceId = resource_id;
+    void setDSpaceObject(DSpaceObject dspaceObject) {
+        this.dspaceObject = dspaceObject;
     }
 }

@@ -88,14 +88,6 @@ public class EPersonTest extends AbstractUnitTest {
         fail("Not yet implemented");
     }
 
-    @Test
-    public void testCreate() throws Exception {
-        EPerson eperson = ePersonService.create(context);
-        EPerson ePersonEntity = ePersonService.findByEmail(context, "kevin@dspace.org");
-        //Ensure that the identifier sequence increments by one
-        assertEquals("verify identifier sequence", eperson.getID(), ePersonEntity.getID() - 1);
-    }
-
     public void testDelete() throws Exception {
         fail("Not yet implemented");
     }

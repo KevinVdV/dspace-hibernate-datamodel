@@ -24,11 +24,8 @@ import java.util.*;
 @Table(name="collection", schema = "public")
 public class Collection extends DSpaceObject {
 
-    @Id
-    @Column(name="collection_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="collection_seq")
-    @SequenceGenerator(name="collection_seq", sequenceName="collection_seq", allocationSize = 1)
-    private Integer id;
+    @Column(name="collection_id", insertable = false, updatable = false)
+    private Integer legacyId;
 
     @OneToOne
     @JoinColumn(name = "submitter")
@@ -119,10 +116,11 @@ public class Collection extends DSpaceObject {
     * Get the internal ID of this collection
     *
     * @return the internal identifier
+    *
+    * @deprecated use getID()
     */
-    @Override
-    public int getID() {
-        return id;
+    public int getLegacyID() {
+        return legacyId;
     }
 
     @Override
@@ -166,7 +164,7 @@ public class Collection extends DSpaceObject {
          {
              return false;
          }
-         if (this.getID() != other.getID())
+         if (this.getID().equals(other.getID()))
          {
              return false;
          }
@@ -179,7 +177,7 @@ public class Collection extends DSpaceObject {
      {
          int hash = 5;
          hash += 71 * hash + getType();
-         hash += 71 * hash + getID();
+         hash += 71 * hash + getID().hashCode();
          return hash;
      }
 

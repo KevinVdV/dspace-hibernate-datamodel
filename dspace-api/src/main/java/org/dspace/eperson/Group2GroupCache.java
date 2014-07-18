@@ -37,4 +37,26 @@ public class Group2GroupCache implements Serializable {
     public void setChild(Group child) {
         this.child = child;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        final Group2GroupCache other = (Group2GroupCache) obj;
+        if(!parent.equals(other.getParent()))
+        {
+            return false;
+        }
+        if(!child.equals(other.getChild()))
+        {
+            return false;
+        }
+        return true;
+    }
 }

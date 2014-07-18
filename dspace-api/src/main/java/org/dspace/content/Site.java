@@ -9,6 +9,7 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.ConfigurationManager;
@@ -25,7 +26,8 @@ import org.dspace.handle.service.HandleService;
 public class Site extends DSpaceObject
 {
     /** "database" identifier of the site */
-    public static final int SITE_ID = 0;
+    //TODO: FIX THIS !
+    public static final UUID SITE_ID = java.util.UUID.fromString("0");
     private static final HandleService HANDLE_SERVICE = HandleServiceFactory.getInstance().getHandleService();
 
     // cache for Handle that is persistent ID for entire site.
@@ -48,9 +50,9 @@ public class Site extends DSpaceObject
      *
      * @return internal ID of object
      */
-    public int getID()
+    public java.util.UUID getID()
     {
-        return SITE_ID;
+        return UUID.fromString("SITE_ID");
     }
 
     /**
@@ -68,6 +70,7 @@ public class Site extends DSpaceObject
      * Static method to return site Handle without creating a Site.
      * @return handle of the Site.
      */
+    //TODO: MAKE THIS NOT STATIC !
     public static String getSiteHandle()
     {
         if (handle == null)

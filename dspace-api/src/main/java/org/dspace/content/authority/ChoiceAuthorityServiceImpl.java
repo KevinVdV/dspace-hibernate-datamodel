@@ -14,6 +14,7 @@ import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 
+import org.dspace.content.Collection;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.ConfigurationManager;
@@ -148,7 +149,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService,
      *  Wrapper that calls getMatches method of the plugin corresponding to
      *  the metadata field defined by schema,element,qualifier.
      *
-     * @see ChoiceAuthority#getMatches(String, String, int, int, int, String)
+     * @see ChoiceAuthority#getMatches(String, String, org.dspace.content.Collection, int, int, String)
      * @param schema schema of metadata field
      * @param element element of metadata field
      * @param qualifier qualifier of metadata field
@@ -161,7 +162,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService,
      */
     @Override
     public Choices getMatches(String schema, String element, String qualifier,
-            String query, int collection, int start, int limit, String locale)
+            String query, Collection collection, int start, int limit, String locale)
     {
         return getMatches(makeFieldKey(schema, element, qualifier), query,
                 collection, start, limit, locale);
@@ -171,7 +172,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService,
      *  Wrapper calls getMatches method of the plugin corresponding to
      *  the metadata field defined by single field key.
      *
-     * @see ChoiceAuthority#getMatches(String, String, int, int, int, String)
+     * @see ChoiceAuthority#getMatches(String, String, org.dspace.content.Collection, int, int, String)
      * @param fieldKey single string identifying metadata field
      * @param query user's value to match
      * @param collection database ID of Collection for context (owner of Item)
@@ -181,7 +182,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService,
      * @return a Choices object (never null).
      */
     @Override
-    public Choices getMatches(String fieldKey, String query, int collection,
+    public Choices getMatches(String fieldKey, String query, Collection collection,
             int start, int limit, String locale)
     {
         ChoiceAuthority ma = controller.get(fieldKey);
@@ -198,7 +199,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService,
      *  Wrapper that calls getBestMatch method of the plugin corresponding to
      *  the metadata field defined by single field key.
      *
-     * @see ChoiceAuthority#getBestMatch(String, String, int, String)
+     * @see ChoiceAuthority#getBestMatch(String, String, org.dspace.content.Collection, String)
      * @param fieldKey single string identifying metadata field
      * @param query user's value to match
      * @param collection database ID of Collection for context (owner of Item)
@@ -206,7 +207,7 @@ public final class ChoiceAuthorityServiceImpl implements ChoiceAuthorityService,
      * @return a Choices object (never null) with 1 or 0 values.
      */
     @Override
-    public Choices getBestMatch(String fieldKey, String query, int collection,
+    public Choices getBestMatch(String fieldKey, String query, Collection collection,
             String locale)
     {
         ChoiceAuthority ma = controller.get(fieldKey);

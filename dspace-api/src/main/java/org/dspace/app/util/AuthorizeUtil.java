@@ -505,27 +505,25 @@ public class AuthorizeUtil
             throws SQLException, AuthorizeException
     {
         ContentServiceFactory serviceFactory = ContentServiceFactory.getInstance();
-        switch (rp.getResourceType())
+        DSpaceObject dso = rp.getdSpaceObject();
+        switch (dso.getType())
         {
 
         case Constants.BITSTREAM:
-            authorizeManageBitstreamPolicy(c, serviceFactory.getBitstreamService().find(c, rp
-                    .getResourceID()));
+            authorizeManageBitstreamPolicy(c, serviceFactory.getBitstreamService().find(c, dso.getID()));
             break;
         case Constants.BUNDLE:
-            authorizeManageBundlePolicy(c, serviceFactory.getBundleService().find(c, rp.getResourceID()));
+            authorizeManageBundlePolicy(c, serviceFactory.getBundleService().find(c, dso.getID()));
             break;
 
         case Constants.ITEM:
-            authorizeManageItemPolicy(c, serviceFactory.getItemService().find(c, rp.getResourceID()));
+            authorizeManageItemPolicy(c, serviceFactory.getItemService().find(c, dso.getID()));
             break;
         case Constants.COLLECTION:
-            authorizeManageCollectionPolicy(c, serviceFactory.getCollectionService().find(c, rp
-                    .getResourceID()));
+            authorizeManageCollectionPolicy(c, serviceFactory.getCollectionService().find(c, dso.getID()));
             break;
         case Constants.COMMUNITY:
-            authorizeManageCommunityPolicy(c, serviceFactory.getCommunityService().find(c, rp
-                    .getResourceID()));
+            authorizeManageCommunityPolicy(c, serviceFactory.getCommunityService().find(c, dso.getID()));
             break;
 
         default:

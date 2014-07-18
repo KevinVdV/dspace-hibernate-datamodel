@@ -82,7 +82,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
 
 
     /* support for 'no notification' */
-    private Map<Integer, Boolean> noEMail = new HashMap<Integer, Boolean>();
+    private Map<UUID, Boolean> noEMail = new HashMap<UUID, Boolean>();
 
     private static Logger log = Logger.getLogger(XmlWorkflowServiceImpl.class);
 
@@ -658,7 +658,7 @@ public class XmlWorkflowServiceImpl implements XmlWorkflowService {
                 }
             }
             // Ensure that the submitter always retains his resource policies
-            if(e.getID() == item.getSubmitter().getID()){
+            if(e.equals(item.getSubmitter())){
                 grantSubmitterReadPolicies(context, item);
             }
         }

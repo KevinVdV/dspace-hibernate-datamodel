@@ -26,11 +26,8 @@ import java.util.MissingResourceException;
 @Table(name="community", schema = "public")
 public class Community extends DSpaceObject{
 
-    @Id
-    @Column(name="community_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="community_seq")
-    @SequenceGenerator(name="community_seq", sequenceName="community_seq", allocationSize = 1)
-    private Integer id;
+    @Column(name="community_id", insertable = false, updatable = false)
+    private Integer legacyId;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -94,15 +91,18 @@ public class Community extends DSpaceObject{
      * Get the internal ID of this community
      *
      * @return the internal identifier
+     *
+     * @deprecated use getID()
      */
-    public int getID()
+    public int getLegacyID()
     {
-        return id;
+        return legacyId;
     }
 
     /**
      * return type found in Constants
      */
+    @Override
     public int getType()
     {
         return Constants.COMMUNITY;
@@ -156,7 +156,7 @@ public class Community extends DSpaceObject{
         {
             return false;
         }
-        if (this.getID() != other.getID())
+        if (!this.getID().equals(other.getID()))
         {
             return false;
         }
@@ -169,13 +169,14 @@ public class Community extends DSpaceObject{
     {
         int hash = 5;
         hash += 71 * hash + getType();
-        hash += 71 * hash + getID();
+        hash += 71 * hash + getID().hashCode();
         return hash;
     }
 
     /**
      * @see org.dspace.content.DSpaceObject#getHandle(Context context)
      */
+    @Override
     public String getHandle(Context context) throws SQLException {
         return handleService.findHandle(context, this);
     }
@@ -317,6 +318,7 @@ public class Community extends DSpaceObject{
         communityService.setName(this, value);
     }
 
+    @Override
     public final String getName()
     {
         return communityService.getName(this);

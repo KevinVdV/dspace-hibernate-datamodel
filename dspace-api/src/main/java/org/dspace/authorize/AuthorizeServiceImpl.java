@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.*;
@@ -139,11 +140,11 @@ public class AuthorizeServiceImpl implements AuthorizeService
             }
 
             EPerson e = c.getCurrentUser();
-            int userid;
+            UUID userid;
 
             if (e == null)
             {
-                userid = 0;
+                userid = null;
             } else
             {
                 userid = e.getID();
@@ -158,13 +159,13 @@ public class AuthorizeServiceImpl implements AuthorizeService
         {
             // denied, assemble and throw exception
             int otype = o.getType();
-            int oid = o.getID();
-            int userid;
+            UUID oid = o.getID();
+            UUID userid;
             EPerson e = c.getCurrentUser();
 
             if (e == null)
             {
-                userid = 0;
+                userid = null;
             } else
             {
                 userid = e.getID();
@@ -287,10 +288,10 @@ public class AuthorizeServiceImpl implements AuthorizeService
         }
 
         // is eperson set? if not, userid = 0 (anonymous)
-        int userid = 0;
+        EPerson userToCheck = null;
         if (e != null)
         {
-            userid = e.getID();
+            userToCheck = e;
 
             // perform isAdmin check to see
             // if user is an Admin on this object
@@ -307,7 +308,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
             // check policies for date validity
             if (resourcePolicyService.isDateValid(rp))
             {
-                if (rp.getEPerson() != null && rp.getEPerson().getID() == userid)
+                if (rp.getEPerson() != null && rp.getEPerson().equals(userToCheck))
                 {
                     return true; // match
                 }
@@ -360,12 +361,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
         }
 
         // is eperson set? if not, userid = 0 (anonymous)
-        int userid = 0;
         EPerson e = c.getCurrentUser();
-        if (e != null)
-        {
-            userid = e.getID();
-        }
 
         //
         // First, check all Resource Policies directly on this object
@@ -377,7 +373,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
             // check policies for date validity
             if (resourcePolicyService.isDateValid(rp))
             {
-                if (rp.getEPerson() != null && rp.getEPerson().getID() == userid)
+                if (rp.getEPerson() != null && rp.getEPerson().equals(c.getCurrentUser()))
                 {
                     return true; // match
                 }
@@ -432,7 +428,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
             return false; // anonymous users can't be admins....
         } else
         {
-            return groupService.isMember(c, 1);
+            return groupService.isMember(c, groupService.findByName(c, Group.ADMIN));
         }
     }
 
@@ -657,7 +653,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
             ResourcePolicy rp = resourcePolicyService.create(c);
 
             // copy over values
-            resourcePolicyService.setResource(rp, dest);
+            rp.setdSpaceObject(dest);
             rp.setAction(srp.getAction());
             rp.setEPerson(srp.getEPerson());
             rp.setGroup(srp.getGroup());
@@ -835,27 +831,20 @@ public class AuthorizeServiceImpl implements AuthorizeService
     @Override
     public boolean isAnIdenticalPolicyAlreadyInPlace(Context c, DSpaceObject o, ResourcePolicy rp) throws SQLException
     {
-        return isAnIdenticalPolicyAlreadyInPlace(c, o.getType(), o.getID(), rp.getGroup(), rp.getAction(), rp.getID());
-    }
-
-
-    @Override
-    public boolean isAnIdenticalPolicyAlreadyInPlace(Context c, DSpaceObject o, Group groupID, int action, int policyID) throws SQLException
-    {
-        return isAnIdenticalPolicyAlreadyInPlace(c, o.getType(), o.getID(), groupID, action, policyID);
+        return isAnIdenticalPolicyAlreadyInPlace(c, o, rp.getGroup(), rp.getAction(), rp.getID());
     }
 
     @Override
-    public boolean isAnIdenticalPolicyAlreadyInPlace(Context c, int dsoType, int dsoID, Group group, int action, int policyID) throws SQLException
+    public boolean isAnIdenticalPolicyAlreadyInPlace(Context c, DSpaceObject dso, Group group, int action, int policyID) throws SQLException
     {
-        return findByTypeIdGroupAction(c, dsoType, dsoID, group, action, policyID) != null;
+        return findByTypeIdGroupAction(c, dso, group, action, policyID) != null;
     }
 
     @Override
-    public ResourcePolicy findByTypeIdGroupAction(Context c, int dsoType, int dsoID, Group group, int action, int policyID) throws SQLException
+    public ResourcePolicy findByTypeIdGroupAction(Context c, DSpaceObject dso, Group group, int action, int policyID) throws SQLException
     {
 
-        List<ResourcePolicy> policies = resourcePolicyService.find(c, dsoType, dsoID, group, action, policyID);
+        List<ResourcePolicy> policies = resourcePolicyService.find(c, dso, group, action, policyID);
 
         if (CollectionUtils.isNotEmpty(policies))
         {
@@ -894,7 +883,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
             boolean isAnonymousInPlace = false;
             for (Group g : authorizedGroups)
             {
-                if (g.getID() == 0)
+                if (StringUtils.equals(g.getName(), Group.ANONYMOUS))
                 {
                     isAnonymousInPlace = true;
                 }
@@ -927,7 +916,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
         }
 
         ResourcePolicy myPolicy = resourcePolicyService.create(context);
-        resourcePolicyService.setResource(myPolicy, dso);
+        myPolicy.setdSpaceObject(dso);
         myPolicy.setAction(type);
         myPolicy.setGroup(group);
         myPolicy.setEPerson(eperson);
@@ -945,7 +934,7 @@ public class AuthorizeServiceImpl implements AuthorizeService
         if (policy != null) policyID = policy.getID();
 
         // if an identical policy (same Action and same Group) is already in place modify it...
-        ResourcePolicy policyTemp = findByTypeIdGroupAction(context, dso.getType(), dso.getID(), group, action, policyID);
+        ResourcePolicy policyTemp = findByTypeIdGroupAction(context, dso, group, action, policyID);
         if (policyTemp != null)
         {
             policy = policyTemp;

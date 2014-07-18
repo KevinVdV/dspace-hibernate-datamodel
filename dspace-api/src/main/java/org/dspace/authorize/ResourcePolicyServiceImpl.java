@@ -107,8 +107,8 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
     }
 
     @Override
-    public List<ResourcePolicy> find(Context c, int dsoType, int dsoID, Group group, int action, int notPolicyID) throws SQLException {
-        return resourcePolicyDAO.findByTypeIdGroupAction(c, dsoType, dsoID, group, action, notPolicyID);
+    public List<ResourcePolicy> find(Context c, DSpaceObject dso, Group group, int action, int notPolicyID) throws SQLException {
+        return resourcePolicyDAO.findByTypeIdGroupAction(c, dso, group, action, notPolicyID);
     }
 
     /**
@@ -117,14 +117,10 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
      */
     @Override
     public void delete(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException {
-        if(resourcePolicy.getResourceID() != -1 && resourcePolicy.getResourceType() != -1)
+        if(resourcePolicy.getdSpaceObject() != null)
         {
             //A policy for a DSpace Object has been modified, fire a modify event on the DSpace object
-            DSpaceObject dso = serviceFactory.getDSpaceObjectService(resourcePolicy.getResourceType()).find(context, resourcePolicy.getResourceID());
-            if(dso != null)
-            {
-                serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
-            }
+            serviceFactory.getDSpaceObjectService(resourcePolicy.getdSpaceObject()).updateLastModified(context, resourcePolicy.getdSpaceObject());
         }
 
         // FIXME: authorizations
@@ -132,16 +128,6 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
         resourcePolicyDAO.delete(context, resourcePolicy);
     }
 
-    /**
-     * set both type and id of resource referred to by policy
-     *
-     */
-    @Override
-    public void setResource(ResourcePolicy resourcePolicy, DSpaceObject o)
-    {
-        resourcePolicy.setResourceType(o.getType());
-        resourcePolicy.setResourceID(o.getID());
-    }
 
     /**
      * @return action text or 'null' if action row empty
@@ -253,13 +239,9 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
      */
     @Override
     public void update(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException {
-        if(resourcePolicy.getResourceID() != -1 && resourcePolicy.getResourceType() != -1){
+        if(resourcePolicy.getdSpaceObject() != null){
             //A policy for a DSpace Object has been modified, fire a modify event on the DSpace object
-            DSpaceObjectService dsoService = serviceFactory.getDSpaceObjectService(resourcePolicy.getResourceType());
-            DSpaceObject dso = dsoService.find(context, resourcePolicy.getResourceID());
-            if(dso != null){
-                serviceFactory.getDSpaceObjectService(dso).updateLastModified(context, dso);
-            }
+            serviceFactory.getDSpaceObjectService(resourcePolicy.getdSpaceObject()).updateLastModified(context, resourcePolicy.getdSpaceObject());
         }
 
         // FIXME: Check authorisation

@@ -18,8 +18,6 @@ import java.util.MissingResourceException;
  */
 public interface CommunityService extends DSpaceObjectService<Community> {
 
-    public Community find(Context context, int id) throws SQLException;
-
     public Community create(Context context, Community parent) throws SQLException, AuthorizeException;
 
     public Community create(Context context, Community parent, String handle) throws SQLException, AuthorizeException;

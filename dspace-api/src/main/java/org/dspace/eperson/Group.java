@@ -20,14 +20,17 @@ import java.util.List;
 @Table(name = "epersongroup", schema = "public" )
 public class Group extends DSpaceObject {
 
+    @Transient
+    public static final String ANONYMOUS = "Anonymous";
+
+    @Transient
+    public static final String ADMIN = "Administrator";
+
     /**
      * Initial value is set to 2 since 0 & 1 are reserved for anonymous & administrative uses
      */
-    @Id
-    @Column(name="eperson_group_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="epersongroup_seq")
-    @SequenceGenerator(name="epersongroup_seq", sequenceName="epersongroup_seq", allocationSize = 1, initialValue = 2)
-    private Integer id;
+    @Column(name="eperson_group_id", insertable = false, updatable = false)
+    private Integer legacyId;
 
     @Column(name="name", length = 256, unique = true)
     private String name;
@@ -73,10 +76,12 @@ public class Group extends DSpaceObject {
      * get the ID of the group object
      *
      * @return id
+     *
+     * @deprecated use getID()
      */
-    public int getID()
+    public int getLegacyID()
     {
-        return id;
+        return legacyId;
     }
 
     /**
@@ -191,7 +196,7 @@ public class Group extends DSpaceObject {
             return false;
         }
         final Group other = (Group) obj;
-        if(this.getID() != other.getID())
+        if(!this.getID().equals(other.getID()))
         {
             return false;
         }
@@ -202,7 +207,7 @@ public class Group extends DSpaceObject {
     public int hashCode()
     {
         int hash = 7;
-        hash = 59 * hash + this.getID();
+        hash = 59 * hash + this.getID().hashCode();
         hash = 59 * hash + (this.getNameInternal() != null? this.getNameInternal().hashCode():0);
         return hash;
     }
@@ -219,6 +224,7 @@ public class Group extends DSpaceObject {
 
 
 
+    @Override
     public String getName()
     {
         return groupService.getName(this);

@@ -1,5 +1,6 @@
 package org.dspace.handle.dao;
 
+import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.dao.GenericDAO;
 import org.dspace.handle.Handle;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public interface HandleDAO extends GenericDAO<Handle> {
 
-    public List<Handle> getHandlesByTypeAndId(Context context, int type, int id) throws SQLException;
+    public List<Handle> getHandlesByTypeAndDSpaceObject(Context context, int type, DSpaceObject dso) throws SQLException;
 
     public Handle findByHandle(Context context, String handle)throws SQLException;
 

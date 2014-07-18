@@ -10,6 +10,7 @@ package org.dspace.eperson;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
@@ -183,7 +184,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     public boolean isDirectMember(Group group, EPerson e)
     {
         // special, group 0 is anonymous
-        return group.getID() == 0 || group.contains(e);
+        return StringUtils.equals(group.getName(), Group.ANONYMOUS) || group.contains(e);
     }
 
     /**
@@ -232,17 +233,18 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      *            group ID to check
      */
     @Override
-    public boolean isMember(Context c, int groupid) throws SQLException
+    public boolean isMember(Context c, UUID groupid) throws SQLException
     {
         // special, everyone is member of group 0 (anonymous)
-        if (groupid == 0)
+        Group group = find(c, groupid);
+        if (group != null && StringUtils.equals(group.getName(), Group.ANONYMOUS))
         {
             return true;
         }
 
         EPerson currentuser = c.getCurrentUser();
 
-        return epersonInGroup(c, find(c, groupid), currentuser);
+        return epersonInGroup(c, group, currentuser);
     }
 
     /**
@@ -278,7 +280,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
         }
 
         // all the users are members of the anonymous group 
-        groups.add(find(c, 0));
+        groups.add(findByName(c, Group.ANONYMOUS));
 
 
         List<Group2GroupCache> groupCache = group2GroupCacheDAO.findByChildren(c, groups);
@@ -341,7 +343,7 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
      * @param id
      */
     @Override
-    public Group find(Context context, int id) throws SQLException
+    public Group find(Context context, UUID id) throws SQLException
     {
         // First check the cache
         return groupDAO.findByID(context, Group.class, id);

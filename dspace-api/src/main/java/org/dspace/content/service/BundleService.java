@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,15 +23,13 @@ import java.util.List;
  */
 public interface BundleService extends DSpaceObjectService<Bundle> {
 
-    public Bundle find(Context context, int id) throws SQLException;
-
     public Bundle create(Context context, Item item, String name) throws SQLException, AuthorizeException;
 
     public Bitstream getBitstreamByName(Bundle bundle, String name);
 
     public void addBitstream(Context context, Bundle bundle, Bitstream b) throws SQLException, AuthorizeException;
 
-    public void setOrder(Context context, Bundle bundle, int bitstreamIds[]) throws AuthorizeException, SQLException;
+    public void setOrder(Context context, Bundle bundle, UUID bitstreamIds[]) throws AuthorizeException, SQLException;
 
     public void removeBitstream(Context context, Bundle bundle, Bitstream b) throws AuthorizeException, SQLException, IOException;
 

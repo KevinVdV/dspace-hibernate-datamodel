@@ -30,10 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.MissingResourceException;
+import java.util.*;
 
 /**
  * Class representing a community
@@ -81,7 +78,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
      * @return the community, or null if the ID is invalid.
      */
     @Override
-    public Community find(Context context, int id) throws SQLException
+    public Community find(Context context, UUID id) throws SQLException
     {
 
         Community community = communityDAO.findByID(context, Community.class, id);
@@ -169,7 +166,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
 
         // create the default authorization policy for communities
         // of 'anonymous' READ
-        Group anonymousGroup = groupService.find(context, 0);
+        Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
 
 
         authorizeService.createResourcePolicy(context, newCommunity, anonymousGroup, null, Constants.READ, null);

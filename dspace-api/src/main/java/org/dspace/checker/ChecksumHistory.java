@@ -2,6 +2,7 @@ package org.dspace.checker;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -19,7 +20,7 @@ public class ChecksumHistory {
     private long id;
 
     @Column(name = "bitstream_id")
-    private int bitstreamId;
+    private UUID bitstreamId;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "process_start_date", nullable = false)
@@ -43,11 +44,11 @@ public class ChecksumHistory {
         return id;
     }
 
-    public int getBitstreamId() {
+    public UUID getBitstreamId() {
         return bitstreamId;
     }
 
-    public void setBitstreamId(int bitstreamId) {
+    public void setBitstreamId(UUID bitstreamId) {
         this.bitstreamId = bitstreamId;
     }
 

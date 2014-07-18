@@ -7,6 +7,7 @@ import org.dspace.core.Context;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -15,7 +16,7 @@ import java.sql.SQLException;
  */
 public interface BitstreamStorageService {
 
-    public int store(Context context, Bitstream bitstream, InputStream is)
+    public UUID store(Context context, Bitstream bitstream, InputStream is)
             throws SQLException, IOException, AuthorizeException;
 
     public void register(Context context, Bitstream bitstream, int assetstore,
@@ -23,10 +24,10 @@ public interface BitstreamStorageService {
 
     public boolean isRegisteredBitstream(String internalId);
 
-    public InputStream retrieve(Context context, int id)
+    public InputStream retrieve(Context context, UUID id)
             throws SQLException, IOException;
 
     public void cleanup(boolean deleteDbRecords, boolean verbose) throws SQLException, IOException, AuthorizeException;
 
-    public int clone(Context context, int id) throws SQLException;
+    public UUID clone(Context context, UUID id) throws SQLException;
 }

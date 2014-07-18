@@ -34,8 +34,6 @@ public interface EPersonService extends DSpaceObjectService<EPerson> {
     public static final int LANGUAGE = 5;
 
 
-    public EPerson find(Context context, int id) throws SQLException;
-
     public EPerson findByEmail(Context context, String email) throws SQLException;
 
     public EPerson findByNetid(Context context, String netid) throws SQLException;

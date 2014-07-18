@@ -16,6 +16,7 @@ import org.dspace.event.Event;
 
 import javax.mail.MessagingException;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Class for handling updates to EPersons
@@ -56,7 +57,7 @@ public class EPersonConsumer implements Consumer
     {
         int st = event.getSubjectType();
         int et = event.getEventType();
-        int id = event.getSubjectID();
+        UUID id = event.getSubjectID();
 
         switch (st)
         {

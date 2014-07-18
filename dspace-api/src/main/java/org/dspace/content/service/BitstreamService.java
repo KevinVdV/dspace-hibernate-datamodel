@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -16,8 +17,6 @@ import java.util.List;
  * Time: 10:26
  */
 public interface BitstreamService extends DSpaceObjectService<Bitstream> {
-
-    public Bitstream find(Context context, int id) throws SQLException;
 
     public List<Bitstream> findAll(Context context) throws SQLException;
 

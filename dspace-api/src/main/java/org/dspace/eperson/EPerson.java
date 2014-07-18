@@ -18,11 +18,8 @@ import java.util.List;
 @Table(name="eperson", schema = "public")
 public class EPerson extends DSpaceObject {
 
-    @Id
-    @Column(name="eperson_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="eperson_seq")
-    @SequenceGenerator(name="eperson_seq", sequenceName="eperson_seq", allocationSize = 1)
-    private Integer id;
+    @Column(name="eperson_id", insertable = false, updatable = false)
+    private Integer legacyId;
 
     @Column(name="language", length = 64)
     private String language;
@@ -100,7 +97,7 @@ public class EPerson extends DSpaceObject {
             return false;
         }
         final EPerson other = (EPerson) obj;
-        if (this.getID() != other.getID())
+        if (!this.getID().equals( other.getID()))
         {
             return false;
         }
@@ -126,7 +123,7 @@ public class EPerson extends DSpaceObject {
     public int hashCode()
     {
         int hash = 5;
-        hash = 89 * hash + this.getID();
+        hash = 89 * hash + this.getID().hashCode();
         hash = 89 * hash + (this.getEmail() != null? this.getEmail().hashCode():0);
         hash = 89 * hash + (this.getFullName() != null? this.getFullName().hashCode():0);
         return hash;
@@ -196,10 +193,12 @@ public class EPerson extends DSpaceObject {
      * Get the e-person's internal identifier
      *
      * @return the internal identifier
+     *
+     * @deprecated use getID()
      */
-    public int getID()
+    public int getLegacyID()
     {
-        return id;
+        return legacyId;
     }
 
     @Override
@@ -433,6 +432,7 @@ public class EPerson extends DSpaceObject {
         Getters & setters which should be removed on the long run, they are just here to provide all getters & setters to the item object
     */
 
+    @Override
     public String getName()
     {
         return ePersonService.getName(this);

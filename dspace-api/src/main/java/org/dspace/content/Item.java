@@ -26,11 +26,8 @@ public class Item extends DSpaceObject{
      */
     public static final String ANY = "*";
 
-    @Id
-    @Column(name="item_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="item_seq")
-    @SequenceGenerator(name="item_seq", sequenceName="item_seq", allocationSize = 1)
-    private Integer id;
+    @Column(name="item_id", insertable = false, updatable = false)
+    private Integer legacyId;
 
     @Column(name= "in_archive")
     private boolean inArchive = false;
@@ -123,7 +120,7 @@ public class Item extends DSpaceObject{
          {
              return false;
          }
-         if (this.getID() != other.getID())
+         if (!this.getID().equals(other.getID()))
          {
              return false;
          }
@@ -136,7 +133,7 @@ public class Item extends DSpaceObject{
      {
          int hash = 5;
          hash += 71 * hash + getType();
-         hash += 71 * hash + getID();
+         hash += 71 * hash + getID().hashCode();
          return hash;
      }
 
@@ -146,10 +143,12 @@ public class Item extends DSpaceObject{
      * to users
      *
      * @return the internal identifier
+     *
+     * @deprecated use getID()
      */
-    public int getID()
+    public int getLegacyID()
     {
-        return id;
+        return legacyId;
     }
 
     @Override

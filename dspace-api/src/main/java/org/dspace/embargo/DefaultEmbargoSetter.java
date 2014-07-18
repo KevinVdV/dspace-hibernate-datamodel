@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dspace.authorize.*;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
@@ -118,7 +119,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
             // look for anonymous
             boolean isAnonymousInPlace=false;
             for(Group g : authorizedGroups){
-                if(g.getID()==0){
+                if(StringUtils.equals(Group.ANONYMOUS, g.getName())){
                     isAnonymousInPlace=true;
                 }
             }
@@ -134,7 +135,7 @@ public class DefaultEmbargoSetter implements EmbargoSetter
             }
             else{
                 // add policy just for anonymous
-                ResourcePolicy rp = authorizeService.createOrModifyPolicy(null, context, null, groupService.find(context, 0), null, embargoDate, Constants.READ, reason, dso);
+                ResourcePolicy rp = authorizeService.createOrModifyPolicy(null, context, null, groupService.findByName(context, Group.ANONYMOUS), null, embargoDate, Constants.READ, reason, dso);
                 if(rp!=null)
                     resourcePolicyService.update(context, rp);
             }

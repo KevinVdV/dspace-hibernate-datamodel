@@ -9,10 +9,7 @@ package org.dspace.event;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
@@ -144,13 +141,13 @@ public class Event implements Serializable
     private int subjectType;
 
     /** content model identifier */
-    private int subjectID;
+    private UUID subjectID;
 
     /** object-type of SUBJECT - see above enumeration */
     private int objectType = NONE;
 
     /** content model identifier */
-    private int objectID = -1;
+    private UUID objectID = null;
 
     /** timestamp */
     private long timeStamp;
@@ -193,7 +190,7 @@ public class Event implements Serializable
      * @param detail
      *            detail information that depends on context.
      */
-    public Event(int eventType, int subjectType, int subjectID, String detail)
+    public Event(int eventType, int subjectType, UUID subjectID, String detail)
     {
         this.eventType = eventType;
         this.subjectType = coreTypeToMask(subjectType);
@@ -218,8 +215,8 @@ public class Event implements Serializable
      * @param detail
      *            detail information that depends on context.
      */
-    public Event(int eventType, int subjectType, int subjectID, int objectType,
-                 int objectID, String detail)
+    public Event(int eventType, int subjectType, UUID subjectID, int objectType,
+                 UUID objectID, String detail)
     {
         this.eventType = eventType;
         this.subjectType = coreTypeToMask(subjectType);
@@ -313,8 +310,8 @@ public class Event implements Serializable
     public DSpaceObject getObject(Context context) throws SQLException
     {
         int type = getObjectType();
-        int id = getObjectID();
-        if (type < 0 || id < 0)
+        UUID id = getObjectID();
+        if (type < 0 || id != null)
         {
             return null;
         }
@@ -338,7 +335,7 @@ public class Event implements Serializable
     /**
      * @return database ID of subject of this event.
      */
-    public int getSubjectID()
+    public UUID getSubjectID()
     {
         return subjectID;
     }
@@ -346,7 +343,7 @@ public class Event implements Serializable
     /**
      * @return database ID of object of this event, or -1 if none was set.
      */
-    public int getObjectID()
+    public UUID getObjectID()
     {
         return objectID;
     }

@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
@@ -93,7 +94,7 @@ public class BitstreamTest extends AbstractDSpaceObjectTest
     @Test
     public void testBSFind() throws SQLException
     {
-        int id = bs.getID();
+        UUID id = bs.getID();
         Bitstream found =  bitstreamService.find(context, id);
         assertThat("testBSFind 0", found, notNullValue());
         //the item created by default has no name nor type set
@@ -158,7 +159,7 @@ public class BitstreamTest extends AbstractDSpaceObjectTest
     @Test
     public void testGetID()
     {
-        assertTrue("testGetID 0", bs.getID() >= 0);
+        assertTrue("testGetID 0", bs.getID() != null);
     }
 
     /**

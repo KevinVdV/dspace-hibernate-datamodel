@@ -149,8 +149,7 @@ public class DOIIdentifierProviderTest
 
         DOI doiRow = doiService.create(context);
         doiRow.setDoi(doi.substring(DOIService.SCHEME.length()));
-        doiRow.setResourceTypeId(item.getType());
-        doiRow.setResourceId(item.getID());
+        doiRow.setDSpaceObject(item);
         doiRow.setStatus(status);
         doiService.update(context, doiRow);
 

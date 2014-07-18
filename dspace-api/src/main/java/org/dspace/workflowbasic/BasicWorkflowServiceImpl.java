@@ -104,7 +104,7 @@ public class BasicWorkflowServiceImpl implements BasicWorkflowService
     };
 
     /* support for 'no notification' */
-    private static Map<Integer, Boolean> noEMail = new HashMap<Integer, Boolean>();
+    private static Map<UUID, Boolean> noEMail = new HashMap<UUID, Boolean>();
 
     /** log4j logger */
     private static Logger log = Logger.getLogger(BasicWorkflowServiceImpl.class);
@@ -935,7 +935,7 @@ public class BasicWorkflowServiceImpl implements BasicWorkflowService
         // check to see if notification is turned off
         // and only do it once - delete key after notification has
         // been suppressed for the first time
-        Integer myID = wi.getItem().getID();
+        UUID myID = wi.getItem().getID();
 
         if (noEMail.containsKey(myID))
         {

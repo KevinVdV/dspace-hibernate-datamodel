@@ -68,7 +68,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
      * @return the EPerson format, or null if the ID is invalid.
      */
     @Override
-    public EPerson find(Context context, int id) throws SQLException
+    public EPerson find(Context context, UUID id) throws SQLException
     {
         // First check the cache
         return ePersonDAO.findByID(context, EPerson.class, id);

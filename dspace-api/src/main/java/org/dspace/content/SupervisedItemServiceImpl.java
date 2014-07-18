@@ -194,19 +194,19 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
             if (policy == POLICY_EDITOR)
             {
                 ResourcePolicy r = resourcePolicyService.create(context);
-                resourcePolicyService.setResource(r, item);
+                r.setdSpaceObject(item);
                 r.setGroup(group);
                 r.setAction(Constants.READ);
                 resourcePolicyService.update(context, r);
 
                 r = resourcePolicyService.create(context);
-                resourcePolicyService.setResource(r, item);
+                r.setdSpaceObject(item);
                 r.setGroup(group);
                 r.setAction(Constants.WRITE);
                 resourcePolicyService.update(context, r);
 
                 r = resourcePolicyService.create(context);
-                resourcePolicyService.setResource(r, item);
+                r.setdSpaceObject(item);
                 r.setGroup(group);
                 r.setAction(Constants.ADD);
                 resourcePolicyService.update(context, r);
@@ -215,7 +215,7 @@ public class SupervisedItemServiceImpl implements SupervisedItemService {
             else if (policy == POLICY_OBSERVER)
             {
                 ResourcePolicy r = resourcePolicyService.create(context);
-                resourcePolicyService.setResource(r, item);
+                r.setdSpaceObject(item);
                 r.setGroup(group);
                 r.setAction(Constants.READ);
                 resourcePolicyService.update(context, r);

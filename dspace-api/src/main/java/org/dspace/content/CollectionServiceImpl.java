@@ -94,7 +94,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
      * @throws SQLException
      */
     @Override
-    public Collection find(Context context, int id) throws SQLException
+    public Collection find(Context context, UUID id) throws SQLException
     {
         Collection collection = collectionDAO.findByID(context, Collection.class, id);
         if (collection == null)
@@ -176,7 +176,7 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
 
         // create the default authorization policy for collections
         // of 'anonymous' READ
-        Group anonymousGroup = groupService.find(context, 0);
+        Group anonymousGroup = groupService.findByName(context, Group.ANONYMOUS);
 
         authorizeService.createResourcePolicy(context, newCollection, anonymousGroup, null, Constants.READ, null);
         // now create the default policies for submitted items

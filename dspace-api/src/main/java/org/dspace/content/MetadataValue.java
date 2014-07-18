@@ -275,7 +275,7 @@ public class MetadataValue
         int hash = 7;
         hash = 47 * hash + this.fieldId;
         hash = 47 * hash + this.getFieldId();
-        hash = 47 * hash + this.item.getID();
+        hash = 47 * hash + this.item.getID().hashCode();
         return hash;
     }
 

@@ -78,7 +78,7 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * @return the bundle, or null if the ID is invalid.
      */
     @Override
-    public Bundle find(Context context, int id) throws SQLException
+    public Bundle find(Context context, UUID id) throws SQLException
     {
         // First check the cache
         Bundle bundle = bundleDAO.findByID(context, Bundle.class, id);
@@ -221,11 +221,11 @@ public class BundleServiceImpl extends DSpaceObjectServiceImpl<Bundle> implement
      * @throws AuthorizeException If the user can't make the changes
      */
     @Override
-    public void setOrder(Context context, Bundle bundle, int bitstreamIds[]) throws AuthorizeException, SQLException {
+    public void setOrder(Context context, Bundle bundle, UUID bitstreamIds[]) throws AuthorizeException, SQLException {
         authorizeService.authorizeAction(context, bundle, Constants.WRITE);
 
         for (int i = 0; i < bitstreamIds.length; i++) {
-            int bitstreamId = bitstreamIds[i];
+            UUID bitstreamId = bitstreamIds[i];
             Bitstream bitstream = bitstreamService.find(context, bitstreamId);
             if(bitstream == null){
                 //This should never occur but just in case

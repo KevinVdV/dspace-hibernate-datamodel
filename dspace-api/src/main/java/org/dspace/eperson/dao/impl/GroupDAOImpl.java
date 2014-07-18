@@ -14,6 +14,7 @@ import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -75,11 +76,11 @@ public class GroupDAOImpl extends AbstractHibernateDAO<Group> implements GroupDA
 
     protected Disjunction addSearchCriteria(String queryParam) {
         Disjunction disjunction = Restrictions.disjunction();
-        //Check if our query parameter is an identifier, if not do not attempt to search.
-        //Hibernate will throw a ClassCastException when this param is added & is not an int.
-        if(NumberUtils.toInt(queryParam, -1) != -1)
-        {
-            disjunction.add(Restrictions.like("id", NumberUtils.toInt(queryParam)));
+
+        try {
+            disjunction.add(Restrictions.like("id", UUID.fromString(queryParam)));
+        } catch (IllegalArgumentException e) {
+            //Ignore this exception just means that the query isn't a uuid
         }
         disjunction.add(Restrictions.like("name", "%" + queryParam + "%"));
         return disjunction;

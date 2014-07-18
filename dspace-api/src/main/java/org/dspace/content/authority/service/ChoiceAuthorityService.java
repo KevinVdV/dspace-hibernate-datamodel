@@ -1,5 +1,6 @@
 package org.dspace.content.authority.service;
 
+import org.dspace.content.Collection;
 import org.dspace.content.authority.Choices;
 
 import java.util.List;
@@ -12,12 +13,12 @@ import java.util.List;
 public interface ChoiceAuthorityService {
 
     public Choices getMatches(String schema, String element, String qualifier,
-            String query, int collection, int start, int limit, String locale);
+            String query, Collection collection, int start, int limit, String locale);
 
-    public Choices getMatches(String fieldKey, String query, int collection,
+    public Choices getMatches(String fieldKey, String query, Collection collection,
             int start, int limit, String locale);
 
-    public Choices getBestMatch(String fieldKey, String query, int collection,
+    public Choices getBestMatch(String fieldKey, String query, Collection collection,
             String locale);
 
     public String getLabel(String schema, String element, String qualifier,

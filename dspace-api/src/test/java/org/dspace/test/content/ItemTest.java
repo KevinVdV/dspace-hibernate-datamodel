@@ -121,7 +121,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testItemFind() throws Exception
     {
-        int id = it.getID();
+        UUID id = it.getID();
         Item found =  itemService.find(context, id);
         assertThat("testItemFind 0", found, notNullValue());
         assertThat("testItemFind 1", found.getID(), equalTo(id));
@@ -183,7 +183,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetID()
     {
-        assertTrue("testGetID 0", it.getID() >= 1);
+        assertTrue("testGetID 0", it.getID() != null);
     }
 
     /**
@@ -1206,7 +1206,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         assertTrue("testDeleteAuth 0", added);
 
-        int id = it.getID();
+        UUID id = it.getID();
         itemService.delete(context,  it);
         Item found = itemService.find(context, id);
         assertThat("testDeleteAuth 1", found, nullValue());

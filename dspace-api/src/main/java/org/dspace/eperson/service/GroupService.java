@@ -9,6 +9,7 @@ import org.dspace.eperson.Group;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -39,7 +40,7 @@ public interface GroupService extends DSpaceObjectService<Group> {
 
     public boolean isMember(Context c, Group group) throws SQLException;
 
-    public boolean isMember(Context c, int groupid) throws SQLException;
+    public boolean isMember(Context c, UUID groupid) throws SQLException;
 
     public List<Group> allMemberGroups(Context c, EPerson e) throws SQLException;
 

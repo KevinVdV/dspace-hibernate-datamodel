@@ -16,6 +16,7 @@ import org.dspace.eperson.service.GroupService;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * The members from a role, can either
@@ -50,14 +51,14 @@ public class RoleMembers {
     public void addEPerson(EPerson eperson){
         epersons.add(eperson);
     }
-    public void removeEperson(int toRemoveID){
+    public void removeEperson(UUID toRemoveID){
         for(EPerson eperson: epersons){
-            if(eperson.getID()==toRemoveID)
+            if(eperson.getID().equals(toRemoveID))
                 epersons.remove(eperson);
         }
     }
     public ArrayList<EPerson> getAllUniqueMembers(Context context) throws SQLException {
-        HashMap<Integer, EPerson> epersonsMap = new HashMap<Integer, EPerson>();
+        HashMap<UUID, EPerson> epersonsMap = new HashMap<UUID, EPerson>();
         for(EPerson eperson: epersons){
             epersonsMap.put(eperson.getID(), eperson);
         }

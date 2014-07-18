@@ -5,6 +5,7 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -13,7 +14,7 @@ import java.sql.SQLException;
  */
 public interface DSpaceObjectService<T extends DSpaceObject> {
 
-    public T find(Context context, int id) throws SQLException;
+    public T find(Context context, UUID id) throws SQLException;
 
     /**
      * Get a proper name for the object. This may return <code>null</code>.

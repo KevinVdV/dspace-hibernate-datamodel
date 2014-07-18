@@ -15,7 +15,6 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.content.*;
-import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -93,7 +92,7 @@ public class HandleServiceImpl implements HandleService
         Handle dbHandle = findHandleInternal(context, handle);
         if(dbHandle != null)
         {
-            dbHandle.setResourceId(newOwner.getID());
+            dbHandle.setDSpaceObject(newOwner);
             dbHandle.setResourceTypeId(newOwner.getType());
             handleDAO.save(context, dbHandle);
         }
@@ -205,7 +204,7 @@ public class HandleServiceImpl implements HandleService
 
         handle.setHandle(handleId);
         handle.setResourceTypeId(dso.getType());
-        handle.setResourceId(dso.getID());
+        handle.setDSpaceObject(dso);
         handleDAO.save(context, handle);
 
         if (log.isDebugEnabled())
@@ -257,10 +256,10 @@ public class HandleServiceImpl implements HandleService
         {
             handle = findHandleInternal(context, suppliedHandle);
         }
-        if(handle!=null && handle.getResourceId() != null)
+        if(handle!=null && handle.getDSpaceObject() != null)
         {
             //Check if this handle is already linked up to this specified DSpace Object
-            if(handle.getResourceId()==dso.getID() &&
+            if(handle.getDSpaceObject().equals(dso.getID()) &&
                handle.getResourceTypeId()==dso.getType())
             {
                 //This handle already links to this DSpace Object -- so, there's nothing else we need to do
@@ -295,7 +294,7 @@ public class HandleServiceImpl implements HandleService
         }
 
         handle.setResourceTypeId(dso.getType());
-        handle.setResourceId(dso.getID());
+        handle.setDSpaceObject(dso);
         handleDAO.save(context, handle);
 
         if (log.isDebugEnabled())
@@ -319,7 +318,7 @@ public class HandleServiceImpl implements HandleService
     public void unbindHandle(Context context, DSpaceObject dso)
         throws SQLException
     {
-        List<Handle> handles = getInternalHandles(context, dso.getType(), dso.getID());
+        List<Handle> handles = getInternalHandles(context, dso.getType(), dso);
         if (CollectionUtils.isNotEmpty(handles))
         {
             for (Handle handle: handles)
@@ -328,7 +327,7 @@ public class HandleServiceImpl implements HandleService
                 // We want to keep around the "resource_type_id" value, so that we
                 // can verify during a restore whether the same *type* of resource
                 // is reusing this handle!
-                handle.setResourceId(null);
+                handle.setDSpaceObject(null);
                 handleDAO.save(context, handle);
 
                 if(log.isDebugEnabled())
@@ -379,17 +378,13 @@ public class HandleServiceImpl implements HandleService
         // associated with a DSpaceObject
         // (this may occur when 'unbindHandle()' is called for an obj that was removed)
         if ((dbhandle.getResourceTypeId() == null)
-                || (dbhandle.getResourceId() == null))
+                || (dbhandle.getDSpaceObject() == null))
         {
             //if handle has been unbound, just return null (as this will result in a PageNotFound)
             return null;
         }
 
-        // What are we looking at here?
-        int handletypeid = dbhandle.getResourceTypeId();
-        int resourceID = dbhandle.getResourceId();
-
-        DSpaceObject dso = ContentServiceFactory.getInstance().getDSpaceObjectService(handletypeid).find(context, resourceID);
+        DSpaceObject dso = dbhandle.getDSpaceObject();
         if(log.isDebugEnabled())
         {
             log.debug("Resolved handle " + handle + " to " + dso.getClass().getSimpleName()
@@ -414,7 +409,7 @@ public class HandleServiceImpl implements HandleService
     public String findHandle(Context context, DSpaceObject dso)
             throws SQLException
     {
-        List<Handle> handles = getInternalHandles(context, dso.getType(), dso.getID());
+        List<Handle> handles = getInternalHandles(context, dso.getType(), dso);
         if (CollectionUtils.isEmpty(handles))
         {
             if (dso.getType() == Constants.SITE)
@@ -503,9 +498,9 @@ public class HandleServiceImpl implements HandleService
      * @exception SQLException
      *                If a database error occurs
      */
-    protected List<Handle> getInternalHandles(Context context, int type, int id) throws SQLException
+    protected List<Handle> getInternalHandles(Context context, int type, DSpaceObject dso) throws SQLException
     {
-        return handleDAO.getHandlesByTypeAndId(context, type, id);
+        return handleDAO.getHandlesByTypeAndDSpaceObject(context, type, dso);
     }
 
     /**

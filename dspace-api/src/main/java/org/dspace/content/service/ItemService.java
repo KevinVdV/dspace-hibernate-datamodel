@@ -20,8 +20,6 @@ import java.util.List;
  */
 public interface ItemService extends DSpaceObjectService<Item> {
 
-    public Item find(Context context, int id) throws SQLException;
-
     public Item create(Context context, WorkspaceItem workspaceItem) throws SQLException, AuthorizeException;
 
     public Item createTemplateItem(Context context, Collection collection) throws SQLException, AuthorizeException;

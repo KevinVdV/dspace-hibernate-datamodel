@@ -20,11 +20,8 @@ import java.util.List;
 @Table(name="bundle", schema = "public")
 public class Bundle extends DSpaceObject{
 
-    @Id
-    @Column(name="bundle_id")
-    @GeneratedValue(strategy = GenerationType.AUTO ,generator="bundle_seq")
-    @SequenceGenerator(name="bundle_seq", sequenceName="bundle_seq", allocationSize = 1)
-    private Integer id;
+    @Column(name="bundle_id", insertable = false, updatable = false)
+    private Integer legacyId;
 
     @Column(name= "name", length = 16)
     private String name = null;
@@ -51,8 +48,8 @@ public class Bundle extends DSpaceObject{
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "item2bundle",
-            joinColumns = {@JoinColumn(name = "bundle_id") },
-            inverseJoinColumns = {@JoinColumn(name = "item_id") }
+            joinColumns = {@JoinColumn(name = "bundle_id", referencedColumnName = "bundle_id") },
+            inverseJoinColumns = {@JoinColumn(name = "item_id", referencedColumnName = "item_id") }
     )
     private List<Item> items = null;
 
@@ -60,15 +57,18 @@ public class Bundle extends DSpaceObject{
      * Get the internal identifier of this bundle
      *
      * @return the internal identifier
+     *
+     * @deprecated use getID()
      */
-    public int getID()
+    public int getLegacyID()
     {
-        return id;
+        return legacyId;
     }
 
     /**
      * return type found in Constants
      */
+    @Override
     public int getType()
     {
         return Constants.BUNDLE;
@@ -79,6 +79,7 @@ public class Bundle extends DSpaceObject{
      *
      * @return name of the bundle (ORIGINAL, TEXT, THUMBNAIL) or NULL if not set
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -181,7 +182,7 @@ public class Bundle extends DSpaceObject{
         {
             return false;
         }
-        if(this.getID() != other.getID())
+        if(!this.getID().equals(other.getID()))
         {
             return false;
         }
@@ -193,7 +194,7 @@ public class Bundle extends DSpaceObject{
     {
         int hash = 5;
         hash += 71 * hash + getType();
-        hash += 71 * hash + getID();
+        hash += 71 * hash + getID().hashCode();
         return hash;
     }
 }

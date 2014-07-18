@@ -19,8 +19,6 @@ import java.util.MissingResourceException;
  */
 public interface CollectionService extends DSpaceObjectService<Collection> {
 
-    public Collection find(Context context, int id) throws SQLException;
-
     public Collection create(Context context, Community community) throws SQLException, AuthorizeException;
 
     public Collection create(Context context, Community community, String handle) throws SQLException, AuthorizeException;

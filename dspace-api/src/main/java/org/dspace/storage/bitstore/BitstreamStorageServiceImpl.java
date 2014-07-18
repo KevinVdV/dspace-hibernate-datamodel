@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -256,7 +257,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
      * @return The ID of the stored bitstream
      */
     @Override
-    public int store(Context context, Bitstream bitstream, InputStream is)
+    public UUID store(Context context, Bitstream bitstream, InputStream is)
             throws SQLException, IOException, AuthorizeException {
         // Create internal ID
         String id = Utils.generateKey();
@@ -323,7 +324,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
         }
 
 
-        int bitstreamId = bitstream.getID();
+        UUID bitstreamId = bitstream.getID();
 
         if (log.isDebugEnabled())
         {
@@ -460,7 +461,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
 		bitstream.setDeleted(false);
         bitstreamService.update(context, bitstream);
 
-		int bitstreamId = bitstream.getID();
+		UUID bitstreamId = bitstream.getID();
 		if (log.isDebugEnabled()) 
 		{
 			log.debug("Stored bitstream " + bitstreamId + " in file "
@@ -501,7 +502,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
      * @return The stream of bits, or null
      */
     @Override
-    public InputStream retrieve(Context context, int id)
+    public InputStream retrieve(Context context, UUID id)
             throws SQLException, IOException
     {
 		GeneralFile file = getFile(bitstreamService.find(context, id));
@@ -536,7 +537,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
 
             for (Bitstream bitstream : storage)
             {
-                int bid = bitstream.getID();
+                UUID bid = bitstream.getID();
 				GeneralFile file = getFile(bitstream);
 
                 // Make sure entries which do not exist are removed
@@ -666,7 +667,7 @@ public class BitstreamStorageServiceImpl implements BitstreamStorageService, Ini
      * @throws SQLException
      */
     @Override
-    public int clone(Context context, int id) throws SQLException
+    public UUID clone(Context context, UUID id) throws SQLException
     {
         //TODO: HIBERNATR IMPLEMENT CLONE ! & MOVE IT TO BITSTREAM
         /*

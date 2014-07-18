@@ -121,7 +121,7 @@ public class WorkflowRequirementsServiceImpl implements WorkflowRequirementsServ
             RoleMembers role = step.getRole().getMembers(c, wfi);
             List<EPerson> epersons = role.getEPersons();
             for(EPerson eperson: epersons){
-                if(eperson.getID() == user.getID()){
+                if(eperson.getID().equals(user.getID())){
                     RoleMembers memberToRegenerateTasksFor = new RoleMembers();
                     memberToRegenerateTasksFor.addEPerson(user);
                     step.getUserSelectionMethod().getProcessingAction().regenerateTasks(c, wfi, memberToRegenerateTasksFor);

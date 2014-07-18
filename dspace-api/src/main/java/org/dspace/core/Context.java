@@ -75,7 +75,7 @@ public class Context
     private Map<String, Object> objectCache;
 
     /** Group IDs of special groups user is a member of */
-    private List<Integer> specialGroups;
+    private List<UUID> specialGroups;
 
     /** Content events */
     private LinkedList<Event> events = null;
@@ -129,7 +129,7 @@ public class Context
         ignoreAuth = false;
 
         objectCache = new HashMap<String, Object>();
-        specialGroups = new ArrayList<Integer>();
+        specialGroups = new ArrayList<UUID>();
 
         authStateChangeHistory = new Stack<Boolean>();
         authStateClassCallHistory = new Stack<String>();
@@ -539,9 +539,9 @@ public class Context
      * @param groupID
      *            special group's ID
      */
-    public void setSpecialGroup(int groupID)
+    public void setSpecialGroup(UUID groupID)
     {
-        specialGroups.add(Integer.valueOf(groupID));
+        specialGroups.add(groupID);
 
         // System.out.println("Added " + groupID);
     }
@@ -553,9 +553,9 @@ public class Context
      *            ID of special group to test
      * @return true if member
      */
-    public boolean inSpecialGroup(int groupID)
+    public boolean inSpecialGroup(UUID groupID)
     {
-        if (specialGroups.contains(Integer.valueOf(groupID)))
+        if (specialGroups.contains(groupID))
         {
             // System.out.println("Contains " + groupID);
             return true;
@@ -572,7 +572,7 @@ public class Context
     public List<Group> getSpecialGroups() throws SQLException
     {
         List<Group> myGroups = new ArrayList<Group>();
-        for (Integer groupId : specialGroups)
+        for (UUID groupId : specialGroups)
         {
             myGroups.add(groupService.find(this, groupId));
         }

@@ -1,5 +1,7 @@
 package org.dspace.identifier;
 
+import org.dspace.content.DSpaceObject;
+
 import javax.persistence.*;
 
 /**
@@ -37,11 +39,9 @@ public class DOI implements Identifier{
     @Column(name = "doi", unique = true, length = 256)
     private String doi;
 
-    @Column(name = "resource_type_id")
-    private Integer resourceTypeId;
-
-    @Column(name = "resource_id")
-    private Integer resourceId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dspace_object_id")
+    private DSpaceObject dSpaceObject;
 
     @Column(name = "status")
     private Integer status;
@@ -58,20 +58,12 @@ public class DOI implements Identifier{
         this.doi = doi;
     }
 
-    public Integer getResourceTypeId() {
-        return resourceTypeId;
+    public DSpaceObject getDSpaceObject() {
+        return dSpaceObject;
     }
 
-    public void setResourceTypeId(Integer resourceTypeId) {
-        this.resourceTypeId = resourceTypeId;
-    }
-
-    public Integer getResourceId() {
-        return resourceId;
-    }
-
-    public void setResourceId(Integer resourceId) {
-        this.resourceId = resourceId;
+    public void setDSpaceObject(DSpaceObject dSpaceObject) {
+        this.dSpaceObject = dSpaceObject;
     }
 
     public Integer getStatus() {

@@ -191,7 +191,7 @@ public class AbstractUnitTest
 
             //create eperson if required
             EPersonService ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
-            eperson = ePersonService.find(ctx, 1);
+            eperson = ePersonService.findByEmail(ctx, "test@email.com");
                 if(eperson == null)
                 {
                     eperson = ePersonService.create(ctx);
@@ -382,7 +382,7 @@ public class AbstractUnitTest
             context.setCurrentUser(eperson);
 
             context.turnOffAuthorisationSystem();
-            admin = createEPersonAndAddToGroup("admin@dspace.org", groupService.find(context, 1));
+            admin = createEPersonAndAddToGroup("admin@dspace.org", groupService.findByName(context, Group.ADMIN));
             context.restoreAuthSystemState();
             context.commit();
         }

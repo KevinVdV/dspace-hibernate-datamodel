@@ -11,6 +11,8 @@ package org.dspace.identifier;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang.ObjectUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -380,12 +382,11 @@ public class DOIIdentifierProvider
             throw new DOIIdentifierException("Unable to find DOI.",
                     DOIIdentifierException.DOI_DOES_NOT_EXIST);
         }
-        if (doiRow.getResourceId() != dso.getID() ||
-                doiRow.getResourceTypeId() != dso.getType())
+        if (ObjectUtils.equals(doiRow.getDSpaceObject(), dso))
         {
             log.error("Refuse to update metadata of DOI {} with the metadata of "
                             + " an object ({}/{}) the DOI is not dedicated to.",
-                    new String[] {doi, ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso), Integer.toString(dso.getID())});
+                    new String[] {doi, ContentServiceFactory.getInstance().getDSpaceObjectService(dso.getType()).getTypeText(dso), dso.getID().toString()});
             throw new DOIIdentifierException("Cannot update DOI metadata: "
                     + "DOI and DSpaceObject does not match!",
                     DOIIdentifierException.MISMATCH);
@@ -576,8 +577,7 @@ public class DOIIdentifierProvider
         // check if DOI belongs to dso
         if (null != doiRow)
         {
-            if (doiRow.getResourceId() != dso.getID() ||
-                    doiRow.getResourceTypeId() != dso.getType())
+            if (!ObjectUtils.equals(doiRow.getDSpaceObject(), dso))
             {
                 throw new DOIIdentifierException("Trying to delete a DOI out of "
                         + "an object that is not addressed by the DOI.",
@@ -694,8 +694,7 @@ public class DOIIdentifierProvider
             return null;
         }
 
-        if (doiRow.getResourceTypeId() == null ||
-                doiRow.getResourceId() == null)
+        if (doiRow.getDSpaceObject() == null)
         {
             log.error("Found DOI " + doi +
                     " in database, but no assigned Object could be found.");
@@ -703,8 +702,7 @@ public class DOIIdentifierProvider
                     " in database, but no assigned Object could be found.");
         }
 
-        return ContentServiceFactory.getInstance().getDSpaceObjectService(doiRow.getResourceTypeId()).find(context,
-                doiRow.getResourceId());
+        return doiRow.getDSpaceObject();
     }
 
     /**
@@ -767,8 +765,7 @@ public class DOIIdentifierProvider
             if (null != doiRow)
             {
                 // check if DOI already belongs to dso
-                if (doiRow.getResourceId() == dso.getID() &&
-                        doiRow.getResourceTypeId() == dso.getType())
+                if (ObjectUtils.equals(doiRow.getDSpaceObject(), dso))
                 {
                     return doiRow;
                 }
@@ -800,8 +797,7 @@ public class DOIIdentifierProvider
         }
 
         doiRow.setDoi(doi);
-        doiRow.setResourceTypeId(dso.getType());
-        doiRow.setResourceId(dso.getID());
+        doiRow.setDSpaceObject(dso);
         doiRow.setStatus(null);
         try {
             doiService.update(context, doiRow);

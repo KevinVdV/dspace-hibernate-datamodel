@@ -103,7 +103,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      * @throws SQLException
      */
     @Override
-    public Item find(Context context, int id) throws SQLException
+    public Item find(Context context, UUID id) throws SQLException
     {
         Item item = itemDAO.findByID(context, Item.class, id);
         if (item == null)
@@ -418,12 +418,12 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
             for (int i = 0; i < values.size(); ++i)
             {
                 Collection owningCollection = item.getOwningCollection();
-                int collectionId = -1;
+                Collection collection = null;
                 if(owningCollection != null)
                 {
-                    collectionId = owningCollection.getID();
+                    collection = owningCollection;
                 }
-                Choices c = choiceAuthorityService.getBestMatch(fieldKey, values.get(i), collectionId, null);
+                Choices c = choiceAuthorityService.getBestMatch(fieldKey, values.get(i), collection, null);
                 authorities.add(c.values.length > 0 ? c.values[0].authority : null);
                 confidences.add(c.confidence);
             }
