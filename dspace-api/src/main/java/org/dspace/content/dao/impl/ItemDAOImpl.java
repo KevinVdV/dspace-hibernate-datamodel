@@ -48,10 +48,10 @@ public class ItemDAOImpl extends AbstractHibernateDAO<Item> implements ItemDAO {
 
     @Override
     public Iterator<Item> findByMetadataField(Context context, MetadataField metadataField, String value, boolean inArchive) throws SQLException {
-        String hqlQueryString = "select item from Item as item join item.metadata metadataValue WHERE item.inArchive=:in_archive AND metadataValue.metadataField = :metadata_field";
+        String hqlQueryString = "SELECT item FROM Item as item join item.metadata metadatavalue WHERE item.inArchive=:in_archive AND metadatavalue.metadataField = :metadata_field";
         if(value != null)
         {
-            hqlQueryString += " AND metadataValue.value = :text_value";
+            hqlQueryString += " AND metadatavalue.value = :text_value";
         }
         Query query = createQuery(context, hqlQueryString);
 

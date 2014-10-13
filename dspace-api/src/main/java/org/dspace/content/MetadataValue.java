@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
@@ -48,6 +49,7 @@ public class MetadataValue
     /** The value of the field */
     @Column(name = "text_value")
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String value;
 
     /** The language of the field, may be <code>null</code> */
@@ -67,7 +69,7 @@ public class MetadataValue
     private int confidence = -1;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="item_id", updatable = false)
+    @JoinColumn(name="item_id")
     protected Item item;
 
     /**

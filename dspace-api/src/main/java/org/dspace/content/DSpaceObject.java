@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Entity
 @Inheritance(strategy= InheritanceType.JOINED)
 @Table(name = "dspaceobject", schema = "public")
-public abstract class DSpaceObject {
+public abstract class DSpaceObject implements Serializable {
 
     // accumulate information to add to "detail" element of content Event,
     // e.g. to document metadata fields touched, etc.
@@ -27,7 +28,8 @@ public abstract class DSpaceObject {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
-    @Column(name = "uuid", unique = true, nullable = false, columnDefinition = "BINARY(16)")
+//    @Column(name = "uuid", unique = true, nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "uuid", unique = true, nullable = false)
     protected java.util.UUID id;
 
 
@@ -63,7 +65,7 @@ public abstract class DSpaceObject {
      *
      * @return internal ID of object
      */
-    public UUID getID() {
+    public final UUID getID() {
         return id;
     }
 

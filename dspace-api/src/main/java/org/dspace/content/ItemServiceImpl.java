@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.authorize.service.ResourcePolicyService;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.dao.ItemDAO;
@@ -86,6 +87,8 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
     protected MetadataAuthorityService metadataAuthorityService;
     @Autowired(required = true)
     protected IdentifierService identifierService;
+    @Autowired(required = true)
+    protected ResourcePolicyService resourcePolicyService;
 
     public ItemServiceImpl()
     {
@@ -826,11 +829,13 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
 
     @Override
     public void removeAllBundles(Context context, Item item) throws AuthorizeException, SQLException, IOException {
-        List<Bundle> bundles = item.getBundles();
-        for (Bundle bundle : bundles) {
+        Iterator<Bundle> bundles = item.getBundles().iterator();
+        while(bundles.hasNext())
+        {
+            Bundle bundle = bundles.next();
+            bundles.remove();
             deleteBundle(context, item, bundle);
         }
-        item.getBundles().clear();
     }
 
     /**
@@ -1216,6 +1221,7 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
      */
     @Override
     public void delete(Context context, Item item) throws SQLException, IOException, AuthorizeException {
+        //TODO: HIBERNATE CHECK COLLECTION REMOVE ?
         // Check authorisation here. If we don't, it may happen that we remove the
         // collections leaving the database in an inconsistent state
         authorizeService.authorizeAction(context, item, Constants.REMOVE);
@@ -1448,23 +1454,19 @@ public class ItemServiceImpl extends DSpaceObjectServiceImpl<Item> implements It
         authorizeService.addPolicies(context, policiesToAdd, item);
     }
 
-    protected List<ResourcePolicy> filterPoliciesToAdd(Context context, List<ResourcePolicy> defaultCollectionPolicies, DSpaceObject dso) throws SQLException {
+    protected List<ResourcePolicy> filterPoliciesToAdd(Context context, List<ResourcePolicy> defaultCollectionPolicies, DSpaceObject dso) throws SQLException, AuthorizeException {
         List<ResourcePolicy> policiesToAdd = null;
-        try {
-            policiesToAdd = new ArrayList<ResourcePolicy>();
-            for (ResourcePolicy defaultCollectionPolicy : defaultCollectionPolicies){
-                //We do NOT alter the defaultCollectionPolicy since we would lose it if we do, instead clone it
-                ResourcePolicy rp = (ResourcePolicy) defaultCollectionPolicy.clone();
+        policiesToAdd = new ArrayList<ResourcePolicy>();
+        for (ResourcePolicy defaultCollectionPolicy : defaultCollectionPolicies){
+            //We do NOT alter the defaultCollectionPolicy since we would lose it if we do, instead clone it
+            ResourcePolicy rp = (ResourcePolicy) resourcePolicyService.clone(context, defaultCollectionPolicy);
 
-                rp.setAction(Constants.READ);
-                // if an identical policy is already in place don't add it
-                if(!authorizeService.isAnIdenticalPolicyAlreadyInPlace(context, dso, rp)){
-                    rp.setRpType(ResourcePolicy.TYPE_INHERITED);
-                    policiesToAdd.add(rp);
-                }
+            rp.setAction(Constants.READ);
+            // if an identical policy is already in place don't add it
+            if(!authorizeService.isAnIdenticalPolicyAlreadyInPlace(context, dso, rp)){
+                rp.setRpType(ResourcePolicy.TYPE_INHERITED);
+                policiesToAdd.add(rp);
             }
-        } catch (CloneNotSupportedException e) {
-            log.error(e.getMessage(), e);
         }
         return policiesToAdd;
     }

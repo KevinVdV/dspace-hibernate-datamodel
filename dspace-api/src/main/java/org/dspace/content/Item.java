@@ -120,7 +120,7 @@ public class Item extends DSpaceObject{
          {
              return false;
          }
-         if (this.getID().equals(other.getID()))
+         if (!this.getID().equals(other.getID()))
          {
              return false;
          }
@@ -161,6 +161,7 @@ public class Item extends DSpaceObject{
      *
      * @return int Constants.ITEM
      */
+    @Override
     public int getType()
     {
         return Constants.ITEM;
@@ -366,6 +367,7 @@ public class Item extends DSpaceObject{
 
 
 
+    @Override
     public final String getName()
     {
         return itemService.getName(this);

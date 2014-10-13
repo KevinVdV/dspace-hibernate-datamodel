@@ -31,7 +31,7 @@ public class ResourcePolicy implements Cloneable{
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dspace_object_id")
+    @JoinColumn(name = "dspace_object")
     private DSpaceObject dSpaceObject;
 
     @Column(name="action_id")
@@ -84,19 +84,19 @@ public class ResourcePolicy implements Cloneable{
         {
             return false;
         }
-        if (ObjectUtils.equals(getEPerson(), other.getEPerson()))
+        if (!ObjectUtils.equals(getEPerson(), other.getEPerson()))
         {
             return false;
         }
-        if (ObjectUtils.equals(getGroup(), other.getGroup()))
+        if (!ObjectUtils.equals(getGroup(), other.getGroup()))
         {
             return false;
         }
-        if (getStartDate() != other.getStartDate() && (this.getStartDate() == null || !this.getStartDate().equals(other.getStartDate())))
+        if (!ObjectUtils.equals(getStartDate(), other.getStartDate()))
         {
             return false;
         }
-        if (getEndDate() != other.getEndDate() && (this.getEndDate() == null || !this.getEndDate().equals(other.getEndDate())))
+        if (!ObjectUtils.equals(getEndDate(), other.getEndDate()))
         {
             return false;
         }
@@ -131,18 +131,6 @@ public class ResourcePolicy implements Cloneable{
         hash = 19 * hash + (this.getStartDate() != null? this.getStartDate().hashCode():0);
         hash = 19 * hash + (this.getEndDate() != null? this.getEndDate().hashCode():0);
         return hash;
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        ResourcePolicy clone = (ResourcePolicy) super.clone();
-        // Only primitive types can be cloned by default, clone the object types
-        clone.setGroup(this.getGroup());
-        clone.setEPerson(this.getEPerson());
-        clone.setStartDate((Date) ObjectUtils.clone(this.getStartDate()));
-        clone.setEndDate((Date) ObjectUtils.clone(this.getEndDate()));
-
-        return clone;
     }
 
     public Integer getID() {

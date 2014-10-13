@@ -3,8 +3,10 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
-        <property name="hibernate.connection.url">jdbc:hsqldb:mem:testdb;shutdown=false;sql.syntax_pgs=true;check_props=true;sql.enforce_size=false</property>
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <!--<property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>-->
+        <!--<property name="hibernate.connection.url">jdbc:hsqldb:mem:testdb;shutdown=false;sql.syntax_pgs=true;check_props=true;sql.enforce_size=false</property>-->
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/dspace-hibernate-unit-test</property>
         <property name="hibernate.connection.username">dspace</property>
         <property name="hibernate.connection.password">dspace</property>
         <property name="hibernate.connection.pool_size">10</property>
@@ -12,10 +14,10 @@
         <property name="show_sql">true</property>
         <property name="hibernate.connection.autocommit">false</property>
         <property name="hibernate.hbm2ddl.auto">create-drop</property>
-        <property name="hibernate.hbm2ddl.import_files">database_schema.sql</property>
+        <!--<property name="hibernate.hbm2ddl.import_files">database_schema.sql</property>-->
+        <property name="hibernate.hbm2ddl.import_files">database_schema-postgres.sql</property>
         <property name="hibernate.hbm2ddl.import_files_sql_extractor">org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor</property>
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL9Dialect</property>
-        <!--<property name="hibernate.dialect">org.dspace.hibernate.dialect.CustomHSQLDialectPostgresSQL9Dialect</property>-->
 
         <!--Second level cache configuration-->
         <property name="hibernate.cache.use_second_level_cache">true</property>
@@ -41,6 +43,7 @@
         <mapping class="org.dspace.content.MetadataField"/>
         <mapping class="org.dspace.content.MetadataSchema"/>
         <mapping class="org.dspace.content.MetadataValue"/>
+        <mapping class="org.dspace.content.Site"/>
         <mapping class="org.dspace.content.Subscription"/>
         <mapping class="org.dspace.content.WorkspaceItem"/>
 

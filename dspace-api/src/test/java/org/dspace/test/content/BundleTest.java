@@ -546,7 +546,7 @@ public class BundleTest extends AbstractDSpaceObjectTest
         Iterator<ResourcePolicy> it = newpolicies.iterator();
         while (it.hasNext())
         {
-            ResourcePolicy rp = (ResourcePolicy) it.next().clone();
+            ResourcePolicy rp = resourcePolicyService.clone(context, it.next());
             rp.setAction(Constants.READ);
         }
 

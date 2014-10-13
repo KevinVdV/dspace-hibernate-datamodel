@@ -27,8 +27,7 @@ public class DOIDAOImpl extends AbstractHibernateDAO<DOI> implements DOIDAO {
         Criteria criteria = createCriteria(context, DOI.class);
         criteria.add(
                 Restrictions.and(
-                        Restrictions.eq("resourceId", dso.getID()),
-                        Restrictions.eq("resourceTypeId", dso.getType()),
+                        Restrictions.eq("dSpaceObject", dso),
                         Restrictions.or(
                                 Restrictions.and(
                                         Restrictions.not(Restrictions.eq("status", DOI.DELETED)),

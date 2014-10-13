@@ -14,6 +14,7 @@ import org.dspace.app.util.AuthorizeUtil;
 import org.dspace.authorize.*;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.CommunityDAO;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.BitstreamService;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
@@ -177,7 +178,7 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
         // if creating a top-level Community, simulate an ADD event at the Site.
         if (parent == null)
         {
-            context.addEvent(new Event(Event.ADD, Constants.SITE, Site.SITE_ID, Constants.COMMUNITY, newCommunity.getID(), newCommunity.getHandle(context)));
+            context.addEvent(new Event(Event.ADD, Constants.SITE, ContentServiceFactory.getInstance().getSiteService().findSite(context).getID(), Constants.COMMUNITY, newCommunity.getID(), newCommunity.getHandle(context)));
         }
 
         log.info(LogManager.getHeader(context, "create_community",

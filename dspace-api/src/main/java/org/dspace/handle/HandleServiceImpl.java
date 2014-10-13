@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.dspace.content.*;
+import org.dspace.content.service.SiteService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -45,6 +46,9 @@ public class HandleServiceImpl implements HandleService
 
     @Autowired(required = true)
     protected HandleDAO handleDAO;
+
+    @Autowired(required = true)
+    protected SiteService siteService;
 
     /** Private Constructor */
     public HandleServiceImpl()
@@ -365,10 +369,11 @@ public class HandleServiceImpl implements HandleService
 
         if (dbhandle == null)
         {
+            Site site = siteService.findSite(context);
             //If this is the Site-wide Handle, return Site object
-            if (handle.equals(Site.getSiteHandle()))
+            if (handle.equals(site.getHandle(context)))
             {
-                return Site.find(context, 0);
+                return site;
             }
             //Otherwise, return null (i.e. handle not found in DB)
             return null;
@@ -414,7 +419,7 @@ public class HandleServiceImpl implements HandleService
         {
             if (dso.getType() == Constants.SITE)
             {
-                return Site.getSiteHandle();
+                return siteService.findSite(context).getHandle(context);
             }
             else
             {

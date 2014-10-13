@@ -32,6 +32,8 @@ public interface ResourcePolicyService extends DSpaceCRUDService<ResourcePolicy>
 
     public boolean isDateValid(ResourcePolicy resourcePolicy);
 
+    public ResourcePolicy clone(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException;
+
     public void removeAllPolicies(Context c, DSpaceObject o) throws SQLException, AuthorizeException;
 
     public void removePolicies(Context c, DSpaceObject o, int actionId) throws SQLException, AuthorizeException;

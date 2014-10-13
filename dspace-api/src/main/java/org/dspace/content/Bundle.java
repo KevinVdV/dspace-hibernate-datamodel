@@ -48,8 +48,8 @@ public class Bundle extends DSpaceObject{
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "item2bundle",
-            joinColumns = {@JoinColumn(name = "bundle_id", referencedColumnName = "bundle_id") },
-            inverseJoinColumns = {@JoinColumn(name = "item_id", referencedColumnName = "item_id") }
+            joinColumns = {@JoinColumn(name = "bundle_id", referencedColumnName = "uuid") },
+            inverseJoinColumns = {@JoinColumn(name = "item_id", referencedColumnName = "uuid") }
     )
     private List<Item> items = null;
 

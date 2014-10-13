@@ -160,6 +160,8 @@ public class AbstractUnitTest
             Context ctx = new Context();
             ctx.turnOffAuthorisationSystem();
 
+            ContentServiceFactory.getInstance().getSiteService().createSite(ctx);
+
             // We can't check via a boolean value (even static) as the class is
             // destroyed by the JUnit classloader. We rely on a value that will
             // always be in the database, if it has been initialized, to avoid

@@ -38,6 +38,7 @@
     <bean class="org.dspace.content.ItemServiceImpl"/>
     <bean class="org.dspace.content.CollectionServiceImpl"/>
     <bean class="org.dspace.content.CommunityServiceImpl"/>
+    <bean class="org.dspace.content.SiteServiceImpl"/>
 
     <bean class="org.dspace.eperson.EPersonServiceImpl"/>
     <bean class="org.dspace.eperson.GroupServiceImpl"/>

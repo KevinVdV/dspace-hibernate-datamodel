@@ -164,7 +164,7 @@ public class Collection extends DSpaceObject {
          {
              return false;
          }
-         if (this.getID().equals(other.getID()))
+         if (!this.getID().equals(other.getID()))
          {
              return false;
          }

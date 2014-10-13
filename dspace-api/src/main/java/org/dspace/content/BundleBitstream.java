@@ -14,12 +14,12 @@ public class BundleBitstream implements Serializable {
 
     @Id
     @ManyToOne
-    @JoinColumn(name="bundle_id", nullable = false)
+    @JoinColumn(name="bundle_id", nullable = false, referencedColumnName = "uuid")
     private Bundle bundle;
 
     @Id
     @ManyToOne
-    @JoinColumn(name="bitstream_id", nullable = false)
+    @JoinColumn(name="bitstream_id", nullable = false, referencedColumnName = "uuid")
     private Bitstream bitstream;
 
 

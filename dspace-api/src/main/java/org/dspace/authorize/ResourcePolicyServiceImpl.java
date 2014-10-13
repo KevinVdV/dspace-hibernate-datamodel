@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.dao.ResourcePolicyDAO;
@@ -73,7 +74,7 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
      *            DSpace context object
      */
     @Override
-    public ResourcePolicy create(Context context) throws SQLException, AuthorizeException
+    public ResourcePolicy create(Context context) throws SQLException
     {
         // FIXME: Check authorisation
         // Create a table row
@@ -183,6 +184,19 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService
 
         // if we made it this far, start < now < end
         return true; // date must be okay
+    }
+
+    @Override
+    public ResourcePolicy clone(Context context, ResourcePolicy resourcePolicy) throws SQLException, AuthorizeException {
+        ResourcePolicy clone = create(context);
+        clone.setGroup(resourcePolicy.getGroup());
+        clone.setEPerson(resourcePolicy.getEPerson());
+        clone.setStartDate((Date) ObjectUtils.clone(resourcePolicy.getStartDate()));
+        clone.setEndDate((Date) ObjectUtils.clone(resourcePolicy.getEndDate()));
+        clone.setRpType((String) ObjectUtils.clone(resourcePolicy.getRpType()));
+        clone.setRpDescription((String) ObjectUtils.clone(resourcePolicy.getRpDescription()));
+        update(context, clone);
+        return clone;
     }
 
     @Override

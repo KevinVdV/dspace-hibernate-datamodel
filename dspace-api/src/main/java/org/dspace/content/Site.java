@@ -19,41 +19,36 @@ import org.dspace.handle.HandleServiceImpl;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 /**
  * Represents the root of the DSpace Archive.
  * By default, the handle suffix "0" represents the Site, e.g. "1721.1/0"
  */
+@Entity
+@Table(name = "site", schema = "public")
 public class Site extends DSpaceObject
 {
     /** "database" identifier of the site */
-    //TODO: FIX THIS !
-    public static final UUID SITE_ID = java.util.UUID.fromString("0");
     private static final HandleService HANDLE_SERVICE = HandleServiceFactory.getInstance().getHandleService();
 
     // cache for Handle that is persistent ID for entire site.
-    private static String handle = null;
-
-    private static Site theSite = null;
+    @Transient
+    private String handle = null;
 
     /**
      * Get the type of this object, found in Constants
      *
      * @return type of the object
      */
+    @Override
     public int getType()
     {
         return Constants.SITE;
     }
 
-    /**
-     * Get the internal ID (database primary key) of this object
-     *
-     * @return internal ID of object
-     */
-    public java.util.UUID getID()
-    {
-        return UUID.fromString("SITE_ID");
-    }
 
     /**
      * Get the Handle of the object. This may return <code>null</code>
@@ -63,49 +58,15 @@ public class Site extends DSpaceObject
      */
     @Override
     public String getHandle(Context context) throws SQLException {
-        return getSiteHandle();
-    }
-
-    /**
-     * Static method to return site Handle without creating a Site.
-     * @return handle of the Site.
-     */
-    //TODO: MAKE THIS NOT STATIC !
-    public static String getSiteHandle()
-    {
         if (handle == null)
         {
-            handle = HANDLE_SERVICE.getPrefix() + "/" + String.valueOf(SITE_ID);
+            handle = HANDLE_SERVICE.getPrefix() + "/0";
         }
         return handle;
+
     }
 
-    /**
-     * Get Site object corresponding to db id (which is ignored).
-     * @param context the context.
-     * @param id integer database id, ignored.
-     * @return Site object.
-     */
-    public static DSpaceObject find(Context context, int id)
-        throws SQLException
-    {
-        if (theSite == null)
-        {
-            theSite = new Site();
-        }
-        return theSite;
-    }
-
-    void delete()
-        throws SQLException, AuthorizeException, IOException
-    {
-    }
-
-    public void update()
-        throws SQLException, AuthorizeException
-    {
-    }
-
+    @Override
     public String getName()
     {
         return ConfigurationManager.getProperty("dspace.name");

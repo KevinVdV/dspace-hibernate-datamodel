@@ -3,6 +3,7 @@ package org.dspace.identifier;
 import org.dspace.content.DSpaceObject;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 /**
  * Created by kevin on 01/05/14.
@@ -40,7 +41,7 @@ public class DOI implements Identifier{
     private String doi;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dspace_object_id")
+    @JoinColumn(name = "dspace_object")
     private DSpaceObject dSpaceObject;
 
     @Column(name = "status")

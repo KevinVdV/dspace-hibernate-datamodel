@@ -548,6 +548,10 @@ public class AuthorizeUtil
     public static void authorizeWithdrawItem(Context context, Item item)
             throws SQLException, AuthorizeException
     {
+        if(item == null)
+        {
+            throw new AuthorizeException("Withdrawn authorization attempted on null DSpace object ");
+        }
         boolean authorized = false;
         if (AuthorizeConfiguration.canCollectionAdminPerformItemWithdrawn())
         {

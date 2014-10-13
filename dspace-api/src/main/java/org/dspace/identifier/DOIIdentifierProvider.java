@@ -616,6 +616,8 @@ public class DOIIdentifierProvider
                 doiRow.setStatus(DOI.TO_BE_DELETED);
             }
             try {
+                //Make sure to remove the link to the DSpaceObject, this will no longer be needed
+                doiRow.setDSpaceObject(null);
                 doiService.update(context, doiRow);
                 context.commit();
             }

@@ -23,7 +23,7 @@ public class Handle {
     private String handle;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "dspace_object_id")
+    @JoinColumn(name = "dspace_object")
     private DSpaceObject dspaceObject;
 
     @Column(name = "resource_type_id")

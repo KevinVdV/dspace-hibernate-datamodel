@@ -22,6 +22,7 @@ import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
 import org.dspace.content.Collection;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.junit.*;
@@ -125,7 +126,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         Item found =  itemService.find(context, id);
         assertThat("testItemFind 0", found, notNullValue());
         assertThat("testItemFind 1", found.getID(), equalTo(id));
-        assertThat("testItemFind 2", found.getName(), nullValue());
+        assertEquals("testItemFind 2", found.getName(), I18nUtil.getMessage("org.dspace.workflow.WorkflowManager.untitled "));
     }
 
     /**
@@ -193,7 +194,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     public void testGetHandle() throws Exception
     {
         //default instance has a random handle
-        assertThat("testGetHandle 0", it.getHandle(context), nullValue());
+        assertThat("testGetHandle 0", it.getHandle(context), notNullValue());
     }
 
     /**
@@ -635,9 +636,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testCreateBundleAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
@@ -658,9 +658,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=SQLException.class)
     public void testCreateBundleNoName() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
@@ -678,9 +677,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=SQLException.class)
     public void testCreateBundleNoName2() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
@@ -699,9 +697,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testCreateBundleNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD); result = new AuthorizeException();
@@ -719,9 +716,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testAddBundleAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
@@ -743,9 +739,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testAddBundleNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD); result = new AuthorizeException();
@@ -766,9 +761,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testRemoveBundleAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
@@ -793,9 +787,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testRemoveBundleNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD); result = null;
@@ -818,12 +811,13 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testCreateSingleBitstream_InputStream_StringAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
+                authorizeService.authorizeAction((Context) any, (Item) any,
+                        Constants.WRITE, true); result = null;
             }
         };
 
@@ -839,9 +833,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testCreateSingleBitstream_InputStream_StringNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD); result = new AuthorizeException();
@@ -860,12 +853,13 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testCreateSingleBitstream_InputStreamAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
+                authorizeService.authorizeAction((Context) any, (Item) any,
+                        Constants.WRITE, true); result = null;
             }
         };
 
@@ -880,9 +874,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testCreateSingleBitstream_InputStreamNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD); result = new AuthorizeException();
@@ -910,9 +903,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testRemoveDSpaceLicenseAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD, true); result = null;
@@ -936,9 +928,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testRemoveDSpaceLicenseNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD); result = null;
@@ -961,14 +952,15 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testRemoveLicensesAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD); result = null;
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.REMOVE); result = null;
+                authorizeService.authorizeAction((Context) any, (Item) any,
+                        Constants.WRITE); result = null;
             }
         };
 
@@ -994,9 +986,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testRemoveLicensesNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.ADD); result = null;
@@ -1025,9 +1016,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testUpdateAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.WRITE); result = null;
@@ -1044,9 +1034,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testUpdateAuth2() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.WRITE); result = null;
@@ -1075,9 +1064,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testUpdateNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.WRITE); result = new AuthorizeException();
@@ -1105,17 +1093,13 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testWithdrawAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeUtil authManager;
             {
                 AuthorizeUtil.authorizeWithdrawItem((Context) any, (Item) any);
                 result = null;
-            }
-            AuthorizeService authorizeServiceImpl;
-            {
-                authorizeService.authorizeActionBoolean((Context) any, (Item) any,
-                        Constants.WRITE); result = true;
+                authorizeService.authorizeAction((Context) any, (Item) any,
+                        Constants.WRITE); result = null;
             }
         };
 
@@ -1131,7 +1115,6 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeUtil authManager;
             {
                 AuthorizeUtil.authorizeWithdrawItem((Context) any, (Item) any);
                 result = new AuthorizeException();
@@ -1164,7 +1147,6 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     {
         new NonStrictExpectations()
         {
-            AuthorizeUtil authManager;
             {
                 AuthorizeUtil.authorizeWithdrawItem((Context) any, (Item) any);
                 result = null;
@@ -1184,12 +1166,13 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testDeleteAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.REMOVE, true); result = null;
+                authorizeService.authorizeAction((Context) any, (Item) any,
+                        Constants.WRITE, true); result = null;
             }
         };
 
@@ -1230,9 +1213,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test(expected=AuthorizeException.class)
     public void testDeleteNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.REMOVE); result = new AuthorizeException();
@@ -1294,6 +1276,13 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         List<ResourcePolicy> newpolicies = new ArrayList<ResourcePolicy>();
         ResourcePolicy pol1 = resourcePolicyService.create(context);
         newpolicies.add(pol1);
+        new NonStrictExpectations(authorizeService.getClass())
+        {
+            {
+                authorizeService.authorizeAction((Context) any, (Item) any,
+                        Constants.WRITE); result = null;
+            }
+        };
         itemService.replaceAllItemPolicies(context, it, newpolicies);
 
         List<ResourcePolicy> retrieved = authorizeService.getPolicies(context, it);
@@ -1379,14 +1368,15 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         Collection c = createCollection();
 
-        //TODO: we would need a method to get policies from collection, probably better!
-        List<ResourcePolicy> newpolicies = authorizeService.getPoliciesActionFilter(context, c,
+        List<ResourcePolicy> defaultCollectionPolicies = authorizeService.getPoliciesActionFilter(context, c,
                 Constants.DEFAULT_BITSTREAM_READ);
-        Iterator<ResourcePolicy> iter = newpolicies.iterator();
-        while (iter.hasNext())
+        List<ResourcePolicy> newPolicies = new ArrayList<ResourcePolicy>();
+        for(ResourcePolicy collRp : defaultCollectionPolicies)
         {
-            ResourcePolicy rp = (ResourcePolicy) iter.next();
+            ResourcePolicy rp = resourcePolicyService.clone(context, collRp);
             rp.setAction(Constants.READ);
+            rp.setRpType(ResourcePolicy.TYPE_INHERITED);
+            newPolicies.add(rp);
         }
 
         //we add some bundles for the test
@@ -1402,6 +1392,14 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         context.restoreAuthSystemState();
 
+        new NonStrictExpectations(authorizeService.getClass())
+        {
+            {
+                authorizeService.authorizeAction((Context) any, (Item) any,
+                        Constants.WRITE, true); result = null;
+            }
+        };
+
         itemService.inheritCollectionDefaultPolicies(context, it, c);
 
         //test item policies
@@ -1409,7 +1407,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         boolean equals = true;
         for(int i=0; i < retrieved.size() && equals; i++)
         {
-            if(!newpolicies.contains(retrieved.get(i)))
+            if(!newPolicies.contains(retrieved.get(i)))
             {
                 equals = false;
             }
@@ -1426,9 +1424,9 @@ public class ItemTest  extends AbstractDSpaceObjectTest
         assertFalse("testInheritCollectionDefaultPolicies 1",retrieved.isEmpty());
 
         equals = true;
-        for(int i=0; i < newpolicies.size() && equals; i++)
+        for(int i=0; i < newPolicies.size() && equals; i++)
         {
-            if(!newpolicies.contains(retrieved.get(i)))
+            if(!newPolicies.contains(retrieved.get(i)))
             {
                 equals = false;
             }
@@ -1492,9 +1490,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testCanEditBooleanAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeActionBoolean((Context) any, (Item) any,
                         Constants.WRITE); result = true;
@@ -1516,9 +1513,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testCanEditBooleanAuth2() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeActionBoolean((Context) any, (Item) any,
                         Constants.WRITE); result = false;
@@ -1540,9 +1536,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testCanEditBooleanAuth3() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeActionBoolean((Context) any, (Item) any,
                         Constants.WRITE); result = false;
@@ -1569,9 +1564,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testCanEditBooleanNoAuth() throws Exception
     {
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeActionBoolean((Context) any, (Item) any,
                         Constants.WRITE); result = false;
@@ -1598,7 +1592,7 @@ public class ItemTest  extends AbstractDSpaceObjectTest
     @Test
     public void testGetName()
     {
-        assertThat("testGetName 0", it.getName(), nullValue());
+        assertEquals("testGetName 0", it.getName(), I18nUtil.getMessage("org.dspace.workflow.WorkflowManager.untitled "));
     }
 
     /**
@@ -1618,9 +1612,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         itemService.addMetadata(context, it, schema,element, qualifier, Item.ANY, value);
         //Ensure that the current user can update the item
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.WRITE); result = null;
@@ -1692,9 +1685,8 @@ public class ItemTest  extends AbstractDSpaceObjectTest
 
         itemService.addMetadata(context, it, schema, element, qualifier, Item.ANY, value, authority, confidence);
         //Ensure that the current user can update the item
-        new NonStrictExpectations()
+        new NonStrictExpectations(authorizeService.getClass())
         {
-            AuthorizeService authManager;
             {
                 authorizeService.authorizeAction((Context) any, (Item) any,
                         Constants.WRITE); result = null;
